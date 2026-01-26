@@ -1,0 +1,52 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    --bg-dark: #050505;
+    /* Deep Space */
+    --bg-panel: rgba(20, 20, 25, 0.7);
+    /* Glassmorphism */
+    --bg-header: rgba(10, 10, 15, 0.9);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --accent-color: #00f2ff;
+    /* Neon Cyan */
+    --text-main: #e0e0e0;
+    --text-muted: #6b7280;
+    --glass-blur: blur(12px);
+  }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-family);
+    margin: 0;
+    overflow: hidden;
+    /* Grid Background */
+    background-image:
+      linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+    background-size: 30px 30px;
+  }
+}
+
+/* Custom scrollbar to match Blender */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1d1d1d;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
