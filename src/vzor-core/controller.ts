@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState, useCallback } from 'react';
+// React imports removed as they are unused
 
 // Types representing our C++ Data
 export interface VzorObject {

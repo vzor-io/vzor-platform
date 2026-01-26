@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useLayout } from './context';
+// import { useLayout } from './context'; // Deprecated
 import type { WorkspaceType } from './workspaces';
 
 const MenuTab = ({ label, active, onClick }: { label: string, active: boolean, onClick: () => void }) => (
@@ -17,7 +17,8 @@ const MenuTab = ({ label, active, onClick }: { label: string, active: boolean, o
 );
 
 export const TopBar = () => {
-    const { activeWorkspace, switchWorkspace } = useLayout();
+    // Replaced legacy useLayout with local state for now
+    const [activeWorkspace, setActiveWorkspace] = useState<WorkspaceType>('CORE');
 
     return (
         <div className="h-10 bg-[#0a0a0f]/90 backdrop-blur-md border-b border-white/10 flex items-center px-4 shrink-0 z-50">
@@ -30,18 +31,16 @@ export const TopBar = () => {
             </div>
 
             {/* WORKSPACE TABS */}
-            <div className="flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-2 justify-center">
                 {(['CORE', 'FINANCE', 'TIMELINE', 'ANALYTICS'] as WorkspaceType[]).map(ws => (
                     <MenuTab
                         key={ws}
                         label={ws}
                         active={activeWorkspace === ws}
-                        onClick={() => switchWorkspace(ws)}
+                        onClick={() => setActiveWorkspace(ws)}
                     />
                 ))}
             </div>
-
-            <div className="flex-1"></div>
 
             {/* SYSTEM STATUS */}
             <div className="flex items-center gap-4 text-[10px] font-mono text-gray-500">
@@ -49,10 +48,8 @@ export const TopBar = () => {
                     <div className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></div>
                     <span>WASM: ONLINE</span>
                 </div>
-                <span>v2.0.4-alpha</span>
+                <span>v2.1.0-beta</span>
             </div>
         </div>
     );
 };
-
-export const GlobalMenu = () => null; // Removed old legacy menu

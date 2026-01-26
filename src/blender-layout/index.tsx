@@ -11,6 +11,7 @@ import {
 import { Area } from './Area';
 import { Resizer } from './Resizer';
 import { LayoutContext, useLayout, type ILayoutContext } from './context';
+export { useLayout };
 
 // --- RECURSIVE RENDERER ---
 const BSPRenderer = ({ nodeId, state }: { nodeId: string, state: LayoutState }) => {

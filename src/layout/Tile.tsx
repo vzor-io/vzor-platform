@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { LayoutNode, LayoutContextType, WindowType } from './types';
+import type { LayoutNode, LayoutContextType } from './types';
 import NodeEditor from '../components/NodeEditor';
 import { Viewport3D, Properties, Outliner } from '../components/MockEditors';
 

@@ -1,6 +1,6 @@
 
 import React, { useState, useCallback } from 'react';
-import { LayoutNode, LayoutContextType, WindowType } from './types';
+import type { LayoutNode, LayoutContextType, WindowType } from './types';
 import LayoutRenderer from './LayoutRenderer';
 
 const INITIAL_LAYOUT: LayoutNode = {
@@ -114,7 +114,7 @@ export const LayoutEngine = () => {
         setLayout(prev => modifyTree(prev, nodeId, (n) => ({ ...n, windowType: newType })));
     }, []);
 
-    const resizeWindow = useCallback((nodeId: string, newPercentage: number) => {
+    const resizeWindow = useCallback((_nodeId: string, _newPercentage: number) => {
         console.log("Resize not implemented yet");
     }, []);
 
