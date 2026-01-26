@@ -1,184 +1,129 @@
-import React, { useCallback, useState } from 'react';
-import {
-    ReactFlow,
-    MiniMap,
-    Controls,
-    Background,
-    useNodesState,
-    useEdgesState,
-    addEdge,
-    type Connection,
-    type Edge,
-    type Node,
-    Handle,
-    Position,
-} from '@xyflow/react';
+import { useCallback, useEffect } from 'react';
+import { ReactFlow, Background, Controls, MiniMap, addEdge, useEdgesState, useNodesState, Handle, Position } from '@xyflow/react';
+import type { Connection, Node, Edge } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Play } from 'lucide-react';
-import { ExportNode } from './ExportNode';
-import { SocketType } from '../types/graph';
+import { useEngine } from '../context/EngineContext';
 
-// --- CONSTANTS ---
-const COLORS = {
-    [SocketType.GEOMETRY]: '#ef4444',   // RED
-    [SocketType.DATA]: '#3b82f6',       // BLUE
-    [SocketType.FLOW]: '#ffffff'        // WHITE
+// --- SOCKET COMPONENTS ---
+const SOCKET_COLORS = {
+    GEOMETRY: '#63c763',
+    VALUE: '#a1a1a1',
+    BOOLEAN: '#cc6699',
+    STRING: '#66ccff'
 };
 
-// --- Custom Agent Node Component (Dynamic) ---
-const AgentNode = ({ data }: { data: { label: string, role: string, instruction?: string, inputs?: { name: string, type: SocketType }[], outputs?: { name: string, type: SocketType }[] } }) => {
-    const [isRunning, setIsRunning] = useState(false);
-    const [result, setResult] = useState<string | null>(null);
+const Socket = ({ type, id, isSource, label }: { type: keyof typeof SOCKET_COLORS, id: string, isSource: boolean, label?: string }) => {
+    const color = SOCKET_COLORS[type];
+    const position = isSource ? Position.Right : Position.Left;
+    return (
+        <div className={`flex items-center gap-2 ${isSource ? 'justify-end' : 'justify-start'} my-1 relative h-5`}>
+            {!isSource && <span className="text-[10px] text-gray-300 font-sans">{label}</span>}
+            <Handle
+                type={isSource ? "source" : "target"}
+                position={position}
+                id={id}
+                style={{ background: color, width: 9, height: 9, borderRadius: '50%', border: '1px solid #222' }}
+            />
+            {isSource && <span className="text-[10px] text-gray-300 font-sans">{label}</span>}
+        </div>
+    );
+};
 
-    const handleRun = async () => {
-        setIsRunning(true);
-        setResult(null);
-        // Mock execution
-        setTimeout(() => {
-            setIsRunning(false);
-            setResult("Success");
-        }, 1000);
-    };
+// --- CUSTOM NODE TYPES ---
+
+// 1. SITE NODE (Starts "Empty" visually, fills on Load)
+const SiteNode = ({ data }: { data: { label: string } }) => {
+    const { simulationData } = useEngine();
+    const hasData = simulationData.area > 0;
 
     return (
-        <div className="bg-[#2c2c2c] border border-gray-600 rounded-lg shadow-xl min-w-[280px] text-xs flex flex-col">
-            {/* Header */}
-            <div className="bg-[#303030] px-3 py-2 rounded-t-lg border-b border-gray-600 flex justify-between items-center handle">
-                <div className="flex items-center gap-2">
-                    <span className="text-lg">🤖</span>
-                    <span className="font-bold text-gray-200">{data.label}</span>
-                </div>
-                <button
-                    onClick={handleRun}
-                    className={`p-1 rounded hover:bg-white/20 transition-colors ${isRunning ? 'animate-pulse text-yellow-500' : 'text-green-500'}`}
-                >
-                    <Play size={14} fill="currentColor" />
-                </button>
+        <div className="bg-[#1f1f1f] border border-gray-700 rounded-md shadow-2xl w-[220px] overflow-hidden">
+            <div className="bg-[#2d2d2d] px-3 py-1 border-b border-gray-700 flex justify-between">
+                <span className="text-[10px] font-bold text-gray-200 uppercase tracking-wider">{data.label}</span>
+                {hasData && <span className="text-[10px] text-green-500">● LIVE</span>}
             </div>
-
-            {/* Body */}
-            <div className="p-3 space-y-4">
-                {/* Inputs */}
-                <div className="flex flex-col gap-2">
-                    {data.inputs?.map((input, i) => (
-                        <div key={i} className="relative flex items-center h-5">
-                            <Handle
-                                type="target"
-                                position={Position.Left}
-                                id={`in-${input.name}`}
-                                style={{ background: COLORS[input.type] || '#888', width: 8, height: 8 }}
-                            />
-                            <span className="ml-3 text-gray-400 capitalize">{input.name}</span>
-                        </div>
-                    ))}
+            <div className="p-3 flex flex-col gap-2">
+                {/* Inputs (Mocked as disabled fields that fill up) */}
+                <div className="flex justify-between items-center bg-black/20 p-1 rounded">
+                    <span className="text-[10px] text-gray-500">CAD NO.</span>
+                    <span className="text-[10px] font-mono text-blue-300">{hasData ? "77:01:0004042:12" : "---"}</span>
+                </div>
+                <div className="flex justify-between items-center bg-black/20 p-1 rounded">
+                    <span className="text-[10px] text-gray-500">AREA (m²)</span>
+                    <span className="text-[10px] font-mono text-yellow-300">{hasData ? simulationData.area.toLocaleString() : "---"}</span>
                 </div>
 
-                {/* Outputs */}
-                <div className="flex flex-col gap-2 items-end">
-                    {data.outputs?.map((output, i) => (
-                        <div key={i} className="relative flex items-center h-5">
-                            <span className="mr-3 text-gray-400 capitalize">{output.name}</span>
-                            <Handle
-                                type="source"
-                                position={Position.Right}
-                                id={`out-${output.name}`}
-                                style={{ background: COLORS[output.type] || '#888', width: 8, height: 8 }}
-                            />
-                        </div>
-                    ))}
+                <div className="h-px bg-gray-700 my-1" />
+
+                <Socket type="GEOMETRY" id="geo" isSource={true} label="Geometry" />
+                <Socket type="VALUE" id="area" isSource={true} label="Area" />
+            </div>
+        </div>
+    );
+};
+
+// 2. GENERATOR NODE
+const GeneratorNode = ({ data }: { data: { label: string } }) => {
+    const { simulationData } = useEngine();
+    return (
+        <div className="bg-[#1f1f1f] border border-blue-900 rounded-md shadow-2xl w-[200px] overflow-hidden">
+            <div className="bg-[#1e293b] px-3 py-1 border-b border-blue-900">
+                <span className="text-[10px] font-bold text-blue-200 uppercase tracking-wider">{data.label}</span>
+            </div>
+            <div className="p-2">
+                <Socket type="GEOMETRY" id="in_geo" isSource={false} label="Site Geo" />
+                <Socket type="VALUE" id="in_params" isSource={false} label="Params" />
+
+                <div className="my-2 bg-black/40 p-2 text-center rounded">
+                    <div className="text-[9px] text-gray-500 uppercase">Generated Volume</div>
+                    <div className="text-sm font-bold text-white">{simulationData.volume > 0 ? (simulationData.volume / 1000).toFixed(1) + 'k' : '0'} m³</div>
                 </div>
 
-                {/* Role Badge */}
-                <div className="border-t border-gray-700 pt-2 flex justify-between items-center text-[10px] text-gray-500">
-                    <span>{data.role}</span>
-                    <span className="bg-[#444] px-1 rounded text-gray-300 font-mono">ID: {Math.random().toString(36).substr(2, 4)}</span>
-                </div>
+                <Socket type="GEOMETRY" id="out_vol" isSource={true} label="Massing" />
             </div>
         </div>
     );
 };
 
 const nodeTypes = {
-    agent: AgentNode,
-    export_geometry: ExportNode,
-    export_data: ExportNode
+    site: SiteNode,
+    gen: GeneratorNode
 };
 
-// --- Initial Data (Mocking JSON from Backend) ---
-// In real app, this comes from AgentOrchestrator.generate_graph_from_prompt()
-const initialNodes: Node[] = [
-    {
-        id: '1',
-        type: 'agent',
-        position: { x: 100, y: 100 },
-        data: {
-            label: 'Investor Input',
-            role: 'User',
-            inputs: [],
-            outputs: [
-                { name: 'Data', type: SocketType.DATA },
-                { name: 'Next', type: SocketType.FLOW }
-            ]
-        }
-    },
-    {
-        id: '2',
-        type: 'agent',
-        position: { x: 450, y: 100 },
-        data: {
-            label: 'ROI Analysis',
-            role: 'Analyst',
-            inputs: [
-                { name: 'In', type: SocketType.DATA },
-                { name: 'Trigger', type: SocketType.FLOW }
-            ],
-            outputs: [
-                { name: 'Report', type: SocketType.DATA },
-                { name: 'Next', type: SocketType.FLOW }
-            ]
-        }
-    },
-    {
-        id: '3',
-        type: 'export_data', // Mapped to ExportNode
-        position: { x: 800, y: 100 },
-        data: {
-            label: 'Save Report',
-            exportType: 'DATA',
-            format: 'PDF'
-        }
-    }
-];
-
-const initialEdges: Edge[] = [
-    { id: 'e1-2-flow', source: '1', sourceHandle: 'out-Next', target: '2', targetHandle: 'in-Trigger', animated: true, style: { stroke: COLORS.WHITE } },
-    { id: 'e1-2-data', source: '1', sourceHandle: 'out-Data', target: '2', targetHandle: 'in-In', animated: false, style: { stroke: COLORS.DATA } },
-];
-
 export default function NodeEditor() {
-    const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-    const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+    const { projectState } = useEngine();
+
+    // START EMPTY
+    const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+    const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
+    // DYNAMIC INJECTION
+    useEffect(() => {
+        if (projectState === 'loaded') {
+            const newNodes: Node[] = [
+                { id: 'site-01', type: 'site', position: { x: 100, y: 100 }, data: { label: 'Site_01' } },
+                { id: 'gen-01', type: 'gen', position: { x: 450, y: 100 }, data: { label: 'Massing Gen' } },
+            ];
+            const newEdges: Edge[] = [
+                { id: 'e1', source: 'site-01', sourceHandle: 'geo', target: 'gen-01', targetHandle: 'in_geo', animated: true, style: { stroke: '#63c763' } }
+            ];
+            setNodes(newNodes);
+            setEdges(newEdges);
+        }
+    }, [projectState, setNodes, setEdges]);
 
     const onConnect = useCallback(
-        (params: Connection) => {
-            // STRICT CONNECTION LOGIC
-            // We need to know the socket type of source and target.
-            // Since Handle ID contains info or we check node data?
-            // Actually, ReactFlow handle styles are purely visual unless we extract data.
-            // A simple way is to check if the handle ID or visual style matches, strictly speaking we should query the node data.
-            // BUT: For now we can assume the user sees the colors.
-            // Let's implement a basic check if possible, or just allow all connections for prototype but color them.
-
-            // For now, simple standard connection
-            // Ideally we'd look up nodes and check inputs/outputs types.
-
-            setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: '#444' } }, eds));
-        },
+        (params: Connection) => setEdges((eds) => addEdge(params, eds)),
         [setEdges],
     );
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div className="w-full h-full bg-[#0a0a0a]">
+            {projectState === 'empty' && (
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                    <span className="text-gray-700 text-xs font-mono uppercase tracking-widest">Awaiting Data...</span>
+                </div>
+            )}
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -187,22 +132,10 @@ export default function NodeEditor() {
                 onConnect={onConnect}
                 nodeTypes={nodeTypes}
                 fitView
-                colorMode="dark"
-                className="bg-[#181818]"
-                snapToGrid={true}
-                snapGrid={[20, 20]}
             >
-                <Controls className="bg-[#1a1a1a] border border-gray-700 text-white" />
-                <MiniMap
-                    nodeStrokeColor={(n) => {
-                        if (n.type === 'agent') return '#00f2ff';
-                        if (n.type === 'export_geometry') return COLORS.RED;
-                        return '#eee';
-                    }}
-                    nodeColor="#2c2c2c"
-                    maskColor="#181818d0"
-                />
-                <Background gap={20} color="#333" />
+                <Background color="#151515" gap={20} size={1} />
+                <Controls className="bg-white/5 border-white/10 text-white" />
+                <MiniMap style={{ background: '#0a0a0a' }} nodeColor="#333" />
             </ReactFlow>
         </div>
     );

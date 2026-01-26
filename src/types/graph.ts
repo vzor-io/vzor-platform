@@ -1,9 +1,10 @@
+export const SocketType = {
+    GEOMETRY: "RED",
+    DATA: "BLUE",
+    FLOW: "WHITE"
+} as const;
 
-export enum SocketType {
-    GEOMETRY = "RED",
-    DATA = "BLUE",
-    FLOW = "WHITE"
-}
+export type SocketType = typeof SocketType[keyof typeof SocketType];
 
 export interface Socket {
     name: string;
