@@ -864,11 +864,11 @@
 
     // --- NODE INTERACTION (TASK HITBOXES) ---
     const nodeHitboxes = [];
-    const hitboxGeo = new THREE.SphereGeometry(45, 8, 8); // V4.3: Even larger (45)
+    const hitboxGeo = new THREE.SphereGeometry(60, 16, 16); // Increased size and segments
     const hitboxMat = new THREE.MeshBasicMaterial({
       transparent: true,
-      opacity: 0, // Invisible but raycastable
-      color: 0xff0000,
+      opacity: 0.0, // Hidden for production, set to 0.2 for debug
+      color: 0xff00ff, // Magenta for high visibility debug
       depthWrite: false
     });
 
@@ -878,6 +878,9 @@
     ray.params.Line.threshold = 10;
     ray.params.Points.threshold = 10;
     const mv = new THREE.Vector2(); const pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    // --- CAMERA & UI LOGIC ---
+    const targetCameraPos = new THREE.Vector3(0, 0, 450);
+    const targetLookAt = new THREE.Vector3(0, 0, 0);
 
     function showDetail(name) {
       isDrilled = true;
@@ -928,11 +931,14 @@
       document.getElementById('detail-panel').classList.add('active');
       document.getElementById('back-button').classList.add('visible');
       document.body.style.overflow = 'hidden';
-      controls.enabled = true;
-      controls.enableZoom = true; // V4.0: Dynamic Zoom
-      controls.target.set(0, 0, 0);
 
-      // V4.1: Reset Zoom on enter
+      controls.enabled = true;
+      controls.enableZoom = true;
+
+      // V5.2: Smooth Fly-In to Center
+      targetCameraPos.set(0, 0, 200); // Zoom in significantly
+      targetLookAt.set(0, 0, 0);
+
       shaderMat.uniforms.uGraphZoom.value = 1.0;
     }
 
@@ -941,8 +947,13 @@
       document.getElementById('detail-panel').classList.remove('active');
       document.getElementById('back-button').classList.remove('visible');
       document.body.style.overflow = '';
-      controls.enabled = false; controls.reset();
-      group.rotation.set(0, 0, 0);
+
+      controls.enabled = false;
+      group.rotation.set(0, 0, 0); // Reset rotation
+
+      // Fly back to Overview
+      targetCameraPos.set(0, 0, 450);
+      targetLookAt.set(0, 0, 0);
     });
 
     document.getElementById('close-detail').addEventListener('click', () => {
@@ -958,6 +969,7 @@
       console.log("VZOR: Node clicked:", hitbox.userData.label);
       isDrilled = true;
       const label = hitbox.userData.label;
+      currentCategory = "NODE_VIEW"; // Distinct state?
 
       document.getElementById('p-title').innerText = label;
       document.getElementById('p-header').innerText = "TASK INTELLIGENCE";
@@ -980,13 +992,18 @@
       document.getElementById('slideTitle').innerText = "TASK ACTIVE";
       document.getElementById('detail-panel').classList.add('active');
       document.getElementById('back-button').classList.add('visible');
-      controls.enabled = true;
-      controls.enableZoom = true; // V4.0: Dynamic Zoom
 
-      // V4.1: Use world position for focus
+      controls.enabled = true;
+      controls.enableZoom = true;
+
+      // V5.2: Fly Into the Node
       const worldPos = new THREE.Vector3();
       hitbox.getWorldPosition(worldPos);
-      controls.target.copy(worldPos);
+
+      // Calculate a position slightly offset from the node to look at it
+      const offset = worldPos.clone().normalize().multiplyScalar(100);
+      targetCameraPos.copy(worldPos).add(offset); // Look from 100 units away
+      targetLookAt.copy(worldPos);
     }
 
     // CLICK HANDLER (V4.4: Using renderer.domElement for best isolation)
@@ -1081,6 +1098,12 @@
     function animate() {
       requestAnimationFrame(animate);
       const time = clock.getElapsedTime();
+
+      // V5.2: Camera Tween
+      camera.position.lerp(targetCameraPos, 0.05);
+      controls.target.lerp(targetLookAt, 0.05);
+      controls.update(); // Important for damping
+
       smoothP += (targetP - smoothP) * 0.05;
 
       if (isDrilled) drillProg += (1 - drillProg) * 0.08;
@@ -1091,12 +1114,16 @@
       shaderMat.uniforms.uProgress2.value = Math.max(0, Math.min(1, (smoothP - 0.30) / 0.4)); // Start earlier
       shaderMat.uniforms.uProgress3.value = drillProg;
 
-      // Labels Opacity (V3.5: Disappear completely when drilled)
-      const edge0 = 0.15; const edge1 = 0.45;
-      const x = Math.max(0, Math.min(1, (smoothP - edge0) / (edge1 - edge0)));
-      const globalLabelOp = x * x * (3 - 2 * x);
-      const lOp = globalLabelOp * (1.0 - Math.min(1.0, drillProg * 1.5)); // Fades fast when entering drill
-      labels.forEach(l => { l.material.opacity = lOp; l.visible = lOp > 0.01; });
+      // Labels Opacity (V5.2 Fix: Force visible if entered)
+      let finalLabelOp = 0;
+      if (isEntered || smoothP > 0.8) finalLabelOp = 1.0;
+      if (isDrilled) finalLabelOp = 0.0; // Hide when drilled
+
+      // Smooth transition for labels
+      labels.forEach(l => {
+        l.material.opacity += (finalLabelOp - l.material.opacity) * 0.1;
+        l.visible = l.material.opacity > 0.01;
+      });
 
       // V4.3 DEFINITIVE FIX: Global Hitbox Sync (All Stages)
       const zoom = shaderMat.uniforms.uGraphZoom.value;
