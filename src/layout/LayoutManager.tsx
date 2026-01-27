@@ -1,17 +1,95 @@
 import { Panel, Group as PanelGroup, Separator as PanelResizeHandle } from "react-resizable-panels";
 import Viewport3D from "../components/Viewport3D";
-import NodeEditor from "../components/NodeEditor";
-import { Copy, Layers, Settings, MessageSquare, Paperclip, Send, Upload } from "lucide-react";
+import NodeGraph from "../components/NodeGraph";
+import { Settings, Upload, Send } from "lucide-react";
 import { useState } from "react";
 import { useEngine } from "../context/EngineContext";
+import { AgentInspector } from "../components/AgentInspector";
+import { useVzorStore } from "../store/store";
+import { agentZero } from "../services/AgentZero";
+import type { Node } from "@xyflow/react";
+import type { VzorNodeData, ViewportPoint } from "../store/store";
+
+const generateId = () => Math.random().toString(36).substr(2, 9);
 
 const LayoutManager = () => {
     const { loadProject, projectState } = useEngine();
     const [command, setCommand] = useState("");
 
+    // Get selected agent for inspector
+    const selectedAgentId = useVzorStore(state => state.selectedAgentId);
+    const subAgents = useVzorStore(state => state.subAgents);
+    const selectAgent = useVzorStore(state => state.selectAgent);
+    const addSubAgent = useVzorStore(state => state.addSubAgent);
+    const addPoint = useVzorStore(state => state.addPoint);
+    const setNodes = useVzorStore(state => state.setNodes);
+    const nodes = useVzorStore(state => state.nodes);
+
+    const selectedAgent = subAgents.find(a => a.id === selectedAgentId) || null;
+
     const handleUploadClick = () => {
         if (projectState === 'empty') {
             loadProject();
+        }
+    };
+
+    // Handle chat input - create task and agents
+    const handleSubmit = async () => {
+        if (!command.trim()) return;
+
+        // 1. Parse prompt via Agent Zero
+        const { rootTask, requiredAgents } = await agentZero.parsePrompt(command);
+
+        // 2. Create subagents and corresponding points/nodes
+        const newNodes: Node<VzorNodeData>[] = [...nodes];
+
+        requiredAgents.forEach((roleKey, index) => {
+            const subAgent = agentZero.createSubAgent(roleKey, command);
+
+            // Add to store
+            addSubAgent(subAgent);
+
+            // Create synchronized point
+            const point: ViewportPoint = {
+                id: subAgent.id,
+                position: [
+                    (Math.random() - 0.5) * 200,
+                    (Math.random() - 0.5) * 100,
+                    (Math.random() - 0.5) * 200
+                ],
+                color: '#00f2ff',
+                size: 2.0,
+                agentId: subAgent.id
+            };
+            addPoint(point);
+
+            // Create synchronized node
+            const node: Node<VzorNodeData> = {
+                id: subAgent.id,
+                type: 'vzor',
+                position: { x: 100 + index * 300, y: 100 },
+                data: {
+                    label: subAgent.role,
+                    status: 'PENDING',
+                    agentId: subAgent.id
+                }
+            };
+            newNodes.push(node);
+
+            // Simulate execution after a delay
+            setTimeout(() => {
+                agentZero.simulateExecution(subAgent.id);
+            }, 1000 + index * 500);
+        });
+
+        setNodes(newNodes);
+        setCommand("");
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit();
         }
     };
 
@@ -27,7 +105,7 @@ const LayoutManager = () => {
                         Node Graph Engine
                     </div>
                     <div className="relative w-full h-[calc(100%-2rem)]">
-                        <NodeEditor />
+                        <NodeGraph />
                     </div>
 
                     {/* CHAT OVERLAY (Bottom of Nodes) */}
@@ -45,10 +123,20 @@ const LayoutManager = () => {
                             <input
                                 type="text"
                                 className="flex-1 bg-transparent border-none outline-none text-xs text-white placeholder-gray-600 font-mono"
-                                placeholder={projectState === 'empty' ? "Upload data packet to initialize..." : "System Active. Waiting for command..."}
+                                placeholder={projectState === 'empty' ? "Введите задачу... (например: Проанализируй участок)" : "System Active. Введите команду..."}
                                 value={command}
                                 onChange={(e) => setCommand(e.target.value)}
+                                onKeyDown={handleKeyDown}
                             />
+
+                            <button
+                                onClick={handleSubmit}
+                                disabled={!command.trim()}
+                                className="p-2 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 transition-all disabled:opacity-30"
+                                title="Send"
+                            >
+                                <Send className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
                 </Panel>
@@ -76,7 +164,16 @@ const LayoutManager = () => {
                                 <span className="text-[10px] uppercase tracking-widest font-bold opacity-70">Properties</span>
                             </div>
                             <div className="flex-1 p-4 overflow-auto">
-                                {projectState === 'loaded' ? (
+                                {selectedAgent ? (
+                                    <div className="space-y-4 font-mono">
+                                        <div className="text-[10px] text-cyan-400 font-bold uppercase mb-2">🤖 {selectedAgent.role}</div>
+                                        <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-[10px] text-gray-400">
+                                            <div>Model:</div><div className="text-right text-white">{selectedAgent.model}</div>
+                                            <div>Status:</div><div className="text-right text-cyan-400">{selectedAgent.status}</div>
+                                            <div>Progress:</div><div className="text-right text-white">{selectedAgent.progress}%</div>
+                                        </div>
+                                    </div>
+                                ) : projectState === 'loaded' ? (
                                     <div className="space-y-4 font-mono">
                                         <div className="text-[10px] text-blue-400 font-bold uppercase mb-2">Active Object: SITE_01</div>
                                         <div className="grid grid-cols-2 gap-y-2 gap-x-4 text-[10px] text-gray-400">
@@ -98,8 +195,15 @@ const LayoutManager = () => {
                 </Panel>
 
             </PanelGroup>
+
+            {/* AGENT INSPECTOR (Right overlay when agent selected) */}
+            <AgentInspector
+                agent={selectedAgent}
+                onClose={() => selectAgent(null)}
+            />
         </div>
     );
 };
 
 export default LayoutManager;
+
