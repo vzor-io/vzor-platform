@@ -66,9 +66,10 @@ const VERTEX_SHADER = `
         vec3 vBase = mix(position, aIncubator, t1);
         vec3 vFinal = mix(vBase, aTarget, t2); // This acts as the final position for V3.2 logic
         
-        // SCALING
+        // SCALING (Match Viewport3D Logic)
         float scaleFactor = mix(0.65, 0.75, t2); 
-        vec3 finalPos = vFinal * scaleFactor;
+        float finalScale = mix(1.0, scaleFactor, uMobile); // Desktop = 1.0
+        vec3 finalPos = vFinal * finalScale;
 
         // ZOOM ONLY GRAPH NODES
         if (aStatic > 0.5) {
@@ -76,8 +77,9 @@ const VERTEX_SHADER = `
         }
 
         // NOISE MOVEMENT (Breath)
-        // If aStatic=1 (Node), movement is damped significantly in Graph State
-        float moveFactor = 1.0 - (aStatic * t2 * 0.8); // Damping
+        // NOISE MOVEMENT (Breath)
+        // If node (aStatic > 0.5), force NO MOVEMENT so it aligns with hit target
+        float moveFactor = (aStatic > 0.5) ? 0.0 : 1.0;
 
         float ns = 0.015; float ts = uTime * 0.15;
         float nx = snoise(vec2(position.x * ns, position.y * ns + ts + aRandom));
@@ -93,8 +95,7 @@ const VERTEX_SHADER = `
             if (dist < rRadius) {
                 float f = pow((rRadius - dist) / rRadius, 2.0); // THE WAVE
                 finalPos += normalize(finalPos - vec3(uMouse.xy, finalPos.z)) * f * 55.0 * scaleFactor;
-                // Push nodes slightly less
-                if (aStatic > 0.5) finalPos += normalize(finalPos - vec3(uMouse.xy, finalPos.z)) * f * 20.0;
+                // DO NOT push static nodes
             }
         }
 
@@ -154,6 +155,7 @@ const Viewport3D_V3: React.FC = () => {
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const materialRef = useRef<THREE.ShaderMaterial | null>(null);
     const pointsRef = useRef<THREE.Points | null>(null);
+    const hitTargetsRef = useRef<THREE.Group>(new THREE.Group());
     const raycaster = useRef(new THREE.Raycaster());
 
     // STATE
@@ -165,6 +167,7 @@ const Viewport3D_V3: React.FC = () => {
 
     // --- INIT THREE.JS ---
     useEffect(() => {
+        console.log("VZOR_DEPLOY_CHECK_SIDE_PANEL_AND_LABELS_FIX_V2");
         if (!containerRef.current) return;
 
         // Renderer
@@ -177,6 +180,7 @@ const Viewport3D_V3: React.FC = () => {
         // Scene
         const scene = new THREE.Scene();
         sceneRef.current = scene;
+        scene.add(hitTargetsRef.current);
 
         // Camera
         const camera = new THREE.PerspectiveCamera(60, containerRef.current.clientWidth / containerRef.current.clientHeight, 0.1, 2000);
@@ -279,10 +283,22 @@ const Viewport3D_V3: React.FC = () => {
         const points = new THREE.Points(geo, mat);
         pointsRef.current = points;
         scene.add(points);
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.05;
+        controls.enableZoom = false;
+        controls.autoRotate = false; // DISABLED - User Request
+        controls.rotateSpeed = 0.5;
+        controls.target.set(0, 0, 0);
+
+        // Remove simple mouse move listener if it conflicts, OR keep it for shader waves.
+        // We'll keep both: Orbit for camera, Raycaster for waves.
 
         // Animation Loop
         const animate = () => {
             requestAnimationFrame(animate);
+            controls.update(); // Update controls
             if (materialRef.current) {
                 materialRef.current.uniforms.uTime.value += 0.01;
                 // Soft mouse decay
@@ -293,8 +309,9 @@ const Viewport3D_V3: React.FC = () => {
         };
         animate();
 
-        // Mouse Move
+        // Mouse Move (Raycaster for shader waves)
         const onMove = (e: MouseEvent) => {
+            // ... existing logic ...
             const rect = containerRef.current!.getBoundingClientRect();
             const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
             const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
@@ -309,6 +326,30 @@ const Viewport3D_V3: React.FC = () => {
             }
         };
         containerRef.current.addEventListener('mousemove', onMove);
+
+        // Click Logic
+        const handleClick = (e: MouseEvent) => {
+            if (!containerRef.current || !cameraRef.current) return;
+            const rect = containerRef.current.getBoundingClientRect();
+            const m = new THREE.Vector2(((e.clientX - rect.left) / rect.width) * 2 - 1, -((e.clientY - rect.top) / rect.height) * 2 + 1);
+            raycaster.current.setFromCamera(m, cameraRef.current);
+            const childCount = hitTargetsRef.current.children.length;
+            console.log('[VZOR] Click at', m.x.toFixed(2), m.y.toFixed(2), '| Hit targets:', childCount);
+            // Use RECURSIVE to find all children
+            const hits = raycaster.current.intersectObjects(hitTargetsRef.current.children, true);
+            console.log('[VZOR] Raycaster hits:', hits.length);
+            if (hits.length > 0) {
+                const id = hits[0].object.userData.id;
+                console.log('[VZOR] CLICKED NODE ID:', id);
+                setSelectedNodeId(id);
+                useVzorStore.getState().selectAgent(id);
+            } else {
+                // Clicked background -> Close panel
+                console.log('[VZOR] Background clicked, closing panel');
+                setSelectedNodeId(null);
+            }
+        };
+        containerRef.current.addEventListener('click', handleClick);
 
         // Resize
         const obs = new ResizeObserver((entries) => {
@@ -326,8 +367,20 @@ const Viewport3D_V3: React.FC = () => {
             obs.disconnect();
             renderer.dispose();
             containerRef.current?.removeEventListener('mousemove', onMove);
+            containerRef.current?.removeEventListener('click', handleClick);
         };
     }, []);
+
+    // --- SCROLL INTERACTION ---
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            if (appState === 'IDLE' && e.deltaY > 0) {
+                setAppState('INCUBATOR');
+            }
+        };
+        window.addEventListener('wheel', handleWheel);
+        return () => window.removeEventListener('wheel', handleWheel);
+    }, [appState]);
 
     // --- STATE MACHINE (Visual Transitions) ---
     useEffect(() => {
@@ -370,12 +423,15 @@ const Viewport3D_V3: React.FC = () => {
         const agents = workflow?.blocks.flatMap(b => b.agents) || [];
 
         // 1. Calculate Nodes Layout (Spherical)
+        // ALWAYS have at least one default node so the panel can be tested
         const nodes = [
             { id: 'site_input', label: 'Inputs' },
+            { id: 'task_main', label: 'Main Task' }, // Default clickable node
             ...agents.map(a => ({ id: a.id, label: a.role })),
             ...(workflow?.blocks && workflow.blocks.length > 0 ? [{ id: 'decision', label: 'Decision' }] : [])
         ];
 
+        console.log('[VZOR] Creating', nodes.length, 'hit targets for nodes:', nodes.map(n => n.id));
         const count = nodes.length;
         const R = 200;
 
@@ -386,7 +442,9 @@ const Viewport3D_V3: React.FC = () => {
         const aColor = geo.getAttribute('aColor');
         const aSize = geo.getAttribute('aSize');
 
-        // Reset
+        // Reset Logic
+        hitTargetsRef.current.clear();
+
         // But wait! We want depletion.
         // We will assign index ranges to nodes.
 
@@ -400,6 +458,16 @@ const Viewport3D_V3: React.FC = () => {
 
             // Assign a block of particles to this node
             const limit = particleCursor + PARTICLES_PER_NODE;
+
+            // Generate Hit Target (Invisible Sphere)
+            // RADIUS = 35 (Much larger for reliable clicking)
+            const hitGeo = new THREE.SphereGeometry(35, 8, 8);
+            const hitMat = new THREE.MeshBasicMaterial({ visible: false });
+            const hitMesh = new THREE.Mesh(hitGeo, hitMat);
+            hitMesh.position.copy(pos);
+            hitMesh.userData = { id: node.id };
+            hitTargetsRef.current.add(hitMesh);
+            console.log('[VZOR] Hit target created:', node.id, 'at position:', pos.x.toFixed(1), pos.y.toFixed(1), pos.z.toFixed(1));
 
             for (let i = particleCursor; i < limit && i < CLOUD_PARTICLES; i++) {
                 if (i === particleCursor) {
@@ -444,8 +512,10 @@ const Viewport3D_V3: React.FC = () => {
         for (let i = particleCursor; i < CLOUD_PARTICLES; i++) {
             aTarget.setXYZ(i, incub.getX(i), incub.getY(i), incub.getZ(i));
             aStatic.setX(i, 0.0);
-            aSize.setX(i, 1.0); // Small dust
-            aColor.setXYZ(i, 0.3, 0.3, 0.4); // Dimmer
+            aTarget.setXYZ(i, incub.getX(i), incub.getY(i), incub.getZ(i));
+            aStatic.setX(i, 0.0);
+            aSize.setX(i, 1.2 + Math.random() * 2.5); // Keep original size
+            aColor.setXYZ(i, 0.5, 0.6, 0.8); // Keep original color
         }
 
         aTarget.needsUpdate = true;
@@ -471,8 +541,21 @@ const Viewport3D_V3: React.FC = () => {
         setTaskInput('');
     };
 
+    const agents = workflow?.blocks.flatMap(b => b.agents) || [];
+    const selectedAgent = agents.find(a => a.id === selectedNodeId);
+
+    // Fallback for special nodes
+    const getNodeDetails = () => {
+        if (!selectedNodeId) return null;
+        if (selectedAgent) return { type: 'NEURAL AGENT', role: selectedAgent.role || 'Agent', status: selectedAgent.status };
+        if (selectedNodeId === 'site_input') return { type: 'SYSTEM INPUT', role: 'Data Ingestion', status: 'ACTIVE' };
+        if (selectedNodeId === 'task_main') return { type: 'MAIN TASK', role: 'Workflow Core', status: 'PROCESSING' };
+        return { type: 'UNKNOWN NODE', role: selectedNodeId, status: 'IDLE' };
+    };
+    const nodeDetails = getNodeDetails();
+
     return (
-        <div ref={containerRef} className="w-full h-full relative bg-black overflow-hidden font-['Outfit'] text-white">
+        <div ref={containerRef} className="w-full h-full relative bg-black overflow-hidden font-['Outfit'] text-white pointer-events-auto">
 
             {/* 1. TITLE SCREEN (Center Text Exact Match) */}
             <div
@@ -484,8 +567,11 @@ const Viewport3D_V3: React.FC = () => {
                 <p className="text-[1.1em] font-thin text-white/50 tracking-[0.4em] uppercase drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]">
                     capital data system
                 </p>
-                <div className="mt-12 pointer-events-auto cursor-pointer" onClick={() => setAppState('INCUBATOR')}>
-                    {/* Invisible click area to enter, or duplicate the button style if user wants button */}
+                <div
+                    className="mt-12 pointer-events-auto cursor-pointer border border-white/30 px-8 py-3 rounded-full hover:bg-white/10 transition-colors uppercase tracking-[0.2em] text-[0.8em]"
+                    onClick={() => setAppState('INCUBATOR')}
+                >
+                    Enter System
                 </div>
             </div>
 
@@ -498,26 +584,22 @@ const Viewport3D_V3: React.FC = () => {
 
             {/* 2. INCUBATOR (Selection) */}
             {appState === 'INCUBATOR' && (
-                <div className="absolute inset-0 z-10 pointer-events-none">
-                    {/* 3 CORES LABELS - Exact positioning matching the logic */}
-                    {/* Left Core (-130,0,0) -> Development */}
-                    <div className="absolute top-1/2 left-1/4 -translate-y-1/2 -translate-x-1/2 flex flex-col items-center pointer-events-auto cursor-pointer group" onClick={() => setAppState('WORK')}>
-                        <div className="text-[2em] font-light tracking-[0.12em] text-white group-hover:text-cyan-400 transition-colors drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center gap-16">
+                    {/* Left Core -> Development */}
+                    <div className="flex flex-col items-center pointer-events-auto cursor-pointer group opacity-60 hover:opacity-100 transition-opacity" onClick={() => setAppState('WORK')}>
+                        <div className="text-[2em] font-light tracking-[0.12em] text-white transition-colors drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
                             Development
-                        </div>
-                        <div className="text-[10px] text-white/50 tracking-widest mt-2 uppercase">
-                            Initialize Protocol
                         </div>
                     </div>
 
-                    {/* Center Core (0,0,90) -> Finance */}
-                    <div className="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 flex flex-col items-center opacity-50">
+                    {/* Center Core -> Finance */}
+                    <div className="flex flex-col items-center opacity-60">
                         <div className="text-[2em] font-light tracking-[0.12em] text-white">Finance</div>
                     </div>
 
-                    {/* Right Core (130,0,0) -> State */}
-                    <div className="absolute top-1/2 right-1/4 -translate-y-1/2 translate-x-1/2 flex flex-col items-center opacity-50">
-                        <div className="text-[2em] font-light tracking-[0.12em] text-white">State</div>
+                    {/* Right Core -> Real Estate */}
+                    <div className="flex flex-col items-center opacity-60">
+                        <div className="text-[2em] font-light tracking-[0.12em] text-white">Real Estate</div>
                     </div>
                 </div>
             )}
@@ -525,13 +607,7 @@ const Viewport3D_V3: React.FC = () => {
             {/* 3. WORK MODE UI (Dynamic Input) */}
             {appState === 'WORK' && (
                 <>
-                    {/* Header */}
-                    <div className="fixed top-[70px] left-1/2 -translate-x-1/2 text-center z-10 max-w-[700px] pointer-events-none">
-                        <h2 className="text-[2em] font-light tracking-[0.12em] mb-3">CONSTRUCTION PHASE</h2>
-                        <p className="text-[1.05em] font-light text-white/65 tracking-[0.08em]">
-                            Active Neural Graph
-                        </p>
-                    </div>
+                    {/* Header REMOVED as per user request */}
 
                     {/* TASK INPUT (The Missing Piece!) */}
                     <div className="fixed bottom-[100px] left-1/2 -translate-x-1/2 w-[400px] pointer-events-auto z-20 flex gap-4">
@@ -555,10 +631,49 @@ const Viewport3D_V3: React.FC = () => {
                         className="fixed top-[40px] left-[40px] text-[0.75em] tracking-[0.2em] uppercase cursor-pointer hover:text-white/60 pointer-events-auto z-50 flex items-center gap-4"
                         onClick={() => setAppState('INCUBATOR')}
                     >
-                        <span>←</span> Back to System
+                        <span>←</span> BACK
                     </div>
                 </>
             )}
+
+            {/* SIDE PANEL (Dynamic Task Details) */}
+            <div className={`fixed top-0 right-0 w-[400px] h-full bg-black/80 backdrop-blur-xl border-l border-white/10 p-8 pt-20 transform transition-transform duration-500 ease-out z-40 ${selectedNodeId ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className="absolute top-8 right-8 cursor-pointer text-white/50 hover:text-white" onClick={() => setSelectedNodeId(null)}>CLOSE</div>
+                {selectedNodeId && (
+                    <div className="animate-fade-in-up">
+                        <div className="text-[10px] tracking-[0.3em] uppercase text-cyan-400 mb-2">Selected Node</div>
+                        <div className="text-[3em] font-extralight leading-none mb-6 text-white">{selectedNodeId}</div>
+                        <div className="h-px w-full bg-linear-to-r from-cyan-500/50 to-transparent mb-8"></div>
+
+                        <div className="space-y-6 font-light text-white/70">
+                            <div>
+                                <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Status</div>
+                                <div className="text-xl uppercase text-cyan-400">{nodeDetails?.status}</div>
+                            </div>
+                            <div>
+                                <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Type</div>
+                                <div className="text-xl uppercase">{nodeDetails?.type}</div>
+                            </div>
+                            <div>
+                                <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Role</div>
+                                <div className="text-lg text-white">{nodeDetails?.role}</div>
+                            </div>
+                            <div>
+                                <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Load</div>
+                                <div className="bg-white/10 h-1 w-full mt-2 rounded-full overflow-hidden">
+                                    <div className="bg-cyan-400 h-full w-[65%]"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-12">
+                            <div className="border border-white/20 hover:border-cyan-400 text-white hover:text-cyan-400 px-6 py-3 text-center uppercase tracking-widest text-[12px] cursor-pointer transition-all">
+                                Open Protocol
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
 
         </div>
     );

@@ -1,4 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
+import Viewport3D from './components/Viewport3D_V3';
+import { useWorkflowStore } from './store/WorkflowStore';
 import './index.css';
 
 // Type the Bridge
@@ -31,8 +33,27 @@ function App() {
     return () => window.removeEventListener('scroll', checkScroll);
   }, []);
 
-  // INIT SPEECH
+  // INIT SPEECH & API
+  const addAgent = useWorkflowStore(state => state.addAgent);
+
   useEffect(() => {
+    // API BRIDGE
+    window.VZOR_API = {
+      addNode: (label: string) => {
+        console.log("VZOR API: Adding node", label);
+        // Add a new agent to the store
+        addAgent({
+          id: `task-${Date.now()}`,
+          role: 'market_analyst', // Default role for now
+          status: 'running',
+          inputs: ['site-input']
+        });
+      },
+      navigate: (section: string) => {
+        console.log("Navigate to", section);
+      }
+    };
+
     if ('webkitSpeechRecognition' in window) {
       const recognition = new window.webkitSpeechRecognition();
       recognition.continuous = false;
@@ -119,33 +140,8 @@ function App() {
   };
 
   return (
-    <div className="w-full h-full pointer-events-none relative flex flex-col justify-end items-center pb-24">
-      {/* 
-           This overlay is totally transparent. 
-           It only renders the input box when appropriate (Slide 2).
-       */}
-
-      <div className={`transition-all duration-500 transform ${inputVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'} pointer-events-auto bg-black/80 backdrop-blur-md border ${isListening ? 'border-red-500' : 'border-white/20'} rounded-full flex items-center px-6 py-3 w-[600px] shadow-[0_0_30px_rgba(0,0,0,0.5)]`}>
-
-        {/* MIC BUTTON */}
-        <button onClick={toggleMic} className={`mr-4 ${isListening ? 'text-red-500 animate-pulse' : 'text-cyan-400 hover:text-white'} transition-colors`}>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-          </svg>
-        </button>
-
-        <input
-          type="text"
-          value={inputText}
-          onChange={e => setInputText(e.target.value)}
-          onKeyDown={e => e.key === 'Enter' && handleSubmit()}
-          placeholder={isListening ? "Listening..." : "Voice or Text Input..."}
-          className="bg-transparent border-none outline-none text-white font-light tracking-wider w-full placeholder-white/30 font-[Outfit]"
-        />
-        <button onClick={handleSubmit} className="text-cyan-400/80 hover:text-cyan-400 ml-4 uppercase text-xs tracking-widest">
-          EXECUTE
-        </button>
-      </div>
+    <div className="relative w-full h-full bg-black">
+      <Viewport3D />
     </div>
   );
 }

@@ -442,7 +442,7 @@ const Viewport3D: React.FC = () => {
 
                         aColor.setXYZ(i, c.r, c.g, c.b);
 
-                        const hitGeo = new THREE.SphereGeometry(6, 8, 8);
+                        const hitGeo = new THREE.SphereGeometry(12, 8, 8);
                         const hitMat = new THREE.MeshBasicMaterial({ visible: false });
                         const hitMesh = new THREE.Mesh(hitGeo, hitMat);
                         hitMesh.position.copy(pos);

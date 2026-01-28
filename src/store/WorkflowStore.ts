@@ -23,6 +23,7 @@ interface WorkflowState {
     setAgentStatus: (agentId: string, status: AgentStatus, progress?: number) => void;
     setAgentOutput: (agentId: string, outputs: Record<string, any>) => void;
     setBlockDecision: (blockId: string, decision: 'go' | 'no-go') => void;
+    addAgent: (agent: any) => void;
     resetWorkflow: () => void;
 }
 
@@ -111,6 +112,21 @@ export const useWorkflowStore = create<WorkflowState>((set, get) => ({
 
     resetWorkflow: () => {
         set({ workflow: null, isSimulating: false });
+    },
+
+    addAgent: (agent: any) => {
+        set(state => {
+            if (!state.workflow) return state;
+            // Add to the first block for now or find active block
+            const newBlocks = [...state.workflow.blocks];
+            if (newBlocks.length > 0) {
+                newBlocks[0] = {
+                    ...newBlocks[0],
+                    agents: [...newBlocks[0].agents, agent]
+                };
+            }
+            return { workflow: { ...state.workflow, blocks: newBlocks } };
+        });
     }
 }));
 
