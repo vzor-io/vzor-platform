@@ -2,31 +2,1174 @@
 <html lang="ru">
 
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VZOR Platform</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VZOR - Multi-Stage Evolution</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
       margin: 0;
       padding: 0;
-      background-color: #000;
-      overflow: hidden;
+      box-sizing: border-box;
     }
 
-    #root {
+    body {
+      font-family: 'Outfit', -apple-system, sans-serif;
+      background: #000000;
+      color: #ffffff;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    #scroll-container {
+      height: 300vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 0;
+    }
+
+    #canvas-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
+      z-index: 1;
+      pointer-events: auto;
+    }
+
+    canvas {
+      display: block;
+      touch-action: pan-y;
+    }
+
+    .center-text {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      z-index: 10;
+      pointer-events: none;
+      transition: opacity 0.8s ease;
+    }
+
+    .center-text h1 {
+      font-size: 5.5em;
+      font-weight: 300;
+      letter-spacing: 0.6em;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      color: #ffffff;
+      text-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+      margin-right: -0.6em;
+    }
+
+    .center-text p {
+      font-size: 1.1em;
+      font-weight: 100;
+      font-style: normal;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 0.4em;
+      text-transform: uppercase;
+      text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+
+    .slide-info {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.8s ease;
+      max-width: 700px;
+      padding: 0 20px;
+      pointer-events: none;
+    }
+
+    .slide-info h2 {
+      font-size: 2em;
+      font-weight: 300;
+      letter-spacing: 0.12em;
+      margin-bottom: 12px;
+    }
+
+    .slide-info p {
+      font-size: 1.05em;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.65);
+      letter-spacing: 0.08em;
+      line-height: 1.5;
+    }
+
+    .progress-indicator {
+      position: fixed;
+      right: 50px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      pointer-events: none;
+    }
+
+    .progress-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.2);
+      transition: all 0.4s ease;
+    }
+
+    .progress-dot.active {
+      background: #ffffff;
+      transform: scale(1.6);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 5px rgba(255, 255, 255, 0.4);
+    }
+
+    .scroll-hint {
+      position: fixed;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.75em;
+      color: rgba(255, 255, 255, 0.25);
+      letter-spacing: 0.15em;
+      z-index: 10;
+      animation: pulse 2.5s ease-in-out infinite;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.25;
+      }
+
+      50% {
+        opacity: 0.6;
+      }
+    }
+
+    .cta-button {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 16px 45px;
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: white;
+      border-radius: 30px;
+      font-size: 1em;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      opacity: 0;
+      transition: all 0.4s ease;
+      z-index: 10;
+      text-transform: uppercase;
+      font-weight: 300;
+    }
+
+    .cta-button:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: white;
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+    }
+
+    #detail-panel {
+      position: fixed;
+      top: 0;
+      right: -450px;
+      width: 400px;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(30px);
+      -webkit-backdrop-filter: blur(30px);
+      border-left: 1px solid rgba(0, 255, 255, 0.2);
+      padding: 60px 40px;
+      z-index: 1000;
+      transition: right 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    #detail-panel.active {
+      right: 0;
+    }
+
+    #close-detail {
+      position: absolute;
+      top: 25px;
+      right: 25px;
+      color: rgba(255, 255, 255, 0.5);
+      cursor: pointer;
+      padding: 10px;
+      font-size: 1.2em;
+      transition: color 0.3s;
+    }
+
+    #close-detail:hover {
+      color: #00ffff;
+    }
+
+    .detail-header {
+      font-size: 0.75em;
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+      color: #00ffff;
+      /* Cyan for header */
+      font-weight: 700;
+    }
+
+    .detail-title {
+      font-size: 2em;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-top: -5px;
+      line-height: 1.2;
+      color: #ffffff;
+      text-shadow: 0 0 15px rgba(0, 255, 255, 0.4);
+    }
+
+    .detail-content {
+      font-size: 1em;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.9);
+      line-height: 1.6;
+      letter-spacing: 0.04em;
+    }
+
+    .detail-thesis {
+      margin-top: 15px;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .detail-thesis li {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 10px;
+      font-size: 0.9em;
+      color: #fff;
+    }
+
+    .detail-thesis li::before {
+      content: "тАв";
+      position: absolute;
+      left: 0;
+      color: #00ffff;
+      font-weight: bold;
+    }
+
+    .detail-line {
+      width: 40px;
+      height: 2px;
+      background: #00ffff;
+      margin: 5px 0;
+    }
+
+    #back-button {
+      position: fixed;
+      top: 40px;
+      left: 40px;
+      font-size: 0.75em;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: white;
+      opacity: 0;
+      pointer-events: none;
+      cursor: pointer;
+      z-index: 101;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: all 0.5s ease;
+    }
+
+    #back-button.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #back-button:hover {
+      color: rgba(255, 255, 255, 0.6);
+      transform: translateX(-5px);
+    }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+      .center-text h1 {
+        font-size: 1.8em;
+        letter-spacing: 0.15em;
+        margin-right: -0.15em;
+        margin-bottom: 8px;
+      }
+
+      .center-text p {
+        font-size: 0.55em;
+        letter-spacing: 0.12em;
+        opacity: 0.7;
+      }
+
+      .center-text .mobile-hint {
+        display: block;
+        font-size: 0.45em;
+        margin-top: 30px;
+        color: cyan;
+        opacity: 0.8;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        animation: pulse-hint 2s infinite ease-in-out;
+      }
+
+      @keyframes pulse-hint {
+
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+
+        50% {
+          opacity: 0.9;
+        }
+      }
+
+      .slide-info {
+        top: 30px;
+        width: 95%;
+      }
+
+      .slide-info h2 {
+        font-size: 1.1em;
+        letter-spacing: 0.05em;
+      }
+
+      .slide-info p {
+        font-size: 0.75em;
+        line-height: 1.3;
+      }
+
+      #detail-panel {
+        width: 100%;
+        right: -100%;
+        top: 0;
+        transform: none;
+        height: 100%;
+        border-radius: 0;
+        padding: 40px 20px 100px 20px;
+        gap: 10px;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      #detail-panel.active {
+        right: 0;
+      }
+
+      .detail-title {
+        font-size: 1.3em;
+      }
+
+      .detail-content {
+        font-size: 0.8em;
+      }
+
+      #back-button {
+        position: fixed;
+        top: auto;
+        bottom: 25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.75em;
+        padding: 12px 25px;
+        background: #00ffff;
+        color: #000;
+        border: none;
+        border-radius: 30px;
+        z-index: 1001;
+        white-space: nowrap;
+        box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+      }
+
+      .progress-indicator {
+        right: 15px;
+        gap: 10px;
+      }
+
+      .progress-dot {
+        width: 5px;
+        height: 5px;
+      }
+
+      #scroll-container {
+        height: 180vh;
+      }
+    }
+
+    #canvas-wrapper {
+      touch-action: pan-y;
+      pointer-events: auto;
+    }
+
+    /* REACT OVERLAY HOST */
+    #root {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9999;
+      pointer-events: none;
     }
   </style>
+  <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+    </script>
 </head>
 
 <body>
+  <div id="scroll-container"></div>
+  <div id="canvas-wrapper"></div>
+
+  <div class="center-text" id="centerText">
+    <h1>VZOR</h1>
+    <p>capital data system</p>
+    <div class="mobile-hint" style="display:none;">TAP TO ENTER</div>
+  </div>
+
+  <div class="slide-info" id="slideInfo">
+    <h2 id="slideTitle"></h2>
+    <p id="slideDesc"></p>
+  </div>
+
+  <div class="progress-indicator" id="progressDots"></div>
+  <div class="scroll-hint" id="scrollHint">Scroll Down</div>
+  <button class="cta-button" id="ctaButton">Access VZOR Standard</button>
+
+  <div id="back-button"><span>тЖР</span> Back to system</div>
+  <div id="detail-panel">
+    <div id="close-detail">тЬХ</div>
+    <div class="detail-header" id="p-header">Structural Level 2</div>
+    <div class="detail-title" id="p-title">Finance</div>
+    <div class="detail-line"></div>
+    <div class="detail-content" id="p-desc">
+      Autonomous financial engine designed to mitigate temporal inflation.
+    </div>
+  </div>
+
+  <!-- REACT ROOT -->
   <div id="root"></div>
   <script type="module" src="/src/main.tsx"></script>
+
+  <!-- MAIN V3.1 LOGIC -->
+  <script type="module">
+    import * as THREE from 'three';
+    import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+    // --- GLOBAL BRIDGE API ---
+    const VZOR_STATE = { nodes: [] };
+
+    // Helper to get current view nodes
+    function getCurrentContextNodes() {
+      if (isDrilled) {
+        const currentTheses = SECTION_CONTENT[currentCategory]?.thesis || [];
+        return [...currentTheses.map(t => ({ label: t, isThesis: true })), ...VZOR_STATE.nodes];
+      } else {
+        // Slide 2: Cores + User Nodes
+        return [...cores.map(c => ({ label: c.name, fixedPos: c.pos })), ...VZOR_STATE.nodes];
+      }
+    }
+
+    window.VZOR_API = {
+      addNode: (label) => {
+        console.log("VZOR_API: addNode", label);
+        VZOR_STATE.nodes.push({ label, time: Date.now() });
+        updateParticlesForNodes(getCurrentContextNodes());
+        if (isDrilled) showDetail(currentCategory); // Refresh UI list
+      },
+      navigate: (section) => {
+        console.log("VZOR_API: navigate", section);
+        const target = cores.find(c => c.name.toLowerCase() === section.toLowerCase());
+        if (target) showDetail(target.name);
+      }
+    };
+
+    // --- STATE & DATA ---
+    let smoothP = 0; let targetP = 0;
+    let isDrilled = false; let drillProg = 0;
+    let isEntered = false; // V5.0: Entry Lock
+    let currentCategory = ""; let isDrag = false; let prevM = { x: 0, y: 0 };
+
+    // Reset scroll on load
+    window.scrollTo(0, 0);
+
+    const SECTION_CONTENT = {
+      "Development": {
+        title: "Development Core",
+        desc: "Neural architecture and system-level implementation for VZOR protocols.",
+        thesis: ["AI Pattern Recognition", "Low-latency Consensus", "Hardware Optimization"]
+      },
+      "Finance": {
+        title: "Finance Engine",
+        desc: "Autonomous financial synchronization and temporal risk mitigation.",
+        thesis: ["Liquidity Management", "Inflation Hedging", "Cross-chain Settlement"]
+      },
+      "Real Estate": {
+        title: "Estate Ledger",
+        desc: "Digital twin infrastructure for real-world asset tokenization.",
+        thesis: ["Space-Time Tokenization", "Legal Smart Contracts", "Occupancy Analysis"]
+      }
+    };
+
+    const slides = [
+      { title: "VZOR", desc: "capital data system" },
+      { title: "VZOR OS", desc: "╨╛╨┐╨╡╤А╨░╤Ж╨╕╨╛╨╜╨╜╨░╤П ╤Б╨╕╤Б╤В╨╡╨╝╨░ ╤Г╨┐╤А╨░╨▓╨╗╨╡╨╜╨╕╤П ╨║╨░╨┐╨╕╤В╨░╨╗╨╛╨╝" }
+    ];
+
+    function createGlowTexture() {
+      const canvas = document.createElement('canvas'); canvas.width = 64; canvas.height = 64;
+      const ctx = canvas.getContext('2d');
+      const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grad.addColorStop(0, 'rgba(255,255,255,1)');
+      grad.addColorStop(0.2, 'rgba(255,255,255,0.6)');
+      grad.addColorStop(0.5, 'rgba(255,255,255,0.1)');
+      grad.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 64, 64);
+      return new THREE.CanvasTexture(canvas);
+    }
+
+    const container = document.getElementById('canvas-wrapper');
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+    camera.position.z = 450;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(renderer.domElement);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true; controls.dampingFactor = 0.05; controls.enableZoom = false; controls.enabled = false;
+
+    // --- PARTICLE SYSTEM ---
+    const particlesCount = 20000;
+    const geometry = new THREE.BufferGeometry();
+    const posArray = new Float32Array(particlesCount * 3);
+    const incubatorArray = new Float32Array(particlesCount * 3);
+    const targetArray = new Float32Array(particlesCount * 3);
+    const detailArray = new Float32Array(particlesCount * 3);
+    const sizeArray = new Float32Array(particlesCount);
+    const colorArray = new Float32Array(particlesCount * 3);
+    const randomArray = new Float32Array(particlesCount);
+    const staticArray = new Float32Array(particlesCount);
+
+    const cores = [{ pos: new THREE.Vector3(-130, 0, 0), name: "Development" }, { pos: new THREE.Vector3(0, 0, 90), name: "Finance" }, { pos: new THREE.Vector3(130, 0, 0), name: "Real Estate" }];
+
+    for (let i = 0; i < particlesCount; i++) {
+      const r1 = 220 * (0.85 + Math.random() * 0.15);
+      const th1 = Math.random() * Math.PI * 2;
+      const ph1 = Math.acos(2 * Math.random() - 1);
+      posArray[i * 3] = r1 * Math.sin(ph1) * Math.cos(th1);
+      posArray[i * 3 + 1] = r1 * Math.sin(ph1) * Math.sin(th1);
+      posArray[i * 3 + 2] = r1 * Math.cos(ph1);
+
+      // Slide 1 Layout (Incubator): Random Sphere
+      const rand = Math.random();
+      incubatorArray[i * 3] = posArray[i * 3];
+      incubatorArray[i * 3 + 1] = posArray[i * 3 + 1];
+      incubatorArray[i * 3 + 2] = posArray[i * 3 + 2];
+
+      targetArray[i * 3] = posArray[i * 3]; targetArray[i * 3 + 1] = posArray[i * 3 + 1]; targetArray[i * 3 + 2] = posArray[i * 3 + 2];
+      detailArray[i * 3] = posArray[i * 3]; detailArray[i * 3 + 1] = posArray[i * 3 + 1]; detailArray[i * 3 + 2] = posArray[i * 3 + 2];
+      sizeArray[i] = 1.2 + Math.random() * 2.5;
+      colorArray[i * 3] = 0.5; colorArray[i * 3 + 1] = 0.6; colorArray[i * 3 + 2] = 0.8;
+      randomArray[i] = Math.random();
+      staticArray[i] = 0.0;
+    }
+
+    // --- BRIDGE REDISTRIBUTION ---
+    function updateParticlesForNodes(nodes = []) {
+      console.log("VZOR: Creating task nodes...", nodes.length);
+      const partPerNode = 400; // Increased density for nodes
+      const R = 220;
+      let pCursor = 0;
+
+      // Cleanup old hitboxes
+      nodeHitboxes.forEach(h => group.remove(h));
+      nodeHitboxes.length = 0;
+
+      // 1. Distribute Nodes
+      for (let n = 0; n < nodes.length; n++) {
+        let nx, ny, nz;
+
+        // V5.1: Support Fixed Position (for Cores)
+        if (nodes[n].fixedPos) {
+          nx = nodes[n].fixedPos.x;
+          ny = nodes[n].fixedPos.y;
+          nz = nodes[n].fixedPos.z;
+        } else {
+          // Fibonacci Sphere for others
+          // Offset index +3 to avoid overlap with cores if mixed (or just append)
+          const idx = n + (nodes[0]?.fixedPos ? 0 : 3);
+          const phi = Math.acos(-1 + (2 * idx) / Math.max(1, nodes.length + 3));
+          const theta = Math.sqrt((nodes.length + 3) * Math.PI) * phi;
+          nx = R * Math.sin(phi) * Math.cos(theta);
+          ny = R * Math.sin(phi) * Math.sin(theta);
+          nz = R * Math.cos(phi);
+        }
+
+        // Add Hitbox for Raycasting
+        const hitbox = new THREE.Mesh(hitboxGeo, hitboxMat);
+        hitbox.position.set(nx, ny, nz);
+        hitbox.userData = { nodeIndex: n, label: nodes[n].label, basePos: new THREE.Vector3(nx, ny, nz), vObject: true };
+        group.add(hitbox);
+        nodeHitboxes.push(hitbox);
+
+        // Assign Particles
+        for (let k = 0; k < partPerNode; k++) {
+          const idx = pCursor + k;
+          if (idx >= particlesCount) break;
+          const vIdx = idx * 3;
+
+          // Core Seed Particle (The bright center)
+          if (k === 0) {
+            targetArray[vIdx] = nx; targetArray[vIdx + 1] = ny; targetArray[vIdx + 2] = nz;
+            detailArray[vIdx] = nx; detailArray[vIdx + 1] = ny; detailArray[vIdx + 2] = nz;
+            staticArray[idx] = 1.0;
+            sizeArray[idx] = 40.0; // V-3.4: MASSIVE SIZE BOOST
+            colorArray[vIdx] = 1.0; colorArray[vIdx + 1] = 1.0; colorArray[vIdx + 2] = 1.0;
+          } else {
+            // Cloud around the node
+            const rcl = 45 * Math.random();
+            const tcl = Math.random() * Math.PI * 2;
+            const pcl = Math.acos(2 * Math.random() - 1);
+            const tx = nx + rcl * Math.sin(pcl) * Math.cos(tcl);
+            const ty = ny + rcl * Math.sin(pcl) * Math.sin(tcl);
+            const tz = nz + rcl * Math.cos(pcl);
+
+            targetArray[vIdx] = tx; targetArray[vIdx + 1] = ty; targetArray[vIdx + 2] = tz;
+            detailArray[vIdx] = tx; detailArray[vIdx + 1] = ty; detailArray[vIdx + 2] = tz;
+            staticArray[idx] = 0.6; // Slightly more static
+            sizeArray[idx] = 2.0 + Math.random() * 3.0;
+
+            // Color Logic
+            if (nodes[n].isThesis) {
+              colorArray[vIdx] = 0.0; colorArray[vIdx + 1] = 1.0; colorArray[vIdx + 2] = 0.5;
+            } else if (nodes[n].fixedPos) {
+              // Core Colors (Cyan/Blue)
+              colorArray[vIdx] = 0.0; colorArray[vIdx + 1] = 0.7; colorArray[vIdx + 2] = 1.0;
+            } else {
+              // User Nodes (Purple/Pink?)
+              colorArray[vIdx] = 1.0; colorArray[vIdx + 1] = 0.2; colorArray[vIdx + 2] = 0.8;
+            }
+          }
+        }
+        pCursor += partPerNode;
+      }
+
+      // 2. Handle Remaining Particles (Background Cloud)
+      // They should form a loose shell or just drift
+      for (let i = pCursor; i < particlesCount; i++) {
+        const vIdx = i * 3;
+        // Reset to random sphere if not assigned to a node?
+        // Or keep previous position? Better to reset to a nice background field.
+        const r = 250 * (0.8 + Math.random() * 0.4);
+        const th = Math.random() * Math.PI * 2;
+        const ph = Math.acos(2 * Math.random() - 1);
+
+        const tx = r * Math.sin(ph) * Math.cos(th);
+        const ty = r * Math.sin(ph) * Math.sin(th);
+        const tz = r * Math.cos(ph);
+
+        targetArray[vIdx] = tx; targetArray[vIdx + 1] = ty; targetArray[vIdx + 2] = tz;
+        detailArray[vIdx] = tx; detailArray[vIdx + 1] = ty; detailArray[vIdx + 2] = tz;
+        staticArray[i] = 0.0; // Dynamic
+        sizeArray[i] = 1.0 + Math.random() * 2.0;
+        colorArray[vIdx] = 0.5; colorArray[vIdx + 1] = 0.6; colorArray[vIdx + 2] = 0.8;
+      }
+
+      geometry.attributes.aTarget.needsUpdate = true;
+      geometry.attributes.aDetail.needsUpdate = true;
+      geometry.attributes.aStatic.needsUpdate = true;
+      geometry.attributes.aColor.needsUpdate = true;
+      geometry.attributes.aSize.needsUpdate = true;
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    geometry.setAttribute('aIncubator', new THREE.BufferAttribute(incubatorArray, 3));
+    geometry.setAttribute('aTarget', new THREE.BufferAttribute(targetArray, 3));
+    geometry.setAttribute('aDetail', new THREE.BufferAttribute(detailArray, 3));
+    geometry.setAttribute('aSize', new THREE.BufferAttribute(sizeArray, 1));
+    geometry.setAttribute('aColor', new THREE.BufferAttribute(colorArray, 3));
+    geometry.setAttribute('aRandom', new THREE.BufferAttribute(randomArray, 1));
+    geometry.setAttribute('aStatic', new THREE.BufferAttribute(staticArray, 1));
+
+    const shaderMat = new THREE.ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        uProgress1: { value: 0 }, uProgress2: { value: 0 }, uProgress3: { value: 0 },
+        uPixelRatio: { value: renderer.getPixelRatio() },
+        uMouse: { value: new THREE.Vector2(0, 0) }, uMouseActive: { value: 0 },
+        uTexture: { value: createGlowTexture() },
+        uGraphZoom: { value: 1.0 }, uMobile: { value: 0.0 }
+      },
+      vertexShader: `
+                uniform float uTime; uniform float uProgress1; uniform float uProgress2; uniform float uProgress3;
+                uniform float uPixelRatio; uniform vec2 uMouse; uniform float uMouseActive; uniform float uGraphZoom; uniform float uMobile;
+                attribute vec3 aIncubator; attribute vec3 aTarget; attribute vec3 aDetail;
+                attribute float aSize; attribute vec3 aColor; attribute float aRandom; attribute float aStatic;
+                varying vec3 vColor; varying float vAlpha; varying float vPulse; varying float vIsNode;
+                vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+                float snoise(vec2 v) {
+                    const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+                    vec2 i  = floor(v + dot(v, C.yy) );
+                    vec2 x0 = v - i + dot(i, C.xx);
+                    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                    vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1;
+                    i = mod289(i);
+                    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+                    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+                    m = m*m ; m = m*m ;
+                    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                    vec3 h = abs(x) - 0.5;
+                    vec3 ox = floor(x + 0.5); vec3 a0 = x - ox;
+                    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+                    vec3 g; g.x = a0.x * x0.x + h.x * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                    return 130.0 * dot(m, g);
+                }
+                void main() {
+                    vColor = aColor;
+                    float t1 = smoothstep(0.0, 1.0, uProgress1);
+                    float t2 = smoothstep(0.0, 1.0, uProgress2);
+                    float t3 = smoothstep(0.0, 1.0, uProgress3);
+                    
+                    vec3 vBase = mix(position, aIncubator, t1);
+                    vec3 vFinal = mix(vBase, aTarget, t2);
+                    
+                    // V3.2 FIX: Nodes (aStatic > 0.5) should NOT go back to sphere in Slide 3 (Drill Down)
+                    // Non-nodes (cloud) should thin out but stay mostly in place or move slightly
+                    vec3 vSubPos = mix(vFinal, aDetail, t3 * (1.0 - aStatic));
+                    
+                    // If it's a node, keep it at its Slide 2 target
+                    vec3 finalPos = mix(vSubPos, vFinal, aStatic * t3);
+                    
+                    float scaleFactor = mix(0.65, 0.75, t2);
+                    float finalScale = mix(1.0, scaleFactor, uMobile);
+                    
+                    if(aStatic > 0.5) finalPos *= uGraphZoom;
+                    finalPos *= finalScale;
+                    
+                    float moveFactor = 1.0 - (aStatic * t3);
+                    float ns = 0.015; float ts = uTime * 0.15;
+                    
+                    // V5.0 FIX: Tasks (aStatic > 0.5) must NOT move AT ALL for 100% click hits
+                    float noiseAmt = mix(3.5, 1.2, t2) * moveFactor * (1.0 - step(0.4, aStatic));
+                    float nx = snoise(vec2(position.x * ns, position.y * ns + ts + aRandom));
+                    float ny = snoise(vec2(position.y * ns, position.z * ns + ts + aRandom + 10.0));
+                    float nz = snoise(vec2(position.z * ns, position.x * ns + ts + aRandom + 20.0));
+                    
+                    finalPos += vec3(nx, ny, nz) * noiseAmt;
+                    
+                    vec3 bDir = normalize(position);
+                    finalPos += bDir * sin(uTime * 0.8 + aRandom * 5.0) * (2.0 + 2.0 * (1.0-t2)) * (1.0 - step(0.4, aStatic));
+                    
+                    if (uMouseActive > 0.05 && moveFactor > 0.1 && aStatic < 0.1) {
+                        float rRadius = 300.0 * finalScale;
+                        float dist = distance(finalPos.xy, uMouse.xy);
+                        if (dist < rRadius) {
+                            float f = pow((rRadius - dist) / rRadius, 2.0);
+                            finalPos += normalize(finalPos - vec3(uMouse.xy, finalPos.z)) * f * 55.0 * finalScale;
+                        }
+                    }
+                    
+                    vec4 mvPos = modelViewMatrix * vec4(finalPos, 1.0);
+                    gl_Position = projectionMatrix * mvPos;
+                    
+                    float baseSize = aSize * (500.0 / -mvPos.z) * uPixelRatio;
+                    vIsNode = aStatic; vPulse = 0.0;
+                    
+                    if(aStatic > 0.5) { 
+                        baseSize *= uGraphZoom; 
+                        float p = sin(uTime * 2.5 + aRandom * 10.0) * 0.5 + 0.5; 
+                        vPulse = p; 
+                        baseSize *= (1.0 + p * 0.3 * t3); 
+                    }
+                    
+                    gl_PointSize = baseSize * mix(1.0, 0.65, uMobile);
+                    
+                    // Cloud Visibility Fix: Don't disappear in Slide 2/3
+                    float targetAlpha = (aSize < 5.0 ? 0.6 : 1.0);
+                    float drillAlpha = (aStatic < 0.5 ? 0.45 : 1.0);
+                    vAlpha = mix(mix(1.0, targetAlpha, t2), drillAlpha, t3);
+                }
+            `,
+      fragmentShader: `
+                uniform sampler2D uTexture; varying vec3 vColor; varying float vAlpha; varying float vPulse; varying float vIsNode;
+                void main() {
+                    vec4 tex = texture2D(uTexture, gl_PointCoord);
+                    vec4 finalColor = vec4(vColor, vAlpha * tex.a);
+                    if (vIsNode > 0.5) { 
+                        // Boosted glow for task visibility
+                        float glow = 2.0 + vPulse * 2.0; 
+                        finalColor.rgb *= glow; 
+                    }
+                    gl_FragColor = finalColor;
+                }
+            `,
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+    });
+
+    const particlesMesh = new THREE.Points(geometry, shaderMat);
+    const group = new THREE.Group();
+    group.add(particlesMesh);
+    scene.add(group);
+
+    // --- LABELS (CLICKABLE AREAS) ---
+    function createLabel(text, pos) {
+      const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
+      canvas.width = 512; canvas.height = 128;
+      // Increased Font Weight to 700 and optimized for visibility
+      ctx.font = '700 48px -apple-system, sans-serif';
+      ctx.fillStyle = '#ffffff';
+      ctx.textAlign = 'center';
+      ctx.letterSpacing = '5px';
+
+      // Advanced shadow for deep contrast against cloud
+      ctx.shadowColor = "rgba(0, 255, 255, 0.6)"; // Cyan glow
+      ctx.shadowBlur = 12;
+      ctx.strokeText(text.toUpperCase(), 256, 75); // Subtle outline
+      ctx.fillText(text.toUpperCase(), 256, 75);
+
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, opacity: 0 }));
+      sprite.position.copy(pos).multiplyScalar(1.2);
+      sprite.scale.set(130 * 0.75, 32 * 0.75, 1);
+      return sprite;
+    }
+    const labels = cores.map(c => createLabel(c.name, c.pos));
+    labels.forEach(l => group.add(l));
+
+    // --- NODE INTERACTION (TASK HITBOXES) ---
+    const nodeHitboxes = [];
+    const hitboxGeo = new THREE.SphereGeometry(60, 16, 16); // Increased size and segments
+    const hitboxMat = new THREE.MeshBasicMaterial({
+      transparent: true,
+      opacity: 0.0, // Hidden for production, set to 0.2 for debug
+      color: 0xff00ff, // Magenta for high visibility debug
+      depthWrite: false
+    });
+
+    // --- INTERACTION LOGIC ---
+    let mom = { x: 0, y: 0 };
+    const ray = new THREE.Raycaster();
+    ray.params.Line.threshold = 10;
+    ray.params.Points.threshold = 10;
+    const mv = new THREE.Vector2(); const pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+    // --- CAMERA & UI LOGIC ---
+    const targetCameraPos = new THREE.Vector3(0, 0, 450);
+    const targetLookAt = new THREE.Vector3(0, 0, 0);
+
+    function showDetail(name) {
+      isDrilled = true;
+      currentCategory = name;
+
+      const content = SECTION_CONTENT[name] || { title: name, desc: "", thesis: [] };
+      document.getElementById('p-title').innerText = content.title;
+      document.getElementById('p-desc').innerText = content.desc;
+      document.getElementById('p-header').innerText = "Structural Level 2";
+
+      // Render Task List (Nodes)
+      const allNodes = getCurrentContextNodes();
+      updateParticlesForNodes(allNodes);
+
+      const listContainer = document.querySelector('.detail-thesis') || document.createElement('ul');
+      listContainer.className = 'detail-thesis';
+      listContainer.innerHTML = '';
+
+      content.thesis.forEach(t => {
+        const li = document.createElement('li');
+        li.innerText = t;
+        listContainer.appendChild(li);
+      });
+
+      // Add Dynamic Nodes
+      VZOR_STATE.nodes.forEach(node => {
+        const li = document.createElement('li');
+        li.style.color = '#00ffff';
+        li.style.fontWeight = 'bold';
+        li.innerText = node.label;
+        listContainer.appendChild(li);
+      });
+
+      // Add Dynamic Nodes
+      VZOR_STATE.nodes.forEach(node => {
+        const li = document.createElement('li');
+        li.style.color = '#00ffff';
+        li.style.fontWeight = 'bold';
+        li.innerText = node.label;
+        listContainer.appendChild(li);
+      });
+
+      if (!document.querySelector('.detail-thesis')) {
+        document.getElementById('detail-panel').appendChild(listContainer);
+      }
+
+      document.getElementById('slideTitle').innerText = "VZOR " + name;
+      document.getElementById('detail-panel').classList.add('active');
+      document.getElementById('back-button').classList.add('visible');
+      document.body.style.overflow = 'hidden';
+
+      controls.enabled = true;
+      controls.enableZoom = true;
+
+      // V5.2: Smooth Fly-In to Center
+      targetCameraPos.set(0, 0, 200); // Zoom in significantly
+      targetLookAt.set(0, 0, 0);
+
+      shaderMat.uniforms.uGraphZoom.value = 1.0;
+    }
+
+    document.getElementById('back-button').addEventListener('click', () => {
+      isDrilled = false;
+      document.getElementById('detail-panel').classList.remove('active');
+      document.getElementById('back-button').classList.remove('visible');
+      document.body.style.overflow = '';
+
+      controls.enabled = false;
+      group.rotation.set(0, 0, 0); // Reset rotation
+
+      // Fly back to Overview
+      targetCameraPos.set(0, 0, 450);
+      targetLookAt.set(0, 0, 0);
+    });
+
+    document.getElementById('close-detail').addEventListener('click', () => {
+      document.getElementById('detail-panel').classList.remove('active');
+    });
+
+    // V5.0: Auto-close on mouse out
+    document.getElementById('detail-panel').addEventListener('mouseleave', () => {
+      document.getElementById('detail-panel').classList.remove('active');
+    });
+
+    function showNodeDetail(hitbox) {
+      console.log("VZOR: Node clicked:", hitbox.userData.label);
+      isDrilled = true;
+      const label = hitbox.userData.label;
+      currentCategory = "NODE_VIEW"; // Distinct state?
+
+      document.getElementById('p-title').innerText = label;
+      document.getElementById('p-header').innerText = "TASK INTELLIGENCE";
+      document.getElementById('p-desc').innerText = "Interacting with primary data node.";
+
+      const listContainer = document.querySelector('.detail-thesis') || document.createElement('ul');
+      listContainer.className = 'detail-thesis';
+      listContainer.innerHTML = `
+          <li style="color: #00ffff; font-weight: bold;">GOAL: ${label}</li>
+          <li>INPUT: Market Neural Pulse</li>
+          <li>SOLUTION: Pattern Optimization</li>
+          <li style="color: #66ff66;">STATUS: ACTIVE</li>
+          <li style="color: #ffcc00; font-weight: bold;">AGENT: AI-VZOR-01</li>
+      `;
+
+      if (!document.querySelector('.detail-thesis')) {
+        document.getElementById('detail-panel').appendChild(listContainer);
+      }
+
+      document.getElementById('slideTitle').innerText = "TASK ACTIVE";
+      document.getElementById('detail-panel').classList.add('active');
+      document.getElementById('back-button').classList.add('visible');
+
+      controls.enabled = true;
+      controls.enableZoom = true;
+
+      // V5.2: Fly Into the Node
+      const worldPos = new THREE.Vector3();
+      hitbox.getWorldPosition(worldPos);
+
+      // Calculate a position slightly offset from the node to look at it
+      const offset = worldPos.clone().normalize().multiplyScalar(100);
+      targetCameraPos.copy(worldPos).add(offset); // Look from 100 units away
+      targetLookAt.copy(worldPos);
+    }
+
+    // CLICK HANDLER (V4.4: Using renderer.domElement for best isolation)
+    let pointerDownPos = { x: 0, y: 0 };
+    renderer.domElement.addEventListener('pointerdown', e => {
+      pointerDownPos = { x: e.clientX, y: e.clientY };
+    });
+
+    renderer.domElement.addEventListener('pointerup', e => {
+      const dist = Math.hypot(e.clientX - pointerDownPos.x, e.clientY - pointerDownPos.y);
+      if (dist > 25) return; // More generous threshold (V4.3)
+
+      // Get Relative Mv
+      const rect = renderer.domElement.getBoundingClientRect();
+      mv.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+      mv.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+      group.updateMatrixWorld();
+      ray.setFromCamera(mv, camera);
+
+      // Recursive Check on the whole group (Guaranteed hits)
+      const hits = ray.intersectObjects(group.children, true);
+      const nodeHit = hits.find(h => h.object.userData.vObject);
+
+      if (nodeHit) {
+        showNodeDetail(nodeHit.object);
+        return;
+      }
+
+      if (!isDrilled) {
+        const labelHit = hits.find(h => h.object.type === 'Sprite');
+        if (labelHit) {
+          const idx = labels.indexOf(labelHit.object);
+          if (idx !== -1) showDetail(cores[idx].name);
+        }
+      }
+    });
+
+    // 1. CLICK TO ENTER BACKUP
+    window.addEventListener('click', e => {
+      if (!isEntered) {
+        isEntered = true;
+        window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+      }
+    });
+
+    // V5.0: EXPLICIT API ENTRY
+    window.VZOR_API.enter = () => {
+      isEntered = true;
+      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+    };
+    // ROTATION / PARALLAX
+    let mouseTimer;
+    function move(x, y) {
+      mv.x = (x / window.innerWidth) * 2 - 1; mv.y = -(y / window.innerHeight) * 2 + 1;
+      ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
+      shaderMat.uniforms.uMouse.value.set(pt.x, pt.y);
+      shaderMat.uniforms.uMouseActive.value = 1.0;
+      if (isDrag && !isDrilled) {
+        let dx = x - prevM.x; let dy = y - prevM.y;
+        group.rotation.y += dx * 0.005; group.rotation.x += dy * 0.005;
+        prevM = { x, y };
+      }
+
+      // V4.1: Hover Feedback
+      if (!isDrag) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        mv.x = ((x - rect.left) / rect.width) * 2 - 1;
+        mv.y = -((y - rect.top) / rect.height) * 2 + 1;
+        ray.setFromCamera(mv, camera);
+
+        group.updateMatrixWorld();
+        const hits = ray.intersectObjects(group.children, true);
+        const hasHit = hits.some(h => h.object.userData.vObject || h.object.type === 'Sprite');
+        document.body.style.cursor = hasHit ? 'pointer' : 'default';
+      }
+    }
+    renderer.domElement.addEventListener('mousedown', e => { isDrag = true; prevM = { x: e.clientX, y: e.clientY }; shaderMat.uniforms.uMouseActive.value = 1; });
+    window.addEventListener('mousemove', e => { move(e.clientX, e.clientY); });
+    window.addEventListener('mouseup', () => isDrag = false);
+    window.addEventListener('scroll', () => {
+      if (!isEntered && window.scrollY > 10) {
+        window.scrollTo(0, 0); // Lock it
+        return;
+      }
+      const h = document.getElementById('scroll-container').offsetHeight - window.innerHeight;
+      targetP = Math.max(0, Math.min(1, window.scrollY / h));
+    });
+
+    // ANIMATION LOOP
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const time = clock.getElapsedTime();
+
+      // V5.2: Camera Tween
+      camera.position.lerp(targetCameraPos, 0.05);
+      controls.target.lerp(targetLookAt, 0.05);
+      controls.update(); // Important for damping
+
+      smoothP += (targetP - smoothP) * 0.05;
+
+      if (isDrilled) drillProg += (1 - drillProg) * 0.08;
+      else drillProg += (0 - drillProg) * 0.08;
+
+      shaderMat.uniforms.uTime.value = time;
+      shaderMat.uniforms.uProgress1.value = Math.max(0, Math.min(1, (smoothP - 0.05) / 0.3));
+      shaderMat.uniforms.uProgress2.value = Math.max(0, Math.min(1, (smoothP - 0.30) / 0.4)); // Start earlier
+      shaderMat.uniforms.uProgress3.value = drillProg;
+
+      // Labels Opacity (V5.2 Fix: Force visible if entered)
+      let finalLabelOp = 0;
+      if (isEntered || smoothP > 0.8) finalLabelOp = 1.0;
+      if (isDrilled) finalLabelOp = 0.0; // Hide when drilled
+
+      // Smooth transition for labels
+      labels.forEach(l => {
+        l.material.opacity += (finalLabelOp - l.material.opacity) * 0.1;
+        l.visible = l.material.opacity > 0.01;
+      });
+
+      // V4.3 DEFINITIVE FIX: Global Hitbox Sync (All Stages)
+      const zoom = shaderMat.uniforms.uGraphZoom.value;
+      nodeHitboxes.forEach(h => {
+        if (h.userData.basePos) {
+          h.position.copy(h.userData.basePos).multiplyScalar(zoom);
+        }
+        h.scale.setScalar(zoom);
+        h.updateMatrixWorld();
+      });
+
+      if (isDrilled) {
+        controls.update();
+      } else {
+        // FIXED: Restore Rotation and Fix Side-Drift (V3.8)
+        group.rotation.y += 0.001; // Constant slow spin
+        if (!isDrag) {
+          // V5.0 ALIGNMENT FIX: Remove targetP rotation to keep labels CENTERED
+          group.rotation.y += (0 - group.rotation.y) * 0.05;
+          group.rotation.x += (0 - group.rotation.x) * 0.08;
+        }
+      }
+
+      renderer.render(scene, camera);
+      updateUI(smoothP);
+    }
+    updateParticlesForNodes(getCurrentContextNodes());
+    animate();
+
+    function updateUI(p) {
+      const idx = Math.min(slides.length - 1, Math.floor(p * slides.length + 0.1));
+      const s = slides[idx];
+      document.querySelectorAll('.progress-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+      const ct = document.getElementById('centerText'); const si = document.getElementById('slideInfo');
+      if (idx === 0) {
+        ct.style.opacity = 1; si.style.opacity = 0;
+        ct.querySelector('h1').innerText = s.title;
+      } else {
+        ct.style.opacity = 0; si.style.opacity = 1;
+        if (!isDrilled) {
+          document.getElementById('slideTitle').innerText = s.title;
+          document.getElementById('slideDesc').innerText = s.desc;
+        }
+      }
+    }
+  </script>
 </body>
 
 </html>
