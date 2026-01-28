@@ -409,7 +409,7 @@ const Viewport3D_V3: React.FC = () => {
             animateUniform('uProgress1', 1);
             animateUniform('uProgress2', 0);
         } else if (appState === 'WORK') {
-            animateUniform('uProgress1', 1);
+            animateUniform('uProgress1', 0);
             animateUniform('uProgress2', 1);
         }
 
@@ -535,9 +535,22 @@ const Viewport3D_V3: React.FC = () => {
 
     const handleCreateTask = () => {
         if (!taskInput.trim()) return;
-        // Simulate adding a task -> This updates store -> triggers particle realignment
-        useVzorStore.getState().selectAgent('new_test_agent'); // Placeholder action
-        // In real app, this would call addBlock/addAgent
+
+        const newId = `task_${Date.now()}`;
+        const newAgent = {
+            id: newId,
+            role: taskInput, // Use input as Role/Label
+            name: taskInput,
+            status: 'pending',
+            inputs: [],
+            outputs: []
+        };
+
+        console.log('[VZOR] Creating new agent:', newAgent);
+        useWorkflowStore.getState().addAgent(newAgent);
+
+        // Auto-select the new node
+        setSelectedNodeId(newId);
         setTaskInput('');
     };
 
@@ -547,10 +560,10 @@ const Viewport3D_V3: React.FC = () => {
     // Fallback for special nodes
     const getNodeDetails = () => {
         if (!selectedNodeId) return null;
-        if (selectedAgent) return { type: 'NEURAL AGENT', role: selectedAgent.role || 'Agent', status: selectedAgent.status };
-        if (selectedNodeId === 'site_input') return { type: 'SYSTEM INPUT', role: 'Data Ingestion', status: 'ACTIVE' };
-        if (selectedNodeId === 'task_main') return { type: 'MAIN TASK', role: 'Workflow Core', status: 'PROCESSING' };
-        return { type: 'UNKNOWN NODE', role: selectedNodeId, status: 'IDLE' };
+        if (selectedAgent) return { type: 'NEURAL AGENT', role: selectedAgent.role || 'Agent', status: selectedAgent.status, label: selectedAgent.role };
+        if (selectedNodeId === 'site_input') return { type: 'SYSTEM INPUT', role: 'Data Ingestion', status: 'ACTIVE', label: 'Inputs' };
+        if (selectedNodeId === 'task_main') return { type: 'MAIN TASK', role: 'Workflow Core', status: 'PROCESSING', label: 'Main Task' };
+        return { type: 'UNKNOWN NODE', role: selectedNodeId, status: 'IDLE', label: selectedNodeId };
     };
     const nodeDetails = getNodeDetails();
 
@@ -656,7 +669,7 @@ const Viewport3D_V3: React.FC = () => {
                             </div>
                             <div>
                                 <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Role</div>
-                                <div className="text-lg text-white">{nodeDetails?.role}</div>
+                                <div className="text-lg text-white">{nodeDetails?.label || nodeDetails?.role}</div>
                             </div>
                             <div>
                                 <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Load</div>
