@@ -192,8 +192,9 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
-        /* Detail View Overlay (Side Panel) */
-        #detail-panel {
+        /* Detail View Overlay */
+        #detail-panel,
+        #task-interface {
             position: fixed;
             top: 50%;
             right: -450px;
@@ -210,69 +211,29 @@
             display: flex;
             flex-direction: column;
             gap: 20px;
-            height: 100vh;
-            /* Full height for side panel or centered? Orig was centered fixed height effectively. Let's keep it centered but taller if needed or stick to original. Orig was fixed width. */
-            /* Reverting to original height behavior but ensuring separation from task interface */
-            height: auto;
-            min-height: 600px;
-            max-height: 90vh;
             border-radius: 20px 0 0 20px;
         }
 
-        #detail-panel.active {
+        #detail-panel.active,
+        #task-interface.active {
             right: 0;
         }
 
-        /* TASK INTERFACE (Floating Pill - Minimal) */
-        #task-interface {
-            position: fixed;
-            bottom: -150px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: auto;
-            min-width: 320px;
-            /* Much smaller */
-            max-width: 600px;
-            background: rgba(10, 10, 10, 0.85);
-            /* Slightly more transparent/dark */
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            /* Very compact */
-            z-index: 100;
-            transition: bottom 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #task-interface.active {
-            bottom: 30px;
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-
 
         .detail-header {
-            font-size: 0.8em;
+            font-size: 0.7em;
+            letter-spacing: 0.3em;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: rgba(255, 255, 255, 0.5);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 400;
         }
 
         .detail-title {
             font-size: 1.8em;
-            color: #ffffff;
-            font-family: 'Outfit', sans-serif;
             font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-top: -5px;
+            line-height: 1.2;
         }
 
         .detail-content {
@@ -290,77 +251,19 @@
         }
 
         .detail-thesis li {
-            margin-bottom: 10px;
             position: relative;
-            padding-left: 15px;
+            padding-left: 20px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #fff;
         }
 
         .detail-thesis li::before {
-            content: '•';
-            color: #00ffff;
+            content: "•";
             position: absolute;
             left: 0;
             color: #00ffff;
             font-weight: bold;
-        }
-
-        /* NEW: Toggle and Task List Styles */
-        #toggle-tasks {
-            background: transparent;
-            border: none;
-            color: #00ffff;
-            font-size: 1.5em;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: transform 0.3s ease;
-            outline: none;
-        }
-
-        #toggle-tasks.open {
-            transform: rotate(180deg);
-        }
-
-        #task-list-container {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.5s ease-out;
-            margin-top: 10px;
-            opacity: 0;
-        }
-
-        #task-list-container.open {
-            max-height: 500px;
-            /* Arbitrary large enough value */
-            opacity: 1;
-        }
-
-        .task-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
-            margin-bottom: 8px;
-            border-radius: 8px;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s;
-        }
-
-        .task-item:hover {
-            background: rgba(0, 255, 255, 0.1);
-            border-color: #00ffff;
-        }
-
-        .task-item span {
-            font-size: 0.9em;
-            color: rgba(255, 255, 255, 0.9);
-        }
-
-        .task-item .status {
-            font-size: 0.7em;
-            color: #00ffff;
-            text-transform: uppercase;
         }
 
         .detail-line {
@@ -524,81 +427,6 @@
             /* Slightly shorter for easier scrolling */
         }
 
-        /* REFINED BOTTOM PANEL (Minimal Command Bar) */
-        #bottom-panel {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            /* Hidden initially */
-            width: auto;
-            z-index: 200;
-            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #bottom-panel.active {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        #bottom-panel.active {
-            transform: translateX(-50%) translateY(0);
-        }
-
-        .bp-input-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(15px);
-            padding: 8px 20px;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            min-width: 400px;
-            transition: all 0.3s ease;
-        }
-
-        .bp-input-container:focus-within {
-            border-color: #00ffff;
-            background: rgba(10, 10, 10, 0.8);
-            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.1);
-        }
-
-        #task-input {
-            flex-grow: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            font-family: 'Outfit';
-            font-size: 1rem;
-            outline: none;
-            letter-spacing: 0.05em;
-        }
-
-        #task-input::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .bp-divider {
-            width: 1px;
-            height: 20px;
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        /* Mic Button Animation */
-        #mic-btn.listening svg path,
-        #mic-btn.listening svg rect {
-            stroke: #00ffff;
-            filter: drop-shadow(0 0 5px #00ffff);
-        }
-
         #canvas-wrapper {
             touch-action: pan-y;
             pointer-events: auto;
@@ -613,7 +441,6 @@
     <div id="scroll-container"></div>
     <div id="canvas-wrapper"></div>
 
-
     <div class="center-text" id="centerText">
         <h1>VZOR</h1>
         <p>capital data system</p>
@@ -627,10 +454,30 @@
 
     <!-- ADD BUTTON (Visible on Slide 2) -->
     <!-- ADD BUTTON (Visible on Slide 2) -->
-    <!-- ADD BUTTON REMOVED (Logic replaced by automated context) -->
-    <!-- <div id="add-task-btn" ...></div> -->
+    <div id="add-task-btn" class="nav-btn visible" style="top: 40px; right: 40px; left: auto; cursor: pointer;"
+        onclick="document.getElementById('task-interface').classList.add('active'); document.getElementById('detail-panel').classList.remove('active');">
+        + ADD
+    </div>
 
-    <!-- TASK INTERFACE REMOVED (Controls moved to Bottom Panel) -->
+    <!-- TASK CREATION INTERFACE (Hidden by default) -->
+    <div id="task-interface" class="detail-panel" style="right: -450px; left: auto; border-radius: 20px 0 0 20px;">
+        <div class="detail-header">НОВАЯ ЗАДАЧА</div>
+        <div class="detail-title">Создание</div>
+        <div class="detail-line"></div>
+        <div class="detail-content">
+            <p>Опишите задачу голосом или текстом:</p>
+            <textarea id="task-input" placeholder="Введите описание задачи..."
+                style="width: 100%; height: 100px; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 10px; margin-bottom: 20px; border-radius: 5px;"></textarea>
+
+            <div style="display: flex; gap: 10px;">
+                <button id="mic-btn" class="nav-btn"
+                    style="position: static; width: 50px; justify-content: center;">🎤</button>
+                <button id="create-btn" class="nav-btn"
+                    style="position: static; flex-grow: 1; justify-content: center;">СОЗДАТЬ</button>
+            </div>
+            <div id="status-msg" style="margin-top: 10px; font-size: 0.8em; color: gray;"></div>
+        </div>
+    </div>
 
 
     <div class="slide-info" id="slideInfo">
@@ -639,16 +486,8 @@
     </div>
 
     <div class="progress-indicator" id="progressDots"></div>
-
-    <!-- LEFT-SIDE SCROLL HINT -->
     <div class="scroll-hint" id="scrollHint">Scroll Down</div>
-
-    <!-- PANEL TOGGLE (Chevron) -->
-    <div class="panel-toggle" id="panelToggle" onclick="toggleDetailPanel()">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2">
-            <polyline points="15 18 9 12 15 6"></polyline>
-        </svg>
-    </div>
+    <button class="cta-button" id="ctaButton">Access VZOR Standard</button>
 
     <!-- BACK BUTTON (Drill Down) -->
     <div id="back-button" class="nav-btn">
@@ -658,26 +497,9 @@
         <div class="detail-header">Structural Level 2</div>
         <div class="detail-title" id="p-title">Finance</div>
         <div class="detail-line"></div>
-        <div id="p-desc" class="detail-content"></div>
-
-    </div>
-
-    <!-- NEW BOTTOM PANEL (Moved to Root) -->
-    <div id="bottom-panel">
-        <!-- Integrated Input Controls (Clean & Minimal) -->
-        <div class="bp-input-container">
-            <input type="text" id="task-input" placeholder="Enter command or task..." onkeydown="handleInput(event)">
-
-            <div class="bp-divider"></div>
-
-            <button id="mic-btn" class="nav-btn" onclick="toggleVoice()" title="AI Voice Command">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="9" y="2" width="6" height="12" rx="3" stroke="#00ffff" stroke-width="2" />
-                    <path d="M5 11C5 14.866 8.13401 18 12 18C15.866 18 19 14.866 19 11" stroke="#00ffff"
-                        stroke-width="2" stroke-linecap="round" />
-                    <path d="M12 18V22M8 22H16" stroke="#00ffff" stroke-width="2" stroke-linecap="round" />
-                </svg>
-            </button>
+        <div class="detail-content" id="p-desc">
+            Autonomous financial engine designed to mitigate temporal inflation and synchronize capital flows across
+            global jurisdictions.
         </div>
     </div>
 
@@ -1208,7 +1030,7 @@
         const taskGeo = new THREE.SphereGeometry(4, 16, 16); // Task Points
         const taskMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 }); // Orange for User Tasks
 
-        function addTaskPoint(title, category) {
+        function addTaskPoint(title) {
             // Create visual point in the cloud
             // Position it randomly in front of the camera or near the center
             const m = new THREE.Mesh(taskGeo, taskMat);
@@ -1225,7 +1047,7 @@
             );
 
             group.add(m);
-            userTasks.push({ mesh: m, title: title, category: category, created: Date.now() });
+            userTasks.push({ mesh: m, title: title, created: Date.now() });
             return m;
         }
 
@@ -1240,7 +1062,59 @@
 
 
 
+        function onClick(e) {
+            if (!isClickValid) return; // Ignore drag-clicks
 
+            // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
+            if (smoothP < 0.1) {
+                targetP = 1.0;
+                return;
+            }
+
+            mv.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mv.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            ray.setFromCamera(mv, camera);
+
+            if (!isDrilled) {
+                // LEVEL 1 INTERACTION (Development, Finance, Estate)
+                if (smoothP < 0.8) return; // Only on Slide 2
+
+                const hits = ray.intersectObjects(labels);
+                if (hits.length > 0) {
+                    const label = hits[0].object;
+                    const data = coreData[labels.indexOf(label)];
+                    isDrilled = true;
+                    currentCategory = data.name;
+                    showDetail(data.name);
+                }
+            } else {
+                // LEVEL 2 INTERACTION (Inner Graph Nodes)
+                // Check intersection with detail targets
+                const hits = ray.intersectObjects(detailTargets);
+                if (hits.length > 0) {
+                    // Clicked on a Node
+                    const idx = detailTargets.indexOf(hits[0].object);
+                    updateDetailPanelForSubTask(idx);
+                } else {
+                    // CHECK USER TASKS
+                    const taskHits = ray.intersectObjects(userTasks.map(t => t.mesh));
+                    if (taskHits.length > 0) {
+                        const taskPayload = userTasks.find(t => t.mesh === taskHits[0].object);
+                        if (taskPayload) {
+                            // Open panel with Task Info
+                            const header = document.querySelector('.detail-header');
+                            header.innerText = "ПОЛЬЗОВАТЕЛЬСКАЯ ЗАДАЧА";
+                            document.getElementById('p-title').innerText = taskPayload.title;
+                            document.getElementById('p-desc').innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
+                            document.getElementById('detail-panel').classList.add('active'); // Force open
+                        }
+                    } else {
+                        // Clicked on Background (Void) -> RESET TO CATEGORY
+                        showDetail(currentCategory);
+                    }
+                }
+            }
+        }
 
         function showDetail(name) {
             // Update Top Header (Conditional Branding)
@@ -1287,80 +1161,19 @@
             // LOCK SCROLL (CSS Method)
             document.body.style.overflow = 'hidden';
 
-            // NEW: Show Bottom Panel
-            document.getElementById('bottom-panel').classList.add('active');
-            // updateTaskList(name); // REMOVED: List is gone
-        }
+            // Enable Orbit Controls
+            controls.enabled = true;
+            controls.target.set(0, 0, 0);
 
-        // --- NEW INPUT HANDLER ---
-        window.handleInput = function (event) {
-            if (event.key === 'Enter') {
-                const text = event.target.value.trim();
-                if (text) {
-                    console.log("Task Created:", text);
-                    createTaskNode(text);
-                    event.target.value = '';
-                }
-            }
-        };
+            // Sync Camera Z for smooth transition (optional, logic handles it)
 
-        window.toggleVoice = function () {
-            const btn = document.getElementById('mic-btn');
-            // Toggle Visual State for now (Simulation)
-            if (btn.classList.contains('listening')) {
-                btn.classList.remove('listening');
-                btn.style.borderColor = "transparent";
-                console.log("Voice Stopped");
-            } else {
-                btn.classList.add('listening');
-                btn.style.borderColor = "#00ffff"; // Cyan glow
-                console.log("Voice Listening...");
-
-                // Simulate simple recognition after 2s
+            // AUTOMATICALLY OPEN TASK INTERFACE FOR DEVELOPMENT
+            if (name === "Development") {
                 setTimeout(() => {
-                    btn.classList.remove('listening');
-                    btn.style.borderColor = "transparent";
-                    createTaskNode("Voice Command: Analyze Budget");
-                }, 2000);
-            }
-        };
-
-        function createTaskNode(text) {
-            // Create a visual node for the task
-            if (!currentCategory) return;
-
-            // Random Position in "Cloud"
-            const group = scene.children.find(c => c.type === "Group"); // Assuming main point cloud group
-            if (group) {
-                const m = new THREE.Mesh(
-                    new THREE.SphereGeometry(2, 16, 16),
-                    new THREE.MeshBasicMaterial({ color: 0x00ffff })
-                );
-
-                // Place near camera for visibility, then fly? Or just random nearby
-                m.position.copy(controls.target).add(new THREE.Vector3(
-                    (Math.random() - 0.5) * 50,
-                    (Math.random() - 0.5) * 50,
-                    (Math.random() - 0.5) * 50
-                ));
-
-                group.add(m);
-                userTasks.push({ mesh: m, title: text, category: currentCategory, created: Date.now() });
-
-                console.log("Task node added to scene:", text);
+                    document.getElementById('task-interface').classList.add('active');
+                }, 800); // Slight delay for effect
             }
         }
-
-        // Remove old list updater
-        // function updateTaskList(category) { ... }
-
-        // Enable Orbit Controls
-        controls.enabled = true;
-        controls.target.set(0, 0, 0);
-
-        // Sync Camera Z for smooth transition (optional, logic handles it)
-
-        // Dangler removed
 
         function updateDetailPanelForSubTask(idx) {
             let title = "Sub-node " + (idx + 1);
@@ -1450,22 +1263,13 @@
 
         document.getElementById('back-button').addEventListener('click', () => {
             isDrilled = false;
-            drillProg = 0; // Animate out
-            currentZoom = 1.0; targetZoom = 1.0;
-            camera.clearViewOffset(); // Reset viewport
-            controls.enabled = false; // Disable orbit
-            document.getElementById('detail-panel').classList.remove('active');
-            document.getElementById('task-interface').classList.remove('active'); // Hide Task Interface
-            document.getElementById('nav-btn').classList.remove('visible'); // Hide if any
-            document.getElementById('back-button').style.opacity = '0';
-            document.getElementById('back-button').style.pointerEvents = 'none';
 
             // Restore Top Header
             const st = document.getElementById('slideTitle');
             st.innerText = "VZOR";
 
-            // The original code had these lines, they were removed in the provided snippet.
-            // document.getElementById('back-button').classList.remove('visible');
+            document.getElementById('detail-panel').classList.remove('active');
+            document.getElementById('back-button').classList.remove('visible');
             document.getElementById('scrollHint').style.opacity = "1";
             document.getElementById('progressDots').style.opacity = "1";
 
@@ -1473,12 +1277,12 @@
             document.body.style.overflow = '';
 
             // Reset States
-            // targetZoom = 1.0; currentZoom = 1.0; // Already set above
+            targetZoom = 1.0; currentZoom = 1.0;
             material.uniforms.uGraphZoom.value = 1.0;
             if (typeof highlightMat !== 'undefined') highlightMat.opacity = 0;
 
             // Disable Orbit Controls & Reset Camera
-            // controls.enabled = false; // Already set above
+            controls.enabled = false;
             controls.enableZoom = false; // Disable OC zoom to handle manually
             controls.reset();
             group.rotation.set(0, 0, 0);
@@ -1486,107 +1290,6 @@
 
         document.addEventListener('click', onClick);
 
-        // TOGGLE PANEL
-        window.toggleDetailPanel = function () {
-            const panel = document.getElementById('detail-panel');
-            const btn = document.getElementById('panelToggle');
-            panel.classList.toggle('active');
-            btn.classList.toggle('active');
-        };
-
-        function onClick(event) {
-            if (!isClickValid) return;
-            const mouse = new THREE.Vector2();
-            if (event.changedTouches) {
-                mouse.x = (event.changedTouches[0].clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.changedTouches[0].clientY / window.innerHeight) * 2 + 1;
-            } else {
-                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            }
-
-            ray.setFromCamera(mouse, camera);
-
-            // 1. Check Drill-Down Points (Stage 2)
-            if (isDrilled) {
-                const hits = ray.intersectObjects(detailTargets);
-                if (hits.length > 0) {
-                    // HIT FOUND!
-                    const hit = hits[0];
-                    const idx = hit.object.userData.id;
-
-                    // A. FLY CAMERA TO NODE (Smooth Panning)
-                    // We simply set the controls target. OrbitControls with enableDamping will handle the smooth stop.
-                    // But to make it "fly", we might want to manually interpolate in animate loop?
-                    // OrbitControls default behavior is instant target switch. 
-                    // Let's rely on our Animate Loop's 'pullFactor' for hover? No, that's hover.
-                    // Let's set it directly, but maybe animate position?
-                    // For now: Snap target (standard 3D app behavior usually) or tween it.
-                    // Let's just set it. 
-                    const p = hit.point;
-
-                    // Simple "Move Target" (OrbitControls will pivot around this new point)
-                    // controls.target.copy(p); 
-
-                    // Fancy "Fly To": We want to tween controls.target.
-                    // Let's assume we can just set it for now to ensure it works.
-                    // Better: use GSAP-like logic if available? No external libs.
-                    // Let's add a targetTo animation variable?
-                    // For simplicity and robustness:
-                    controls.target.set(p.x, p.y, p.z);
-
-                    // B. SHOW PANEL
-                    updateDetailPanelForSubTask(idx);
-                    document.getElementById('detail-panel').classList.add('active');
-                    document.getElementById('panelToggle').classList.add('active'); // Rotate chevron
-
-                    console.log("Clicked Node:", idx, p);
-                    return;
-                }
-            }
-
-            // 2. Check Main Labels (Stage 1 -> 2)
-            // ... (Existing Label Logic) ...
-            const intersects = ray.intersectObjects(labels);
-            if (intersects.length > 0) {
-                const name = intersects[0].object.userData.name;
-                isDrilled = true;
-                currentCategory = name; // Store category
-
-                // Show Back Button && Panel Toggle
-                document.getElementById('back-button').classList.add('visible');
-                document.getElementById('panelToggle').style.display = 'flex'; // Ensure visible
-
-                // Show Task Interface (Bottom Pill)
-                document.getElementById('task-input').placeholder = "Command for " + name + "...";
-                // document.getElementById('task-interface').classList.add('active'); // Removed old ID?
-                // Actually the Bottom Panel is always visible now in updated HTML?
-                // No, we might have logic hiding it.
-                // The new CSS structure doesn't hide #bottom-panel by default unless we want to?
-                // Let's assume it stays visible.
-
-                // Animate to Drill View
-                const targetPos = intersects[0].object.userData.targetPos;
-                controls.enabled = true;
-                // controls.target.copy(targetPos); // Don't snap yet, let animation handle?
-                // controls.target is (0,0,0) initially.
-                // We want to fly INTO the cloud.
-
-                drillProg = 1; // Start animation
-                controls.enableZoom = true; // Enable Zoom!
-
-                // Update Panel Header?
-                updateDetailPanelForSubTask(0); // Reset to first or wait for click?
-                return;
-            }
-
-            // 3. FALLBACK: Slide 1 -> Slide 2 (Click anywhere to Enter)
-            // If we are on Slide 1 (approx) and didn't hit anything above
-            if (!isDrilled && smoothP < 0.5) {
-                targetP = 1.0;
-                lastInteractTime = Date.now();
-            }
-        }
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
         function move(x, y, cx, cy) {
             lastInteractTime = Date.now(); // Track interaction
@@ -1607,7 +1310,6 @@
                 mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
             }
         }
-
         document.addEventListener('mousedown', e => {
             isDrag = true;
             isClickValid = true;
@@ -1681,55 +1383,8 @@
 
         // --- Loop ---
         const clock = new THREE.Clock();
-        // --- VIEWPORT MANAGEMENT ---
-        let currentViewOffset = 0;
-        const panelWidth = 360; // Width of the detail panel
-
         function animate() {
             requestAnimationFrame(animate);
-
-            const time = performance.now() * 0.001;
-
-            // --- DYNAMIC VIEWPORT RESIZING (Blender-like) ---
-            // Check if side panel is valid and active
-            const detailPanel = document.getElementById('detail-panel');
-            let targetOffset = 0;
-
-            if (detailPanel && detailPanel.classList.contains('active')) {
-                // If panel is open on the RIGHT, we want to shift the view center LEFT.
-                // In setViewOffset, a POSITIVE x-offset shifts the window frame RIGHT,
-                // which means the camera content appears to move LEFT? 
-                // Let's visualize: 
-                // Full Width = W. Visible Window is subset? No, we want "Window" to be full size, just offset.
-                // Actually, to shift content LEFT (away from right panel), we need to look closer at the right side of the frustum.
-                // Or simply: We want the center of projection to be at (W - PanelWidth)/2.
-                // The logical center should move -PanelWidth/2 pixels.
-                targetOffset = panelWidth / 2;
-            }
-
-            // Smoothly interpolate offset
-            currentViewOffset += (targetOffset - currentViewOffset) * 0.1;
-
-            // Apply Offset
-            // fullWidth, fullHeight, x, y, width, height
-            // We keep width/height same as window to avoid scaling distortion, just shifting the principal point.
-            if (Math.abs(currentViewOffset) > 0.5) {
-                camera.setViewOffset(
-                    window.innerWidth,
-                    window.innerHeight,
-                    currentViewOffset, // x offset. Positive shifts the frustum window right -> objects move left? 
-                    // Testing needed: usually positive x in view offset means we are looking at the right part of the image.
-                    0,
-                    window.innerWidth,
-                    window.innerHeight
-                );
-            } else {
-                camera.clearViewOffset();
-            }
-
-
-            // --- UPDATE UNIFORMS ---
-            material.uniforms.uTime.value = time;
             // Dedicated uMobile flag for scaling
             const hint = document.querySelector('.mobile-hint');
             if (window.innerWidth < 768) {
@@ -1752,7 +1407,7 @@
             }
 
             smoothP += (targetP - smoothP) * 0.05;
-            // Removed duplicate 'const time'
+            const time = clock.getElapsedTime();
 
             // Zoom Smoothing for Graph
             currentZoom += (targetZoom - currentZoom) * 0.1;
@@ -1762,7 +1417,7 @@
             material.uniforms.uProgress1.value = Math.max(0, Math.min(1, (smoothP - 0.05) / 0.3));
             material.uniforms.uProgress2.value = 0; // Legacy if needed
             material.uniforms.uProgress3.value = drillProg;
-            // material.uniforms.uTime.value = time; // already set at top
+            material.uniforms.uTime.value = time;
 
             // Update sub-lines and targets (Only if drilled)
             if (isDrilled) {
@@ -1789,28 +1444,12 @@
 
 
 
-                // Hover Check & Zoom Interaction
+                // Hover Check
                 ray.setFromCamera(mv, camera);
                 const hits = ray.intersectObjects(detailTargets);
-
                 if (hits.length > 0) {
-                    const hitPos = hits[0].object.position;
-                    highlightMesh.position.copy(hitPos);
+                    highlightMesh.position.copy(hits[0].object.position);
                     highlightMat.opacity = 0.8;
-
-                    // HOVER ZOOM LOGIC:
-                    // Gently pull the camera target towards the hovered node
-                    // And slightly decrease FOV or move camera forward? 
-                    // Let's move controls.target for panning effect
-
-                    const pullFactor = 0.05;
-                    controls.target.x += (hitPos.x - controls.target.x) * pullFactor;
-                    controls.target.y += (hitPos.y - controls.target.y) * pullFactor;
-                    // controls.target.z += (hitPos.z - controls.target.z) * pullFactor;
-
-                    // Also zoom in slightly? (Decrease distance)
-                    // Currently handled by scroll, but we can nudge `targetZoom`
-                    // targetZoom = Math.min(2.0, targetZoom + 0.005); // Maybe too aggressive?
                 } else {
                     highlightMat.opacity = Math.max(0, highlightMat.opacity - 0.05);
                 }
@@ -1850,33 +1489,19 @@
 
 
             if (!isDrag && !isDrilled) {
-                // 10s DELAY RULE (User Feedback)
-                // Cloud stays put after interaction.
-                // Only returns to center if inactive for > 10 seconds.
-                if (Date.now() - lastInteractTime > 10000) {
-                    const springSpeed = 0.02; // Slow, smooth return
-                    group.rotation.y += (0 - group.rotation.y) * springSpeed;
-                    group.rotation.x += (0 - group.rotation.x) * springSpeed;
-                }
+                // RESTORED SPRING-BACK (Smooth Return)
+                // We want it to gently return to 0,0,0 when released.
+                const springSpeed = 0.05;
+                group.rotation.y += (0 - group.rotation.y) * springSpeed;
+                group.rotation.x += (0 - group.rotation.x) * springSpeed;
 
-                mom.x *= 0.90; mom.y *= 0.90; // Standard friction/damping (stops rotation initially)
+                mom.x *= 0.85; mom.y *= 0.85; // Standard damping
             }
             if (!isDrilled) {
                 // Gentle idle rotation only if completely stopped?
                 // keeping minimal idle movement for life
                 group.rotation.y += Math.sin(time * 0.2) * 0.0001;
             }
-
-
-            // VISIBILITY SCOPE LOGIC (User Request)
-            // Only show userTasks if we are drilled AND the category matches.
-            userTasks.forEach(t => {
-                if (isDrilled && t.category === currentCategory) {
-                    t.mesh.visible = true;
-                } else {
-                    t.mesh.visible = false;
-                }
-            });
 
 
             updateUI(smoothP);
@@ -1910,7 +1535,7 @@
                     if (window.innerWidth > 768) pText.style.fontSize = '1.1em';
                     else pText.style.fontSize = ''; // Use CSS
                 }
-                // document.getElementById('add-task-btn').classList.remove('visible');
+                document.getElementById('add-task-btn').classList.remove('visible');
                 document.getElementById('home-btn').classList.remove('visible');
 
                 // FORCE RESET: Ensure no drill-down UI leaks into Slide 1
@@ -1937,7 +1562,7 @@
                 }
 
                 // ALWAYS SHOW ADD BUTTON ON SLIDE 2 (Overview OR Drilled)
-                // document.getElementById('add-task-btn').classList.add('visible');
+                document.getElementById('add-task-btn').classList.add('visible');
 
                 sd.innerText = isDrilled ? "" : s.desc;
             }
@@ -1955,40 +1580,25 @@
             if (!isDrilled) targetP = 0; // Also title click works
         });
 
-        /*
         document.getElementById('add-task-btn').addEventListener('click', () => {
-             // Removed
-        });
-        */
-
-        // Task Creation via Enter Key (Replaces create-btn)
-        const taskInput = document.getElementById('task-input');
-        if (taskInput) {
-            taskInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    const val = e.target.value;
-                    if (val) {
-                        addTaskPoint(val, currentCategory);
-                        e.target.value = "";
-                        document.getElementById('task-interface').classList.remove('active');
-                    }
-                }
-            });
-        }
-
-        // Navigation Helpers
-        document.getElementById('scrollHint')?.addEventListener('click', () => {
-            if (!isDrilled) targetP = 1.0;
-        });
-        document.getElementById('centerText')?.addEventListener('click', () => {
-            if (!isDrilled) targetP = 1.0;
+            const panel = document.getElementById('task-interface');
+            panel.classList.add('active');
+            // Ensure main detail panel is hidden
+            document.getElementById('detail-panel').classList.remove('active');
         });
 
-        /*
+        // Close Task Interface when clicking outside or on map? 
+        // For now, simplify:
+
         document.getElementById('create-btn').addEventListener('click', () => {
-             // Removed
+            const input = document.getElementById('task-input').value;
+            if (input) {
+                addTaskPoint(input); // SPAWN POINT
+                alert("Задача добавлена в облако: " + input);
+                document.getElementById('task-input').value = "";
+                document.getElementById('task-interface').classList.remove('active');
+            }
         });
-        */
 
 
         window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); material.uniforms.uPixelRatio.value = renderer.getPixelRatio(); });
