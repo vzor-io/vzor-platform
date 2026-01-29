@@ -1279,7 +1279,6 @@
             const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, opacity: 0 }));
             sprite.position.copy(pos).multiplyScalar(1.2);
             sprite.scale.set(130 * scaleFactor, 32 * scaleFactor, 1);
-            sprite.userData = { name: text, targetPos: pos.clone().multiplyScalar(0.5) }; // Fix click interaction and fly target
             return sprite;
         }
         const labels = coreData.map(c => createLabel(c.name, c.pos, c.scale));
@@ -1293,7 +1292,6 @@
         for (let i = 0; i < detailNodesCount; i++) {
             const m = new THREE.Mesh(detailGeo, detailMat);
             m.position.copy(detailNodePositions[i]).multiplyScalar(2.0);
-            m.userData.id = i; // Fix 'Sub-node NaN'
             detailTargets.push(m);
             group.add(m);
         }
@@ -1674,7 +1672,7 @@
 
                 // Show Task Interface (Bottom Pill)
                 document.getElementById('task-input').placeholder = "Command for " + name + "...";
-                // document.getElementById('task-interface').classList.add('active'); // Removed old ID?
+                document.getElementById('task-interface').classList.add('active');
                 // Actually the Bottom Panel is always visible now in updated HTML?
                 // No, we might have logic hiding it.
                 // The new CSS structure doesn't hide #bottom-panel by default unless we want to?
