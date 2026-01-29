@@ -1955,45 +1955,51 @@
             const globalLabelOp = x * x * (3 - 2 * x);
 
             const lOp = globalLabelOp * (1.0 - drillProg);
+            if (isDrilled) {
+                controls.update();
+                group.rotation.y += (0 - group.rotation.y) * 0.1; // Sharp Stop Logic
+            } else {
+                controls.enabled = false;
+                // Idle Rotation
+                group.rotation.y += Math.sin(time * 0.2) * 0.0005;
+
+                // Mouse Interaction Parallax
+                const targetRotX = mouse.y * 0.05;
+                const targetRotY = mouse.x * 0.05;
+                group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
+                group.rotation.y += (targetRotY - group.rotation.y) * 0.05;
+            }
+
+            // --- RESTORED LABEL VISIBILITY ---
+            // Fade in labels when in Stage 2 (Overview) and NOT Drilled
+            const labelTargetAlpha = (!isDrilled && smoothP > 0.8) ? 1.0 : 0.0;
             labels.forEach(l => {
-                l.material.opacity = lOp;
-                l.visible = lOp > 0.01;
+                l.material.opacity += (labelTargetAlpha - l.material.opacity) * 0.1;
+                l.visible = l.material.opacity > 0.01;
             });
 
+            mom.x *= 0.90; mom.y *= 0.90; // Standard friction/damping (stops rotation initially)
+        }
+        if (!isDrilled) {
+            // Gentle idle rotation only if completely stopped?
+            // keeping minimal idle movement for life
+            group.rotation.y += Math.sin(time * 0.2) * 0.0001;
+        }
 
 
-            if (!isDrag && !isDrilled) {
-                // 10s DELAY RULE (User Feedback)
-                // Cloud stays put after interaction.
-                // Only returns to center if inactive for > 10 seconds.
-                if (Date.now() - lastInteractTime > 10000) {
-                    const springSpeed = 0.02; // Slow, smooth return
-                    group.rotation.y += (0 - group.rotation.y) * springSpeed;
-                    group.rotation.x += (0 - group.rotation.x) * springSpeed;
-                }
-
-                mom.x *= 0.90; mom.y *= 0.90; // Standard friction/damping (stops rotation initially)
+        // VISIBILITY SCOPE LOGIC (User Request)
+        // Only show userTasks if we are drilled AND the category matches.
+        userTasks.forEach(t => {
+            if (isDrilled && t.category === currentCategory) {
+                t.mesh.visible = true;
+            } else {
+                t.mesh.visible = false;
             }
-            if (!isDrilled) {
-                // Gentle idle rotation only if completely stopped?
-                // keeping minimal idle movement for life
-                group.rotation.y += Math.sin(time * 0.2) * 0.0001;
-            }
+        });
 
 
-            // VISIBILITY SCOPE LOGIC (User Request)
-            // Only show userTasks if we are drilled AND the category matches.
-            userTasks.forEach(t => {
-                if (isDrilled && t.category === currentCategory) {
-                    t.mesh.visible = true;
-                } else {
-                    t.mesh.visible = false;
-                }
-            });
-
-
-            updateUI(smoothP);
-            renderer.render(scene, camera);
+        updateUI(smoothP);
+        renderer.render(scene, camera);
         }
 
         function updateUI(p) {
