@@ -860,41 +860,39 @@
     <!-- NODE EDITOR MODAL HTML -->
     <div id="node-editor-modal">
         <div class="node-editor-header">
-            <span class="node-editor-title">NODES: VZOR GRAPH</span>
+            <span class="node-editor-title">VZOR NODE EDITOR</span>
             <div class="node-editor-close" onclick="toggleNodeEditor()">✕</div>
         </div>
         <div id="node-canvas" class="node-canvas">
             <!-- Nodes will be injected here -->
         </div>
     </div>
+
+    <!-- NEW BOTTOM PANEL -->
     <div id="bottom-panel">
-        <!-- Integrated Input Controls -->
-        <div id="bottom-panel">
-            <div id="task-interface" class="bp-input-container">
-                <input type="text" id="task-input" placeholder="Enter command or task..."
-                    onkeydown="handleInput(event)">
+        <div id="task-interface" class="bp-input-container">
+            <input type="text" id="task-input" placeholder="Enter command or task..." onkeydown="handleInput(event)">
 
-                <div class="bp-divider"></div>
+            <div class="bp-divider"></div>
 
-                <button id="mic-btn" class="nav-btn nav-btn-mic" onclick="toggleVoice()" title="AI Voice Command">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="9" y="2" width="6" height="12" rx="3" stroke="#00ffff" stroke-width="2" />
-                        <path d="M5 11C5 14.866 8.13401 18 12 18C15.866 18 19 14.866 19 11" stroke="#00ffff"
-                            stroke-width="2" stroke-linecap="round" />
-                        <path d="M12 18V22M8 22H16" stroke="#00ffff" stroke-width="2" stroke-linecap="round" />
-                    </svg>
-                </button>
-                <button id="nodes-btn" class="nav-btn" onclick="toggleNodeEditor()" title="Open Node Graph"
-                    style="margin-left: 10px;">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00ff88" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7" />
-                        <rect x="14" y="3" width="7" height="7" />
-                        <rect x="14" y="14" width="7" height="7" />
-                        <path d="M10 6h4" />
-                        <path d="M17 10v4" />
-                    </svg>
-                </button>
-            </div>
+            <button id="mic-btn" class="nav-btn nav-btn-mic" onclick="toggleVoice()" title="AI Voice Command">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="2" width="6" height="12" rx="3" stroke="#00ffff" stroke-width="2" />
+                    <path d="M5 11C5 14.866 8.13401 18 12 18C15.866 18 19 14.866 19 11" stroke="#00ffff"
+                        stroke-width="2" stroke-linecap="round" />
+                    <path d="M12 18V22M8 22H16" stroke="#00ffff" stroke-width="2" stroke-linecap="round" />
+                </svg>
+            </button>
+            <button id="nodes-btn" class="nav-btn" onclick="toggleNodeEditor()" title="Open Node Editor"
+                style="margin-left: 10px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" />
+                    <rect x="14" y="3" width="7" height="7" />
+                    <rect x="14" y="14" width="7" height="7" />
+                    <path d="M10 6h4" />
+                    <path d="M17 10v4" />
+                </svg>
+            </button>
         </div>
     </div>
 
@@ -1591,6 +1589,12 @@
             }
         };
 
+        // TOGGLE NODE EDITOR
+        window.toggleNodeEditor = function () {
+            const modal = document.getElementById('node-editor-modal');
+            modal.classList.toggle('active');
+        }
+
         function createTaskNode(text) {
             // 1. Create 3D Visual Point (Existing Logic)
             if (!currentCategory) currentCategory = "Development"; // Fallback
@@ -1601,8 +1605,7 @@
                 const m = new THREE.Mesh(
                     new THREE.SphereGeometry(2, 16, 16),
                     new THREE.MeshBasicMaterial({ color: 0x00ffff })
-                );
-                // Place near camera for visibility
+                ); // Place near camera for visibility
                 m.position.copy(controls.target).add(new THREE.Vector3(
                     (Math.random() - 0.5) * 50,
                     (Math.random() - 0.5) * 50,
@@ -1611,60 +1614,56 @@
                 group.add(m);
                 userTasks.push({ mesh: m, title: text, category: currentCategory, created: Date.now() });
 
-                // 2. CREATE BLENDER DOM NODE (New Logic)
-                const container = document.getElementById('bottom-nodes-container');
-                const nodeEl = document.createElement('div');
-                nodeEl.className = 'blender-node';
-                nodeEl.innerHTML = `
-                    <div class="node-header">
-                        <span class="node-title">${currentCategory.substring(0, 4).toUpperCase()}</span>
-                        <div style="width:8px; height:8px; background:#555; border-radius:50%;"></div>
-                    </div>
-                    <div class="node-body">
-                        <div class="node-socket-row">
-                            <div style="display:flex; align-items:center;">
-                                <div class="socket-point socket-in"></div>
-                                <span class="socket-label">Data In</span>
+                // 2. CREATE BLENDER DOM NODE IN CANVAS
+                const canvas = document.getElementById('node-canvas');
+                // Ensure canvas exists (might be missing if modal not injected yet)
+                if (canvas) {
+                    const nodeEl = document.createElement('div');
+                    nodeEl.className = 'blender-node';
+
+                    // Random position in canvas
+                    const rX = 50 + Math.random() * 400;
+                    const rY = 50 + Math.random() * 300;
+                    nodeEl.style.left = rX + 'px';
+                    nodeEl.style.top = rY + 'px';
+
+                    nodeEl.innerHTML = `
+                        <div class="node-header">
+                            <span class="node-title">${currentCategory.substring(0, 4).toUpperCase()}</span>
+                            <div style="width:8px; height:8px; background:#555; border-radius:50%;"></div>
+                        </div>
+                        <div class="node-body">
+                            <div class="node-socket-row">
+                                <div style="display:flex; align-items:center;">
+                                    <div class="socket-point socket-in"></div>
+                                    <span class="socket-label">Data In</span>
+                                </div>
+                            </div>
+                             <div style="padding: 4px 0; font-size: 11px; color: white;">
+                                "${text}"
+                            </div>
+                            <div class="node-socket-row" style="justify-content:flex-end;">
+                                <div style="display:flex; align-items:center;">
+                                    <span class="socket-label">Result</span>
+                                    <div class="socket-point socket-out"></div>
+                                </div>
                             </div>
                         </div>
-                         <div style="padding: 4px 0; font-size: 11px; color: white;">
-                            "${text}"
-                        </div>
-                        <div class="node-socket-row" style="justify-content:flex-end;">
-                            <div style="display:flex; align-items:center;">
-                                <span class="socket-label">Result</span>
-                                <div class="socket-point socket-out"></div>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                    `;
 
-                // Add Click Listener to Open Panel
-                nodeEl.addEventListener('click', () => {
-                    console.log("Clicked Bottom Node:", text);
-                    // Use index 0 or random for demo; ideally map to specific data
-                    const demoIdx = Math.floor(Math.random() * 5);
-                    updateDetailPanelForSubTask(demoIdx);
+                    // Add Click Listener
+                    nodeEl.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        console.log("Clicked Node In Editor:", text);
+                        const demoIdx = Math.floor(Math.random() * 5);
+                        updateDetailPanelForSubTask(demoIdx);
+                        document.getElementById('detail-panel').classList.add('active');
+                        document.getElementById('panelToggle').classList.add('active');
+                        document.getElementById('p-title').innerText = text;
+                    });
 
-                    // Force Panel Open
-                    document.getElementById('detail-panel').classList.add('active');
-                    document.getElementById('panelToggle').classList.add('active');
-
-                    // Update Title manually to match task
-                    document.getElementById('p-title').innerText = text;
-                    document.getElementById('p-desc').innerHTML = "Status: <b>Processing</b><br>Agent: <b>VZOR AI</b><br><br>Analysis initiated via voice command.";
-                });
-
-                container.appendChild(nodeEl);
-
-                // Animate In
-                nodeEl.style.opacity = '0';
-                nodeEl.style.transform = 'translateY(20px)';
-                requestAnimationFrame(() => {
-                    nodeEl.style.transition = 'all 0.3s ease-out';
-                    nodeEl.style.opacity = '1';
-                    nodeEl.style.transform = 'translateY(0)';
-                });
+                    canvas.appendChild(nodeEl);
+                }
 
                 console.log("Task node added:", text);
             }
