@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VZOR Platform v3.4 (Latest)</title>
+    <title>VZOR - Multi-Stage Evolution</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@
             z-index: 10;
             pointer-events: auto;
             cursor: pointer;
-            transition: opacity 0.8s ease, transform 0.3s ease;
+            transition: opacity 0.8s ease;
         }
 
         .center-text h1 {
@@ -1485,6 +1485,14 @@
             group.rotation.set(0, 0, 0);
         });
 
+        // Global Enter Function
+        window.enterApp = function () {
+            if (!isDrilled && smoothP < 0.5) {
+                targetP = 1.0;
+                lastInteractTime = Date.now();
+            }
+        };
+
         document.addEventListener('click', onClick);
 
         // TOGGLE PANEL
@@ -1493,15 +1501,6 @@
             const btn = document.getElementById('panelToggle');
             panel.classList.toggle('active');
             btn.classList.toggle('active');
-        };
-
-        // Global Enter Function
-        window.enterApp = function () {
-            if (!isDrilled && smoothP < 0.5) {
-                targetP = 1.0;
-                lastInteractTime = Date.now();
-                console.log("Entering App...");
-            }
         };
 
         function onClick(event) {
@@ -1898,10 +1897,10 @@
             const s = slides[idx];
             document.querySelectorAll('.progress-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
             const ct = document.getElementById('centerText'); const si = document.getElementById('slideInfo');
+            // const cta = document.getElementById('ctaButton');
 
-            // Hide Button permanently (requested) - REMOVED since element is gone
-            // const cta = document.getElementById('ctaButton'); // Removed
-            // if(cta) cta.style.display = 'none';
+            // Hide Button permanently (requested)
+            // cta.style.display = 'none';
 
             if (idx === 0) {
                 // Slide 1: Big Center Title (VZOR - Centered)
