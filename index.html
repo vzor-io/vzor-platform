@@ -643,11 +643,87 @@
         #mic-btn.listening svg rect {
             stroke: #00ffff;
             filter: drop-shadow(0 0 5px #00ffff);
+            /* Let clicks pass through gaps */
         }
 
-        #canvas-wrapper {
-            touch-action: pan-y;
+        .blender-node {
+            width: 220px;
+            background: #1f1f1f;
+            border: 1px solid #333;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
             pointer-events: auto;
+            /* Enable clicking on nodes */
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+
+        .blender-node:hover {
+            transform: translateY(-5px);
+            border-color: #555;
+        }
+
+        .node-header {
+            background: linear-gradient(to right, #2d2d2d, #333);
+            padding: 6px 12px;
+            border-bottom: 1px solid #111;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .node-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #ddd;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .node-body {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .node-socket-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 18px;
+        }
+
+        .socket-point {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid #000;
+        }
+
+        .socket-in {
+            background: #63c763;
+            margin-right: 8px;
+        }
+
+        /* Green */
+        .socket-out {
+            background: #66ccff;
+            margin-left: 8px;
+        }
+
+        /* Blue */
+
+        .socket-label {
+            font-size: 10px;
+            color: #aaa;
+        }
+
+        /* HIDE DEFAULT SCROLLBARS */
+        ::-webkit-scrollbar {
+            width: 0px;
         }
     </style>
     <script type="importmap">
@@ -657,6 +733,7 @@
 
 <body>
     <div id="scroll-container"></div>
+    <div id="bottom-nodes-container"></div>
     <div id="canvas-wrapper"></div>
 
 
@@ -1431,28 +1508,81 @@
         };
 
         function createTaskNode(text) {
-            // Create a visual node for the task
-            if (!currentCategory) return;
+            // 1. Create 3D Visual Point (Existing Logic)
+            if (!currentCategory) currentCategory = "Development"; // Fallback
 
             // Random Position in "Cloud"
-            const group = scene.children.find(c => c.type === "Group"); // Assuming main point cloud group
+            const group = scene.children.find(c => c.type === "Group");
             if (group) {
                 const m = new THREE.Mesh(
                     new THREE.SphereGeometry(2, 16, 16),
                     new THREE.MeshBasicMaterial({ color: 0x00ffff })
                 );
-
-                // Place near camera for visibility, then fly? Or just random nearby
+                // Place near camera for visibility
                 m.position.copy(controls.target).add(new THREE.Vector3(
                     (Math.random() - 0.5) * 50,
                     (Math.random() - 0.5) * 50,
                     (Math.random() - 0.5) * 50
                 ));
-
                 group.add(m);
                 userTasks.push({ mesh: m, title: text, category: currentCategory, created: Date.now() });
 
-                console.log("Task node added to scene:", text);
+                // 2. CREATE BLENDER DOM NODE (New Logic)
+                const container = document.getElementById('bottom-nodes-container');
+                const nodeEl = document.createElement('div');
+                nodeEl.className = 'blender-node';
+                nodeEl.innerHTML = `
+                    <div class="node-header">
+                        <span class="node-title">${currentCategory.substring(0, 4).toUpperCase()}</span>
+                        <div style="width:8px; height:8px; background:#555; border-radius:50%;"></div>
+                    </div>
+                    <div class="node-body">
+                        <div class="node-socket-row">
+                            <div style="display:flex; align-items:center;">
+                                <div class="socket-point socket-in"></div>
+                                <span class="socket-label">Data In</span>
+                            </div>
+                        </div>
+                         <div style="padding: 4px 0; font-size: 11px; color: white;">
+                            "${text}"
+                        </div>
+                        <div class="node-socket-row" style="justify-content:flex-end;">
+                            <div style="display:flex; align-items:center;">
+                                <span class="socket-label">Result</span>
+                                <div class="socket-point socket-out"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add Click Listener to Open Panel
+                nodeEl.addEventListener('click', () => {
+                    console.log("Clicked Bottom Node:", text);
+                    // Use index 0 or random for demo; ideally map to specific data
+                    const demoIdx = Math.floor(Math.random() * 5);
+                    updateDetailPanelForSubTask(demoIdx);
+
+                    // Force Panel Open
+                    document.getElementById('detail-panel').classList.add('active');
+                    document.getElementById('panelToggle').classList.add('active');
+
+                    // Update Title manually to match task
+                    document.getElementById('p-title').innerText = text;
+                    document.getElementById('p-desc').innerHTML = "Status: <b>Processing</b><br>Agent: <b>VZOR AI</b><br><br>Analysis initiated via voice command.";
+                });
+
+                container.appendChild(nodeEl);
+
+                // Animate In
+                nodeEl.style.opacity = '0';
+                nodeEl.style.transform = 'translateY(20px)';
+                requestAnimationFrame(() => {
+                    nodeEl.style.transition = 'all 0.3s ease-out';
+                    nodeEl.style.opacity = '1';
+                    nodeEl.style.transform = 'translateY(0)';
+                });
+
+                console.log("Task node added:", text);
             }
         }
 
