@@ -1979,27 +1979,20 @@
             });
 
             mom.x *= 0.90; mom.y *= 0.90; // Standard friction/damping (stops rotation initially)
-        }
-        if (!isDrilled) {
-            // Gentle idle rotation only if completely stopped?
-            // keeping minimal idle movement for life
-            group.rotation.y += Math.sin(time * 0.2) * 0.0001;
-        }
+
+            // VISIBILITY SCOPE LOGIC (User Request)
+            // Only show userTasks if we are drilled AND the category matches.
+            userTasks.forEach(t => {
+                if (isDrilled && t.category === currentCategory) {
+                    t.mesh.visible = true;
+                } else {
+                    t.mesh.visible = false;
+                }
+            });
 
 
-        // VISIBILITY SCOPE LOGIC (User Request)
-        // Only show userTasks if we are drilled AND the category matches.
-        userTasks.forEach(t => {
-            if (isDrilled && t.category === currentCategory) {
-                t.mesh.visible = true;
-            } else {
-                t.mesh.visible = false;
-            }
-        });
-
-
-        updateUI(smoothP);
-        renderer.render(scene, camera);
+            updateUI(smoothP);
+            renderer.render(scene, camera);
         }
 
         function updateUI(p) {
