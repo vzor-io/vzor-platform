@@ -58,8 +58,9 @@
             transform: translate(-50%, -50%);
             text-align: center;
             z-index: 10;
-            pointer-events: none;
-            transition: opacity 0.8s ease;
+            pointer-events: auto;
+            cursor: pointer;
+            transition: opacity 0.8s ease, transform 0.3s ease;
         }
 
         .center-text h1 {
@@ -614,7 +615,7 @@
     <div id="canvas-wrapper"></div>
 
 
-    <div class="center-text" id="centerText">
+    <div class="center-text" id="centerText" onclick="enterApp()">
         <h1>VZOR</h1>
         <p>capital data system</p>
         <div class="mobile-hint" style="display:none;">TAP TO ENTER</div>
@@ -1492,6 +1493,15 @@
             const btn = document.getElementById('panelToggle');
             panel.classList.toggle('active');
             btn.classList.toggle('active');
+        };
+
+        // Global Enter Function
+        window.enterApp = function () {
+            if (!isDrilled && smoothP < 0.5) {
+                targetP = 1.0;
+                lastInteractTime = Date.now();
+                console.log("Entering App...");
+            }
         };
 
         function onClick(event) {
