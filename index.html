@@ -1919,10 +1919,11 @@
             const idx = Math.min(slides.length - 1, Math.floor(p * slides.length + 0.1));
             const s = slides[idx];
             document.querySelectorAll('.progress-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
-            const ct = document.getElementById('centerText'); const si = document.getElementById('slideInfo'); const cta = document.getElementById('ctaButton');
+            const ct = document.getElementById('centerText'); const si = document.getElementById('slideInfo');
 
-            // Hide Button permanently (requested)
-            cta.style.display = 'none';
+            // Hide Button permanently (requested) - REMOVED since element is gone
+            // const cta = document.getElementById('ctaButton'); // Removed
+            // if(cta) cta.style.display = 'none';
 
             if (idx === 0) {
                 // Slide 1: Big Center Title (VZOR - Centered)
