@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VZOR - Multi-Stage Evolution</title>
+    <title>VZOR Platform v3.5 (Voice & Stability)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
@@ -413,6 +413,51 @@
             /* Always bordered */
         }
 
+        #mic-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        #mic-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+        }
+
+        #mic-btn.listening {
+            background: rgba(255, 0, 0, 0.1);
+            border-color: red;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            animation: pulse-mic 1s infinite;
+        }
+
+        @keyframes pulse-mic {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
         /* MOBILE ADAPTIVITY */
         @media (max-width: 768px) {
             .center-text h1 {
@@ -621,6 +666,16 @@
         <div class="mobile-hint" style="display:none;">TAP TO ENTER</div>
     </div>
 
+    <!-- VOICE BUTTON -->
+    <div id="mic-btn" onclick="toggleVoice()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+        </svg>
+    </div>
+
     <!-- BACK TO START (Visible on Slide 2) -->
     <div id="home-btn" class="nav-btn" style="top: 40px; left: 40px;">
         ← START
@@ -777,6 +832,55 @@
 
         // --- Init Three.js ---
         const container = document.getElementById('canvas-wrapper');
+        // VOICE LOGIC
+        window.toggleVoice = function () {
+            const btn = document.getElementById('mic-btn');
+            if (btn.classList.contains('listening')) {
+                btn.classList.remove('listening');
+                console.log("Voice Stopped");
+            } else {
+                btn.classList.add('listening');
+                console.log("Voice Listening...");
+
+                if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                    const recognition = new SpeechRecognition();
+                    recognition.lang = 'ru-RU';
+                    recognition.interimResults = false;
+                    recognition.maxAlternatives = 1;
+
+                    recognition.start();
+
+                    recognition.onresult = function (event) {
+                        const text = event.results[0][0].transcript;
+                        console.log('Voice result:', text);
+                        // Visual feedback via task node
+                        createTaskNode("Voice: " + text);
+                        btn.classList.remove('listening');
+
+                        if (text.toLowerCase().includes("дальше") || text.toLowerCase().includes("вперед")) {
+                            if (!isDrilled) targetP = 1.0;
+                        }
+                    };
+
+                    recognition.onerror = function (event) {
+                        console.error('Voice error', event.error);
+                        btn.classList.remove('listening');
+                    };
+
+                    recognition.onend = function () {
+                        btn.classList.remove('listening');
+                    };
+                } else {
+                    // Fallback
+                    setTimeout(() => {
+                        btn.classList.remove('listening');
+                        createTaskNode("Voice Command: Analyze Budget");
+                    }, 2000);
+                }
+            }
+        };
+
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
         camera.position.z = 450;
