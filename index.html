@@ -1964,8 +1964,8 @@
                 group.rotation.y += Math.sin(time * 0.2) * 0.0005;
 
                 // Mouse Interaction Parallax
-                const targetRotX = mouse.y * 0.05;
-                const targetRotY = mouse.x * 0.05;
+                const targetRotX = mv.y * 0.05;
+                const targetRotY = mv.x * 0.05;
                 group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
                 group.rotation.y += (targetRotY - group.rotation.y) * 0.05;
             }
