@@ -9,38 +9,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
     <style>
-        #error-console {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 9999;
-            background: rgba(200, 0, 0, 0.9);
-            color: white;
-            padding: 20px;
-            font-family: monospace;
-            display: none;
-            white-space: pre-wrap;
-        }
-    </style>
-    <script>
-        window.onerror = function (msg, url, line, col, error) {
-            const div = document.getElementById('error-console') || document.createElement('div');
-            div.id = 'error-console';
-            div.style.display = 'block';
-            document.body.appendChild(div);
-            div.innerHTML += `ERROR: ${msg}\nLine: ${line}:${col}\n${error ? error.stack : ''}\n\n`;
-            return false;
-        };
-        window.addEventListener('unhandledrejection', function (event) {
-            const div = document.getElementById('error-console') || document.createElement('div');
-            div.id = 'error-console';
-            div.style.display = 'block';
-            document.body.appendChild(div);
-            div.innerHTML += `PROMISE REJECTION: ${event.reason}\n\n`;
-        });
-    </script>
-    <style>
         * {
             margin: 0;
             padding: 0;
