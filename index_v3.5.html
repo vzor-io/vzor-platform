@@ -1277,6 +1277,7 @@
             ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.letterSpacing = '5px';
             ctx.fillText(text.toUpperCase(), 256, 75);
             const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, opacity: 0 }));
+            sprite.userData.name = text; // Fix: Assign name for raycaster
             sprite.position.copy(pos).multiplyScalar(1.2);
             sprite.scale.set(130 * scaleFactor, 32 * scaleFactor, 1);
             return sprite;
