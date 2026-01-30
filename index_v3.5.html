@@ -643,87 +643,11 @@
         #mic-btn.listening svg rect {
             stroke: #00ffff;
             filter: drop-shadow(0 0 5px #00ffff);
-            /* Let clicks pass through gaps */
         }
 
-        .blender-node {
-            width: 220px;
-            background: #1f1f1f;
-            border: 1px solid #333;
-            border-radius: 6px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            font-family: 'Segoe UI', sans-serif;
-            overflow: hidden;
+        #canvas-wrapper {
+            touch-action: pan-y;
             pointer-events: auto;
-            /* Enable clicking on nodes */
-            transition: transform 0.2s;
-            cursor: pointer;
-        }
-
-        .blender-node:hover {
-            transform: translateY(-5px);
-            border-color: #555;
-        }
-
-        .node-header {
-            background: linear-gradient(to right, #2d2d2d, #333);
-            padding: 6px 12px;
-            border-bottom: 1px solid #111;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .node-title {
-            font-size: 12px;
-            font-weight: 700;
-            color: #ddd;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .node-body {
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .node-socket-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 18px;
-        }
-
-        .socket-point {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            border: 1px solid #000;
-        }
-
-        .socket-in {
-            background: #63c763;
-            margin-right: 8px;
-        }
-
-        /* Green */
-        .socket-out {
-            background: #66ccff;
-            margin-left: 8px;
-        }
-
-        /* Blue */
-
-        .socket-label {
-            font-size: 10px;
-            color: #aaa;
-        }
-
-        /* HIDE DEFAULT SCROLLBARS */
-        ::-webkit-scrollbar {
-            width: 0px;
         }
     </style>
     <script type="importmap">
@@ -733,7 +657,6 @@
 
 <body>
     <div id="scroll-container"></div>
-    <div id="bottom-nodes-container"></div>
     <div id="canvas-wrapper"></div>
 
 
@@ -795,175 +718,24 @@
 
     </div>
 
-    <style>
-        /* NODE EDITOR DRAWER (Bottom Panel) */
-        #node-editor-modal {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 45vh;
-            /* Takes up bottom half */
-            background: #111;
-            border-top: 1px solid #444;
-            box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.8);
-            z-index: 1500;
-            /* Behind input bar? No, input bar is separate interaction */
-            /* Input bar is z-index usually. Let's make sure this is controlled. */
-
-            transform: translateY(100%);
-            /* Hidden by default (slid down) */
-            opacity: 1;
-            display: block;
-            /* Always block, just moved */
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        #node-editor-modal.active {
-            transform: translateY(0);
-        }
-
-        .node-editor-header {
-            height: 35px;
-            background: #1a1a1a;
-            border-bottom: 1px solid #333;
-            display: flex;
-            align-items: center;
-            padding: 0 15px;
-            justify-content: space-between;
-        }
-
-        .node-editor-title {
-            color: #00ffff;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .node-editor-close {
-            cursor: pointer;
-            color: #666;
-            transition: color 0.2s;
-        }
-
-        .node-editor-close:hover {
-            color: #fff;
-        }
-
-        .node-canvas {
-            width: 100%;
-            height: calc(100% - 35px);
-            background-color: #0d0d0d;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            position: relative;
-            overflow: auto;
-        }
-
-        /* Node positioning */
-        .blender-node {
-            position: absolute;
-            width: 180px;
-            background: #222;
-            border: 1px solid #444;
-            border-radius: 6px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
-            color: #eee;
-            font-family: 'Inter', sans-serif;
-            font-size: 11px;
-            user-select: none;
-            cursor: pointer;
-        }
-
-        .blender-node:hover {
-            border-color: #666;
-        }
-
-        .node-header {
-            background: linear-gradient(to right, #333, #222);
-            padding: 6px 10px;
-            border-top-left-radius: 5px;
-            border-top-right-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-
-        .node-title {
-            font-weight: bold;
-            color: #ccc;
-        }
-
-        .node-body {
-            padding: 10px;
-        }
-
-        .node-socket-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 5px;
-            color: #888;
-        }
-
-        .socket-point {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            border: 1px solid #000;
-        }
-
-        .socket-in {
-            background: #5cff88;
-            margin-right: 6px;
-        }
-
-        .socket-out {
-            background: #5cb3ff;
-            margin-left: 6px;
-        }
-    </style>
-
-    <!-- NODE EDITOR DRAWER -->
-    <div id="node-editor-modal">
-        <div class="node-editor-header">
-            <span class="node-editor-title">System Graph Inspector</span>
-            <div class="node-editor-close" onclick="toggleNodeEditor()">✕</div>
-        </div>
-        <div id="node-canvas" class="node-canvas">
-            <!-- Nodes will be injected here -->
-        </div>
-    </div>
-
-    <!-- NEW BOTTOM PANEL -->
+    <!-- NEW BOTTOM PANEL (Moved to Root) -->
     <div id="bottom-panel">
-        <div id="task-interface" class="bp-input-container">
-            <input type="text" id="task-input" placeholder="Type command..." onkeydown="handleInput(event)">
+        <!-- Integrated Input Controls (Clean & Minimal) -->
+        <div class="bp-input-container">
+            <input type="text" id="task-input" placeholder="Enter command or task..." onkeydown="handleInput(event)">
 
             <div class="bp-divider"></div>
 
-            <button id="mic-btn" class="nav-btn nav-btn-mic" onclick="toggleVoice()" title="Voice Command">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2">
-                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                    <line x1="12" y1="19" x2="12" y2="23" />
-                    <line x1="8" y1="23" x2="16" y2="23" />
-                </svg>
-            </button>
-            <button id="nodes-btn" class="nav-btn" onclick="toggleNodeEditor()" title="Open Node Editor"
-                style="margin-left: 10px;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00ffff" stroke-width="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <line x1="3" y1="9" x2="21" y2="9" />
-                    <line x1="9" y1="21" x2="9" y2="9" />
+            <button id="mic-btn" class="nav-btn" onclick="toggleVoice()" title="AI Voice Command">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="9" y="2" width="6" height="12" rx="3" stroke="#00ffff" stroke-width="2" />
+                    <path d="M5 11C5 14.866 8.13401 18 12 18C15.866 18 19 14.866 19 11" stroke="#00ffff"
+                        stroke-width="2" stroke-linecap="round" />
+                    <path d="M12 18V22M8 22H16" stroke="#00ffff" stroke-width="2" stroke-linecap="round" />
                 </svg>
             </button>
         </div>
     </div>
-
 
     <script type="module">
         import * as THREE from 'three';
@@ -1658,83 +1430,29 @@
             }
         };
 
-        // TOGGLE NODE EDITOR
-        window.toggleNodeEditor = function () {
-            const modal = document.getElementById('node-editor-modal');
-            modal.classList.toggle('active');
-        }
-
         function createTaskNode(text) {
-            // 1. Create 3D Visual Point (Existing Logic)
-            if (!currentCategory) currentCategory = "Development"; // Fallback
+            // Create a visual node for the task
+            if (!currentCategory) return;
 
             // Random Position in "Cloud"
-            const group = scene.children.find(c => c.type === "Group");
+            const group = scene.children.find(c => c.type === "Group"); // Assuming main point cloud group
             if (group) {
                 const m = new THREE.Mesh(
                     new THREE.SphereGeometry(2, 16, 16),
                     new THREE.MeshBasicMaterial({ color: 0x00ffff })
-                ); // Place near camera for visibility
+                );
+
+                // Place near camera for visibility, then fly? Or just random nearby
                 m.position.copy(controls.target).add(new THREE.Vector3(
                     (Math.random() - 0.5) * 50,
                     (Math.random() - 0.5) * 50,
                     (Math.random() - 0.5) * 50
                 ));
+
                 group.add(m);
                 userTasks.push({ mesh: m, title: text, category: currentCategory, created: Date.now() });
 
-                // 2. CREATE BLENDER DOM NODE IN CANVAS
-                const canvas = document.getElementById('node-canvas');
-                // Ensure canvas exists (might be missing if modal not injected yet)
-                if (canvas) {
-                    const nodeEl = document.createElement('div');
-                    nodeEl.className = 'blender-node';
-
-                    // Random position in canvas
-                    const rX = 50 + Math.random() * 400;
-                    const rY = 50 + Math.random() * 300;
-                    nodeEl.style.left = rX + 'px';
-                    nodeEl.style.top = rY + 'px';
-
-                    nodeEl.innerHTML = `
-                        <div class="node-header">
-                            <span class="node-title">${currentCategory.substring(0, 4).toUpperCase()}</span>
-                            <div style="width:8px; height:8px; background:#555; border-radius:50%;"></div>
-                        </div>
-                        <div class="node-body">
-                            <div class="node-socket-row">
-                                <div style="display:flex; align-items:center;">
-                                    <div class="socket-point socket-in"></div>
-                                    <span class="socket-label">Data In</span>
-                                </div>
-                            </div>
-                             <div style="padding: 4px 0; font-size: 11px; color: white;">
-                                "${text}"
-                            </div>
-                            <div class="node-socket-row" style="justify-content:flex-end;">
-                                <div style="display:flex; align-items:center;">
-                                    <span class="socket-label">Result</span>
-                                    <div class="socket-point socket-out"></div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-
-                    // Add Click Listener
-                    nodeEl.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        console.log("Clicked Node In Editor:", text);
-                        const demoIdx = Math.floor(Math.random() * 5);
-                        updateDetailPanelForSubTask(demoIdx);
-                        document.getElementById('detail-panel').classList.add('active');
-                        document.getElementById('panelToggle').classList.add('active');
-                        document.getElementById('p-title').innerText = text;
-                    });
-
-                    canvas.appendChild(nodeEl);
-                }
-
-                console.log("Task node added:", text);
+                console.log("Task node added to scene:", text);
             }
         }
 
@@ -1942,37 +1660,37 @@
 
             // 2. Check Main Labels (Stage 1 -> 2)
             // ... (Existing Label Logic) ...
-            // 2. Check Main Labels (Stage 1 -> 2)
-            if (!isDrilled && smoothP > 0.8) {
-                const intersects = ray.intersectObjects(labels);
-                if (intersects.length > 0) {
-                    const name = intersects[0].object.userData.name || "System";
-                    isDrilled = true;
-                    currentCategory = name; // Store category
+            const intersects = ray.intersectObjects(labels);
+            if (intersects.length > 0) {
+                const name = intersects[0].object.userData.name;
+                isDrilled = true;
+                currentCategory = name; // Store category
 
-                    // Show Back Button && Panel Toggle
-                    document.getElementById('back-button').classList.add('visible');
-                    document.getElementById('panelToggle').style.display = 'flex'; // Ensure visible
+                // Show Back Button && Panel Toggle
+                document.getElementById('back-button').classList.add('visible');
+                document.getElementById('panelToggle').style.display = 'flex'; // Ensure visible
 
-                    // Show Task Interface (Bottom Pill)
-                    document.getElementById('task-input').placeholder = "Command for " + name + "...";
-                    // Activate both Wrapper (for opacity/pointer-events) and Inner (if needed)
-                    const bp = document.getElementById('bottom-panel');
-                    if (bp) bp.classList.add('active');
+                // Show Task Interface (Bottom Pill)
+                document.getElementById('task-input').placeholder = "Command for " + name + "...";
+                // document.getElementById('task-interface').classList.add('active'); // Removed old ID?
+                // Actually the Bottom Panel is always visible now in updated HTML?
+                // No, we might have logic hiding it.
+                // The new CSS structure doesn't hide #bottom-panel by default unless we want to?
+                // Let's assume it stays visible.
 
-                    const ti = document.getElementById('task-interface');
-                    if (ti) ti.classList.add('active');
+                // Animate to Drill View
+                const targetPos = intersects[0].object.userData.targetPos;
+                controls.enabled = true;
+                // controls.target.copy(targetPos); // Don't snap yet, let animation handle?
+                // controls.target is (0,0,0) initially.
+                // We want to fly INTO the cloud.
 
-                    // Animate to Drill View
-                    const targetPos = intersects[0].object.userData.targetPos;
-                    controls.enabled = true;
+                drillProg = 1; // Start animation
+                controls.enableZoom = true; // Enable Zoom!
 
-                    drillProg = 1; // Start animation
-                    controls.enableZoom = true; // Enable Zoom!
-
-                    updateDetailPanelForSubTask(0);
-                    return;
-                }
+                // Update Panel Header?
+                updateDetailPanelForSubTask(0); // Reset to first or wait for click?
+                return;
             }
 
             // 3. FALLBACK: Slide 1 -> Slide 2 (Click anywhere to Enter)
@@ -2246,8 +1964,8 @@
                 group.rotation.y += Math.sin(time * 0.2) * 0.0005;
 
                 // Mouse Interaction Parallax
-                const targetRotX = mv.y * 0.05;
-                const targetRotY = mv.x * 0.05;
+                const targetRotX = mouse.y * 0.05;
+                const targetRotY = mouse.x * 0.05;
                 group.rotation.x += (targetRotX - group.rotation.x) * 0.05;
                 group.rotation.y += (targetRotY - group.rotation.y) * 0.05;
             }
