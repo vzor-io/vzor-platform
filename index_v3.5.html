@@ -581,8 +581,12 @@
             z-index: 200;
             transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
             display: flex;
+            flex-direction: column;
+            /* Stack input and tasks */
             justify-content: center;
             align-items: center;
+            gap: 15px;
+            /* Space between input and list */
             opacity: 0;
             pointer-events: none;
         }
@@ -636,6 +640,42 @@
             width: 1px;
             height: 20px;
             background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* NEW: Bottom Panel Task List */
+        #bp-task-list {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            max-width: 80vw;
+            padding: 5px;
+            scrollbar-width: none;
+            /* Hide scrollbar */
+        }
+
+        #bp-task-list::-webkit-scrollbar {
+            display: none;
+        }
+
+        .bp-task-pill {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.85em;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .bp-task-pill:hover {
+            background: rgba(0, 255, 255, 0.15);
+            border-color: #00ffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.2);
         }
 
         /* Mic Button Animation */
@@ -735,6 +775,8 @@
                 </svg>
             </button>
         </div>
+        <!-- NEW: Task List Container -->
+        <div id="bp-task-list"></div>
     </div>
 
     <script type="module">
@@ -1359,6 +1401,31 @@
                 // Track both mesh and sprite
                 userTasks.push({ mesh: m, sprite: s, title: text, category: currentCategory, created: Date.now() });
 
+                // NEW: Add to Bottom Panel
+                const list = document.getElementById('bp-task-list');
+                if (list) {
+                    const pill = document.createElement('div');
+                    pill.className = 'bp-task-pill';
+                    pill.innerText = text;
+                    pill.onclick = () => {
+                        console.log("Clicked bottom panel task:", text);
+                        // Trigger Node Click Logic (Open Right Panel)
+                        // Using a dummy index or logic to show details.
+                        // Since new tasks don't have detailed sub-data yet, we'll show generic info or just focus the camera if we implemented "Fly To".
+                        // For now, let's update the Right Panel with this task's info.
+
+                        document.getElementById('p-title').innerText = text;
+                        document.getElementById('p-desc').innerHTML = "Task created manually via " + currentCategory + ".<br><br>Status: Active<br>Agent: VZOR AI";
+
+                        document.getElementById('detail-panel').classList.add('active');
+                        document.getElementById('panelToggle').classList.add('active');
+
+                        // Fly to the node? 
+                        // simple: controls.target.copy(m.position); // Logic from click
+                    };
+                    list.appendChild(pill);
+                }
+
                 console.log("Task node created:", text);
             }
         }
@@ -1569,37 +1636,19 @@
             }
 
             // 2. Check Main Labels (Stage 1 -> 2)
-            // ... (Existing Label Logic) ...
             const intersects = ray.intersectObjects(labels);
             if (intersects.length > 0) {
                 const name = intersects[0].object.userData.name;
                 isDrilled = true;
-                currentCategory = name; // Store category
 
-                // Show Back Button && Panel Toggle
-                document.getElementById('back-button').classList.add('visible');
-                document.getElementById('panelToggle').style.display = 'flex'; // Ensure visible
-
-                // Show Task Interface (Bottom Pill)
-                document.getElementById('task-input').placeholder = "Command for " + name + "...";
-                // document.getElementById('task-interface').classList.add('active'); // Removed old ID?
-                // Actually the Bottom Panel is always visible now in updated HTML?
-                // No, we might have logic hiding it.
-                // The new CSS structure doesn't hide #bottom-panel by default unless we want to?
-                // Let's assume it stays visible.
+                // UNIFIED UI LOGIC: Call showDetail manually
+                showDetail(name);
 
                 // Animate to Drill View
-                const targetPos = intersects[0].object.userData.targetPos;
                 controls.enabled = true;
-                // controls.target.copy(targetPos); // Don't snap yet, let animation handle?
-                // controls.target is (0,0,0) initially.
-                // We want to fly INTO the cloud.
-
                 drillProg = 1; // Start animation
-                controls.enableZoom = true; // Enable Zoom!
+                controls.enableZoom = true;
 
-                // Update Panel Header?
-                updateDetailPanelForSubTask(0); // Reset to first or wait for click?
                 return;
             }
 
