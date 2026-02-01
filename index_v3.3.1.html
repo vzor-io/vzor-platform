@@ -348,148 +348,13 @@
             transform: translateY(2px);
         }
 
-        #task-input-panel .input-btn:active {
-            transform: scale(0.95);
-        }
-
-        /* Node Editor Toggle Button - TECH STYLE */
-        #node-editor-toggle-btn {
-            position: fixed;
-            bottom: 30px;
-            left: 30px;
-            /* Moved to left to avoid overlapping right panel */
-            width: auto;
-            height: 40px;
-            padding: 0 20px;
-            border-radius: 4px;
-            /* Tech/Cyberpunk style */
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(0, 255, 255, 0.3);
-            color: #00ffff;
-            font-size: 0.8em;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            cursor: pointer;
-            z-index: 200;
-            display: none;
-            /* HIDDEN BY DEFAULT on first slide */
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.1);
-            font-family: inherit;
-        }
-
-        #node-editor-toggle-btn:hover {
-            background: rgba(0, 255, 255, 0.1);
-            border-color: #00ffff;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
-        }
-
-        #node-editor-toggle-btn .btn-icon {
-            font-size: 1.2em;
-        }
-
-        #node-editor-toggle-btn .tooltip {
-            display: none;
-            /* Not needed for titled button */
-        }
-
         /* Specific overrides if needed */
         #add-task-btn {
             border: 1px solid rgba(255, 255, 255, 0.3);
-            transition: all 0.3s ease;
+            /* Always bordered */
         }
 
-        /* ===== TASK DETAIL PANEL (Right Side) ===== */
-        #task-detail-panel {
-            position: fixed;
-            right: -400px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 360px;
-            max-width: 90vw;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-right: none;
-            border-radius: 20px 0 0 20px;
-            padding: 40px 30px;
-            z-index: 150;
-            transition: right 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            max-height: 85vh;
-            overflow-y: auto;
-            box-shadow: -5px 0 30px rgba(0, 0, 0, 0.5);
-        }
-
-        #task-detail-panel.active {
-            right: 0;
-        }
-
-        #task-detail-panel .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-
-        #task-detail-panel .panel-title {
-            font-size: 0.7em;
-            letter-spacing: 0.3em;
-            text-transform: uppercase;
-            color: rgba(0, 255, 255, 0.7);
-            font-weight: 400;
-        }
-
-        #task-detail-panel .close-btn {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 1.5em;
-            cursor: pointer;
-            padding: 0;
-            width: 30px;
-            height: 30px;
-            line-height: 1;
-            transition: color 0.3s;
-        }
-
-        #task-detail-panel .close-btn:hover {
-            color: #00ffff;
-        }
-
-        #task-detail-panel .detail-field {
-            margin-bottom: 15px;
-        }
-
-        #task-detail-panel .field-label {
-            font-size: 0.7em;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 5px;
-        }
-
-        #task-detail-panel .field-value {
-            font-size: 1em;
-            color: #fff;
-            font-weight: 300;
-            letter-spacing: 0.05em;
-        }
-
-        #task-detail-panel .field-value.highlight {
-            color: #00ffff;
-            font-weight: 400;
-        }
-
-        /* === RESPONSIVE === */
+        /* MOBILE ADAPTIVITY */
         @media (max-width: 768px) {
             .center-text h1 {
                 font-size: 1.8em;
@@ -605,308 +470,6 @@
             touch-action: pan-y;
             pointer-events: auto;
         }
-
-        /* ===== NEW: TASK INPUT PANEL (Bottom, Drill-Down Mode) ===== */
-        #task-input-panel {
-            position: fixed;
-            bottom: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            min-width: 500px;
-            max-width: 700px;
-            background: rgba(10, 10, 10, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 40px;
-            padding: 12px 24px;
-            z-index: 150;
-            transition: bottom 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #task-input-panel.active {
-            bottom: 30px;
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        #task-input-field {
-            flex-grow: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            font-size: 1rem;
-            outline: none;
-            letter-spacing: 0.05em;
-            padding: 8px 10px;
-        }
-
-        #task-input-field::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        .input-divider {
-            width: 1px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .input-btn {
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.6);
-            cursor: pointer;
-            padding: 8px;
-            border-radius: 50%;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-        }
-
-        .input-btn:hover {
-            color: #00ffff;
-            background: rgba(0, 255, 255, 0.1);
-        }
-
-        /* ===== NEW: TASK DETAIL PANEL (Right Side) ===== */
-        #task-detail-panel {
-            position: fixed;
-            top: 0;
-            right: -400px;
-            width: 380px;
-            height: 100vh;
-            background: rgba(0, 0, 0, 0.9);
-            backdrop-filter: blur(30px);
-            -webkit-backdrop-filter: blur(30px);
-            border-left: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 60px 35px 40px 35px;
-            z-index: 200;
-            transition: right 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 25px;
-        }
-
-        #task-detail-panel.active {
-            right: 0;
-        }
-
-        .task-panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 10px;
-        }
-
-        .task-panel-title {
-            font-size: 1.8em;
-            font-weight: 300;
-            letter-spacing: 0.05em;
-            color: #ffffff;
-        }
-
-        .task-panel-close {
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 2em;
-            cursor: pointer;
-            transition: color 0.3s;
-            line-height: 0.8;
-        }
-
-        .task-panel-close:hover {
-            color: #ffffff;
-        }
-
-        .task-info-row {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        .task-info-label {
-            font-size: 0.75em;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: rgba(255, 255, 255, 0.5);
-        }
-
-        .task-info-value {
-            font-size: 1em;
-            color: #ffffff;
-            letter-spacing: 0.03em;
-        }
-
-        /* ===== NEW: NODE EDITOR (Bottom Panel, Blender-style) ===== */
-        #node-editor-container {
-            position: fixed;
-            bottom: -450px;
-            left: 0;
-            width: 100vw;
-            height: 400px;
-            background: rgba(15, 15, 15, 0.95);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 180;
-            transition: bottom 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        #node-editor-container.active {
-            bottom: 0;
-        }
-
-        #node-editor-header {
-            height: 40px;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        #node-editor-header span {
-            font-size: 0.9em;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        #toggle-node-editor {
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1.2em;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        #node-editor-container.active #toggle-node-editor {
-            transform: rotate(180deg);
-        }
-
-        #node-editor-canvas {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-        }
-
-        #nodes-container {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-        }
-
-        #node-connections {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
-
-        .node {
-            position: absolute;
-            background: rgba(30, 30, 30, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            min-width: 180px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
-            cursor: move;
-            user-select: none;
-        }
-
-        .node-header {
-            background: rgba(0, 255, 255, 0.1);
-            border-bottom: 1px solid rgba(0, 255, 255, 0.3);
-            padding: 8px 12px;
-            font-size: 0.85em;
-            font-weight: 400;
-            letter-spacing: 0.05em;
-            color: #00ffff;
-        }
-
-        .node-body {
-            padding: 10px 12px;
-            font-size: 0.75em;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .node-input,
-        .node-output {
-            margin: 5px 0;
-            position: relative;
-            padding-left: 15px;
-        }
-
-        .node-input::before {
-            content: '●';
-            position: absolute;
-            left: -5px;
-            color: #00ffff;
-        }
-
-        .node-output::before {
-            content: '●';
-            position: absolute;
-            left: -5px;
-            color: #00ff00;
-        }
-
-        #resize-handle {
-            height: 6px;
-            width: 100%;
-            background: rgba(0, 255, 255, 0.05);
-            cursor: ns-resize;
-            position: absolute;
-            top: 0;
-            left: 0;
-            transition: background 0.2s;
-        }
-
-        #resize-handle:hover {
-            background: rgba(0, 255, 255, 0.2);
-        }
-
-        /* Mobile Responsiveness for New Panels */
-        @media (max-width: 768px) {
-            #task-input-panel {
-                min-width: 90vw;
-                max-width: 95vw;
-            }
-
-            #task-detail-panel {
-                width: 100vw;
-                right: -100vw;
-            }
-
-            #node-editor-container {
-                height: 300px;
-                bottom: -350px;
-            }
-        }
     </style>
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -987,73 +550,6 @@
         <div class="detail-content" id="p-desc">
             Autonomous financial engine designed to mitigate temporal inflation and synchronize capital flows across
             global jurisdictions.
-        </div>
-    </div>
-
-    <!-- ===== NEW: TASK INPUT PANEL (Bottom) ===== -->
-    <div id="task-input-panel">
-        <input type="text" id="task-input-field" placeholder="Create new task..." />
-        <div class="input-divider"></div>
-        <button class="input-btn" id="voice-btn" title="Voice Input">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                <line x1="12" y1="19" x2="12" y2="23"></line>
-                <line x1="8" y1="23" x2="16" y2="23"></line>
-            </svg>
-        </button>
-        <button class="input-btn" id="attach-btn" title="Attach File">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path
-                    d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48">
-                </path>
-            </svg>
-        </button>
-    </div>
-
-    <!-- ===== TASK DETAIL PANEL (Right Side) ===== -->
-    <div id="task-detail-panel">
-        <div class="panel-header">
-            <div class="panel-title">TASK DETAILS</div>
-            <button class="close-btn" onclick="hideTaskDetail()">×</button>
-        </div>
-        <div class="detail-field">
-            <div class="field-label">Title</div>
-            <div class="field-value highlight" id="task-detail-title">Task Title</div>
-        </div>
-        <div class="detail-field">
-            <div class="field-label">Status</div>
-            <div class="field-value" id="task-detail-status">Pending</div>
-        </div>
-        <div class="detail-field">
-            <div class="field-label">Deadline</div>
-            <div class="field-value" id="task-detail-deadline">N/A</div>
-        </div>
-        <div class="detail-field">
-            <div class="field-label">Agent</div>
-            <div class="field-value" id="task-detail-agent">GPT-4</div>
-        </div>
-        <div class="detail-field">
-            <div class="field-label">Category</div>
-            <div class="field-value" id="task-detail-category">Development</div>
-        </div>
-    </div>
-
-    <!-- Node Editor Toggle Button -->
-    <button id="node-editor-toggle-btn" onclick="toggleNodeEditor()" title="Open Node Editor (N)">
-        <span class="btn-icon">⬡</span> NODES
-    </button>
-
-    <!-- ===== NEW: NODE EDITOR (Bottom, Blender-style) ===== -->
-    <div id="node-editor-container">
-        <div id="resize-handle"></div>
-        <div id="node-editor-header" onclick="toggleNodeEditor()">
-            <span>⬡ Node Editor</span>
-            <button id="toggle-node-editor">▼</button>
-        </div>
-        <div id="node-editor-canvas">
-            <svg id="node-connections"></svg>
-            <div id="nodes-container"></div>
         </div>
     </div>
 
@@ -1188,39 +684,6 @@
             const r = 200;
             nodePositions.push(new THREE.Vector3().setFromSphericalCoords(r, phi, theta));
         }
-
-        // --- Detail Node Structure (for Drill-Down) ---
-        const detailNodesCount = 50; // Hub + Spokes + Leaves
-        const detailNodePositions = [];
-
-        // Hub (center)
-        detailNodePositions.push(new THREE.Vector3(0, 0, 0));
-
-        // Spokes radiating from hub
-        const spokeCount = 12;
-        for (let i = 0; i < spokeCount; i++) {
-            const angle = (i / spokeCount) * Math.PI * 2;
-            const radius = 80 + Math.random() * 40;
-            detailNodePositions.push(new THREE.Vector3(
-                Math.cos(angle) * radius,
-                (Math.random() - 0.5) * 60,
-                Math.sin(angle) * radius
-            ));
-        }
-
-        // Leaves (connected to spokes)
-        while (detailNodePositions.length < detailNodesCount) {
-            const spokeIdx = 1 + Math.floor(Math.random() * spokeCount);
-            const spoke = detailNodePositions[spokeIdx];
-            const offset = 40 + Math.random() * 30;
-            const angleOffset = (Math.random() - 0.5) * Math.PI / 3;
-            detailNodePositions.push(new THREE.Vector3(
-                spoke.x + Math.cos(angleOffset) * offset,
-                spoke.y + (Math.random() - 0.5) * 40,
-                spoke.z + Math.sin(angleOffset) * offset
-            ));
-        }
-
 
         // --- Particle System ---
         const particlesCount = 20000;
@@ -1605,10 +1068,7 @@
         let isDrilled = false; let drillProg = 0;
         let currentCategory = "";
         let isDrag = false; let prevM = { x: 0, y: 0 }; let mom = { x: 0, y: 0 };
-        const ray = new THREE.Raycaster();
-        ray.params.Points.threshold = 5; // Increased for better hit detection on task points
-        const mv = new THREE.Vector2();
-        const pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        const ray = new THREE.Raycaster(); const mv = new THREE.Vector2(); const pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
         let mouseTimer;
 
         let isClickValid = true;
@@ -1677,10 +1137,10 @@
                     currentCategory = data.name;
                     showDetail(data.name);
 
-                    // SHOW TASK INPUT PANEL (NEW PANEL) Only for specific categories
+                    // SHOW TASK INTERFACE Only for specific categories
                     const allowed = ["Development", "Finance", "Real Estate"]; // Using the names from coreData
                     if (allowed.includes(data.name)) {
-                        document.getElementById('task-input-panel').classList.add('active');
+                        document.getElementById('task-interface').classList.add('active');
                     }
                 }
             } else {
@@ -1694,13 +1154,15 @@
                 } else {
                     // CHECK USER TASKS
                     const taskHits = ray.intersectObjects(userTasks.map(t => t.mesh));
-                    console.log('Task hit check:', taskHits.length, 'userTasks:', userTasks.length);
                     if (taskHits.length > 0) {
                         const taskPayload = userTasks.find(t => t.mesh === taskHits[0].object);
-                        console.log('Task payload found:', taskPayload);
                         if (taskPayload) {
-                            // Open NEW task-detail-panel with full task info
-                            showTaskDetail(taskPayload);
+                            // Open panel with Task Info
+                            const header = document.querySelector('.detail-header');
+                            header.innerText = "ПОЛЬЗОВАТЕЛЬСКАЯ ЗАДАЧА";
+                            document.getElementById('p-title').innerText = taskPayload.title;
+                            document.getElementById('p-desc').innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
+                            document.getElementById('detail-panel').classList.add('active'); // Force open
                         }
                     } else {
                         // Clicked on Background (Void) -> RESET TO CATEGORY
@@ -1766,13 +1228,7 @@
                 setTimeout(() => {
                     document.getElementById('task-interface').classList.add('active');
                 }, 800); // Slight delay for effect
-                setTimeout(() => {
-                    document.getElementById('task-interface').classList.add('active');
-                }, 800); // Slight delay for effect
             }
-
-            // SHOW Node Editor Button (Tech Style)
-            document.getElementById('node-editor-toggle-btn').style.display = 'flex';
         }
 
         function updateDetailPanelForSubTask(idx) {
@@ -1876,11 +1332,6 @@
             // Restore Top Header
             const st = document.getElementById('slideTitle');
             st.innerText = "VZOR";
-
-            // HIDE Node Editor Button
-            document.getElementById('node-editor-toggle-btn').style.display = 'none';
-            // Close Node Editor if open
-            if (nodeEditorOpen) toggleNodeEditor();
 
             // The original code had these lines, they were removed in the provided snippet.
             // document.getElementById('back-button').classList.remove('visible');
@@ -2261,90 +1712,20 @@
         });
         */
 
-        // Task Input Field - Enter Key Handler
-        const taskInputField = document.getElementById('task-input-field');
-        if (taskInputField) {
-            taskInputField.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter' && taskInputField.value.trim()) {
-                    const title = taskInputField.value.trim();
-                    createNewTask(title);
-                    taskInputField.value = '';
+        // Task Creation via Enter Key (Replaces create-btn)
+        const taskInput = document.getElementById('task-input');
+        if (taskInput) {
+            taskInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const val = e.target.value;
+                    if (val) {
+                        addTaskPoint(val, currentCategory);
+                        e.target.value = "";
+                        document.getElementById('task-interface').classList.remove('active');
+                    }
                 }
             });
         }
-
-        // ========== VOICE INPUT (Auto-Execute) ==========
-        const voiceBtn = document.getElementById('voice-btn');
-        let recognition = null;
-        let isRecording = false;
-
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'ru-RU'; // Russian language
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            recognition.onresult = (event) => {
-                const transcript = event.results[0][0].transcript;
-                console.log('Voice recognized:', transcript);
-
-                // AUTO-EXECUTE: Create task immediately
-                if (transcript.trim()) {
-                    createNewTask(transcript.trim());
-                }
-
-                isRecording = false;
-                voiceBtn.style.color = '#00ffff';
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Speech recognition error:', event.error);
-                isRecording = false;
-                voiceBtn.style.color = '#00ffff';
-            };
-
-            recognition.onend = () => {
-                isRecording = false;
-                voiceBtn.style.color = '#00ffff';
-            };
-
-            voiceBtn.addEventListener('click', () => {
-                if (isRecording) {
-                    recognition.stop();
-                    isRecording = false;
-                } else {
-                    recognition.start();
-                    isRecording = true;
-                    voiceBtn.style.color = '#ff0000'; // Red when recording
-                }
-            });
-        } else {
-            voiceBtn.style.opacity = '0.3';
-            voiceBtn.disabled = true;
-            console.warn('Speech Recognition not supported in this browser');
-        }
-
-        // ========== FILE ATTACHMENT ==========
-        const attachBtn = document.getElementById('attach-btn');
-        const fileInput = document.createElement('input');
-        fileInput.type = 'file';
-        fileInput.style.display = 'none';
-        document.body.appendChild(fileInput);
-
-        attachBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file && taskInputField) {
-                taskInputField.value = taskInputField.value + ` [📎 ${file.name}]`;
-            }
-        });
-
-        // Global Task Counter
-        let taskIdCounter = 1;
 
         /*
         document.getElementById('create-btn').addEventListener('click', () => {
@@ -2353,368 +1734,7 @@
         */
 
 
-        // ========== NEW: TASK MANAGEMENT SYSTEM ==========
-
-        // Task Data Store
-        const tasks = [];
-        let selectedTaskId = null;
-        let isDrillDownMode = false;
-
-        // Generate UUID
-        function generateUUID() {
-            return 'task_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Task Input Panel Management
-        function showTaskInputPanel() {
-            document.getElementById('task-input-panel').classList.add('active');
-        }
-
-        function hideTaskInputPanel() {
-            document.getElementById('task-input-panel').classList.remove('active');
-        }
-
-        // --- TASK INPUT PANEL LOGIC (NEW PANEL) ---
-        document.getElementById('task-input-field').addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                const title = e.target.value.trim();
-                if (title && isDrilled) {
-                    createNewTask(title);
-                    e.target.value = '';
-                }
-            }
-        });
-
-        // Global Task Counter
-        // (Duplicate removed)
-
-        // Create New Task Function
-        function createNewTask(title) {
-            const task = {
-                id: taskIdCounter++,
-                title: title,
-                category: currentCategory,
-                status: 'Pending',
-                deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString(), // 7 days from now
-                agent: 'GPT-4',
-                created: Date.now(),
-                position: {
-                    x: (Math.random() - 0.5) * 80,
-                    y: (Math.random() - 0.5) * 80,
-                    z: (Math.random() - 0.5) * 80
-                }
-            };
-
-            // 1. Add visual point to 3D cloud
-            const mesh = addTaskPoint(title, currentCategory);
-
-            // Update userTasks array with full task data
-            const taskEntry = userTasks[userTasks.length - 1];
-            Object.assign(taskEntry, task);
-
-            // 2. Create node in Node Editor
-            createNode(task);
-
-            // Log success
-            console.log('Task created:', task);
-        }
-
-
-        // Task Detail Panel Management
-        let isTaskDetailOpen = false;
-
-        function showTaskDetail(task) {
-            const panel = document.getElementById('task-detail-panel');
-
-            // Update panel content
-            document.getElementById('task-detail-title').innerText = task.title || 'Untitled Task';
-            document.getElementById('task-detail-status').innerText = task.status || 'Pending';
-            document.getElementById('task-detail-deadline').innerText = task.deadline || 'N/A';
-            document.getElementById('task-detail-agent').innerText = task.agent || 'Unassigned';
-            document.getElementById('task-detail-category').innerText = task.category || currentCategory;
-
-            // Show panel
-            panel.classList.add('active');
-            isTaskDetailOpen = true;
-
-            // Blender-style: Shift viewport left when right panel opens
-            updateViewportForRightPanel();
-        }
-
-        function hideTaskDetail() {
-            const panel = document.getElementById('task-detail-panel');
-            panel.classList.remove('active');
-            selectedTaskId = null;
-            isTaskDetailOpen = false;
-
-            // Return viewport to center
-            updateViewportForRightPanel();
-        }
-
-        // Adjust viewport when right panel opens/closes
-        function updateViewportForRightPanel() {
-            const panelWidth = 350; // Fixed panel width
-
-            if (isTaskDetailOpen) {
-                // Calculate offset to shift viewport left
-                const offsetX = panelWidth / 2;
-                camera.setViewOffset(
-                    window.innerWidth,
-                    window.innerHeight,
-                    -offsetX, // Shift left
-                    0,
-                    window.innerWidth,
-                    window.innerHeight
-                );
-            } else {
-                // Clear viewport offset to return to center
-                camera.clearViewOffset();
-            }
-
-            // Update projection matrix
-            camera.updateProjectionMatrix();
-        }
-
-        document.getElementById('close-task-panel').addEventListener('click', hideTaskDetail);
-
-        // Voice Input logic is now at the top of the file
-        // Remaining duplicates removed
-
-        // Node Editor Management
-        let nodeEditorOpen = false;
-        let nodeEditorHeight = 400;
-
-        function toggleNodeEditor() {
-            nodeEditorOpen = !nodeEditorOpen;
-            const container = document.getElementById('node-editor-container');
-            container.classList.toggle('active');
-
-            // Update canvas size when Node Editor opens/closes
-            updateCanvasSize();
-        }
-
-        function updateCanvasSize() {
-            const nodeHeight = nodeEditorOpen ? nodeEditorHeight : 0;
-            const availableHeight = window.innerHeight - nodeHeight;
-
-            // Blender-style behavior: resize renderer AND scale view
-            renderer.setSize(window.innerWidth, availableHeight);
-            camera.aspect = window.innerWidth / availableHeight;
-            camera.updateProjectionMatrix();
-
-            // Update canvas wrapper height
-            document.getElementById('canvas-wrapper').style.height = availableHeight + 'px';
-
-            // CRITICAL: Scale the point cloud view to fit in available space
-            // When panel opens, zoom out so cloud doesn't get cut off
-            // When panel closes, zoom back in to original view
-            const targetZoom = nodeEditorOpen ? 0.7 : 1.0; // 70% when panel open, 100% when closed
-            const targetCameraZ = nodeEditorOpen ? 550 : 450; // Move camera back when panel open
-
-            // Smooth animation of camera zoom (Blender-style)
-            function animateCamera() {
-                const zoomDiff = targetZoom - camera.zoom;
-                const zDiff = targetCameraZ - camera.position.z;
-
-                if (Math.abs(zoomDiff) > 0.01 || Math.abs(zDiff) > 1) {
-                    camera.zoom += zoomDiff * 0.1; // Smooth interpolation
-                    camera.position.z += zDiff * 0.1;
-                    camera.updateProjectionMatrix();
-                    requestAnimationFrame(animateCamera);
-                }
-            }
-
-            animateCamera();
-        }
-
-        // Node Editor Resize Handle
-        let isResizing = false;
-        const resizeHandle = document.getElementById('resize-handle');
-
-        resizeHandle.addEventListener('mousedown', (e) => {
-            isResizing = true;
-            e.preventDefault();
-        });
-
-        document.addEventListener('mousemove', (e) => {
-            if (!isResizing || !nodeEditorOpen) return;
-
-            const newHeight = window.innerHeight - e.clientY;
-            if (newHeight >= 200 && newHeight <= 600) {
-                nodeEditorHeight = newHeight;
-                document.getElementById('node-editor-container').style.height = newHeight + 'px';
-                updateCanvasSize();
-            }
-        });
-
-        document.addEventListener('mouseup', () => {
-            isResizing = false;
-        });
-
-        // Create Node in Node Editor
-        function createNode(task) {
-            const nodesContainer = document.getElementById('nodes-container');
-            const node = document.createElement('div');
-            node.className = 'node';
-            node.dataset.taskId = task.id;
-            node.style.left = (Math.random() * 60 + 10) + '%';
-            node.style.top = (Math.random() * 60 + 10) + '%';
-
-            node.innerHTML = `
-                <div class="node-header">${task.title}</div>
-                <div class="node-body">
-                    <div class="node-input">Status: ${task.status}</div>
-                    <div class="node-output">Agent: ${task.agent}</div>
-                </div>
-            `;
-
-            // Make node draggable
-            let isDragging = false;
-            let offsetX, offsetY;
-
-            node.querySelector('.node-header').addEventListener('mousedown', (e) => {
-                isDragging = true;
-                offsetX = e.clientX - node.offsetLeft;
-                offsetY = e.clientY - node.offsetTop;
-                node.style.zIndex = 1000;
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-                const container = document.getElementById('node-editor-canvas');
-                const rect = container.getBoundingRect();
-                node.style.left = (e.clientX - rect.left - offsetX) + 'px';
-                node.style.top = (e.clientY - rect.top - offsetY) + 'px';
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    node.style.zIndex = '';
-                }
-            });
-
-            nodesContainer.appendChild(node);
-        }
-
-        // Create Task Point in Three.js (Visual Representation)
-        const taskPointsGeometry = new THREE.BufferGeometry();
-        const taskPointsPositions = [];
-        const taskPointsColors = [];
-        const taskPointsSizes = [];
-        const taskPointsData = []; // Store task references
-
-        function createTaskPoint(task) {
-            // Add position
-            taskPointsPositions.push(task.position.x, task.position.y, task.position.z);
-
-            // Cyan color for task points
-            taskPointsColors.push(0, 1, 1);
-
-            // Larger size for visibility
-            taskPointsSizes.push(20);
-
-            // Store task reference
-            taskPointsData.push(task);
-
-            // Update geometry
-            taskPointsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(taskPointsPositions, 3));
-            taskPointsGeometry.setAttribute('color', new THREE.Float32BufferAttribute(taskPointsColors, 3));
-            taskPointsGeometry.setAttribute('size', new THREE.Float32BufferAttribute(taskPointsSizes, 1));
-        }
-
-        // Task Points Material
-        const taskPointsMaterial = new THREE.PointsMaterial({
-            size: 20,
-            sizeAttenuation: true,
-            vertexColors: true,
-            transparent: true,
-            opacity: 0.9,
-            map: createGlowTexture()
-        });
-
-        const taskPoints = new THREE.Points(taskPointsGeometry, taskPointsMaterial);
-        scene.add(taskPoints);
-
-        // Raycaster for Task Point Clicks
-        const raycaster = new THREE.Raycaster();
-        raycaster.params.Points.threshold = 10;
-        const mouse = new THREE.Vector2();
-
-        function onCanvasClick(event) {
-            // Get mouse position in normalized device coordinates
-            const rect = renderer.domElement.getBoundingClientRect();
-            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-
-            // Check intersections with task points
-            const intersects = raycaster.intersectObject(taskPoints);
-
-            if (intersects.length > 0) {
-                const index = intersects[0].index;
-                const task = taskPointsData[index];
-                if (task) {
-                    showTaskDetail(task);
-                }
-            }
-        }
-
-        renderer.domElement.addEventListener('click', onCanvasClick);
-
-        // ========== MOUSE WHEEL ZOOM ==========
-        let zoomLevel = 1.0;
-        const minZoom = 0.5;
-        const maxZoom = 3.0;
-
-        window.addEventListener('wheel', (e) => {
-            // Only enable zoom in drill-down mode (category views)
-            if (!isDrilled) return;
-
-            e.preventDefault();
-            const delta = e.deltaY * -0.0008;
-            zoomLevel = Math.max(minZoom, Math.min(maxZoom, zoomLevel + delta));
-
-            camera.zoom = zoomLevel;
-            camera.updateProjectionMatrix();
-        }, { passive: false });
-
-        // Drill-down mode tracking
-        // When user clicks on a category (Development/Finance/Estate), show input panel
-        // This will be integrated with existing drill-down logic
-
-        // NOTE: This is a simplified integration - full drill-down logic 
-        // should check isDrilled variable and show/hide panels accordingly
-
-
-
-
-        // Keyboard Shortcuts
-        document.addEventListener('keydown', (e) => {
-            // 'N' - Toggle Node Editor (Blender-style)
-            if (e.key === 'n' || e.key === 'N') {
-                if (!document.activeElement || document.activeElement.tagName !== 'INPUT') {
-                    toggleNodeEditor();
-                }
-            }
-            // 'Escape' - Close panels
-            if (e.key === 'Escape') {
-                if (isTaskDetailOpen) {
-                    hideTaskDetail();
-                }
-                if (nodeEditorOpen) {
-                    toggleNodeEditor();
-                }
-            }
-        });
-
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            updateCanvasSize();
-            material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
-        });
+        window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); material.uniforms.uPixelRatio.value = renderer.getPixelRatio(); });
         animate();
     </script>
 </body>
