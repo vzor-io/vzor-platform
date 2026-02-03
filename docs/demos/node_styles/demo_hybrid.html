@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo: Hybrid Style</title>
+    <style>
+        body {
+            margin: 0;
+            background: #0f1115;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            color: white;
+        }
+
+        #canvas {
+            width: 100vw;
+            height: 100vh;
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+
+        .node {
+            position: absolute;
+            width: 180px;
+            background: #1c1f26;
+            border: 1px solid #3366ff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+            transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .node-collapsed {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            height: 24px;
+        }
+
+        .node-expanded {
+            width: 300px;
+            z-index: 10;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #00ff88;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff88;
+            margin-right: 10px;
+        }
+
+        .title {
+            font-size: 0.9em;
+            font-weight: 500;
+            flex-grow: 1;
+        }
+
+        .btn-expand {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 1.2em;
+        }
+
+        .btn-expand:hover {
+            color: white;
+        }
+
+        .details {
+            display: none;
+            padding: 15px;
+            background: #15171c;
+            border-top: 1px solid #333;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .node-expanded .details {
+            display: block;
+        }
+
+        .node-expanded .node-collapsed {
+            border-bottom: 1px solid #333;
+            background: #252933;
+            border-radius: 8px 8px 0 0;
+        }
+
+        /* Wires */
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+        }
+
+        path {
+            stroke: #3366ff;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="canvas">
+        <svg>
+            <path d="M230 120 C 350 120, 350 250, 480 250" />
+        </svg>
+
+        <!-- Node 1 (Compact) -->
+        <div class="node" style="top: 100px; left: 50px;">
+            <div class="node-collapsed">
+                <div class="status-dot"></div>
+                <span class="title">Market Agent</span>
+                <button class="btn-expand" onclick="toggleNode(this)">⤢</button>
+            </div>
+            <div class="details">
+                <p style="font-size:0.8em; color:#888;">Full configuration options here...</p>
+            </div>
+        </div>
+
+        <!-- Node 2 (Expanded) -->
+        <div class="node node-expanded" style="top: 200px; left: 480px; border-color: #ff0055;">
+            <div class="node-collapsed">
+                <div class="status-dot" style="background:#ff0055; box-shadow: 0 0 10px #ff0055;"></div>
+                <span class="title">Critical Alert</span>
+                <button class="btn-expand" onclick="toggleNode(this)">⤡</button>
+            </div>
+            <div class="details">
+                <h4 style="margin:0 0 10px 0; font-size:0.9em;">Analysis Result</h4>
+                <div
+                    style="background:#111; padding:10px; font-family:monospace; font-size:0.8em; color:#ff8888; border-radius:4px;">
+                    Risk Level: HIGH<br>
+                    Confidence: 92%<br>
+                    Source: External API
+                </div>
+                <button
+                    style="margin-top:10px; width:100%; background:#ff0055; color:white; border:none; padding:5px; border-radius:4px; cursor:pointer;">Acknowledge</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleNode(btn) {
+            const node = btn.closest('.node');
+            node.classList.toggle('node-expanded');
+            btn.innerText = node.classList.contains('node-expanded') ? '⤡' : '⤢';
+        }
+    </script>
+</body>
+
+</html>

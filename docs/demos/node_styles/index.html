@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VZOR Node Editor Styles</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #111;
+            color: #eee;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        header {
+            padding: 20px;
+            background: #222;
+            border-bottom: 1px solid #444;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.2em;
+            font-weight: 300;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #333;
+            color: #aaa;
+            border: 1px solid #555;
+            padding: 8px 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        button:hover {
+            background: #444;
+            color: white;
+        }
+
+        button.active {
+            background: #ffaa00;
+            color: black;
+            border-color: #ffaa00;
+            font-weight: bold;
+        }
+
+        iframe {
+            flex-grow: 1;
+            border: none;
+            width: 100%;
+            height: 100%;
+            background: #000;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>VZOR NODE EDITOR STYLES</h1>
+        <nav>
+            <button onclick="loadDemo('demo_grasshopper.html', this)">Grasshopper Style</button>
+            <button onclick="loadDemo('demo_blender.html', this)">Blender Style</button>
+            <button onclick="loadDemo('demo_hybrid.html', this)">Hybrid Style</button>
+        </nav>
+    </header>
+
+    <iframe id="viewer" src="demo_blender.html"></iframe>
+
+    <script>
+        function loadDemo(file, btn) {
+            document.getElementById('viewer').src = file;
+            document.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        // Set initial active
+        document.querySelectorAll('button')[1].classList.add('active');
+    </script>
+</body>
+
+</html>

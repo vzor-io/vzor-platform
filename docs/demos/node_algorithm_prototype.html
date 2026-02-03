@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VZOR Node Editor Algorithm Prototype</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --panel-bg: #2b2b2b;
+            --text-main: #eee;
+            --text-dim: #aaa;
+            --accent: #3498db;
+            --wire-color: #888;
+            --node-header-invest: #d35400;
+            /* Orange for Invest */
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+
+        /* --- SIDEBAR (Selection) --- */
+        #sidebar {
+            width: 350px;
+            background: var(--panel-bg);
+            border-right: 1px solid #444;
+            display: flex;
+            flex-direction: column;
+            z-index: 100;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            border-bottom: 1px solid #444;
+            font-size: 1.1em;
+            font-weight: 300;
+            letter-spacing: 1px;
+            background: #252525;
+        }
+
+        .block-type {
+            margin: 10px;
+            background: #333;
+            border: 1px solid #444;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .block-title {
+            padding: 12px 15px;
+            background: #3a3a3a;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .block-title:hover {
+            background: #444;
+        }
+
+        .task-list {
+            padding: 10px;
+            background: #2b2b2b;
+            display: none;
+            /* Hidden by default */
+        }
+
+        .task-list.active {
+            display: block;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .task-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .task-item label {
+            margin-left: 10px;
+            flex-grow: 1;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .settings-btn {
+            opacity: 0.5;
+            cursor: pointer;
+        }
+
+        .settings-btn:hover {
+            opacity: 1;
+        }
+
+        #create-btn-container {
+            padding: 20px;
+            border-top: 1px solid #444;
+            margin-top: auto;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        /* --- CANVAS (Graph) --- */
+        #canvas-area {
+            flex-grow: 1;
+            position: relative;
+            background-color: #222;
+            background-image: radial-gradient(#333 1px, transparent 1px);
+            background-size: 20px 20px;
+            overflow: hidden;
+        }
+
+        /* --- NODES (Blender Style inside) --- */
+        .node {
+            position: absolute;
+            width: 260px;
+            background: rgba(35, 35, 35, 0.95);
+            border: 1px solid #000;
+            border-radius: 5px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        .node.selected {
+            border-color: #d35400;
+        }
+
+        .node-header {
+            padding: 6px 10px;
+            background: linear-gradient(to right, #d35400, #a04000);
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+            border-radius: 4px 4px 0 0;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .node-body {
+            padding: 10px;
+        }
+
+        .node-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.8em;
+            color: #ccc;
+        }
+
+        .socket {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid #111;
+            cursor: crosshair;
+        }
+
+        .socket.left {
+            margin-right: 8px;
+        }
+
+        .socket.right {
+            margin-left: 8px;
+        }
+
+        .s-yellow {
+            background: #f1c40f;
+        }
+
+        /* Data */
+        .s-green {
+            background: #2ecc71;
+        }
+
+        /* Result */
+        .s-blue {
+            background: #3498db;
+        }
+
+        /* Knowledge */
+
+        select {
+            background: #111;
+            border: 1px solid #444;
+            color: #ddd;
+            max-width: 100px;
+            border-radius: 3px;
+        }
+
+        /* SVG Wires */
+        #svg-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        path.wire {
+            stroke: #aaa;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.8;
+            stroke-dasharray: 4;
+            animation: flow 20s linear infinite;
+        }
+
+        @keyframes flow {
+            to {
+                stroke-dashoffset: -100;
+            }
+        }
+
+        /* Floating Info */
+        #hint {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Sidebar: LEVEL 1 & 2 -->
+    <aside id="sidebar">
+        <div class="sidebar-header">BLOCK SELECTION</div>
+
+        <!-- Block: Invest Analysis -->
+        <div class="block-type">
+            <div class="block-title" onclick="toggleBlock(this)">
+                📊 INVEST ANALYSIS
+                <span>▼</span>
+            </div>
+            <div class="task-list active">
+                <div class="task-item"><input type="checkbox" id="t1" checked><label for="t1">City Planning
+                        Analysis</label><span class="settings-btn">⚙️</span></div>
+                <div class="task-item"><input type="checkbox" id="t2" checked><label for="t2">Location
+                        Analysis</label><span class="settings-btn">⚙️</span></div>
+                <div class="task-item"><input type="checkbox" id="t3" checked><label for="t3">Competitor
+                        Analysis</label><span class="settings-btn">⚙️</span></div>
+                <div class="task-item"><input type="checkbox" id="t4" checked><label for="t4">Market
+                        Analysis</label><span class="settings-btn">⚙️</span></div>
+                <div class="task-item"><input type="checkbox" id="t5" checked><label for="t5">Feasibility Study
+                        (TEO)</label><span class="settings-btn">⚙️</span></div>
+                <div class="task-item"><input type="checkbox" id="t6" checked><label for="t6">Financial
+                        Model</label><span class="settings-btn">⚙️</span></div>
+            </div>
+        </div>
+
+        <!-- Block: Design -->
+        <div class="block-type">
+            <div class="block-title" onclick="toggleBlock(this)">
+                📐 DESIGN
+                <span>►</span>
+            </div>
+            <div class="task-list">
+                <div class="task-item"><input type="checkbox" id="d1"><label for="d1">Concept Design</label></div>
+                <div class="task-item"><input type="checkbox" id="d2"><label for="d2">Architecture (AR)</label></div>
+            </div>
+        </div>
+
+        <div id="create-btn-container">
+            <button class="btn-primary" onclick="generateGraph()">▶ CREATE GRAPH</button>
+        </div>
+    </aside>
+
+    <!-- Canvas: LEVEL 4 -->
+    <main id="canvas-area">
+        <svg id="svg-layer"></svg>
+        <div id="nodes-container"></div>
+        <div id="hint">Drag nodes to move. Wires are auto-generated.</div>
+    </main>
+
+    <script>
+        // --- LOGIC ---
+
+        const tasksDB = [
+            { id: 't1', name: 'City Planning', inputs: [], outputs: ['json'], x: 50, y: 50 },
+            { id: 't2', name: 'Location Analysis', inputs: ['json'], outputs: ['json'], x: 50, y: 300 },
+            { id: 't3', name: 'Competitors', inputs: ['json'], outputs: ['excel'], x: 350, y: 50 },
+            { id: 't4', name: 'Market Analysis', inputs: ['excel', 'json'], outputs: ['report'], x: 350, y: 300 },
+            { id: 't5', name: 'TEO', inputs: ['report'], outputs: ['excel'], x: 650, y: 150 },
+            { id: 't6', name: 'Fin Model', inputs: ['excel'], outputs: ['final'], x: 950, y: 150 },
+        ];
+
+        let nodes = [];
+        let connections = [];
+
+        // Toggle Accordion
+        function toggleBlock(el) {
+            const list = el.nextElementSibling;
+            const arrow = el.querySelector('span');
+            list.classList.toggle('active');
+            arrow.innerText = list.classList.contains('active') ? '▼' : '►';
+        }
+
+        // Generate Graph based on checks
+        function generateGraph() {
+            const container = document.getElementById('nodes-container');
+            container.innerHTML = '';
+            nodes = []; // clear
+
+            // Filter selected
+            const selectedIds = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.id);
+
+            // Create Nodes
+            selectedIds.forEach(id => {
+                const template = tasksDB.find(t => t.id === id);
+                if (template) {
+                    createNodeUI(template, container);
+                }
+            });
+
+            // Auto-Generate Wires (Simple mock logic)
+            drawWires();
+        }
+
+        function createNodeUI(data, container) {
+            const el = document.createElement('div');
+            el.className = 'node';
+            el.style.left = data.x + 'px';
+            el.style.top = data.y + 'px';
+            el.id = 'node-' + data.id;
+
+            // HTML Structure (Blender Style)
+            el.innerHTML = `
+                <div class="node-header">${data.name}</div>
+                <div class="node-body">
+                    <!-- Inputs -->
+                    ${data.inputs.map(i => `
+                        <div class="node-row">
+                            <div style="display:flex; align-items:center;">
+                                <div class="socket s-yellow left"></div> 
+                                <span>${i}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <hr style="border:0; border-top:1px solid #444; margin:5px 0;">
+                    
+                    <!-- Config -->
+                    <div class="node-row">
+                        <span>Agent</span>
+                        <select><option>Analyst</option><option>GPT-4</option></select>
+                    </div>
+                     <div class="node-row">
+                        <span>Method</span>
+                        <select><option>Standard</option><option>Deep</option></select>
+                    </div>
+
+                    <hr style="border:0; border-top:1px solid #444; margin:5px 0;">
+
+                    <!-- Outputs -->
+                    ${data.outputs.map(o => `
+                        <div class="node-row" style="justify-content:flex-end;">
+                             <div style="display:flex; align-items:center;">
+                                <span>${o}</span>
+                                <div class="socket s-green right"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Drag Logic
+            makeDraggable(el);
+            container.appendChild(el);
+            nodes.push({ id: data.id, el: el, data: data });
+        }
+
+        function drawWires() {
+            const svg = document.getElementById('svg-layer');
+            svg.innerHTML = '';
+
+            // Mock connections: t1->t3, t2->t4, t3->t4, t4->t5, t5->t6
+            const cons = [
+                ['t1', 't3'], ['t2', 't4'], ['t3', 't4'], ['t4', 't5'], ['t5', 't6']
+            ];
+
+            cons.forEach(pair => {
+                const n1 = nodes.find(n => n.id === pair[0]);
+                const n2 = nodes.find(n => n.id === pair[1]);
+
+                if (n1 && n2) {
+                    // Coordinates
+                    const r1 = n1.el.getBoundingClientRect();
+                    const r2 = n2.el.getBoundingClientRect();
+
+                    // Simple offset: Out (Right side) -> In (Left side)
+                    const x1 = r1.left + r1.width - 20;
+                    const y1 = r1.top + r1.height - 40; // rough guess for output socket
+
+                    const x2 = r2.left + 20;
+                    const y2 = r2.top + 50; // rough guess for input socket
+
+                    // Bezier Curve
+                    const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    const cv = Math.abs(x2 - x1) / 2;
+                    const d = `M ${x1} ${y1} C ${x1 + cv} ${y1}, ${x2 - cv} ${y2}, ${x2} ${y2}`;
+
+                    path.setAttribute('d', d);
+                    path.setAttribute('class', 'wire');
+                    svg.appendChild(path);
+                }
+            });
+        }
+
+        // Draggable
+        function makeDraggable(el) {
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+
+            el.addEventListener('mousedown', (e) => {
+                // Ignore input clicks
+                if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+
+                isDragging = true;
+                startX = e.clientX;
+                startY = e.clientY;
+                initialLeft = el.offsetLeft;
+                initialTop = el.offsetTop;
+                el.classList.add('selected');
+                e.stopPropagation(); // prevent canvas drag
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const dx = e.clientX - startX;
+                const dy = e.clientY - startY;
+                el.style.left = (initialLeft + dx) + 'px';
+                el.style.top = (initialTop + dy) + 'px';
+                drawWires(); // Update wires
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                el.classList.remove('selected');
+            });
+        }
+
+        // Initial
+        setTimeout(generateGraph, 100);
+
+    </script>
+</body>
+
+</html>

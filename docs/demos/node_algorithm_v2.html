@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VZOR Node Editor V2 (Fat Nodes)</title>
+    <style>
+        :root {
+            --bg-color: #1e1e1e;
+            --grid-color: rgba(255, 255, 255, 0.05);
+            --node-bg: #2b2b2b;
+            --node-border: #000;
+            --text-main: #ddd;
+            --accent-invest: #e67e22;
+        }
+
+        body {
+            margin: 0;
+            background: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #canvas {
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+            position: relative;
+        }
+
+        /* --- NODE STYLE --- */
+        .node {
+            position: absolute;
+            width: 300px;
+            /* Fat Node */
+            background: var(--node-bg);
+            border: 1px solid var(--node-border);
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .node-header {
+            padding: 8px 12px;
+            background: linear-gradient(to right, #e67e22, #d35400);
+            border-radius: 7px 7px 0 0;
+            font-weight: 600;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .node-body {
+            padding: 10px 0;
+            position: relative;
+        }
+
+        /* --- SOCKET ROW --- */
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 10px;
+            height: 24px;
+            position: relative;
+        }
+
+        .row:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .label {
+            font-size: 0.8em;
+            color: #ccc;
+        }
+
+        .label.sub {
+            font-size: 0.7em;
+            color: #777;
+            margin-left: 5px;
+        }
+
+        /* Sockets */
+        .socket {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 1px solid #111;
+            margin: 0 8px;
+
+            /* Colors */
+            &.s-grey {
+                background: #7f8c8d;
+            }
+
+            &.s-yellow {
+                background: #f1c40f;
+            }
+
+            &.s-green {
+                background: #2ecc71;
+            }
+
+            &.s-blue {
+                background: #3498db;
+            }
+        }
+
+        .port-group {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Input Controls */
+        input[type="text"] {
+            background: #111;
+            border: 1px solid #444;
+            color: #ddd;
+            padding: 2px 5px;
+            font-size: 0.8em;
+            border-radius: 3px;
+            width: 120px;
+        }
+
+        select {
+            background: #111;
+            border: 1px solid #444;
+            color: #ddd;
+            padding: 2px;
+            font-size: 0.8em;
+            border-radius: 3px;
+            width: 130px;
+        }
+
+        /* --- HOOKS --- */
+        .hook-area {
+            position: absolute;
+            left: -15px;
+            top: 0;
+            bottom: 0;
+            width: 15px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .node:hover .hook-area {
+            opacity: 1;
+        }
+
+        .add-btn {
+            background: #444;
+            color: white;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .add-btn:hover {
+            background: #2ecc71;
+            transform: scale(1.2);
+        }
+
+        /* --- PANEL NODE --- */
+        .panel-node {
+            width: 250px;
+            background: #222;
+            border: 1px solid #444;
+            border-radius: 4px;
+        }
+
+        .panel-header {
+            background: #333;
+            padding: 5px;
+            font-size: 0.8em;
+            color: #aaa;
+            text-align: center;
+        }
+
+        .panel-content {
+            background: #000;
+            color: #2ecc71;
+            font-family: monospace;
+            font-size: 0.75em;
+            padding: 10px;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+
+        /* Wires */
+        svg {
+            position: absolute;
+            pointer-events: none;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        path {
+            stroke: #777;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.8;
+        }
+
+        path.thick {
+            stroke-width: 4;
+            stroke: #f1c40f;
+        }
+
+        /* Data/Excel */
+    </style>
+</head>
+
+<body>
+    <div id="canvas">
+        <svg id="svg-layer">
+            <!-- Wires drawn by JS -->
+        </svg>
+
+        <!-- NODE 1: INVEST ANALYSIS -->
+        <div class="node" style="left: 100px; top: 100px;" id="n1">
+            <div class="node-header">
+                <span>🏙️ City Planning Analysis</span>
+                <span style="font-size:1.2em;">⚙️</span>
+            </div>
+            <div class="hook-area" onclick="addInput('n1')">
+                <div class="add-btn">+</div>
+            </div>
+            <div class="node-body">
+                <!-- Hardcoded Inputs -->
+                <div class="row">
+                    <div class="port-group">
+                        <div class="socket s-grey"></div>
+                        <span class="label">Cadastral ID</span>
+                    </div>
+                    <input type="text" value="77:01:0001001:10">
+                </div>
+
+                <div class="row">
+                    <div class="port-group">
+                        <div class="socket s-grey"></div>
+                        <span class="label">Region</span>
+                    </div>
+                    <select>
+                        <option>Moscow</option>
+                        <option>SPB</option>
+                    </select>
+                </div>
+
+                <div class="row">
+                    <div class="port-group">
+                        <div class="socket s-blue"></div>
+                        <span class="label">PZZ Doc <span class="sub">(PDF)</span></span>
+                    </div>
+                </div>
+
+                <!-- Dynamic inputs will appear here -->
+                <div id="n1-extras"></div>
+
+                <hr style="border:0; border-top:1px solid #444; margin: 8px 0;">
+
+                <!-- Outputs -->
+                <div class="row">
+                    <span class="label"></span>
+                    <div class="port-group">
+                        <span class="label">Parameters <span class="sub">(JSON)</span></span>
+                        <div class="socket s-yellow"></div>
+                    </div>
+                </div>
+                <div class="row">
+                    <span class="label"></span>
+                    <div class="port-group">
+                        <span class="label">Report <span class="sub">(PDF)</span></span>
+                        <div class="socket s-green" id="out-pdf"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NODE 2: PANEL (Viewer) -->
+        <div class="node panel-node" style="left: 500px; top: 250px;" id="n2">
+            <div class="panel-header">PREVIEW: PDF Output</div>
+            <div class="panel-content">Downloading...
+                [==========] 100%
+
+                > Title: ГПЗУ Report
+                > Zone: Ж-4
+                > Height Max: 75m
+                > Density: 25000 m2/ha
+
+                [DOWNLOAD FILE]</div>
+            <!-- Input socket for panel -->
+            <div
+                style="position: absolute; left: -6px; top: 50px; width: 10px; height: 10px; background: #ddd; border-radius: 50%;">
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Mock Wire
+        const svg = document.getElementById('svg-layer');
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        // Coordinates hardcoded for demo (n1 PDF out -> n2 Panel in)
+        path.setAttribute('d', "M 400 300 C 450 300, 450 300, 500 300");
+        path.setAttribute('class', 'thick');
+        svg.appendChild(path);
+
+        // Hook Logic
+        function addInput(nodeId) {
+            const container = document.getElementById(nodeId + '-extras');
+            const div = document.createElement('div');
+            div.className = 'row';
+            div.innerHTML = `
+                <div class="port-group">
+                    <div class="socket s-grey"></div>
+                     <select style="width:100px; margin-right:5px;">
+                        <option>API Key</option>
+                        <option>Proxy</option>
+                        <option>User Prompt</option>
+                    </select>
+                </div>
+                <input type="text" placeholder="Value...">
+            `;
+            container.appendChild(div);
+        }
+
+        // Draggable (Basic)
+        document.querySelectorAll('.node').forEach(el => {
+            el.addEventListener('mousedown', e => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+                // Drag logic omitted for brevity in this specific demo check
+            });
+        });
+    </script>
+</body>
+
+</html>
