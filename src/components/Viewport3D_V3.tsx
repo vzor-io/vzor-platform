@@ -161,7 +161,7 @@ const Viewport3D_V3: React.FC = () => {
     const raycaster = useRef(new THREE.Raycaster());
 
     // STATE
-    const [appState, setAppState] = useState<'IDLE' | 'INCUBATOR' | 'WORK'>('WORK'); // Default to WORK for debugging
+    const [appState, setAppState] = useState<'IDLE' | 'INCUBATOR' | 'WORK'>('IDLE');
     const [showNodeEditor, setShowNodeEditor] = useState(false);
     const mousePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
