@@ -1,0 +1,114 @@
+.task-node {
+    width: 320px;
+    background: #1a1a2e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    color: white;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease;
+}
+
+.task-node.selected {
+    border-color: #4ECDC4;
+    box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.3);
+}
+
+.task-node-header {
+    padding: 10px 15px;
+    background: #16213e;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    border-bottom: 1px solid #333;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #666;
+}
+
+.status-pending { background: #666; }
+.status-ready { background: #ffa500; }
+.status-running { background: #007bff; box-shadow: 0 0 8px #007bff; }
+.status-done { background: #32CD32; }
+.status-error { background: #ff4444; }
+
+.task-node-body {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.io-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    height: 24px;
+}
+
+.input-label, .output-label {
+    font-size: 12px;
+    color: #ccc;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.node-details {
+    background: #0f3460;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: #a0a0a0;
+}
+
+.progress-bar {
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #4ECDC4;
+    transition: width 0.3s ease;
+}
+
+.run-button {
+    width: 100%;
+    padding: 6px;
+    background: #233e8b;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.run-button:hover {
+    background: #2d4eba;
+}
+
+/* Handle Styles Override */
+.react-flow__handle {
+    width: 10px;
+    height: 10px;
+    border: 2px solid #1a1a2e;
+}
+
+.handle-context { background: #FF6B6B; border-radius: 0; transform: rotate(45deg); }
+.handle-agent { background: #4ECDC4; }
+.handle-data { background: #FFD700; }
+.handle-result { background: #32CD32; }
+.handle-meta { background: transparent; border-color: #FFF; }

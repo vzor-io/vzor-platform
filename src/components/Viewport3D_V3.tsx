@@ -1,8 +1,10 @@
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { useWorkflowStore } from '../store/WorkflowStore';
-import { useVzorStore } from '../store/store';
+import { useTaskStore } from '../store/taskStore';
+import type { Task } from '../types/task';
+import { NodeEditor } from './NodeEditor/NodeEditor';
+import { useShallow } from 'zustand/react/shallow';
 
 // --- CONFIG ---
 const CLOUD_PARTICLES = 20000;
@@ -159,11 +161,15 @@ const Viewport3D_V3: React.FC = () => {
     const raycaster = useRef(new THREE.Raycaster());
 
     // STATE
-    const [appState, setAppState] = useState<'IDLE' | 'INCUBATOR' | 'WORK'>('IDLE');
-    const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+    const [appState, setAppState] = useState<'IDLE' | 'INCUBATOR' | 'WORK'>('WORK'); // Default to WORK for debugging
+    const [showNodeEditor, setShowNodeEditor] = useState(false);
     const mousePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
-    const workflow = useWorkflowStore(state => state.workflow);
+    // Optimized selector to avoid infinite reference loops
+    const tasks = useTaskStore(useShallow(state => Array.from(state.tasks.values())));
+    const selectedTask = useTaskStore(state => state.selectedTaskId ? state.tasks.get(state.selectedTaskId) : null);
+    const addTask = useTaskStore(state => state.addTask);
+    const selectTask = useTaskStore(state => state.selectTask);
 
     // --- INIT THREE.JS ---
     useEffect(() => {
@@ -341,12 +347,11 @@ const Viewport3D_V3: React.FC = () => {
             if (hits.length > 0) {
                 const id = hits[0].object.userData.id;
                 console.log('[VZOR] CLICKED NODE ID:', id);
-                setSelectedNodeId(id);
-                useVzorStore.getState().selectAgent(id);
+                selectTask(id);
             } else {
                 // Clicked background -> Close panel
                 console.log('[VZOR] Background clicked, closing panel');
-                setSelectedNodeId(null);
+                selectTask(null);
             }
         };
         containerRef.current.addEventListener('click', handleClick);
@@ -416,23 +421,20 @@ const Viewport3D_V3: React.FC = () => {
     }, [appState]);
 
 
-    // --- DEPLETION LOGIC (V3.2 CORE) ---
+    // --- DEPLETION LOGIC (SYNC WITH TASK STORE) ---
     useEffect(() => {
         if (appState !== 'WORK' || !pointsRef.current) return;
 
-        const agents = workflow?.blocks.flatMap(b => b.agents) || [];
+        // Use tasks from store
+        const currentTasks = tasks;
 
-        // 1. Calculate Nodes Layout (Spherical)
-        // ALWAYS have at least one default node so the panel can be tested
-        const nodes = [
-            { id: 'site_input', label: 'Inputs' },
-            { id: 'task_main', label: 'Main Task' }, // Default clickable node
-            ...agents.map(a => ({ id: a.id, label: a.role })),
-            ...(workflow?.blocks && workflow.blocks.length > 0 ? [{ id: 'decision', label: 'Decision' }] : [])
+        // ALWAYS have at least one default node so the panel can be tested if empty
+        const effectiveNodes = currentTasks.length > 0 ? currentTasks : [
+            { id: 'start_node', name: 'Start Node' } // Dummy for visualization if empty
         ];
 
-        console.log('[VZOR] Creating', nodes.length, 'hit targets for nodes:', nodes.map(n => n.id));
-        const count = nodes.length;
+        console.log('[VZOR] Syncing 3D with TaskStore. Tasks:', effectiveNodes.length);
+        const count = effectiveNodes.length;
         const R = 200;
 
         // 2. Update Attributes directly
@@ -442,32 +444,30 @@ const Viewport3D_V3: React.FC = () => {
         const aColor = geo.getAttribute('aColor');
         const aSize = geo.getAttribute('aSize');
 
-        // Reset Logic
+        // Reset Hit Targets
         hitTargetsRef.current.clear();
-
-        // But wait! We want depletion.
-        // We will assign index ranges to nodes.
 
         let particleCursor = 0;
 
-        nodes.forEach((node, idx) => {
+        effectiveNodes.forEach((node: any, idx) => {
             // Spherical Position
             const phi = Math.acos(-1 + (2 * idx) / Math.max(1, count));
             const theta = Math.sqrt(count * Math.PI) * phi;
             const pos = new THREE.Vector3().setFromSphericalCoords(R, phi, theta);
 
+            // If the task implies a specific 3D position, use it (future feature)
+            // if (node.position3D) pos.set(...node.position3D);
+
             // Assign a block of particles to this node
             const limit = particleCursor + PARTICLES_PER_NODE;
 
             // Generate Hit Target (Invisible Sphere)
-            // RADIUS = 35 (Much larger for reliable clicking)
             const hitGeo = new THREE.SphereGeometry(35, 8, 8);
             const hitMat = new THREE.MeshBasicMaterial({ visible: false });
             const hitMesh = new THREE.Mesh(hitGeo, hitMat);
             hitMesh.position.copy(pos);
             hitMesh.userData = { id: node.id };
             hitTargetsRef.current.add(hitMesh);
-            console.log('[VZOR] Hit target created:', node.id, 'at position:', pos.x.toFixed(1), pos.y.toFixed(1), pos.z.toFixed(1));
 
             for (let i = particleCursor; i < limit && i < CLOUD_PARTICLES; i++) {
                 if (i === particleCursor) {
@@ -475,9 +475,15 @@ const Viewport3D_V3: React.FC = () => {
                     aTarget.setXYZ(i, pos.x, pos.y, pos.z);
                     aStatic.setX(i, 1.0); // Static Node
                     aSize.setX(i, 12.0 * 1.5);
-                    aColor.setXYZ(i, 0.2, 0.9, 0.8); // Cyan Glow
+
+                    // Color based on status?
+                    if (node.status === 'done') aColor.setXYZ(i, 0.2, 0.8, 0.2); // Green
+                    else if (node.status === 'error') aColor.setXYZ(i, 1.0, 0.3, 0.3); // Red
+                    else if (node.status === 'running') aColor.setXYZ(i, 0.2, 0.5, 1.0); // Blue
+                    else aColor.setXYZ(i, 0.2, 0.9, 0.8); // Cyan (Default/Pending)
+
                 } else {
-                    // CLUSTER DOTS (The "fuzz")
+                    // CLUSTER DOTS
                     const rcl = 60 * Math.random();
                     const tcl = Math.random() * Math.PI * 2;
                     const pcl = Math.acos(2 * Math.random() - 1);
@@ -486,7 +492,7 @@ const Viewport3D_V3: React.FC = () => {
                     const tz = pos.z + rcl * Math.cos(pcl);
 
                     aTarget.setXYZ(i, tx, ty, tz);
-                    aStatic.setX(i, 0.0); // Drift around node
+                    aStatic.setX(i, 0.0);
                     aSize.setX(i, 1.2 + Math.random() * 2.5);
                     aColor.setXYZ(i, 0.5, 0.6, 0.8);
                 }
@@ -495,27 +501,12 @@ const Viewport3D_V3: React.FC = () => {
         });
 
         // REMAINING PARTICLES (The Depleted Cloud)
-        // They stay in their original "Incubator" or "Sphere" positions?
-        // In the shader, mix(vBase, aTarget, t2).
-        // If we want them to disappear or stay as dust, we set their aTarget to be scattered or original.
-        // Current logic: We leave their aTarget untouched from initialization? 
-        // No, we must iterate all.
-
-        // If we don't update the rest, they might stick to old node positions if we reduced count.
-        // So we reset the REST to random cloud positions.
-        // But accessing their original random pos is hard unless we stored it.
-        // Quick fix: Re-calculate random pos or just leave them?
-        // Better: We stored "aIncubator" and "posArray". 
-        // If we set aTarget = aIncubator for the rest, they will just stay where they were in State 2.
-
         const incub = geo.getAttribute('aIncubator');
         for (let i = particleCursor; i < CLOUD_PARTICLES; i++) {
             aTarget.setXYZ(i, incub.getX(i), incub.getY(i), incub.getZ(i));
             aStatic.setX(i, 0.0);
-            aTarget.setXYZ(i, incub.getX(i), incub.getY(i), incub.getZ(i));
-            aStatic.setX(i, 0.0);
-            aSize.setX(i, 1.2 + Math.random() * 2.5); // Keep original size
-            aColor.setXYZ(i, 0.5, 0.6, 0.8); // Keep original color
+            aSize.setX(i, 1.2 + Math.random() * 2.5);
+            aColor.setXYZ(i, 0.5, 0.6, 0.8);
         }
 
         aTarget.needsUpdate = true;
@@ -523,7 +514,7 @@ const Viewport3D_V3: React.FC = () => {
         aSize.needsUpdate = true;
         aColor.needsUpdate = true;
 
-    }, [workflow, appState]);
+    }, [tasks, appState]);
 
 
     // --- UI OVERLAYS (STRICT CSS PORT) ---
@@ -537,35 +528,47 @@ const Viewport3D_V3: React.FC = () => {
         if (!taskInput.trim()) return;
 
         const newId = `task_${Date.now()}`;
-        const newAgent = {
+
+        // Use default values for required fields
+        const newTask: Task = {
             id: newId,
-            role: taskInput, // Use input as Role/Label
             name: taskInput,
+            block: 'invest', // Default
+            context: {
+                knowledgeSources: [],
+                methodology: { id: 'default', name: 'Default', steps: [], promptTemplate: '' },
+                parameters: {}
+            },
+            agent: {
+                type: 'analyst',
+                model: 'deepseek-r1'
+            },
+            outputs: {
+                formats: []
+            },
             status: 'pending',
-            inputs: [],
-            outputs: []
+            progress: 0,
+            position2D: { x: Math.random() * 500, y: Math.random() * 500 },
+            position3D: [0, 0, 0], // Will be set by layout engine later
+            dependencies: [],
+            dependents: []
         };
 
-        console.log('[VZOR] Creating new agent:', newAgent);
-        useWorkflowStore.getState().addAgent(newAgent);
+        console.log('[VZOR] Creating new task:', newTask);
+        addTask(newTask);
 
         // Auto-select the new node
-        setSelectedNodeId(newId);
+        selectTask(newId);
         setTaskInput('');
     };
 
-    const agents = workflow?.blocks.flatMap(b => b.agents) || [];
-    const selectedAgent = agents.find(a => a.id === selectedNodeId);
-
-    // Fallback for special nodes
-    const getNodeDetails = () => {
-        if (!selectedNodeId) return null;
-        if (selectedAgent) return { type: 'NEURAL AGENT', role: selectedAgent.role || 'Agent', status: selectedAgent.status, label: selectedAgent.role };
-        if (selectedNodeId === 'site_input') return { type: 'SYSTEM INPUT', role: 'Data Ingestion', status: 'ACTIVE', label: 'Inputs' };
-        if (selectedNodeId === 'task_main') return { type: 'MAIN TASK', role: 'Workflow Core', status: 'PROCESSING', label: 'Main Task' };
-        return { type: 'UNKNOWN NODE', role: selectedNodeId, status: 'IDLE', label: selectedNodeId };
-    };
-    const nodeDetails = getNodeDetails();
+    // Node Details for Panel
+    const nodeDetails = selectedTask ? {
+        type: selectedTask.block,
+        role: selectedTask.agent.type,
+        status: selectedTask.status,
+        label: selectedTask.name
+    } : null;
 
     return (
         <div ref={containerRef} className="w-full h-full relative bg-black overflow-hidden font-['Outfit'] text-white pointer-events-auto">
@@ -646,17 +649,32 @@ const Viewport3D_V3: React.FC = () => {
                     >
                         <span>←</span> BACK
                     </div>
+
+                    {/* Node Editor Toggle */}
+                    <div
+                        className="fixed top-[40px] right-[40px] text-[0.75em] tracking-[0.2em] uppercase cursor-pointer hover:text-cyan-400 pointer-events-auto z-50 flex items-center gap-4 border border-white/20 px-4 py-2 rounded-full"
+                        onClick={() => setShowNodeEditor(!showNodeEditor)}
+                    >
+                        {showNodeEditor ? 'Close Node Editor' : 'Open Node Editor'}
+                    </div>
+
+                    {/* Node Editor Overlay */}
+                    {showNodeEditor && (
+                        <div className="fixed inset-0 z-30 bg-black/90 pt-20 px-10 pb-10">
+                            <NodeEditor />
+                        </div>
+                    )}
                 </>
             )}
 
             {/* SIDE PANEL (Dynamic Task Details) */}
-            <div className={`fixed top-0 right-0 w-[400px] h-full bg-black/80 backdrop-blur-xl border-l border-white/10 p-8 pt-20 transform transition-transform duration-500 ease-out z-40 ${selectedNodeId ? 'translate-x-0' : 'translate-x-full'}`}>
-                <div className="absolute top-8 right-8 cursor-pointer text-white/50 hover:text-white" onClick={() => setSelectedNodeId(null)}>CLOSE</div>
-                {selectedNodeId && (
+            <div className={`fixed top-0 right-0 w-[400px] h-full bg-black/80 backdrop-blur-xl border-l border-white/10 p-8 pt-20 transform transition-transform duration-500 ease-out z-40 ${selectedTask && !showNodeEditor ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className="absolute top-8 right-8 cursor-pointer text-white/50 hover:text-white" onClick={() => selectTask(null)}>CLOSE</div>
+                {selectedTask && (
                     <div className="animate-fade-in-up">
-                        <div className="text-[10px] tracking-[0.3em] uppercase text-cyan-400 mb-2">Selected Node</div>
-                        <div className="text-[3em] font-extralight leading-none mb-6 text-white">{selectedNodeId}</div>
-                        <div className="h-px w-full bg-linear-to-r from-cyan-500/50 to-transparent mb-8"></div>
+                        <div className="text-[10px] tracking-[0.3em] uppercase text-cyan-400 mb-2">Selected Task</div>
+                        <div className="text-[3em] font-extralight leading-none mb-6 text-white">{selectedTask.name}</div>
+                        <div className="h-px w-full bg-gradient-to-r from-cyan-500/50 to-transparent mb-8"></div>
 
                         <div className="space-y-6 font-light text-white/70">
                             <div>
