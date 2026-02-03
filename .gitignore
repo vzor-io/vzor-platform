@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Dependencies
 node_modules/
 .venv/
@@ -5,11 +6,38 @@ venv/
 env/
 __pycache__/
 *.egg-info/
+=======
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+>>>>>>> 9fcc5e9cbb4601f1e5d1775234e12e1d73fa804e
 
 # Environment Variables
 .env
 .env.local
 .env.*.local
+<<<<<<< HEAD
 
 # Build Outputs
 dist/
@@ -32,3 +60,5 @@ yarn-error.log*
 
 # Archive (optional, if we want to ignore backups)
 # archive/
+=======
+>>>>>>> 9fcc5e9cbb4601f1e5d1775234e12e1d73fa804e
