@@ -1,0 +1,2604 @@
+﻿<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VZOR - Multi-Stage Evolution</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', -apple-system, sans-serif;
+            background: #000000;
+            color: #ffffff;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #scroll-container {
+            height: 300vh;
+            /* Extra room */
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 0;
+            /* Behind everything */
+        }
+
+        #canvas-wrapper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: auto;
+            /* Handle all interactions directly */
+        }
+
+        canvas {
+            display: block;
+            touch-action: pan-y;
+            /* Allow vertical scrolls to bubble up to body */
+        }
+
+        .center-text {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 10;
+            pointer-events: none;
+            transition: opacity 0.8s ease;
+        }
+
+        .center-text h1 {
+            font-size: 5.5em;
+            font-weight: 300;
+            letter-spacing: 0.6em;
+            margin-bottom: 24px;
+            text-transform: uppercase;
+            color: #ffffff;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+            margin-right: -0.6em;
+            /* Offset for letter-spacing to center title */
+        }
+
+        .center-text p {
+            font-size: 1.1em;
+            font-weight: 100;
+            font-style: normal;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 0.4em;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+        }
+
+        .slide-info {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            max-width: 700px;
+            padding: 0 20px;
+            pointer-events: none;
+        }
+
+        .slide-info h2 {
+            font-size: 2em;
+            font-weight: 300;
+            letter-spacing: 0.12em;
+            margin-bottom: 12px;
+        }
+
+        .slide-info p {
+            font-size: 1.05em;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.65);
+            letter-spacing: 0.08em;
+            line-height: 1.5;
+        }
+
+        .progress-indicator {
+            position: fixed;
+            right: 50px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 10;
+            display: none !important;
+            /* Force hide */
+            flex-direction: column;
+            gap: 18px;
+            pointer-events: none;
+        }
+
+        .progress-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .progress-dot.active {
+            background: #ffffff;
+            transform: scale(1.6);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.8), 0 0 5px rgba(255, 255, 255, 0.4);
+        }
+
+        .scroll-hint {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75em;
+            color: rgba(255, 255, 255, 0.25);
+            letter-spacing: 0.15em;
+            z-index: 10;
+            animation: pulse 2.5s ease-in-out infinite;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 0.25;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .cta-button {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 16px 45px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            color: white;
+            border-radius: 30px;
+            font-size: 1em;
+            letter-spacing: 0.12em;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.4s ease;
+            z-index: 10;
+            text-transform: uppercase;
+            font-weight: 300;
+        }
+
+        .cta-button:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: white;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+
+        /* Detail View Overlay (Side Panel) */
+        #detail-panel {
+            position: fixed;
+            top: 50%;
+            right: -450px;
+            transform: translateY(-50%);
+            width: 360px;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-right: none;
+            padding: 50px 35px;
+            z-index: 100;
+            transition: right 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            height: 100vh;
+            /* Full height for side panel or centered? Orig was centered fixed height effectively. Let's keep it centered but taller if needed or stick to original. Orig was fixed width. */
+            /* Reverting to original height behavior but ensuring separation from task interface */
+            height: auto;
+            min-height: 600px;
+            max-height: 90vh;
+            border-radius: 20px 0 0 20px;
+        }
+
+        #detail-panel.active {
+            right: 0;
+        }
+
+        /* TASK INTERFACE (Floating Pill - Minimal) */
+        #task-interface {
+            position: fixed;
+            bottom: -150px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            min-width: 320px;
+            /* Much smaller */
+            max-width: 600px;
+            background: rgba(10, 10, 10, 0.85);
+            /* Slightly more transparent/dark */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 6px 14px;
+            /* Very compact */
+            z-index: 100;
+            transition: bottom 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #task-interface.active {
+            bottom: 30px;
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+
+
+        .detail-header {
+            font-size: 0.7em;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 400;
+        }
+
+        .detail-title {
+            font-size: 1.8em;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            margin-top: -5px;
+            line-height: 1.2;
+        }
+
+        .detail-content {
+            font-size: 0.95em;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.6;
+            letter-spacing: 0.03em;
+        }
+
+        .detail-thesis {
+            margin-top: 15px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .detail-thesis li {
+            position: relative;
+            padding-left: 20px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #fff;
+        }
+
+        .detail-thesis li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .detail-line {
+            width: 40px;
+            height: 2px;
+            background: #00ffff;
+            margin: 5px 0;
+        }
+
+        .nav-btn {
+            position: fixed;
+            top: 40px;
+            left: 40px;
+            font-size: 0.75em;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: white;
+            opacity: 0;
+            pointer-events: none;
+            cursor: pointer;
+            z-index: 101;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: all 0.5s ease;
+            border: 1px solid transparent;
+            /* Prepare for border if needed */
+            padding: 10px 20px;
+            border-radius: 30px;
+            background: rgba(0, 0, 0, 0.2);
+            /* Slight background for readability */
+        }
+
+        .nav-btn.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .nav-btn:hover {
+            color: rgba(255, 255, 255, 1.0);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: translateY(2px);
+        }
+
+        /* Specific overrides if needed */
+        #add-task-btn {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            /* Always bordered */
+        }
+
+        /* MOBILE ADAPTIVITY */
+        @media (max-width: 768px) {
+            .center-text h1 {
+                font-size: 1.8em;
+                letter-spacing: 0.15em;
+                margin-right: -0.15em;
+                margin-bottom: 8px;
+            }
+
+            .center-text p {
+                font-size: 0.55em;
+                letter-spacing: 0.12em;
+                opacity: 0.7;
+            }
+
+            .center-text .mobile-hint {
+                display: block;
+                font-size: 0.45em;
+                margin-top: 30px;
+                color: cyan;
+                opacity: 0.8;
+                text-transform: uppercase;
+                letter-spacing: 0.2em;
+                animation: pulse-hint 2s infinite ease-in-out;
+            }
+
+            @keyframes pulse-hint {
+
+                0%,
+                100% {
+                    opacity: 0.3;
+                }
+
+                50% {
+                    opacity: 0.9;
+                }
+            }
+
+            .slide-info {
+                top: 30px;
+                width: 95%;
+            }
+
+            .slide-info h2 {
+                font-size: 1.1em;
+                letter-spacing: 0.05em;
+            }
+
+            .slide-info p {
+                font-size: 0.75em;
+                line-height: 1.3;
+            }
+
+            #detail-panel {
+                width: 100%;
+                right: -100%;
+                top: 0;
+                transform: none;
+                height: 100%;
+                border-radius: 0;
+                padding: 40px 20px 100px 20px;
+                gap: 10px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            #detail-panel.active {
+                right: 0;
+            }
+
+            .detail-title {
+                font-size: 1.3em;
+            }
+
+            .detail-content {
+                font-size: 0.8em;
+            }
+
+            #back-button {
+                position: fixed;
+                top: auto;
+                bottom: 25px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 0.75em;
+                padding: 12px 25px;
+                background: #00ffff;
+                color: #000;
+                border: none;
+                border-radius: 30px;
+                z-index: 1001;
+                white-space: nowrap;
+                box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+            }
+
+            .progress-indicator {
+                right: 15px;
+                gap: 10px;
+            }
+
+            .progress-dot {
+                width: 5px;
+                height: 5px;
+            }
+
+            #scroll-container {
+                height: 180vh;
+            }
+
+            /* Slightly shorter for easier scrolling */
+        }
+
+        #canvas-wrapper {
+            touch-action: pan-y;
+            pointer-events: auto;
+        }
+
+        /* OLD NODE EDITOR CSS REMOVED */
+
+        .node-card:hover {
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .node-header {
+            font-size: 0.9em;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 5px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 5px;
+        }
+
+        .node-body {
+            font-size: 0.8em;
+            color: #aaa;
+        }
+
+        /* Context Menu (Blender Style) */
+        #node-context-menu {
+            position: fixed;
+            background: #0a0a0a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            padding: 5px 0;
+            min-width: 150px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        /* --- NEW CSS FOR V3.8 --- */
+
+        /* 1. Icon Bar */
+        #icon-bar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 48px;
+            height: 100vh;
+            background: #0a0a0a;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 4px 0;
+            font-size: 16px;
+            opacity: 0.5;
+            transition: all 0.15s;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            opacity: 1;
+        }
+
+        .icon-separator {
+            width: 24px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.15);
+            margin: 10px 0;
+        }
+
+        /* 2. Unified Panel Colors */
+        #detail-panel,
+        #node-editor-content,
+        #left-panel,
+        .panel-background,
+        .node-card
+
+        /* fallback */
+            {
+            background: #0a0a0a !important;
+        }
+
+        /* 3. Node Editor Modal (Styles to override inline or support class toggling) */
+        #node-editor-modal.active {
+            display: flex !important;
+        }
+
+        /* 4. Node Styles (Grasshopper) */
+        .node {
+            position: absolute;
+            width: 260px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            font-size: 12px;
+            user-select: none;
+        }
+
+        .node-header {
+            height: 32px;
+            background: rgba(30, 30, 30, 1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px 8px 0 0;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            gap: 8px;
+        }
+
+        .node-status {
+            color: #4ECDC4;
+        }
+
+        .node-title {
+            flex: 1;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .node-close {
+            cursor: pointer;
+            opacity: 0.5;
+        }
+
+        .node-close:hover {
+            opacity: 1;
+        }
+
+        .node-body {
+            padding: 12px;
+            position: relative;
+        }
+
+        .socket {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 6px 0;
+            cursor: pointer;
+        }
+
+        .socket-dot {
+            width: 12px;
+            height: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .socket-bundle .socket-dot {
+            color: #FF6B6B;
+        }
+
+        .socket-data .socket-dot {
+            color: #4ECDC4;
+        }
+
+        .node-inputs {
+            position: absolute;
+            left: -6px;
+            top: 40px;
+        }
+
+        .node-outputs {
+            position: absolute;
+            right: -6px;
+            top: 40px;
+        }
+
+        .node-settings {
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 4px;
+        }
+
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+        }
+
+        .setting-row select {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        .node-run-btn {
+            width: 100%;
+            padding: 8px;
+            background: rgba(78, 205, 196, 0.2);
+            border: 1px solid rgba(78, 205, 196, 0.4);
+            border-radius: 4px;
+            color: #4ECDC4;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .node-run-btn:hover {
+            background: rgba(78, 205, 196, 0.3);
+        }
+
+        /* 5. Structured Detail Panel */
+        .detail-section {
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.new {
+            background: rgba(255, 255, 255, 0.1);
+            color: #aaa;
+        }
+
+        .status-badge.running {
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ECDC4;
+        }
+
+        .status-badge.done {
+            background: rgba(50, 205, 50, 0.2);
+            color: #32CD32;
+        }
+
+        .status-badge.error {
+            background: rgba(255, 107, 107, 0.2);
+            color: #FF6B6B;
+        }
+
+        .info-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+        }
+
+        .info-label {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .info-value {
+            color: #fff;
+        }
+
+        #node-context-menu .menu-item {
+            padding: 8px 15px;
+            color: #eee;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+
+        #node-context-menu .menu-item:hover {
+            background: #4493f8;
+            color: white;
+        }
+    </style>
+    <script type="importmap">
+    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+    </script>
+</head>
+
+<body>
+    <!-- ICON BAR (Always visible) -->
+    <div id="icon-bar">
+        <div class="icon-btn" title="Invest">📊</div>
+        <div class="icon-btn" title="Design">📐</div>
+        <div class="icon-btn" title="Build">🏗</div>
+        <div class="icon-btn" title="Sales">💰</div>
+        <div class="icon-separator"></div>
+        <div class="icon-btn" title="Files">📁</div>
+        <div style="flex:1"></div>
+        <div class="icon-btn" title="Settings">⚙</div>
+    </div>
+    <div id="scroll-container"></div>
+    <div id="canvas-wrapper"></div>
+
+    <div class="center-text" id="centerText">
+        <h1>VZOR</h1>
+        <p>capital data system</p>
+        <div class="mobile-hint" style="display:none;">TAP TO ENTER</div>
+    </div>
+
+    <!-- BACK TO START (Visible on Slide 2) -->
+    <div id="home-btn" class="nav-btn" style="top: 40px; left: 40px;">
+        ← START
+    </div>
+
+    <!-- ADD BUTTON (Visible on Slide 2) -->
+    <!-- ADD BUTTON (Visible on Slide 2) -->
+    <!-- ADD BUTTON REMOVED (Logic replaced by automated context) -->
+    <!-- <div id="add-task-btn" ...></div> -->
+
+    <!-- TASK CREATION INTERFACE (Floating Pill - Minimal) -->
+    <div id="task-interface">
+
+        <!-- Input Field -->
+        <input type="text" id="task-input" placeholder="New task..."
+            style="flex-grow: 1; background: transparent; border: none; color: white; font-family: 'Outfit'; font-size: 0.9em; outline: none; padding: 4px 5px; letter-spacing: 0.05em;"
+            onkeydown="if(event.key === 'Enter') { console.log('Task Created'); document.getElementById('task-interface').classList.remove('active'); }">
+
+        <!-- Icons Group -->
+        <div style="display: flex; gap: 8px; padding-left: 5px; border-left: 1px solid rgba(255,255,255,0.15);">
+            <!-- Paperclip -->
+            <button class="nav-btn"
+                style="position: static; padding: 0; width: 28px; height: 28px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: transparent; opacity: 0.6; pointer-events: auto; font-size: 1.0em; transition: opacity 0.3s;"
+                onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.6'" title="Attach">
+                📎
+            </button>
+
+            <!-- Mic Button (Voice Input - PRIORITY!) -->
+            <button id="mic-btn" class="nav-btn"
+                style="position: static; padding: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: transparent; opacity: 0.6; pointer-events: auto; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.2);"
+                title="Голосовой ввод">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
+        </div>
+
+        <!-- Close Button -->
+        <button onclick="document.getElementById('task-interface').classList.remove('active')"
+            style="background: transparent; border: none; color: rgba(255,255,255,0.3); font-size: 0.9em; cursor: pointer; padding: 0 5px; margin-left: 5px;"
+            onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+            ✕
+        </button>
+    </div>
+
+
+    <div class="slide-info" id="slideInfo">
+        <h2 id="slideTitle"></h2>
+        <p id="slideDesc"></p>
+    </div>
+
+    <div class="progress-indicator" id="progressDots"></div>
+    <div class="scroll-hint" id="scrollHint">Scroll Down</div>
+    <button class="cta-button" id="ctaButton">Access VZOR Standard</button>
+
+    <!-- BACK BUTTON (Drill Down) -->
+    <div id="back-button" class="nav-btn">
+        <span>←</span> BACK
+    </div>
+    <div id="detail-panel">
+        <div class="detail-header">Structural Level 2</div>
+        <!-- Editable Task Title -->
+        <input type="text" class="detail-title" id="p-title" value="Finance"
+            style="background: transparent; border: none; color: white; font-size: 1.8em; font-weight: 300; letter-spacing: 0.1em; margin-top: -5px; line-height: 1.2; outline: none; width: 100%; cursor: text; padding: 0;"
+            placeholder="Task name...">
+        <div class="detail-line"></div>
+        <div class="detail-content" id="p-desc">
+            Autonomous financial engine designed to mitigate temporal inflation and synchronize capital flows across
+            global jurisdictions.
+        </div>
+    </div>
+
+    <!-- OLD NODES UI REMOVED -->
+
+    <!-- Node Editor Context Menu -->
+    <div id="node-context-menu">
+        <div class="menu-item" data-type="task">Add Task Node</div>
+        <div class="menu-item" data-type="data">Add Data Node</div>
+        <div class="menu-item" data-type="agent">Add Agent Node</div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // --- Data ---
+        const finalNodes = [
+            { label: "Концепция", size: 12 }, { label: "Земля", size: 12 }, { label: "Проектирование", size: 12 },
+            { label: "Финансирование", size: 12 }, { label: "Строительство", size: 12 }, { label: "Реализация", size: 12 },
+            { label: "Маркетинг", size: 8 }, { label: "Бизнес-план", size: 8 }, { label: "Анализ участка", size: 8 },
+            { label: "ГПЗУ", size: 8 }, { label: "Мастер-план", size: 8 }, { label: "Архитектура", size: 8 },
+            { label: "Инженерия", size: 8 }, { label: "Экспертиза", size: 8 }, { label: "Бюджет", size: 8 },
+            { label: "Кредит", size: 8 }, { label: "Модель", size: 8 }, { label: "Подрядчик", size: 8 },
+            { label: "Контроль", size: 8 }, { label: "Снабжение", size: 8 }, { label: "Продажи", size: 8 },
+            { label: "Сервис", size: 8 }, { label: "Исследование", size: 4 }, { label: "Конкуренты", size: 4 },
+            { label: "АР", size: 4 }, { label: "КР", size: 4 }, { label: "ИОС", size: 4 }, { label: "Сети", size: 4 },
+            { label: "Смета", size: 4 }, { label: "NPV / IRR", size: 4 }, { label: "Технадзор", size: 4 },
+            { label: "Отчёты", size: 4 }, { label: "ДДУ", size: 4 }, { label: "CRM", size: 4 }
+        ];
+
+        const finalConnections = [
+            [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [0, 6], [0, 7], [1, 8], [1, 9], [1, 10], [2, 11], [2, 12], [2, 13],
+            [3, 14], [3, 15], [3, 16], [4, 17], [4, 18], [4, 19], [5, 20], [5, 21], [6, 22], [6, 23], [11, 24],
+            [11, 25], [12, 26], [12, 27], [14, 28], [14, 29], [18, 30], [18, 31], [20, 32], [20, 33]
+        ];
+
+        // --- Detail Data (Hub-and-Spoke Graph) ---
+        const detailNodesCount = 40; // 1 Central + 6 Branches + 33 Leaves
+        const detailNodePositions = [];
+        // 1. Central Hub
+        detailNodePositions.push(new THREE.Vector3(0, 0, 0));
+
+        // 2. Branches (6 points around center)
+        const branchCount = 6;
+        const branchRadius = 40;
+        for (let i = 0; i < branchCount; i++) {
+            const theta = (i / branchCount) * Math.PI * 2;
+            const x = branchRadius * Math.cos(theta);
+            const y = branchRadius * Math.sin(theta);
+            detailNodePositions.push(new THREE.Vector3(x, y, 0));
+        }
+
+        // 3. Leaves (Scatter around branches)
+        const leavesCount = 33;
+        for (let i = 0; i < leavesCount; i++) {
+            const bIdx = 1 + (i % branchCount); // Attach to branch
+            const branchPos = detailNodePositions[bIdx];
+            const r = 25 + Math.random() * 20;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = (Math.random() - 0.5) * 1.5; // Flat-ish
+            const x = branchPos.x + r * Math.cos(theta) * Math.cos(phi);
+            const y = branchPos.y + r * Math.sin(theta) * Math.cos(phi);
+            const z = branchPos.z + r * Math.sin(phi);
+            detailNodePositions.push(new THREE.Vector3(x, y, z));
+        }
+
+        const detailConnections = [];
+        // Connect Center to Branches
+        for (let i = 1; i <= branchCount; i++) {
+            detailConnections.push([0, i]);
+        }
+        // Connect Branches to Leaves
+        for (let i = 0; i < leavesCount; i++) {
+            const leafIdx = 1 + branchCount + i;
+            const branchIdx = 1 + (i % branchCount);
+            detailConnections.push([branchIdx, leafIdx]);
+        }
+        // Inter-branch connections
+        for (let i = 1; i <= branchCount; i++) {
+            let next = i + 1;
+            if (next > branchCount) next = 1;
+            detailConnections.push([i, next]);
+        }
+
+        const slides = [
+            { title: "VZOR", desc: "capital data system" },
+            { title: "VZOR", desc: "операционная система управления капиталом" }
+        ];
+
+        // --- Helper: Generate Glow Texture ---
+        function createGlowTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 64; canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            grad.addColorStop(0, 'rgba(255,255,255,1)');
+            grad.addColorStop(0.2, 'rgba(255,255,255,0.6)');
+            grad.addColorStop(0.5, 'rgba(255,255,255,0.1)');
+            grad.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 64, 64);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        // --- Init Three.js ---
+        const container = document.getElementById('canvas-wrapper');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+        camera.position.z = 450;
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        container.appendChild(renderer.domElement);
+
+        // --- Orbit Controls (For Drill-Down) ---
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true; // KEEP DAMPING TRUE - "Smoothness" is desirable, "Sharp return" was the issue.
+        controls.dampingFactor = 0.05;
+        controls.autoRotate = false; // ENSURE NO ROTATION
+
+        controls.enableZoom = false; // Zoom handled manually for independent scaling
+        controls.enabled = false; // Disabled initially (State 1/2 use scroll)
+        controls.minDistance = 50;  // Allow getting close
+        controls.maxDistance = 600;
+
+        // INTERACTION LISTENER (OrbitControls)
+        controls.addEventListener('change', () => {
+            lastInteractTime = Date.now(); // Reset timer on ANY camera movement by user
+        });
+
+
+
+        // --- Layout ---
+        const nodePositions = [];
+        for (let i = 0; i < finalNodes.length; i++) {
+            const phi = Math.acos(-1 + (2 * i) / finalNodes.length);
+            const theta = Math.sqrt(finalNodes.length * Math.PI) * phi;
+            const r = 200;
+            nodePositions.push(new THREE.Vector3().setFromSphericalCoords(r, phi, theta));
+        }
+
+        // --- Particle System ---
+        const particlesCount = 20000;
+        const geometry = new THREE.BufferGeometry();
+
+        const posArray = new Float32Array(particlesCount * 3);        // STATE 1: Sphere (Tight)
+        const incubatorArray = new Float32Array(particlesCount * 3);  // STATE 2: Incubator (Cores + Shell)
+        const targetArray = new Float32Array(particlesCount * 3);     // STATE 3: Final Graph
+        const detailArray = new Float32Array(particlesCount * 3);     // STATE 4: Inner Constellation (Drill-down)
+        const sizeArray = new Float32Array(particlesCount);
+        const colorArray = new Float32Array(particlesCount * 3);
+        const randomArray = new Float32Array(particlesCount);
+        const staticArray = new Float32Array(particlesCount); // New: To stop graph movement
+
+        const cores = [
+            { pos: new THREE.Vector3(-130, 0, 0) }, // Development (Left, tighter)
+            { pos: new THREE.Vector3(0, 0, 90) },    // Finance (Center, more forward)
+            { pos: new THREE.Vector3(130, 0, 0) }   // Real Estate (Right, tighter)
+        ];
+
+        for (let i = 0; i < particlesCount; i++) {
+            // -- STATE 1: Uniform Sphere (Tight Chaos) --
+            const r1 = 220 * (0.85 + Math.random() * 0.15);
+            const th1 = Math.random() * Math.PI * 2;
+            const ph1 = Math.acos(2 * Math.random() - 1);
+            posArray[i * 3] = r1 * Math.sin(ph1) * Math.cos(th1);
+            posArray[i * 3 + 1] = r1 * Math.sin(ph1) * Math.sin(th1);
+            posArray[i * 3 + 2] = r1 * Math.cos(ph1);
+
+            // -- STATE 2: Incubator (3 Cores) --
+            // Copy logic from vzor_three_obsidian.html
+            const rand = Math.random();
+            if (rand < 0.4) {
+                // SHELL
+                incubatorArray[i * 3] = posArray[i * 3];
+                incubatorArray[i * 3 + 1] = posArray[i * 3 + 1];
+                incubatorArray[i * 3 + 2] = posArray[i * 3 + 2];
+            } else {
+                // CORES
+                const cIdx = i % cores.length;
+                const c = cores[cIdx];
+                const rc = 40 + Math.random() * 40;
+                const tc = Math.random() * Math.PI * 2;
+                const pc = Math.acos(2 * Math.random() - 1);
+                incubatorArray[i * 3] = c.pos.x + rc * Math.sin(pc) * Math.cos(tc);
+                incubatorArray[i * 3 + 1] = c.pos.y + rc * Math.sin(pc) * Math.sin(tc);
+                incubatorArray[i * 3 + 2] = c.pos.z + rc * Math.cos(pc);
+            }
+
+            // -- STATE 3: Graph Target --
+            if (i < finalNodes.length) {
+                targetArray[i * 3] = nodePositions[i].x;
+                targetArray[i * 3 + 1] = nodePositions[i].y;
+                targetArray[i * 3 + 2] = nodePositions[i].z;
+                sizeArray[i] = finalNodes[i].size * 1.5;
+                colorArray[i * 3] = 1; colorArray[i * 3 + 1] = 1; colorArray[i * 3 + 2] = 1;
+            } else {
+                const nIdx = i % finalNodes.length;
+                const rcl = 60 * Math.random();
+                const tcl = Math.random() * Math.PI * 2;
+                const pcl = Math.acos(2 * Math.random() - 1);
+                targetArray[i * 3] = nodePositions[nIdx].x + rcl * Math.sin(pcl) * Math.cos(tcl);
+                targetArray[i * 3 + 1] = nodePositions[nIdx].y + rcl * Math.sin(pcl) * Math.sin(tcl);
+                targetArray[i * 3 + 2] = nodePositions[nIdx].z + rcl * Math.cos(pcl);
+                sizeArray[i] = 1.2 + Math.random() * 2.5;
+                colorArray[i * 3] = 0.5; colorArray[i * 3 + 1] = 0.6; colorArray[i * 3 + 2] = 0.8;
+            }
+
+            // -- STATE 4: Detail Structure (Graph + Cloud Sphere) --
+            // We want ONLY the structural nodes (Hub + Branches + Leaves) to be visible in Drill-Down.
+            // The rest ("Cloud") should be effectively hidden or very faint.
+
+            if (i < detailNodesCount) {
+                // This is a DETAIL NODE (Hub/Spoke)
+                detailArray[i * 3] = detailNodePositions[i].x * 2.0;
+                detailArray[i * 3 + 1] = detailNodePositions[i].y * 2.0;
+                detailArray[i * 3 + 2] = detailNodePositions[i].z * 2.0;
+                staticArray[i] = 1.0;
+                sizeArray[i] = (i === 0) ? 25.0 : 12.0;
+            } else {
+                // This is ATMOSPHERE (Cloud) - KEPT VISIBLE
+                // Same generation as State 1 to maintain the "Cloud" feel
+                const r4 = 220 * (0.85 + Math.random() * 0.15);
+                const th4 = Math.random() * Math.PI * 2;
+                const ph4 = Math.acos(2 * Math.random() - 1);
+                detailArray[i * 3] = r4 * Math.sin(ph4) * Math.cos(th4);
+                detailArray[i * 3 + 1] = r4 * Math.sin(ph4) * Math.sin(th4);
+                detailArray[i * 3 + 2] = r4 * Math.cos(ph4);
+
+                staticArray[i] = 0.0;
+            }
+
+            randomArray[i] = Math.random();
+        }
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        geometry.setAttribute('aIncubator', new THREE.BufferAttribute(incubatorArray, 3));
+        geometry.setAttribute('aTarget', new THREE.BufferAttribute(targetArray, 3));
+        geometry.setAttribute('aDetail', new THREE.BufferAttribute(detailArray, 3));
+        geometry.setAttribute('aSize', new THREE.BufferAttribute(sizeArray, 1));
+        geometry.setAttribute('aColor', new THREE.BufferAttribute(colorArray, 3));
+        geometry.setAttribute('aRandom', new THREE.BufferAttribute(randomArray, 1));
+        geometry.setAttribute('aStatic', new THREE.BufferAttribute(staticArray, 1));
+
+        const material = new THREE.ShaderMaterial({
+            uniforms: {
+                uTime: { value: 0 },
+                uProgress1: { value: 0 },
+                uProgress2: { value: 0 },
+                uProgress3: { value: 0 }, // STATE 4: Drill-down
+                uPixelRatio: { value: renderer.getPixelRatio() },
+                uMouse: { value: new THREE.Vector2(0, 0) },
+                uMouseActive: { value: 0 },
+                uTexture: { value: createGlowTexture() },
+                uGraphZoom: { value: 1.0 },
+                uMobile: { value: 0.0 }
+            },
+            vertexShader: `
+                uniform float uTime;
+                uniform float uProgress1;
+                uniform float uProgress2;
+                uniform float uProgress3;
+                uniform float uPixelRatio;
+                uniform vec2 uMouse;
+                uniform float uMouseActive;
+                uniform float uGraphZoom;
+                uniform float uMobile;
+
+                attribute vec3 aIncubator;
+                attribute vec3 aTarget;
+                attribute vec3 aDetail;
+                attribute float aSize;
+                attribute vec3 aColor;
+                attribute float aRandom;
+                attribute float aStatic;
+                varying vec3 vColor;
+                varying float vAlpha;
+                varying float vPulse;
+                varying float vIsNode;
+
+                // STABLE 2D SIMPLEX NOISE
+                vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec2 mod289(vec2 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+                vec3 permute(vec3 x) { return mod289(((x*34.0)+1.0)*x); }
+                float snoise(vec2 v) {
+                    const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+                    vec2 i  = floor(v + dot(v, C.yy) );
+                    vec2 x0 = v - i + dot(i, C.xx);
+                    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+                    vec4 x12 = x0.xyxy + C.xxzz; x12.xy -= i1;
+                    i = mod289(i);
+                    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 )) + i.x + vec3(0.0, i1.x, 1.0 ));
+                    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy), dot(x12.zw,x12.zw)), 0.0);
+                    m = m*m ; m = m*m ;
+                    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+                    vec3 h = abs(x) - 0.5;
+                    vec3 ox = floor(x + 0.5); vec3 a0 = x - ox;
+                    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+                    vec3 g; g.x = a0.x * x0.x + h.x * x0.y; g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+                    return 130.0 * dot(m, g);
+                }
+
+                void main() {
+                    vColor = aColor;
+                    float t1 = smoothstep(0.0, 1.0, uProgress1);
+                    float t2 = smoothstep(0.0, 1.0, uProgress2);
+                    float t3 = smoothstep(0.0, 1.0, uProgress3);
+                    
+                    vec3 vBase = mix(position, aIncubator, t1);
+                    vec3 vFinal = mix(vBase, aTarget, t2);
+                    vec3 finalPos = mix(vFinal, aDetail, t3);
+
+                    // BALANCED MOBILE SCALE: 
+                    // Slide 1 (t2=0) is now 0.65 (was 0.22)
+                    // Slide 2+ (t2=1) is now 0.75 (was 0.52)
+                    float scaleFactor = mix(0.65, 0.75, t2); 
+                    float finalScale = mix(1.0, scaleFactor, uMobile); 
+
+                    // APPLY INDEPENDENT ZOOM ONLY TO GRAPH (aStatic > 0.5)
+                    if (aStatic > 0.5) {
+                        finalPos *= uGraphZoom;
+                    }
+                    finalPos *= finalScale;
+
+                    // --- SMOOTH MOVEMENT ---
+                    // STATIC GRAPH LOGIC:
+                    // If aStatic is 1, then as we enter t3 (Detail), movement should stop.
+                    // moveFactor goes from 1.0 to 0.0 if aStatic=1.
+                    float moveFactor = 1.0 - (aStatic * t3);
+
+                    float ns = 0.015; float ts = uTime * 0.15;
+                    float nx = snoise(vec2(position.x * ns, position.y * ns + ts + aRandom));
+                    float ny = snoise(vec2(position.y * ns, position.z * ns + ts + aRandom + 10.0));
+                    float nz = snoise(vec2(position.z * ns, position.x * ns + ts + aRandom + 20.0));
+                    
+                    finalPos += vec3(nx, ny, nz) * mix(3.5, 1.2, t2) * moveFactor;
+                    
+                    // Breathing (Background cloud)
+                    vec3 bDir = normalize(position);
+                    finalPos += bDir * sin(uTime * 0.8 + aRandom * 5.0) * (2.0 + 2.0 * (1.0-t2)) * moveFactor;
+                    
+                    // Repulsion (Scales with finalScale for consistent behavior)
+                    if (uMouseActive > 0.05 && moveFactor > 0.1) {
+                        float rRadius = 300.0 * finalScale; // Bigger radius for smoother feel
+                        float dist = distance(finalPos.xy, uMouse.xy);
+                        if (dist < rRadius) {
+                            float f = pow((rRadius - dist) / rRadius, 2.0);
+                            finalPos += normalize(finalPos - vec3(uMouse.xy, finalPos.z)) * f * 55.0 * finalScale;
+                        }
+                    }
+
+                    vec4 mvPos = modelViewMatrix * vec4(finalPos, 1.0);
+                    gl_Position = projectionMatrix * mvPos;
+                    
+                    // Point Size Logic
+                    float baseSize = aSize * (500.0 / -mvPos.z) * uPixelRatio;
+                    
+                    // Node-specific "Breathing" (Pulse)
+                    vPulse = 0.0;
+                    vIsNode = aStatic;
+                    if (aStatic > 0.5) {
+                        baseSize *= uGraphZoom;
+                        // Organic breathing: size fluctuates by 30%
+                        float p = sin(uTime * 2.5 + aRandom * 10.0) * 0.5 + 0.5;
+                        vPulse = p;
+                        baseSize *= (1.0 + p * 0.3 * t3); // Pulse more visible in drill-down
+                    }
+                    gl_PointSize = baseSize * mix(1.0, 0.65, uMobile); // Smaller points on mobile
+
+                    // Fix Cloud Visibility: Keep opacity high on Slide 2 (0.6 instead of 0.15)
+                    // If Drilled (t3 > 0.1) and NOT static -> THIN OUT (Reduce alpha significantly)
+                    float targetAlpha = (aSize < 5.0 ? 0.6 : 1.0);
+                    float drillAlpha = (aStatic < 0.5 ? 0.45 : 1.0);
+                    
+                    // Transition to slide 2 alpha (t2=0 but keeping the mix structure)
+                    float s2Alpha = mix(1.0, targetAlpha, t2);
+                    
+                    // DRILL-DOWN VISIBILITY LOGIC - REFINED (User Feedback)
+                    // "Just a free field", "No points by the meter".
+                    // HIDE the structural nodes (aStatic > 0.5) when drilled.
+                    // Keep the CLOUD (aStatic < 0.5) visible as background.
+                    
+                    float drillVisibility = 1.0;
+                    if (t3 > 0.1) {
+                         // We are drilling down
+                         if (aStatic > 0.5) {
+                             // GRAPH NODE -> HIDE
+                             drillVisibility = 1.0 - smoothstep(0.1, 0.3, t3); 
+                         } else {
+                             // CLOUD -> KEEP VISIBLE (maybe slight dimming?)
+                             drillVisibility = 0.6; 
+                         }
+                    }
+                    
+                    // Final Alpha is combination
+                    vAlpha = s2Alpha * drillVisibility;
+                }
+            `,
+            fragmentShader: `
+                uniform sampler2D uTexture;
+                varying vec3 vColor;
+                varying float vAlpha;
+                varying float vPulse;
+                varying float vIsNode;
+                void main() {
+                    vec4 tex = texture2D(uTexture, gl_PointCoord);
+                    vec4 finalColor = vec4(vColor, vAlpha * tex.a);
+                    
+                    // Dynamic Brightness for Breathing Nodes
+                    if (vIsNode > 0.5) {
+                        float glow = 1.0 + vPulse * 0.5;
+                        finalColor.rgb *= glow;
+                    }
+                    
+                    gl_FragColor = finalColor;
+                }
+            `,
+            transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+        });
+
+        const particlesMesh = new THREE.Points(geometry, material);
+
+        // --- Lines ---
+        const lineGeo = new THREE.BufferGeometry();
+        const lp = []; const li = [];
+        finalConnections.forEach((pair, i) => {
+            lp.push(nodePositions[pair[0]].x, nodePositions[pair[0]].y, nodePositions[pair[0]].z);
+            lp.push(nodePositions[pair[1]].x, nodePositions[pair[1]].y, nodePositions[pair[1]].z);
+            let a = i / finalConnections.length; li.push(a, a);
+        });
+        lineGeo.setAttribute('position', new THREE.Float32BufferAttribute(lp, 3));
+        lineGeo.setAttribute('lineProcess', new THREE.Float32BufferAttribute(li, 1));
+        const lineMat = new THREE.ShaderMaterial({
+            uniforms: { uProgress: { value: 0 }, uOpacity: { value: 0 } },
+            vertexShader: `
+                attribute float lineProcess;
+                varying float vV;
+                uniform float uProgress;
+                void main() {
+                    vV = (lineProcess < smoothstep(0.2, 0.9, (uProgress-0.3)*1.5)) ? 1.0 : 0.0;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying float vV;
+                uniform float uOpacity;
+                void main() {
+                    if (vV < 0.5) discard;
+                    gl_FragColor = vec4(1,1,1, uOpacity * 0.15);
+                }
+            `,
+            transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+        });
+        const linesMesh = new THREE.LineSegments(lineGeo, lineMat);
+
+        const group = new THREE.Group();
+        group.add(particlesMesh);
+        group.add(linesMesh);
+
+        // --- Sub-Lines (Drill-down Graph) ---
+        const subLineGeo = new THREE.BufferGeometry();
+        const slp = [];
+        detailConnections.forEach(pair => {
+            // Apply 2.0x scale to match the particles
+            slp.push(detailNodePositions[pair[0]].x * 2.0, detailNodePositions[pair[0]].y * 2.0, detailNodePositions[pair[0]].z * 2.0);
+            slp.push(detailNodePositions[pair[1]].x * 2.0, detailNodePositions[pair[1]].y * 2.0, detailNodePositions[pair[1]].z * 2.0);
+        });
+        subLineGeo.setAttribute('position', new THREE.Float32BufferAttribute(slp, 3));
+        const subLineMat = new THREE.ShaderMaterial({
+            uniforms: { uOpacity: { value: 0 } },
+            vertexShader: `void main() { gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+            fragmentShader: `uniform float uOpacity; void main() { gl_FragColor = vec4(1,1,1, uOpacity * 0.15); }`,
+            transparent: true, depthWrite: false, blending: THREE.AdditiveBlending
+        });
+        const subLinesMesh = new THREE.LineSegments(subLineGeo, subLineMat);
+        group.add(subLinesMesh);
+
+        // --- Highlight Point (Hover Feedback) ---
+        const highlightGeo = new THREE.BufferGeometry();
+        highlightGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
+        const highlightMat = new THREE.PointsMaterial({ color: 0x00ffff, size: 10, transparent: true, opacity: 0, map: createGlowTexture(), blending: THREE.AdditiveBlending, depthWrite: false });
+        const highlightMesh = new THREE.Points(highlightGeo, highlightMat);
+        group.add(highlightMesh);
+
+        scene.add(group);
+
+        // --- Labels ---
+        const coreData = [
+            { name: "Development", pos: new THREE.Vector3(-130, 0, 0), scale: 0.75 },
+            { name: "Finance", pos: new THREE.Vector3(0, 0, 95), scale: 1.4 },
+            { name: "Real Estate", pos: new THREE.Vector3(130, 0, 0), scale: 0.75 }
+        ];
+        function createLabel(text, pos, scaleFactor) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 512; canvas.height = 128;
+            ctx.font = '300 48px -apple-system, sans-serif';
+            ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.letterSpacing = '5px';
+            ctx.fillText(text.toUpperCase(), 256, 75);
+            const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, opacity: 0 }));
+            sprite.position.copy(pos).multiplyScalar(1.2);
+            sprite.scale.set(130 * scaleFactor, 32 * scaleFactor, 1);
+            return sprite;
+        }
+        const labels = coreData.map(c => createLabel(c.name, c.pos, c.scale));
+        labels.forEach(l => group.add(l));
+
+        // --- Detail Hit Targets ---
+        const detailTargets = [];
+        const detailGeo = new THREE.SphereGeometry(3, 8, 8);
+        const detailMat = new THREE.MeshBasicMaterial({ color: 0xff0000, visible: false }); // Invisible hit targets
+        // Create 40 targets at detail positions
+        for (let i = 0; i < detailNodesCount; i++) {
+            const m = new THREE.Mesh(detailGeo, detailMat);
+            m.position.copy(detailNodePositions[i]).multiplyScalar(2.0);
+            detailTargets.push(m);
+            group.add(m);
+        }
+
+        // --- Interaction ---
+        let targetP = 0; let smoothP = 0;
+        let isDrilled = false; let drillProg = 0;
+        let currentCategory = "";
+        let isDrag = false; let prevM = { x: 0, y: 0 }; let mom = { x: 0, y: 0 };
+        const ray = new THREE.Raycaster(); const mv = new THREE.Vector2(); const pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        let mouseTimer;
+
+        let isClickValid = true;
+        const dragThreshold = 15;
+        let downPos = { x: 0, y: 0 };
+
+        // --- USER TASKS LOGIC ---
+        const userTasks = []; // Each: { mesh: THREE.Mesh, title: string, created: number }
+        const taskGeo = new THREE.SphereGeometry(4, 16, 16); // Task Points
+        const taskMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 }); // Orange for User Tasks
+
+        function addTaskPoint(title, category) {
+            // Create visual point in the cloud
+            // Position it randomly in front of the camera or near the center
+            const m = new THREE.Mesh(taskGeo, taskMat);
+
+            // Random pos near center but slightly spread
+            const r = 40 + Math.random() * 60;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.random() * Math.PI;
+
+            m.position.set(
+                r * Math.sin(phi) * Math.cos(theta),
+                r * Math.sin(phi) * Math.sin(theta),
+                r * Math.cos(phi)
+            );
+
+            group.add(m);
+            userTasks.push({ mesh: m, title: title, category: category, created: Date.now() });
+            return m;
+        }
+
+
+
+        // Zoom State
+        let targetZoom = 1.0;
+        let lastCamPos, lastCamQuat; // For tracking movement
+        let currentZoom = 1.0;
+        let lastZoomTime = 0;
+        let lastInteractTime = Date.now(); // Initialize to NOW so it doesn't trigger immediately
+
+
+
+        function onClick(e) {
+            if (!isClickValid) return; // Ignore drag-clicks
+
+            // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
+            if (smoothP < 0.1) {
+                targetP = 1.0;
+                return;
+            }
+
+            mv.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mv.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            ray.setFromCamera(mv, camera);
+
+            if (!isDrilled) {
+                // LEVEL 1 INTERACTION (Development, Finance, Estate)
+                if (smoothP < 0.8) return; // Only on Slide 2
+
+                const hits = ray.intersectObjects(labels);
+                if (hits.length > 0) {
+                    const label = hits[0].object;
+                    const data = coreData[labels.indexOf(label)];
+                    isDrilled = true;
+                    currentCategory = data.name;
+                    showDetail(data.name);
+
+                    // SHOW TASK INTERFACE Only for specific categories
+                    const allowed = ["Development", "Finance", "Real Estate"]; // Using the names from coreData
+                    if (allowed.includes(data.name)) {
+                        document.getElementById('task-interface').classList.add('active');
+                    }
+                }
+            } else {
+                // LEVEL 2 INTERACTION (Inner Graph Nodes)
+                // Check intersection with detail targets
+                const hits = ray.intersectObjects(detailTargets);
+                if (hits.length > 0) {
+                    // Clicked on a Node
+                    const idx = detailTargets.indexOf(hits[0].object);
+                    updateDetailPanelForSubTask(idx);
+                } else {
+                    // CHECK USER TASKS
+                    const taskHits = ray.intersectObjects(userTasks.map(t => t.mesh));
+                    if (taskHits.length > 0) {
+                        const taskPayload = userTasks.find(t => t.mesh === taskHits[0].object);
+                        if (taskPayload) {
+                            // Open panel with Task Info
+                            const header = document.querySelector('.detail-header');
+                            header.innerText = "ПОЛЬЗОВАТЕЛЬСКАЯ ЗАДАЧА";
+                            document.getElementById('p-title').innerText = taskPayload.title;
+                            document.getElementById('p-desc').innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
+                            document.getElementById('detail-panel').classList.add('active'); // Force open
+                        }
+                    } else {
+                        // Clicked on Background (Void) -> RESET TO CATEGORY
+                        showDetail(currentCategory);
+                    }
+                }
+            }
+        }
+
+        function showDetail(name) {
+            // Update Top Header (Conditional Branding)
+            const st = document.getElementById('slideTitle');
+            const pt = document.getElementById('p-title');
+            const pd = document.getElementById('p-desc');
+            const header = document.querySelector('.detail-header');
+            header.innerText = "ОБЗОР ЭКОСИСТЕМЫ";
+
+            if (name === "Development") {
+                st.innerText = "VZOR development";
+                pt.innerText = "ЕДИНАЯ ОПЕРАЦИОННАЯ СРЕДА";
+                pd.innerHTML = `Прогнозная модель управления стоимостью и эффективностью проекта.<br>
+                               <ul class='detail-thesis'>
+                                   <li><b>Экономия:</b> Точность бюджета 95%+, снижение стоимости переделок на 60%.</li>
+                                   <li><b>Сроки:</b> Сокращение цикла проекта на 40%, Due diligence за 1 час.</li>
+                                   <li><b>Риски:</b> Решение GO/NO-GO за 60 минут, минимизация человеческого фактора.</li>
+                                   <li><b>Прибыль:</b> Увеличение NOI на 15-25%, рост капитализации (Exit Value).</li>
+                                   <li><b>Эффективность:</b> Мгновенный пересчет проектирования, финмодели и продаж при любых изменениях.</li>
+                               </ul>`;
+            } else if (name === "Finance") {
+                st.innerText = "VZOR finance";
+                pt.innerText = "АВТОНОМНЫЙ ФИНАНСОВЫЙ ДВИЖОК";
+                pd.innerHTML = `Синхронизация потоков капитала в реальном времени.<br><br>
+                               Минимизация временной инфляции и валютных рисков через прозрачный мониторинг.<br><br>
+                               Единый контур принятия решений: от точечной транзакции до глобального инвестиционного портфеля.`;
+            } else if (name === "Real Estate") {
+                st.innerText = "VZOR easted";
+                pt.innerText = "ПЛАТФОРМА УПРАВЛЕНИЯ АКТИВАМИ";
+                pd.innerHTML = `Максимизация доходности (Yield Protection) и капитализации объектов недвижимости.<br><br>
+                               Прозрачное масштабирование институционального уровня через управление данными.<br><br>
+                               Полный жизненный цикл актива: от анализа приобретения до реализации стратегии выхода.`;
+            }
+
+            st.style.color = "#ffffff";
+
+            // DO NOT automatically show detail panel on entry
+            // document.getElementById('detail-panel').classList.add('active'); // DISABLED
+            document.getElementById('back-button').classList.add('visible');
+            document.getElementById('back-button').classList.add('visible');
+            // document.getElementById('nodes-toggle-btn').classList.add('visible'); // REMOVED
+            document.getElementById('scrollHint').style.opacity = "0";
+            document.getElementById('progressDots').style.opacity = "0";
+
+
+            // LOCK SCROLL (CSS Method)
+            document.body.style.overflow = 'hidden';
+
+            // Enable Orbit Controls
+            controls.enabled = true;
+            controls.target.set(0, 0, 0);
+
+            // Sync Camera Z for smooth transition (optional, logic handles it)
+
+            // AUTOMATICALLY OPEN TASK INTERFACE FOR DEVELOPMENT
+            if (name === "Development") {
+                setTimeout(() => {
+                    document.getElementById('task-interface').classList.add('active');
+                }, 800); // Slight delay for effect
+            }
+        }
+
+        function updateDetailPanelForSubTask(idx) {
+            let title = "Sub-node " + (idx + 1);
+            let desc = "Detailed analytics and operational metrics for " + title + ". This node represents a specific subprocess within the selected ecosystem.";
+
+            const header = document.querySelector('.detail-header');
+            if (currentCategory === "Development") {
+                header.innerText = "ПРОЦЕСС ДЕВЕЛОПМЕНТА";
+                const subTasks = [
+                    "Инвестиционный меморандум", "Архитектурная концепция", "ГПЗУ и ИРД", "Проектная документация",
+                    "Экспертиза проекта", "Тендерная документация", "Нулевой цикл", "Конструктив здания",
+                    "Инженерные системы", "Отделочные работы", "Благоустройство", "Ввод в эксплуатацию"
+                ];
+                const subDescs = [
+                    "<ul class='detail-thesis'><li>Решение GO/NO-GO за 60 минут</li><li>Глубокий анализ юридики и IRR</li><li>Снижение рисков на старте на 30%</li></ul>",
+                    "<ul class='detail-thesis'><li>Синхронизация с бюджетом в реальном времени</li><li>Исключение перерасхода на 15%</li><li>Авто-генерация ТЭП</li></ul>",
+                    "<ul class='detail-thesis'><li>Автоматизированный контроль ИРД</li><li>Сокращение сроков согласований на 25%</li><li>Цифровой след каждого документа</li></ul>",
+                    "<ul class='detail-thesis'><li>Точность расчетов 95%+</li><li>Связь с 400+ нормативами</li><li>Исключение ошибок проектирования</li></ul>",
+                    "<ul class='detail-thesis'><li>Авто-проверка на соответствие стандартам</li><li>Ускорение получения заключений</li><li>Прозрачность правок</li></ul>",
+                    "<ul class='detail-thesis'><li>Формирование пакетов по актуальным объемам</li><li>Прозрачный выбор подрядчика</li><li>Экономия до 10% на закупках</li></ul>",
+                    "<ul class='detail-thesis'><li>Мгновенный факт в графике и финмодели</li><li>Мониторинг земляных работ 24/7</li><li>Контроль выноса сетей</li></ul>",
+                    "<ul class='detail-thesis'><li>Синхронизация поставок и финансирования</li><li>Сокращение простоев на 20%</li><li>Контроль качества армирования</li></ul>",
+                    "<ul class='detail-thesis'><li>Исключение коллизий до начала монтажа</li><li>Жесткая увязка проектирования и СМР</li><li>Снижение стоимости переделок на 60%</li></ul>",
+                    "<ul class='detail-thesis'><li>Контроль расхода материалов</li><li>Анализ отклонений план vs факт</li><li>Соблюдение дизайн-кода</li></ul>",
+                    "<ul class='detail-thesis'><li>Контроль сроков благоустройства</li><li>Управление подрядчиками на финише</li><li>Формирование облика объекта</li></ul>",
+                    "<ul class='detail-thesis'><li>Сокращение цикла проекта на 40%</li><li>Увеличение NOI на 15-25%</li><li>Рост стоимости актива (Exit Value)</li></ul>"
+                ];
+                if (idx < subTasks.length) {
+                    title = subTasks[idx];
+                    desc = subDescs[idx];
+                }
+            } else if (currentCategory === "Finance") {
+                header.innerText = "ФИНАНСОВЫЙ КОНТУР";
+                const subTasks = [
+                    "Бюджетирование", "Движение денежных средств", "Анализ P&L", "Аудит",
+                    "Инвестиционная стратегия", "Оценка рисков", "Налоговое планирование", "M&A сделки",
+                    "Казначейство", "Отчетность", "Комплаенс", "Финтех интеграции"
+                ];
+                const subDescs = [
+                    "<ul class='detail-thesis'><li>Сокращение ошибок планирования на 20%</li><li>Единый контур финансового управления</li></ul>",
+                    "<ul class='detail-thesis'><li>Контроль ликвидности в реальном времени</li><li>Предотвращение кассовых разрывов</li></ul>",
+                    "<ul class='detail-thesis'><li>Автоматический расчет прибыльности</li><li>Детализация до каждой транзакции</li></ul>",
+                    "<ul class='detail-thesis'><li>Прозрачность 100% операций</li><li>Сокращение сроков проверки в 3 раза</li></ul>",
+                    "<ul class='detail-thesis'><li>Рост доходности капитала</li><li>Сценарное моделирование доходности</li></ul>",
+                    "<ul class='detail-thesis'><li>Минимизация финансовых потерь</li><li>Предиктивная аналитика угроз</li></ul>",
+                    "<ul class='detail-thesis'><li>Оптимизация налоговой нагрузки</li><li>Соблюдение международного права</li></ul>",
+                    "<ul class='detail-thesis'><li>Сокращение Due Diligence до 1 часа</li><li>Прозрачная оценка стоимости</li></ul>",
+                    "<ul class='detail-thesis'><li>Централизация всех платежей</li><li>Автоматизация банковских выписок</li></ul>",
+                    "<ul class='detail-thesis'><li>Отчетность в один клик</li><li>Стандарты МСФО и РСБУ</li></ul>",
+                    "<ul class='detail-thesis'><li>Нулевой риск регуляторных штрафов</li><li>Автоматический KYC и мониторинг</li></ul>",
+                    "<ul class='detail-thesis'><li>Бесшовное соединение с банками</li><li>API-интеграция платежных систем</li></ul>"
+                ];
+                if (idx < subTasks.length) {
+                    title = subTasks[idx];
+                    desc = subDescs[idx];
+                }
+            } else if (currentCategory === "Real Estate") {
+                header.innerText = "УПРАВЛЕНИЕ АКТИВАМИ";
+                const subTasks = [
+                    "Покупка активов", "Управление недвижимостью", "Аренда", "Оценка объектов",
+                    "Эксплуатация зданий", "Анализ рынка", "Портфельная стратегия", "Юридическое сопровождение",
+                    "Страхование", "Работа с арендаторами", "Устойчивое развитие", "Распоряжение активами"
+                ];
+                const subDescs = [
+                    "<ul class='detail-thesis'><li>Ускорение анализа участка в 10 раз</li><li>Автоматическая оценка потенциала</li></ul>",
+                    "<ul class='detail-thesis'><li>Снижение OPEX на 15%</li><li>Управление жизненным циклом</li></ul>",
+                    "<ul class='detail-thesis'><li>Максимизация заполняемости</li><li>Динамическое ценообразование</li></ul>",
+                    "<ul class='detail-thesis'><li>Точность оценки 98%</li><li>Мониторинг рыночных трендов</li></ul>",
+                    "<ul class='detail-thesis'><li>Предиктивный ремонт: экономия 25%</li><li>Снижение аварийности систем</li></ul>",
+                    "<ul class='detail-thesis'><li>Глубокий анализ конкурентов</li><li>Прогноз спроса на локации</li></ul>",
+                    "<ul class='detail-thesis'><li>Рост стоимости портфеля</li><li>Оптимизация структуры владения</li></ul>",
+                    "<ul class='detail-thesis'><li>Чистота сделок 100%</li><li>Защита прав собственности</li></ul>",
+                    "<ul class='detail-thesis'><li>Снижение тарифов через аналитику</li><li>Автоматизация выплат</li></ul>",
+                    "<ul class='detail-thesis'><li>Повышение лояльности и LTV</li><li>Система сбора обратной связи</li></ul>",
+                    "<ul class='detail-thesis'><li>Внедрение ESG-стандартов</li><li>Снижение углеродного следа</li></ul>",
+                    "<ul class='detail-thesis'><li>Эффективный выход из активов</li><li>Подготовка к продаже (Exit strategy)</li></ul>"
+                ];
+                if (idx < subTasks.length) {
+                    title = subTasks[idx];
+                    desc = subDescs[idx];
+                }
+            }
+
+            document.getElementById('p-title').innerText = title;
+            document.getElementById('p-desc').innerHTML = desc;
+        }
+
+        document.getElementById('back-button').addEventListener('click', () => {
+            isDrilled = false;
+            drillProg = 0; // Animate out
+            currentZoom = 1.0; targetZoom = 1.0;
+            camera.clearViewOffset(); // Reset viewport
+            controls.enabled = false; // Disable orbit
+            document.getElementById('detail-panel').classList.remove('active');
+            document.getElementById('task-interface').classList.remove('active'); // Hide Task Interface
+            document.getElementById('nav-btn').classList.remove('visible'); // Hide if any
+            document.getElementById('back-button').style.opacity = '0';
+            document.getElementById('back-button').style.pointerEvents = 'none';
+
+            // Hide Nodes Button
+            const nodesBtn = document.getElementById('nodes-btn');
+            if (nodesBtn) nodesBtn.style.display = 'none';
+
+            // Restore Top Header
+            const st = document.getElementById('slideTitle');
+            st.innerText = "VZOR";
+
+            // The original code had these lines, they were removed in the provided snippet.
+            // document.getElementById('back-button').classList.remove('visible');
+            document.getElementById('scrollHint').style.opacity = "1";
+            document.getElementById('progressDots').style.opacity = "1";
+
+            // UNLOCK SCROLL
+            document.body.style.overflow = '';
+
+            // Reset States
+            // targetZoom = 1.0; currentZoom = 1.0; // Already set above
+            material.uniforms.uGraphZoom.value = 1.0;
+            if (typeof highlightMat !== 'undefined') highlightMat.opacity = 0;
+
+            // Disable Orbit Controls & Reset Camera
+            // controls.enabled = false; // Already set above
+            controls.enableZoom = false; // Disable OC zoom to handle manually
+            controls.reset();
+            group.rotation.set(0, 0, 0);
+        });
+
+        document.addEventListener('click', onClick);
+
+        // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
+        function move(x, y, cx, cy) {
+            lastInteractTime = Date.now(); // Track interaction
+            mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
+            ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
+            material.uniforms.uMouse.value.set(pt.x, pt.y);
+            material.uniforms.uMouseActive.value = 1.0;
+
+            clearTimeout(mouseTimer);
+            mouseTimer = setTimeout(() => {
+                // We keep it at 0 on mobile unless moving, but on desktop we fade it
+            }, 1000);
+
+            if (isDrag && !isDrilled) { // Only manual drag if NOT drilled
+                let dx = x - prevM.x; let dy = y - prevM.y;
+                group.rotation.y += dx * 0.005;
+                group.rotation.x += dy * 0.005;
+                mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
+            }
+        }
+        document.addEventListener('mousedown', e => {
+            isDrag = true;
+            isClickValid = true;
+            downPos = { x: e.clientX, y: e.clientY };
+            prevM = { x: e.clientX, y: e.clientY };
+            mom = { x: 0, y: 0 };
+            material.uniforms.uMouseActive.value = 1;
+        });
+        document.addEventListener('mousemove', e => {
+            move(e.clientX, e.clientY, e.clientX, e.clientY);
+            if (isDrag) {
+                const d = Math.sqrt(Math.pow(e.clientX - downPos.x, 2) + Math.pow(e.clientY - downPos.y, 2));
+                if (d > dragThreshold) isClickValid = false;
+            }
+        });
+        document.addEventListener('mouseup', () => isDrag = false);
+        window.addEventListener('mouseleave', () => { isDrag = false; material.uniforms.uMouseActive.value = 0; });
+        window.addEventListener('blur', () => { isDrag = false; material.uniforms.uMouseActive.value = 0; });
+
+        // TOUCH SUPPORT
+        document.addEventListener('touchstart', e => {
+            isDrag = true; isClickValid = true;
+            const touch = e.touches[0];
+            downPos = { x: touch.clientX, y: touch.clientY };
+            prevM = { x: touch.clientX, y: touch.clientY };
+            material.uniforms.uMouseActive.value = 1;
+        }, { passive: true });
+
+        document.addEventListener('touchmove', e => {
+            const touch = e.touches[0];
+            move(touch.clientX, touch.clientY, touch.clientX, touch.clientY);
+            if (isDrag) {
+                const dx = Math.abs(touch.clientX - downPos.x);
+                const dy = Math.abs(touch.clientY - downPos.y);
+                if (dx > dragThreshold || dy > dragThreshold) isClickValid = false;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', e => {
+            if (isClickValid) onClick(e.changedTouches[0]);
+            isDrag = false;
+        }, { passive: true });
+
+        // ===== AUTO-HIDE DETAIL PANEL (Click Outside) =====
+        document.addEventListener('click', (e) => {
+            const detailPanel = document.getElementById('detail-panel');
+            const taskInterface = document.getElementById('task-interface');
+
+            // Check if detail panel is open
+            if (detailPanel && detailPanel.classList.contains('active')) {
+                // Check if click is outside the panel
+                const isClickInsidePanel = detailPanel.contains(e.target);
+                const isClickOnTask = e.target.closest('.task-point'); // If task points have class
+                const isClickInsideTaskInterface = taskInterface && taskInterface.contains(e.target);
+
+                // Close panel if clicking on black screen (not on panel, not on task interface)
+                if (!isClickInsidePanel && !isClickInsideTaskInterface && !isClickOnTask) {
+                    detailPanel.classList.remove('active');
+                    console.log('Detail panel auto-closed');
+                }
+            }
+        });
+
+        /* SCROLL DISABLED
+        window.addEventListener('scroll', () => {
+            const y = window.scrollY;
+            const h = document.getElementById('scroll-container').offsetHeight - window.innerHeight;
+            targetP = Math.max(0, Math.min(1, y / h));
+        }, { passive: true });
+        */
+
+        // Force scroll tracking on mobile via Touch
+        /* TOUCH SCROLL DISABLED
+        document.addEventListener('touchmove', () => {
+            const y = window.scrollY;
+            const h = document.getElementById('scroll-container').offsetHeight - window.innerHeight;
+            targetP = Math.max(0, Math.min(1, y / h));
+        }, { passive: true });
+        */
+
+        // Manual Wheel Zoom for Graph elements when drilled
+        window.addEventListener('wheel', (event) => {
+            if (isDrilled) {
+                event.preventDefault(); // Prevent page scrolling
+                const zoomSpeed = 0.001;
+                targetZoom -= event.deltaY * zoomSpeed;
+                targetZoom = Math.max(0.5, Math.min(2.5, targetZoom)); // Clamp zoom level
+                lastZoomTime = Date.now();
+            }
+        }, { passive: false });
+
+
+        // --- Loop ---
+        const clock = new THREE.Clock();
+        // --- VIEWPORT MANAGEMENT ---
+        let currentViewOffset = 0;
+        const panelWidth = 360; // Width of the detail panel
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = performance.now() * 0.001;
+
+            // --- DYNAMIC VIEWPORT RESIZING (Blender-like) ---
+            // Check if side panel is valid and active
+            const detailPanel = document.getElementById('detail-panel');
+            let targetOffset = 0;
+
+            if (detailPanel && detailPanel.classList.contains('active')) {
+                // If panel is open on the RIGHT, we want to shift the view center LEFT.
+                // In setViewOffset, a POSITIVE x-offset shifts the window frame RIGHT,
+                // which means the camera content appears to move LEFT? 
+                // Let's visualize: 
+                // Full Width = W. Visible Window is subset? No, we want "Window" to be full size, just offset.
+                // Actually, to shift content LEFT (away from right panel), we need to look closer at the right side of the frustum.
+                // Or simply: We want the center of projection to be at (W - PanelWidth)/2.
+                // The logical center should move -PanelWidth/2 pixels.
+                targetOffset = panelWidth / 2;
+            }
+
+            // Smoothly interpolate offset
+            currentViewOffset += (targetOffset - currentViewOffset) * 0.1;
+
+            // Apply Offset
+            // fullWidth, fullHeight, x, y, width, height
+            // We keep width/height same as window to avoid scaling distortion, just shifting the principal point.
+            if (Math.abs(currentViewOffset) > 0.5) {
+                camera.setViewOffset(
+                    window.innerWidth,
+                    window.innerHeight,
+                    currentViewOffset, // x offset. Positive shifts the frustum window right -> objects move left? 
+                    // Testing needed: usually positive x in view offset means we are looking at the right part of the image.
+                    0,
+                    window.innerWidth,
+                    window.innerHeight
+                );
+            } else {
+                camera.clearViewOffset();
+            }
+
+
+            // --- UPDATE UNIFORMS ---
+            material.uniforms.uTime.value = time;
+            // Dedicated uMobile flag for scaling
+            const hint = document.querySelector('.mobile-hint');
+            if (window.innerWidth < 768) {
+                material.uniforms.uMobile.value = 1.0;
+                if (hint) hint.style.display = 'block';
+            } else {
+                material.uniforms.uMobile.value = 0.0;
+                if (hint) hint.style.display = 'none';
+            }
+
+            // Smoother MouseActive fade
+            if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
+                material.uniforms.uMouseActive.value *= 0.92;
+            }
+
+            if (isDrilled) {
+                drillProg += (1 - drillProg) * 0.08;
+            } else {
+                drillProg += (0 - drillProg) * 0.08;
+            }
+
+            smoothP += (targetP - smoothP) * 0.05;
+            // Removed duplicate 'const time'
+
+            // Zoom Smoothing for Graph
+            currentZoom += (targetZoom - currentZoom) * 0.1;
+            material.uniforms.uGraphZoom.value = currentZoom;
+
+            // Update Progress Uniforms
+            material.uniforms.uProgress1.value = Math.max(0, Math.min(1, (smoothP - 0.05) / 0.3));
+            material.uniforms.uProgress2.value = 0; // Legacy if needed
+            material.uniforms.uProgress3.value = drillProg;
+            // material.uniforms.uTime.value = time; // already set at top
+
+            // Update sub-lines and targets (Only if drilled)
+            if (isDrilled) {
+                // OrbitControls handles camera
+                controls.update();
+
+                // ROBUST IDLE DETECTION - FIXED
+                // User requirement: "Hold for 10 seconds", do not reset on damping or drift.
+                // We ONLY reset lastInteractTime on explicit input events (handled in listeners).
+                // So we REMOVE the camera movement check here.
+
+                // Delayed Spring-back (RESTORED & REFINED)
+                // 1. Stays still for 10s (elapsed check)
+                // 2. Returns SLOWLY (factor 0.0005)
+                const elapsed = Date.now() - lastInteractTime;
+                if (elapsed > 10000) {
+                    // Check if we are actually rotated away from 0
+                    if (Math.abs(group.rotation.y) > 0.01 || Math.abs(group.rotation.x) > 0.01) {
+                        const driftSpeed = 0.0005; // Extremely slow return
+                        group.rotation.y += (0 - group.rotation.y) * driftSpeed;
+                        group.rotation.x += (0 - group.rotation.x) * driftSpeed;
+                    }
+                }
+
+
+
+                // Hover Check
+                ray.setFromCamera(mv, camera);
+                const hits = ray.intersectObjects(detailTargets);
+                if (hits.length > 0) {
+                    highlightMesh.position.copy(hits[0].object.position);
+                    highlightMat.opacity = 0.8;
+                } else {
+                    highlightMat.opacity = Math.max(0, highlightMat.opacity - 0.05);
+                }
+            } else {
+                // Script handles camera (Scroll Logic)
+                const baseZ = 450 - drillProg * 150;
+                camera.position.z = baseZ;
+                camera.position.x = 0;
+                camera.position.y = 0;
+                camera.lookAt(0, 0, 0);
+
+                // Normal Spring-back for Slide 1/2
+                // Spring-back removed (Fixed: Was causing sharp return)
+                mom.x *= 0.8; mom.y *= 0.8;
+            }
+
+            // HIDE OLD GRAPH: Set opacity to 0 permanently since we removed Slide 3+
+            lineMat.uniforms.uOpacity.value = 0.0;
+
+            // Disable Drill-Down Lines (Per User Request: "Points left, connections removed")
+            subLineMat.uniforms.uOpacity.value = 0.0;
+
+
+            // Labels Fade Logic (Fix for 2-slide setup)
+            // smoothP goes 0 -> 1. Slide 2 starts around 0.5+
+            // Manual smoothstep: t = clamp((x - edge0) / (edge1 - edge0), 0, 1); t * t * (3 - 2 * t)
+            const edge0 = 0.3; const edge1 = 0.8;
+            const x = Math.max(0, Math.min(1, (smoothP - edge0) / (edge1 - edge0)));
+            const globalLabelOp = x * x * (3 - 2 * x);
+
+            const lOp = globalLabelOp * (1.0 - drillProg);
+            labels.forEach(l => {
+                l.material.opacity = lOp;
+                l.visible = lOp > 0.01;
+            });
+
+
+
+            if (!isDrag && !isDrilled) {
+                // 10s DELAY RULE (User Feedback)
+                // Cloud stays put after interaction.
+                // Only returns to center if inactive for > 10 seconds.
+                if (Date.now() - lastInteractTime > 10000) {
+                    const springSpeed = 0.02; // Slow, smooth return
+                    group.rotation.y += (0 - group.rotation.y) * springSpeed;
+                    group.rotation.x += (0 - group.rotation.x) * springSpeed;
+                }
+
+                mom.x *= 0.90; mom.y *= 0.90; // Standard friction/damping (stops rotation initially)
+            }
+            if (!isDrilled) {
+                // Gentle idle rotation only if completely stopped?
+                // keeping minimal idle movement for life
+                group.rotation.y += Math.sin(time * 0.2) * 0.0001;
+            }
+
+
+            // VISIBILITY SCOPE LOGIC (User Request)
+            // Only show userTasks if we are drilled AND the category matches.
+            userTasks.forEach(t => {
+                if (isDrilled && t.category === currentCategory) {
+                    t.mesh.visible = true;
+                } else {
+                    t.mesh.visible = false;
+                }
+            });
+
+
+            updateUI(smoothP);
+            renderer.render(scene, camera);
+        }
+
+        function updateUI(p) {
+            const idx = Math.min(slides.length - 1, Math.floor(p * slides.length + 0.1));
+            const s = slides[idx];
+            document.querySelectorAll('.progress-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+            const ct = document.getElementById('centerText'); const si = document.getElementById('slideInfo'); const cta = document.getElementById('ctaButton');
+
+            // Hide Button permanently (requested)
+            cta.style.display = 'none';
+
+            if (idx === 0) {
+                // Slide 1: Big Center Title (VZOR - Centered)
+                ct.style.opacity = 1; si.style.opacity = 0;
+                ct.style.top = '50%';
+
+                // Update text without destroying .mobile-hint and respect CSS font sizes
+                const h1 = ct.querySelector('h1');
+                const pText = ct.querySelector('p');
+                if (h1) {
+                    h1.innerText = s.title;
+                    if (window.innerWidth > 768) h1.style.fontSize = '5.5em';
+                    else h1.style.fontSize = ''; // Use CSS
+                }
+                if (pText) {
+                    pText.innerText = s.desc;
+                    if (window.innerWidth > 768) pText.style.fontSize = '1.1em';
+                    else pText.style.fontSize = ''; // Use CSS
+                }
+                // document.getElementById('add-task-btn').classList.remove('visible');
+                document.getElementById('home-btn').classList.remove('visible');
+
+                // FORCE RESET: Ensure no drill-down UI leaks into Slide 1
+                document.getElementById('detail-panel').classList.remove('active');
+                document.getElementById('back-button').classList.remove('visible');
+            }
+            else {
+                // Slide 2: Top Title ("VZOR Operating System...") + Labels
+                ct.style.opacity = 0; si.style.opacity = 1;
+
+                const st = document.getElementById('slideTitle');
+                const sd = document.getElementById('slideDesc');
+
+                if (!isDrilled) {
+                    st.innerText = s.title;
+                    document.getElementById('home-btn').classList.add('visible');
+
+                    // Ensure detail panel is hidden on Slide 2 Overview
+                    document.getElementById('detail-panel').classList.remove('active');
+                    document.getElementById('back-button').classList.remove('visible');
+                } else {
+                    document.getElementById('home-btn').classList.remove('visible');
+                    // Drill-down UI is handled by showDetail/onClick
+                }
+
+                // ALWAYS SHOW ADD BUTTON ON SLIDE 2 (Overview OR Drilled)
+                // document.getElementById('add-task-btn').classList.add('visible');
+
+                sd.innerText = isDrilled ? "" : s.desc;
+            }
+        }
+
+        const dotC = document.getElementById('progressDots');
+        slides.forEach((_, i) => { const d = document.createElement('div'); d.className = 'progress-dot'; if (i === 0) d.classList.add('active'); dotC.appendChild(d); });
+
+        // BUTTON LOGIC
+        document.getElementById('home-btn').addEventListener('click', () => {
+            if (!isDrilled) targetP = 0; // Back to Start
+        });
+
+        document.getElementById('slideTitle').addEventListener('click', () => {
+            if (!isDrilled) targetP = 0; // Also title click works
+        });
+
+        /*
+        document.getElementById('add-task-btn').addEventListener('click', () => {
+             // Removed
+        });
+        */
+
+        // Task Creation via Enter Key (Replaces create-btn)
+        const taskInput = document.getElementById('task-input');
+        if (taskInput) {
+            taskInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    const val = e.target.value;
+                    if (val) {
+                        console.log("Enter pressed, calling unified addTaskPoint");
+                        if (window.addTaskPoint) {
+                            window.addTaskPoint(val, currentCategory);
+                        } else {
+                            console.error("addTaskPoint not defined globally!");
+                        }
+                        e.target.value = "";
+                        document.getElementById('task-interface').classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // ===== VOICE INPUT (PRIORITY!) =====
+        const micBtn = document.getElementById('mic-btn');
+        let recognition = null;
+        let isRecording = false;
+
+        // Check if Web Speech API is available
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+
+            recognition.lang = 'ru-RU'; // Russian language
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            micBtn.addEventListener('click', () => {
+                if (!isRecording) {
+                    // Start recording
+                    isRecording = true;
+                    recognition.start();
+
+                    // Visual feedback - recording animation
+                    micBtn.style.opacity = '1';
+                    micBtn.style.background = 'rgba(255, 0, 0, 0.2)';
+                    micBtn.style.borderColor = '#ff0000';
+                    micBtn.style.animation = 'pulse-recording 1.5s ease-in-out infinite';
+
+                    // Add CSS animation if not exists
+                    if (!document.getElementById('voice-recording-style')) {
+                        const style = document.createElement('style');
+                        style.id = 'voice-recording-style';
+                        style.innerHTML = `
+                            @keyframes pulse-recording {
+                                0%, 100% { transform: scale(1); opacity: 0.8; }
+                                50% { transform: scale(1.1); opacity: 1; }
+                            }
+                        `;
+                        document.head.appendChild(style);
+                    }
+                } else {
+                    // Stop recording
+                    recognition.stop();
+                }
+            });
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                console.log('Голосовой ввод:', transcript);
+
+                // Auto-create task from voice
+                if (transcript && currentCategory) {
+                    if (window.addTaskPoint) {
+                        window.addTaskPoint(transcript, currentCategory);
+                    } else {
+                        console.error("addTaskPoint not defined globally!");
+                    }
+
+                    // Optional: Show in input field briefly
+                    if (taskInput) {
+                        taskInput.value = transcript;
+                        setTimeout(() => {
+                            taskInput.value = "";
+                        }, 1500);
+                    }
+                }
+
+                // Reset button state
+                resetMicButton();
+                isRecording = false;
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Ошибка распознавания:', event.error);
+                resetMicButton();
+                isRecording = false;
+
+                // Show error feedback
+                if (taskInput) {
+                    taskInput.placeholder = 'Ошибка распознавания. Попробуйте ещё раз...';
+                    setTimeout(() => {
+                        taskInput.placeholder = 'New task...';
+                    }, 2000);
+                }
+            };
+
+            recognition.onend = () => {
+                resetMicButton();
+                isRecording = false;
+            };
+
+            function resetMicButton() {
+                micBtn.style.opacity = '0.6';
+                micBtn.style.background = 'transparent';
+                micBtn.style.borderColor = 'rgba(255,255,255,0.2)';
+                micBtn.style.animation = 'none';
+            }
+        } else {
+            // Web Speech API not supported
+            console.warn('Web Speech API не поддерживается в этом браузере');
+            micBtn.style.opacity = '0.3';
+            micBtn.style.cursor = 'not-allowed';
+            micBtn.title = 'Голосовой ввод не поддерживается';
+        }
+
+        // ===== NODE EDITOR PANEL REMOVED (Replaced by Modal) =====
+
+        // ==========================================
+        // UNIFIED TASK SYSTEM & NODE EDITOR LOGIC
+        // ==========================================
+
+        const taskPoints = []; // Store task meshes
+        const raycasterTasks = new THREE.Raycaster();
+
+        // 1. Function to Add Task Point (Called by Enter/Voice)
+        window.addTaskPoint = function (text, category) {
+            if (!isDrilled) return; // Only in drill-down mode
+
+            console.log("Creating Task:", text, category);
+
+            // Create 3D Point (Orange Sphere)
+            const geometry = new THREE.SphereGeometry(2, 32, 32);
+            const material = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
+            const sphere = new THREE.Mesh(geometry, material);
+
+            // Random position in front of camera for visibility
+            // In a real app, this might be raycast to a plane
+            sphere.position.set(
+                (Math.random() - 0.5) * 50,
+                (Math.random() - 0.5) * 30,
+                (Math.random() - 0.5) * 20
+            );
+
+            // Allow manual positioning override if raycast existed (simplified here)
+            // If we had the raycaster intersection from mouse, we'd use that point.
+            // For now, center-ish is fine.
+
+            scene.add(sphere);
+
+            // Task Data Object
+            const taskData = {
+                id: Date.now(),
+                title: text,
+                category: category,
+                mesh: sphere,
+                status: 'New',
+                agent: 'Router Agent',
+                database: 'VZOR Core'
+            };
+
+            taskPoints.push(taskData);
+
+            // AUTO-ACTION 1: Create Node in Node Editor
+            addNodeToEditor(taskData);
+
+            // AUTO-ACTION 2: Open Right Detail Panel
+            showDetailPanel(taskData);
+
+            // AUTO-ACTION 3: Open Node Editor Panel (optional, but requested implicitly)
+            // if (!isPanelOpen) nodesToggleBtn.click(); 
+        };
+
+        // 2. Add Node to Editor (Grasshopper Style)
+        function addNodeToEditor(data) {
+            const container = document.querySelector('.node-editor-content');
+            // Remove content if it's the placeholder p tag
+            const placeholder = document.getElementById('node-editor-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            // Or if we clear completely? Better append.
+
+            const node = document.createElement('div');
+            node.className = 'node';
+            // Random position logic or centered
+            node.style.left = (Math.random() * 200 + 50) + 'px';
+            node.style.top = (Math.random() * 200 + 50) + 'px';
+
+            node.innerHTML = `
+                <div class="node-header">
+                    <span class="node-status">●</span>
+                    <span class="node-title">${data.title}</span>
+                    <span class="node-close">×</span>
+                </div>
+
+                <div class="node-body">
+                    <!-- Input Sockets -->
+                    <div class="node-inputs">
+                        <div class="socket socket-bundle">
+                            <span class="socket-dot">◆</span>
+                            <span class="socket-label">Context</span>
+                        </div>
+                        <div class="socket socket-data">
+                            <span class="socket-dot">●</span>
+                            <span class="socket-label">Data In</span>
+                        </div>
+                    </div>
+
+                    <!-- Output Sockets -->
+                    <div class="node-outputs">
+                        <div class="socket socket-data">
+                            <span class="socket-label">Out</span>
+                            <span class="socket-dot">●</span>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="node-settings">
+                        <div class="setting-row">
+                            <span>Agent:</span>
+                            <div style="font-size:11px; opacity:0.8">${data.agent}</div>
+                        </div>
+                        <div class="setting-row">
+                            <span>DB:</span>
+                            <div style="font-size:11px; opacity:0.8">${data.database}</div>
+                        </div>
+                    </div>
+
+                    <!-- Run Button -->
+                    <button class="node-run-btn">▶ ВЫПОЛНИТЬ</button>
+                </div>
+            `;
+
+            // Drag logic for nodes (simple)
+            let isDragging = false;
+            let offset = { x: 0, y: 0 };
+            const header = node.querySelector('.node-header');
+
+            header.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                const rect = node.getBoundingClientRect();
+                offset.x = e.clientX - rect.left;
+                offset.y = e.clientY - rect.top;
+                node.style.zIndex = 1000;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                node.style.left = (e.clientX - offset.x) + 'px';
+                node.style.top = (e.clientY - offset.y) + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                node.style.zIndex = '';
+            });
+
+            // Click node to select task
+            node.addEventListener('click', (e) => {
+                if (!isDragging) {
+                    showDetailPanel(data);
+                }
+            });
+
+            container.appendChild(node);
+        }
+
+        // 3. Show Detail Panel (Structured)
+        function showDetailPanel(data) {
+            const detailPanel = document.getElementById('detail-panel');
+
+            // Build Structured Content
+            detailPanel.innerHTML = `
+                <div class="detail-header" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.4);">ОБЗОР ПРОЕКТА</span>
+                    <button id="close-detail-btn" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">×</button>
+                </div>
+                <div class="detail-title" style="margin:20px 0; font-size:24px;">${data.title}</div>
+                
+                <div class="detail-content">
+                    <!-- Section: Status -->
+                    <div class="detail-section">
+                        <div class="section-title">СТАТУС</div>
+                        <div class="status-badge new">Новая</div>
+                    </div>
+
+                    <!-- Section: Info -->
+                    <div class="detail-section">
+                        <div class="section-title">ИНФОРМАЦИЯ</div>
+                        <div class="info-grid">
+                            <div class="info-row">
+                                <span class="info-label">ID</span>
+                                <span class="info-value">${data.id}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">Агент</span>
+                                <span class="info-value">${data.agent}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">База</span>
+                                <span class="info-value">${data.database}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section: Results -->
+                    <div class="detail-section">
+                        <div class="section-title">РЕЗУЛЬТАТЫ</div>
+                        <div style="font-size:13px; color:rgba(255,255,255,0.3); font-style:italic;">Ожидание выполнения...</div>
+                    </div>
+                </div>
+            `;
+
+            detailPanel.classList.add('active');
+
+            // Re-attach close handler since we overwrote HTML
+            document.getElementById('close-detail-btn').addEventListener('click', () => {
+                detailPanel.classList.remove('active');
+                if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+            });
+
+            // Show Nodes Button
+            const nodesBtn = document.getElementById('nodes-btn');
+            if (nodesBtn) nodesBtn.style.display = 'block';
+
+            // Highlight 3D point (simple scale up)
+            taskPoints.forEach(t => t.mesh.scale.set(1, 1, 1));
+            data.mesh.scale.set(1.5, 1.5, 1.5);
+
+            // Update Camera Aspect
+            if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+        }
+
+        // 4. Click Handler for Tasks (Raycasting)
+        document.addEventListener('click', (e) => {
+            if (!isDrilled) return;
+
+            // Normalize mouse coordinates
+            const mouse = new THREE.Vector2();
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            raycasterTasks.setFromCamera(mouse, camera);
+
+            // Check intersections with task spheres
+            const meshes = taskPoints.map(t => t.mesh);
+            const intersects = raycasterTasks.intersectObjects(meshes);
+
+            if (intersects.length > 0) {
+                const hitMesh = intersects[0].object;
+                const task = taskPoints.find(t => t.mesh === hitMesh);
+                if (task) {
+                    showDetailPanel(task);
+                }
+            }
+        });
+
+        // 5. Node Editor Context Menu
+        const nodeEditorContent = document.querySelector('.node-editor-content');
+        const contextMenu = document.getElementById('node-context-menu');
+
+        nodeEditorContent.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.clientX + 'px';
+            contextMenu.style.top = e.clientY + 'px';
+        });
+
+        // Hide menu on click elsewhere
+        document.addEventListener('click', () => {
+            contextMenu.style.display = 'none';
+        });
+
+        // Context Menu Actions
+        document.querySelectorAll('#node-context-menu .menu-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const type = item.getAttribute('data-type');
+                const dummyData = {
+                    id: Date.now(),
+                    title: `New ${type.charAt(0).toUpperCase() + type.slice(1)}`,
+                    category: 'Manual',
+                    mesh: null, // No 3D mesh for data/agent nodes yet
+                    status: 'Active',
+                    agent: type === 'agent' ? 'Self' : 'None',
+                    database: 'Local'
+                };
+
+                // Add node card
+                addNodeToEditor(dummyData);
+
+                // If it's a task, we might want to add a point too?
+                // For now just node.
+
+                contextMenu.style.display = 'none';
+            });
+        });
+
+
+
+        // Global Camera Aspect Update (Bug 6 Fix)
+        window.updateCameraAspect = function () {
+            if (!camera || !renderer) return;
+            const container = document.getElementById('canvas-wrapper') || document.body;
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+            material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
+        };
+
+        window.addEventListener('resize', window.updateCameraAspect);
+
+        // Update when panels might change layout
+        // (Called in showDetailPanel and hide logic)
+
+        animate();
+    </script>
+    <!-- NODE EDITOR MODAL -->
+    <div id="node-editor-modal" style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(5px);
+        z-index: 200;
+        justify-content: center;
+        align-items: center;
+    ">
+        <div style="
+            width: 85vw;
+            height: 75vh;
+            background: #0a0a0a;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            overflow: hidden;
+        ">
+            <div style="
+                height: 48px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 0 20px;
+                border-bottom: 1px solid rgba(255,255,255,0.1);
+            ">
+                <span style="font-size: 14px; color: rgba(255,255,255,0.8);">Node Editor</span>
+                <button onclick="closeNodeEditor()" style="
+                    background: none;
+                    border: none;
+                    color: rgba(255,255,255,0.5);
+                    font-size: 20px;
+                    cursor: pointer;
+                ">✕</button>
+            </div>
+            <div style="height: calc(100% - 48px); padding: 20px;">
+                <p style="color: #666;">Node Editor content here...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nodes Button -->
+    <button id="nodes-btn" onclick="openNodeEditor()" style="
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 20px;
+        color: rgba(255,255,255,0.6);
+        font-size: 13px;
+        cursor: pointer;
+        z-index: 100;
+        display: none;
+    ">⚙ Nodes</button>
+
+    <script>
+        // 1. Draggable Task Interface
+        (function () {
+            const panel = document.getElementById('task-interface');
+            let isDragging = false;
+            let offset = { x: 0, y: 0 };
+
+            panel.addEventListener('mousedown', (e) => {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+                isDragging = true;
+                offset.x = e.clientX - panel.getBoundingClientRect().left;
+                offset.y = e.clientY - panel.getBoundingClientRect().top;
+                panel.style.cursor = 'grabbing';
+                panel.style.transition = 'none'; // Disable transition during drag
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                panel.style.left = (e.clientX - offset.x) + 'px';
+                panel.style.bottom = 'auto'; // Disable bottom positioning
+                panel.style.top = (e.clientY - offset.y) + 'px';
+                panel.style.transform = 'none'; // Disable center transform
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    panel.style.cursor = 'grab';
+                    panel.style.transition = ''; // Restore transition
+                }
+            });
+        })();
+
+        // 2. Node Editor Modal Logic
+        function openNodeEditor() {
+            document.getElementById('node-editor-modal').style.display = 'flex';
+        }
+
+        function closeNodeEditor() {
+            document.getElementById('node-editor-modal').style.display = 'none';
+            // The instruction mentions "timeouts in show/hide detail" for updateCameraAspect.
+            // Adding a timeout here to ensure camera aspect is correct after modal closes.
+            if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+        }
+
+        // Logic to toggle button visibility is handled where showDetail/hideDetail are defined (or integrated here if possible)
+        // Since showDetail/hideDetail are inside type="module", we might need to hook into window or just run checks.
+        // However, the provided instruction says "Add to showDetail(): ...".
+        // I should Edit the existing script content for that.
+
+        // Let's expose these to window so modules can call them
+        window.openNodeEditor = openNodeEditor;
+        window.closeNodeEditor = closeNodeEditor;
+    </script>
+</body>
+
+</html>

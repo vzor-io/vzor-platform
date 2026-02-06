@@ -56,7 +56,7 @@ export const NodeEditor = () => {
     }, [addConnection]);
 
     return (
-        <div style={{ width: '100%', height: '100%', background: '#0b1120' }}>
+        <div style={{ width: '100%', height: '100%', background: '#0f0f23' }}>
             <ReactFlow
                 nodes={nodes}
                 edges={edges}
@@ -66,7 +66,7 @@ export const NodeEditor = () => {
                 fitView
                 colorMode="dark"
             >
-                <Background color="#222" gap={20} />
+                <Background color="#333" gap={20} />
                 <Controls />
             </ReactFlow>
         </div>

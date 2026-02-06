@@ -1,10 +1,22 @@
-﻿Посмотрели по девятому скриншоту: пропало окно обвода текстового и голосового после того, как я поработал, открывал разные окна, открыл и закрыл их. Например, захотел сделать новую задачу<!DOCTYPE html>
+﻿<!DOCTYPE html>
+<!--
+    VZOR v3.14 - UX Enhanced Edition
+    ================================
+    Changes from v3.12:
+    - Design tokens (CSS variables) for consistency
+    - Toast notification system for user feedback
+    - 3D label hover effects for better discoverability
+    - Mic button recording animation
+    - ARIA accessibility attributes
+    - Focus states for keyboard navigation
+    - Standardized visual hierarchy
+-->
 <html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VZOR - Multi-Stage Evolution</title>
+    <title>VZOR v3.14 - Multi-Stage Evolution</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
@@ -15,12 +27,132 @@
             box-sizing: border-box;
         }
 
+        /* ===== v3.14 DESIGN TOKENS ===== */
+        :root {
+            /* Colors */
+            --color-bg: #000000;
+            --color-surface: rgba(12, 12, 14, 0.65);
+            --color-accent: #00ffff;
+            --color-accent-dim: rgba(0, 255, 255, 0.3);
+            --color-success: #77DD77;
+            --color-warning: #FFB347;
+            --color-error: #FF6B6B;
+
+            /* Text opacity levels (standardized) */
+            --text-primary: rgba(255, 255, 255, 1.0);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-tertiary: rgba(255, 255, 255, 0.4);
+            --text-hint: rgba(255, 255, 255, 0.25);
+
+            /* Surface opacity */
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --surface-active: rgba(255, 255, 255, 0.12);
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --border-medium: rgba(255, 255, 255, 0.2);
+
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-medium: 0.3s ease;
+            --transition-slow: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+        }
+
         body {
             font-family: 'Outfit', -apple-system, sans-serif;
-            background: #000000;
-            color: #ffffff;
+            background: var(--color-bg);
+            color: var(--text-primary);
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== v3.14 TOAST NOTIFICATIONS ===== */
+        #toast-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--color-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all var(--transition-slow);
+            pointer-events: auto;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .toast.success { border-left: 3px solid var(--color-success); }
+        .toast.error { border-left: 3px solid var(--color-error); }
+        .toast.warning { border-left: 3px solid var(--color-warning); }
+        .toast.info { border-left: 3px solid var(--color-accent); }
+
+        /* ===== v3.14 FOCUS STATES (Accessibility) ===== */
+        button:focus-visible,
+        input:focus-visible,
+        [role="button"]:focus-visible,
+        [tabindex]:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         #scroll-container {
@@ -166,6 +298,17 @@
             }
         }
 
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
         .cta-button {
             position: fixed;
             bottom: 70px;
@@ -192,72 +335,132 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
-        /* Detail View Overlay (Side Panel) */
+        /* Detail View Overlay (Side Panel) - v3.12.1: airy, transparent */
         #detail-panel {
             position: fixed;
             top: 50%;
-            right: -450px;
+            right: -320px;
             transform: translateY(-50%);
-            width: 360px;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 280px;
+            background: rgba(12, 12, 14, 0.65);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-right: none;
-            padding: 50px 35px;
+            padding: 20px 18px;
             z-index: 100;
-            transition: right 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
+            transition: right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            height: 100vh;
-            /* Full height for side panel or centered? Orig was centered fixed height effectively. Let's keep it centered but taller if needed or stick to original. Orig was fixed width. */
-            /* Reverting to original height behavior but ensuring separation from task interface */
+            gap: 10px;
             height: auto;
-            min-height: 600px;
-            max-height: 90vh;
-            border-radius: 20px 0 0 20px;
+            min-height: 280px;
+            max-height: 70vh;
+            border-radius: 12px 0 0 12px;
+            font-size: 11px;
+            box-shadow: -10px 0 40px rgba(0, 0, 0, 0.3);
         }
 
         #detail-panel.active {
             right: 0;
         }
 
-        /* TASK INTERFACE (Floating Pill - Minimal) */
+        /* TASK INTERFACE (Floating Pill - Minimal) - v3.11: smaller, subtle glow */
         #task-interface {
             position: fixed;
-            bottom: -150px;
+            bottom: -100px;
             left: 50%;
             transform: translateX(-50%);
             width: auto;
-            min-width: 320px;
-            /* Much smaller */
-            max-width: 600px;
-            background: rgba(10, 10, 10, 0.85);
-            /* Slightly more transparent/dark */
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            /* Very compact */
+            min-width: 200px;
+            max-width: 400px;
+            background: rgba(8, 8, 8, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(78, 205, 196, 0.2);
+            padding: 5px 12px;
             z-index: 100;
-            transition: bottom 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
+            transition: bottom 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
             display: flex;
             align-items: center;
-            gap: 10px;
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            gap: 8px;
+            border-radius: 25px;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.1), 0 8px 25px rgba(0, 0, 0, 0.4);
             opacity: 0;
             pointer-events: none;
         }
 
         #task-interface.active {
-            bottom: 30px;
+            bottom: 25px;
             opacity: 1;
             pointer-events: auto;
         }
 
+        #task-interface #task-input {
+            font-size: 11px;
+            padding: 6px 10px;
+            min-width: 150px;
+        }
 
+        #task-interface #mic-btn {
+            width: 26px;
+            height: 26px;
+            font-size: 11px;
+        }
+
+        /* v3.14: Microphone listening animation */
+        #mic-btn.listening {
+            background: rgba(255, 107, 107, 0.15) !important;
+            border-color: var(--color-error) !important;
+            color: var(--color-error) !important;
+            animation: mic-pulse 1.5s ease-in-out infinite;
+        }
+
+        #mic-btn.listening::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid var(--color-error);
+            animation: mic-ring 1.5s ease-out infinite;
+        }
+
+        @keyframes mic-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes mic-ring {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+            100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+        }
+
+        /* v3.14: Listening status indicator */
+        #mic-status {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-surface);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            color: var(--color-error);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        #mic-btn.listening + #mic-status,
+        #mic-status.visible {
+            opacity: 1;
+        }
 
         .detail-header {
             font-size: 0.7em;
@@ -339,6 +542,48 @@
         .nav-btn.visible {
             opacity: 1;
             pointer-events: auto;
+        }
+
+        /* v3.14: Category label - top left, readable but not distracting */
+        #block-label {
+            position: fixed;
+            top: var(--spacing-md);
+            left: 55px;
+            font-size: 0.75em;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            z-index: 102;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-slow);
+        }
+
+        #block-label.visible {
+            opacity: 1;
+        }
+
+        /* v3.14: BACK button - below the category label, more subtle */
+        #back-button {
+            left: 55px;
+            top: 38px;
+            font-size: 0.55em;
+            padding: var(--spacing-xs) 10px;
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-tertiary);
+            transition: all var(--transition-fast);
+        }
+
+        #back-button.visible {
+            opacity: 1;
+        }
+
+        #back-button:hover {
+            color: var(--text-secondary);
+            background: var(--surface-hover);
+            border-color: var(--border-medium);
         }
 
         .nav-btn:hover {
@@ -505,33 +750,62 @@
             display: none;
         }
 
-        /* --- NEW CSS FOR V3.8 --- */
+        /* --- v3.14 UI COMPONENTS --- */
 
         /* 1. Icon Bar (Floating High-Tech) */
+        /* v3.14: Minimalist icon bar — smaller, less intrusive */
         #icon-bar {
             position: fixed;
-            left: 20px;
+            left: var(--spacing-sm);
             top: 50%;
             transform: translateY(-50%);
-            width: 48px;
+            width: 36px;
             height: auto;
             background: transparent;
-            /* No solid panel */
             border: none;
             z-index: 200;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: var(--spacing-sm);
             pointer-events: none;
-            /* Initially disabled */
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity var(--transition-slow);
         }
 
         #icon-bar.visible {
-            opacity: 1;
+            opacity: 0.6; /* More subtle */
             pointer-events: auto;
+        }
+
+        #icon-bar:hover {
+            opacity: 1;
+        }
+
+        /* v3.14: Icon bar toggle button */
+        #icon-bar-toggle {
+            display: none;
+            position: fixed;
+            left: var(--spacing-sm);
+            top: var(--spacing-sm);
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--color-surface);
+            border: 1px solid var(--border-medium);
+            color: var(--text-tertiary);
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 201;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--transition-fast);
+        }
+
+        #icon-bar-toggle:hover {
+            background: var(--color-accent-dim);
+            border-color: var(--color-accent);
+            color: var(--text-secondary);
         }
 
         .icon-btn {
@@ -594,22 +868,23 @@
             background: #0a0a0a !important;
         }
 
-        /* 3. Node Editor Panel — ВЫДВИЖНАЯ ПАНЕЛЬ СНИЗУ (Blender-style) */
+        /* v3.14: Node Editor Panel — Unified airy design with tokens */
         #node-editor-panel {
             position: fixed;
             bottom: 0;
-            left: 48px;  /* После icon-bar */
+            left: 0;
             right: 0;
             height: 0;
-            background: rgba(10, 10, 10, 0.98);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--color-surface);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border-top: 1px solid var(--border-subtle);
             z-index: 100;
             display: flex;
             flex-direction: column;
-            transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: height var(--transition-medium);
             overflow: hidden;
+            box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.3);
         }
 
         #node-editor-panel.active {
@@ -696,47 +971,61 @@
             font-family: monospace;
         }
 
-        /* NODES Toggle Button */
+        /* v3.14: NODES Toggle Button — smaller, more subtle */
         #nodes-toggle-btn {
             position: fixed;
-            bottom: 20px;
-            left: 60px;
-            padding: 10px 20px;
-            background: rgba(20, 20, 20, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
+            bottom: var(--spacing-md);
+            left: 50px;
+            padding: 6px 12px;
+            background: var(--color-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            color: var(--text-tertiary);
+            font-size: 10px;
             font-weight: 500;
             letter-spacing: 0.1em;
             cursor: pointer;
             z-index: 90;
             display: flex;
             align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
+            gap: 5px;
+            transition: all var(--transition-fast);
             opacity: 0;
             pointer-events: none;
         }
 
         #nodes-toggle-btn.visible {
-            opacity: 1;
+            opacity: 0.7;
             pointer-events: auto;
         }
 
         #nodes-toggle-btn:hover {
-            background: rgba(30, 30, 30, 0.95);
-            border-color: rgba(78, 205, 196, 0.4);
+            opacity: 1;
+            background: var(--surface-active);
+            border-color: var(--color-accent-dim);
         }
 
         #nodes-toggle-btn.active {
-            background: rgba(78, 205, 196, 0.15);
-            border-color: rgba(78, 205, 196, 0.5);
+            background: rgba(78, 205, 196, 0.1);
+            border-color: rgba(78, 205, 196, 0.4);
             color: #4ECDC4;
+            opacity: 1;
         }
 
         #nodes-toggle-btn .btn-icon {
-            font-size: 16px;
+            font-size: 12px;
+        }
+
+        /* v3.14: Task List Button visibility */
+        #task-list-btn.visible {
+            opacity: 0.6 !important;
+            pointer-events: auto !important;
+        }
+
+        #task-list-btn.visible:hover {
+            opacity: 1 !important;
+            background: var(--color-accent-dim);
+            border-color: var(--color-accent);
         }
 
         /* Legacy modal — HIDDEN */
@@ -744,23 +1033,25 @@
             display: none !important;
         }
 
-        /* Side Panel (Obsidian-style) */
+        /* v3.14: Side Panel (Unified airy design with tokens) */
         #side-panel {
             position: fixed;
             left: 68px;
             top: 0;
             width: 280px;
             height: 100vh;
-            background: rgba(15, 15, 15, 0.98);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--color-surface);
+            backdrop-filter: blur(35px);
+            -webkit-backdrop-filter: blur(35px);
+            border-right: 1px solid var(--border-subtle);
             z-index: 150;
             transform: translateX(-100%);
-            transition: transform 0.25s ease, opacity 0.25s ease;
+            transition: transform var(--transition-medium), opacity var(--transition-fast);
             display: flex;
             flex-direction: column;
             opacity: 0;
             pointer-events: none;
+            box-shadow: 10px 0 40px rgba(0, 0, 0, 0.25);
         }
 
         #side-panel.active {
@@ -770,8 +1061,8 @@
         }
 
         .side-panel-header {
-            padding: 20px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: var(--spacing-lg) var(--spacing-md);
+            border-bottom: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -782,21 +1073,22 @@
             font-weight: 500;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-secondary);
         }
 
         .side-panel-close {
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--text-tertiary);
             cursor: pointer;
             font-size: 18px;
             padding: 5px;
             line-height: 1;
+            transition: color var(--transition-fast);
         }
 
         .side-panel-close:hover {
-            color: white;
+            color: var(--text-primary);
         }
 
         .side-panel-content {
@@ -854,33 +1146,36 @@
             text-align: center;
         }
 
-        /* 4. Node Styles — REDESIGNED */
+        /* 4. Node Styles — v3.12.1: Unified airy design */
         .node {
             position: absolute;
             min-width: 260px;
             max-width: 320px;
-            background: rgba(18, 18, 20, 0.98);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 6px;
+            background: rgba(15, 15, 18, 0.75);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
             font-size: 11px;
             user-select: none;
             z-index: 10;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             transform-origin: top left;
         }
 
         .node:hover {
-            border-color: rgba(78, 205, 196, 0.5);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
         }
 
         .node-header {
-            height: 28px;
-            background: linear-gradient(135deg, rgba(78, 205, 196, 0.15), rgba(30, 30, 35, 1));
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 6px 6px 0 0;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.03);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px 8px 0 0;
             display: flex;
             align-items: center;
-            padding: 0 8px;
+            padding: 0 10px;
             gap: 6px;
             cursor: grab;
         }
@@ -996,13 +1291,36 @@
         }
 
         .socket-output .socket-dot:hover {
-            transform: scale(1.4);
-            box-shadow: 0 0 8px currentColor;
+            transform: scale(1.5);
+            box-shadow: 0 0 12px currentColor;
         }
 
         .socket-input .socket-dot:hover {
-            transform: scale(1.3);
-            box-shadow: 0 0 6px currentColor;
+            transform: scale(1.4);
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        /* v3.12: Connection drag feedback */
+        .socket-dot.dragging-from {
+            transform: scale(1.6);
+            box-shadow: 0 0 15px currentColor;
+            animation: pulse-port 0.8s ease-in-out infinite;
+        }
+
+        .socket-input .socket-dot.can-connect {
+            transform: scale(1.5);
+            box-shadow: 0 0 15px #4ECDC4;
+            animation: pulse-accept 0.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-port {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @keyframes pulse-accept {
+            0%, 100% { box-shadow: 0 0 10px #4ECDC4; }
+            50% { box-shadow: 0 0 20px #4ECDC4; }
         }
 
         .socket-label {
@@ -1029,6 +1347,23 @@
             margin-bottom: 8px;
         }
 
+        /* v3.12.1: Interactive Settings Section */
+        .node-settings-section {
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            margin-bottom: 8px;
+        }
+
+        .settings-header {
+            font-size: 8px;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
         .setting-row {
             display: flex;
             justify-content: space-between;
@@ -1038,12 +1373,384 @@
             padding: 2px 0;
         }
 
+        .setting-row.interactive {
+            padding: 4px 0;
+            gap: 6px;
+        }
+
+        .setting-icon {
+            font-size: 10px;
+            width: 16px;
+            flex-shrink: 0;
+        }
+
+        .setting-label {
+            flex: 1;
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .setting-select {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 8px;
+            padding: 3px 6px;
+            cursor: pointer;
+            min-width: 90px;
+            max-width: 110px;
+            outline: none;
+            transition: all 0.15s;
+        }
+
+        .setting-select:hover {
+            border-color: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .setting-select:focus {
+            border-color: rgba(78, 205, 196, 0.4);
+            box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
+        }
+
+        .setting-select option {
+            background: #1a1a1a;
+            color: #fff;
+            padding: 4px;
+        }
+
         .setting-row span:last-child {
             color: rgba(255,255,255,0.7);
             text-align: right;
             max-width: 120px;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        /* v3.12.2: New Node Sections */
+        .node-task-section,
+        .node-kb-section,
+        .node-agent-section {
+            margin-bottom: 8px;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            border-radius: 5px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 8px;
+            letter-spacing: 0.8px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .section-add-btn,
+        .section-change-btn {
+            background: rgba(78, 205, 196, 0.15);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            color: #4ECDC4;
+            font-size: 9px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .section-add-btn:hover,
+        .section-change-btn:hover {
+            background: rgba(78, 205, 196, 0.25);
+            border-color: rgba(78, 205, 196, 0.5);
+        }
+
+        /* Task Input */
+        .node-task-input {
+            width: 100%;
+            min-height: 50px;
+            max-height: 80px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 10px;
+            padding: 6px 8px;
+            resize: vertical;
+            font-family: inherit;
+            line-height: 1.4;
+        }
+
+        .node-task-input:focus {
+            outline: none;
+            border-color: rgba(78, 205, 196, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .node-task-input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Knowledge Base List */
+        .kb-list {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .kb-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+            background: rgba(78, 205, 196, 0.08);
+            border: 1px solid rgba(78, 205, 196, 0.15);
+            border-radius: 4px;
+            font-size: 9px;
+        }
+
+        .kb-check {
+            color: #4ECDC4;
+            font-size: 10px;
+        }
+
+        .kb-name {
+            flex: 1;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .kb-remove {
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0 2px;
+        }
+
+        .kb-remove:hover {
+            color: #FF6B6B;
+        }
+
+        .kb-empty {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 9px;
+            font-style: italic;
+            text-align: center;
+            padding: 8px;
+        }
+
+        /* Agent Card */
+        .agent-card {
+            padding: 8px 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .agent-card:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .agent-name {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .agent-model {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        /* Ports Details */
+        .node-ports-details {
+            margin-bottom: 8px;
+        }
+
+        .ports-summary {
+            font-size: 9px;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            padding: 4px 0;
+            outline: none;
+        }
+
+        .ports-summary:hover {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .node-ports-details[open] .ports-summary {
+            margin-bottom: 6px;
+        }
+
+        /* Knowledge Base Browser Panel */
+        #kb-browser-panel,
+        #agent-selector-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 400px;
+            max-height: 500px;
+            background: rgba(15, 15, 18, 0.95);
+            backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        #kb-browser-panel.active,
+        #agent-selector-panel.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .kb-browser-header,
+        .agent-selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .kb-browser-header button,
+        .agent-selector-header button {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .kb-browser-header button:hover,
+        .agent-selector-header button:hover {
+            color: white;
+        }
+
+        .kb-browser-search {
+            padding: 10px 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .kb-browser-search input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            padding: 8px 12px;
+            color: white;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .kb-browser-search input:focus {
+            border-color: rgba(78, 205, 196, 0.4);
+        }
+
+        .kb-browser-list,
+        .agent-selector-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .kb-browser-item,
+        .agent-selector-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-bottom: 6px;
+        }
+
+        .kb-browser-item:hover,
+        .agent-selector-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .kb-browser-item.selected,
+        .agent-selector-item.selected {
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.2);
+        }
+
+        .kb-browser-check {
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #4ECDC4;
+        }
+
+        .kb-browser-item.selected .kb-browser-check {
+            background: rgba(78, 205, 196, 0.2);
+            border-color: #4ECDC4;
+        }
+
+        .kb-browser-info,
+        .agent-selector-info {
+            flex: 1;
+        }
+
+        .kb-browser-name,
+        .agent-selector-name {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 500;
+        }
+
+        .kb-browser-desc,
+        .agent-selector-desc {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 2px;
+        }
+
+        .kb-browser-category {
+            font-size: 9px;
+            color: rgba(78, 205, 196, 0.7);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .agent-selector-icon {
+            font-size: 20px;
+        }
+
+        .agent-selector-model {
+            font-size: 9px;
+            color: rgba(78, 205, 196, 0.6);
+            margin-top: 3px;
+        }
+
+        .agent-selector-check {
+            color: #4ECDC4;
+            font-size: 14px;
         }
 
         .node-run-btn {
@@ -1064,6 +1771,136 @@
             background: linear-gradient(135deg, rgba(78, 205, 196, 0.3), rgba(78, 205, 196, 0.2));
             border-color: rgba(78, 205, 196, 0.5);
             box-shadow: 0 0 15px rgba(78, 205, 196, 0.2);
+        }
+
+        /* v3.12.1: Node Results Section */
+        .node-results {
+            margin-top: 8px;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .node-results-empty {
+            opacity: 0.5;
+        }
+
+        .node-results-pending .results-header {
+            color: #FFB347;
+        }
+
+        .results-header {
+            font-size: 8px;
+            letter-spacing: 1px;
+            color: #77DD77;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .results-header svg {
+            opacity: 0.8;
+        }
+
+        .results-header .spin {
+            animation: spin 1.5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .results-files {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .result-file {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 6px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 3px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+
+        .result-file:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .result-file:hover .file-download {
+            color: #4ECDC4;
+        }
+
+        .file-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .file-icon.pdf {
+            background: rgba(255, 71, 87, 0.2);
+            color: #FF4757;
+        }
+
+        .file-icon.xlsx {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ECC71;
+        }
+
+        .file-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .file-name {
+            font-size: 9px;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .file-size {
+            font-size: 7px;
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .file-download {
+            font-size: 10px;
+            color: rgba(255, 255, 255, 0.3);
+            transition: color 0.15s;
+        }
+
+        .no-results {
+            font-size: 8px;
+            color: rgba(255, 255, 255, 0.3);
+            text-align: center;
+            padding: 8px 0;
+        }
+
+        .progress-bar-mini {
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-bar-mini .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFB347, #FF8C42);
+            transition: width 0.3s;
         }
 
         /* Node Library Panel */
@@ -1215,7 +2052,15 @@
 </head>
 
 <body>
-    <!-- ICON BAR (Always visible) - SVG High-Tech Icons -->
+    <!-- v3.14: Toast Notification Container -->
+    <div id="toast-container" aria-live="polite" aria-label="Уведомления"></div>
+
+    <!-- ICON BAR TOGGLE BUTTON (v3.11: hidden by default) -->
+    <button id="icon-bar-toggle" onclick="toggleIconBar()" title="Показать меню">
+        ☰
+    </button>
+
+    <!-- ICON BAR (Hidden by default in v3.11) - SVG High-Tech Icons -->
     <div id="icon-bar">
         <!-- Invest -->
         <div class="icon-btn" data-panel="invest" title="Invest">
@@ -1299,50 +2144,51 @@
                     <div class="library-item" onclick="addNodeFromLibrary('cadastre-analysis', event)">Анализ участка</div>
                     <div class="library-item" onclick="addNodeFromLibrary('urban-analysis', event)">Градостроительный анализ</div>
                     <div class="library-item" onclick="addNodeFromLibrary('market-analysis', event)">Анализ рынка</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('legal-check', event)">Юридическая проверка</div>
                     <div class="library-item" onclick="addNodeFromLibrary('financial-model', event)">Финансовая модель</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('risk-assessment', event)">Оценка рисков</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('invest-decision', event)">Инвест-решение</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('investment-memo', event)">Инвест. меморандум</div>
                 </div>
                 <div class="library-section">
                     <div class="library-section-title">DESIGN</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('concept-generator', event)">Генерация концепций</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('tep-calculator', event)">Расчёт ТЭП</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('parking-calculator', event)">Расчёт парковок</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('apartment-mix', event)">Квартирография</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('facade-generator', event)">Генерация фасадов</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('concept', event)">Концепция</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('master-plan', event)">Генплан</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('architecture', event)">Архитектура</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('structure', event)">Конструктив</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('engineering', event)">Инженерные сети</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('expertise', event)">Экспертиза</div>
                 </div>
                 <div class="library-section">
                     <div class="library-section-title">BUILD</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('schedule-generator', event)">Генерация графика</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('cost-estimator', event)">Сметный расчёт</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('contractor-selector', event)">Выбор подрядчика</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('quality-control', event)">Контроль качества</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('progress-tracker', event)">Трекер прогресса</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('estimate', event)">Смета</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('schedule', event)">Календарный план</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('procurement', event)">Закупки</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('construction-control', event)">Контроль строительства</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('acceptance', event)">Приёмка</div>
                 </div>
                 <div class="library-section">
                     <div class="library-section-title">SALES</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('pricing-engine', event)">Ценообразование</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('crm-integration', event)">CRM интеграция</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('marketing-planner', event)">План маркетинга</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('sales-forecast', event)">Прогноз продаж</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('handover-manager', event)">Передача ключей</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('pricing', event)">Ценообразование</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('marketing', event)">Маркетинг</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('crm-sales', event)">CRM и продажи</div>
+                    <div class="library-item" onclick="addNodeFromLibrary('documentation', event)">Документооборот</div>
                 </div>
             </div>
             <!-- Nodes will be rendered here -->
             <div class="node-editor-zoom-indicator" id="node-zoom-indicator">100%</div>
+            <!-- v3.12: Hint hidden, shows only on errors -->
             <div id="node-editor-hint" style="
                 position: absolute;
                 bottom: 10px;
                 left: 10px;
                 padding: 6px 10px;
-                background: rgba(0,0,0,0.6);
+                background: rgba(0,0,0,0.8);
                 border-radius: 4px;
                 font-size: 9px;
-                color: rgba(255,255,255,0.5);
+                color: rgba(255,255,255,0.6);
                 pointer-events: none;
-            ">
-                💡 Тяните от <span style="color:#4ECDC4">●</span> ВЫХОДА к <span style="color:#FF6B6B">●</span> ВХОДУ для соединения
-            </div>
+                opacity: 0;
+                transition: opacity 0.3s;
+            "></div>
         </div>
     </div>
 
@@ -1371,21 +2217,69 @@
 
     <!-- BACK TO START (Visible on Slide 2) -->
     <div id="home-btn" class="nav-btn" style="top: 40px; left: 40px;">
-        ← START
+        ← BACK
     </div>
 
-    <!-- ADD BUTTON (Visible on Slide 2) -->
-    <!-- ADD BUTTON (Visible on Slide 2) -->
-    <!-- ADD BUTTON REMOVED (Logic replaced by automated context) -->
-    <!-- <div id="add-task-btn" ...></div> -->
+    <!-- v3.11: Task List Button (top right) -->
+    <button id="task-list-btn" onclick="toggleTaskList()" style="
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        width: 32px;
+        height: 32px;
+        background: rgba(10, 10, 10, 0.6);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 6px;
+        color: rgba(255,255,255,0.5);
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 150;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    " title="Список задач">
+        ☰
+    </button>
+
+    <!-- v3.12.1: Task List Panel (slides from right) - airy, transparent -->
+    <div id="task-list-panel" style="
+        position: fixed;
+        top: 55px;
+        right: -240px;
+        width: 220px;
+        max-height: 60vh;
+        background: rgba(12, 12, 14, 0.65);
+        backdrop-filter: blur(30px);
+        -webkit-backdrop-filter: blur(30px);
+        border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 10px;
+        padding: 12px;
+        z-index: 149;
+        transition: right 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+        overflow-y: auto;
+        box-shadow: -5px 0 30px rgba(0, 0, 0, 0.25);
+    ">
+        <div style="font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+            Задачи
+        </div>
+        <div id="task-list-content" style="font-size: 11px; color: rgba(255,255,255,0.7);">
+            <div style="color: rgba(255,255,255,0.3); font-style: italic;">Нет задач</div>
+        </div>
+    </div>
 
     <!-- TASK CREATION INTERFACE (Floating Pill - Minimal) -->
     <div id="task-interface">
 
         <!-- Input Field -->
-        <input type="text" id="task-input" placeholder="New task..."
+        <input type="text" id="task-input" placeholder="Новая задача..."
+            aria-label="Создать новую задачу"
+            aria-describedby="task-input-help"
             style="flex-grow: 1; background: transparent; border: none; color: white; font-family: 'Outfit'; font-size: 0.9em; outline: none; padding: 4px 5px; letter-spacing: 0.05em;"
-            onkeydown="if(event.key === 'Enter') { console.log('Task Created'); document.getElementById('task-interface').classList.remove('active'); }">
+            onkeydown="if(event.key === 'Enter' && this.value.trim()) { window.addTaskPoint(this.value.trim(), currentCategory || 'General'); this.value = ''; }">
+        <span id="task-input-help" class="sr-only">Нажмите Enter для создания задачи или используйте микрофон для голосового ввода</span>
 
         <!-- Icons Group -->
         <div style="display: flex; gap: 8px; padding-left: 5px; border-left: 1px solid rgba(255,255,255,0.15);">
@@ -1398,6 +2292,9 @@
 
             <!-- Mic Button (Voice Input - PRIORITY!) -->
             <button id="mic-btn" class="nav-btn"
+                aria-label="Голосовой ввод"
+                aria-pressed="false"
+                role="button"
                 style="position: static; padding: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: transparent; opacity: 0.6; pointer-events: auto; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.2);"
                 title="Голосовой ввод">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
@@ -1410,10 +2307,12 @@
             </button>
         </div>
 
-        <!-- Close Button -->
-        <button onclick="document.getElementById('task-interface').classList.remove('active')"
+        <!-- v3.11: Removed close button - task interface should always be accessible in drill-down -->
+        <!-- Clear input button instead -->
+        <button onclick="document.getElementById('task-input').value = ''; document.getElementById('task-input').focus();"
             style="background: transparent; border: none; color: rgba(255,255,255,0.3); font-size: 0.9em; cursor: pointer; padding: 0 5px; margin-left: 5px;"
-            onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+            onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.3)'"
+            title="Очистить">
             ✕
         </button>
     </div>
@@ -1429,9 +2328,16 @@
     <button class="cta-button" id="ctaButton">Access VZOR Standard</button>
 
     <!-- BACK BUTTON (Drill Down) -->
-    <div id="back-button" class="nav-btn">
-        <span>←</span> BACK
+    <div id="back-button" class="nav-btn"
+        role="button"
+        tabindex="0"
+        aria-label="Вернуться к общему виду"
+        aria-hidden="true">
+        <span aria-hidden="true">←</span> BACK
     </div>
+
+    <!-- v3.12.9: Category Label at top -->
+    <div id="block-label"></div>
     <div id="detail-panel">
         <div class="detail-header">Structural Level 2</div>
         <!-- Editable Task Title -->
@@ -1457,6 +2363,42 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // ===== v3.14: TOAST NOTIFICATION SYSTEM =====
+        window.showToast = function(title, message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: '●'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || icons.info}</span>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    ${message ? `<div class="toast-message">${message}</div>` : ''}
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            // Auto-remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 500);
+            }, duration);
+        };
 
         // --- Data ---
         const finalNodes = [
@@ -1834,8 +2776,8 @@
                              // GRAPH NODE -> HIDE
                              drillVisibility = 1.0 - smoothstep(0.1, 0.3, t3);
                          } else {
-                             // CLOUD -> VISIBLE BACKGROUND
-                             drillVisibility = 0.4;
+                             // CLOUD -> VISIBLE BACKGROUND (v3.11: increased 0.4 -> 0.65)
+                             drillVisibility = 0.65;
                          }
                     }
                     
@@ -2011,7 +2953,91 @@
         let lastZoomTime = 0;
         let lastInteractTime = Date.now(); // Initialize to NOW so it doesn't trigger immediately
 
+        // v3.12.6: Centralized function to show ALL drill-down UI
+        // This ensures consistent state regardless of how we enter drill-down
+        function showDrillDownUI(categoryName) {
+            console.log('[DrillDown] Entering:', categoryName);
 
+            // 1. Show Back Button
+            const backBtn = document.getElementById('back-button');
+            if (backBtn) {
+                backBtn.classList.add('visible');
+                backBtn.style.opacity = '1';
+                backBtn.style.pointerEvents = 'auto';
+                backBtn.style.display = ''; // Ensure not hidden
+                backBtn.setAttribute('aria-hidden', 'false'); // v3.14: Accessibility
+            }
+
+            // 2. Show Task Interface for allowed categories
+            const allowed = ["Development", "Finance", "Real Estate"];
+            if (allowed.includes(categoryName)) {
+                const taskInterface = document.getElementById('task-interface');
+                if (taskInterface) {
+                    taskInterface.classList.add('active');
+                }
+            }
+
+            // 3. Show Icon Bar Toggle
+            const iconBarToggle = document.getElementById('icon-bar-toggle');
+            if (iconBarToggle) {
+                iconBarToggle.style.display = 'flex';
+            }
+
+            // 4. Show Nodes Toggle Button
+            if (window.showNodesToggle) {
+                window.showNodesToggle();
+            } else {
+                const nodesBtn = document.getElementById('nodes-toggle-btn');
+                if (nodesBtn) nodesBtn.classList.add('visible');
+            }
+
+            // 5. Show Task List Button
+            // v3.12.8: Show Task List Button using class
+            const taskListBtn = document.getElementById('task-list-btn');
+            if (taskListBtn) {
+                taskListBtn.classList.add('visible');
+            }
+
+            // 6. Show Block Label (v3.12.9)
+            const blockLabel = document.getElementById('block-label');
+            if (blockLabel) {
+                blockLabel.textContent = categoryName.toUpperCase();
+                blockLabel.classList.add('visible');
+            }
+
+            // 7. Show Task Points for this category
+            if (window.taskPoints) {
+                window.taskPoints.forEach(task => {
+                    if (task.mesh) task.mesh.visible = true;
+                });
+            }
+
+            // 8. Show 3D Connections
+            if (window.task3DConnections) {
+                window.task3DConnections.forEach(conn => {
+                    if (conn.line) conn.line.visible = true;
+                });
+            }
+
+            // 9. Hide scroll/progress indicators
+            const scrollHint = document.getElementById('scrollHint');
+            const progressDots = document.getElementById('progressDots');
+            if (scrollHint) scrollHint.style.opacity = '0';
+            if (progressDots) progressDots.style.opacity = '0';
+
+            // 10. Hide home button
+            const homeBtn = document.getElementById('home-btn');
+            if (homeBtn) homeBtn.classList.remove('visible');
+
+            // 11. Lock scroll
+            document.body.style.overflow = 'hidden';
+
+            // 12. Enable orbit controls
+            controls.enabled = true;
+            controls.target.set(0, 0, 0);
+
+            console.log('[DrillDown] UI shown for:', categoryName);
+        }
 
         function onClick(e) {
             if (!isClickValid) return; // Ignore drag-clicks
@@ -2024,28 +3050,81 @@
 
             mv.x = (e.clientX / window.innerWidth) * 2 - 1;
             mv.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            // v3.12.6: Ensure camera matrix is up-to-date before raycasting
+            // This fixes issues when camera was just reset by controls.reset()
+            camera.updateMatrixWorld();
             ray.setFromCamera(mv, camera);
 
             if (!isDrilled) {
                 // LEVEL 1 INTERACTION (Development, Finance, Estate)
-                if (smoothP < 0.8) return; // Only on Slide 2
+                if (smoothP < 0.8) return;
 
                 const hits = ray.intersectObjects(labels);
                 if (hits.length > 0) {
                     const label = hits[0].object;
-                    const data = coreData[labels.indexOf(label)];
+                    const labelIndex = labels.indexOf(label);
+                    if (labelIndex === -1 || !coreData[labelIndex]) return;
+
+                    const data = coreData[labelIndex];
+
+                    // Set drill-down state
                     isDrilled = true;
                     currentCategory = data.name;
+
+                    // Update detail panel content
                     showDetail(data.name);
 
-                    // SHOW TASK INTERFACE Only for specific categories
-                    const allowed = ["Development", "Finance", "Real Estate"]; // Using the names from coreData
-                    if (allowed.includes(data.name)) {
-                        document.getElementById('task-interface').classList.add('active');
+                    // v3.12.7: DIRECT UI MANIPULATION - no function calls that might fail
+                    // Show back button
+                    const backBtn = document.getElementById('back-button');
+                    backBtn.classList.add('visible');
+                    backBtn.style.cssText = 'opacity: 1 !important; pointer-events: auto !important; display: block !important;';
+
+                    // Show task interface
+                    const taskInterface = document.getElementById('task-interface');
+                    taskInterface.classList.add('active');
+                    taskInterface.style.cssText = 'display: flex !important; opacity: 1 !important;';
+
+                    // Show icon bar toggle
+                    const iconBarToggle = document.getElementById('icon-bar-toggle');
+                    if (iconBarToggle) iconBarToggle.style.cssText = 'display: flex !important;';
+
+                    // Show nodes toggle
+                    const nodesBtn = document.getElementById('nodes-toggle-btn');
+                    if (nodesBtn) {
+                        nodesBtn.classList.add('visible');
+                        nodesBtn.style.cssText = 'opacity: 0.6 !important; pointer-events: auto !important;';
                     }
 
-                    // SHOW NODES TOGGLE BUTTON
-                    if (window.showNodesToggle) window.showNodesToggle();
+                    // v3.12.8: Show task list button using class
+                    const taskListBtn = document.getElementById('task-list-btn');
+                    if (taskListBtn) taskListBtn.classList.add('visible');
+
+                    // v3.12.8: Block label is hidden - category shown in slideTitle instead
+
+                    // Show task points
+                    if (window.taskPoints) {
+                        window.taskPoints.forEach(task => {
+                            if (task.mesh) task.mesh.visible = true;
+                        });
+                    }
+
+                    // Show 3D connections
+                    if (window.task3DConnections) {
+                        window.task3DConnections.forEach(conn => {
+                            if (conn.line) conn.line.visible = true;
+                        });
+                    }
+
+                    // Hide scroll indicators
+                    document.getElementById('scrollHint').style.opacity = '0';
+                    document.getElementById('progressDots').style.opacity = '0';
+                    document.getElementById('home-btn').classList.remove('visible');
+
+                    // Lock scroll and enable controls
+                    document.body.style.overflow = 'hidden';
+                    controls.enabled = true;
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
@@ -2056,23 +3135,64 @@
                     const idx = detailTargets.indexOf(hits[0].object);
                     updateDetailPanelForSubTask(idx);
                 } else {
-                    // CHECK USER TASKS
-                    const taskHits = ray.intersectObjects(userTasks.map(t => t.mesh));
-                    if (taskHits.length > 0) {
-                        const taskPayload = userTasks.find(t => t.mesh === taskHits[0].object);
-                        if (taskPayload) {
-                            // Open panel with Task Info
-                            const header = document.querySelector('.detail-header');
-                            if (header) header.innerText = "ПОЛЬЗОВАТЕЛЬСКАЯ ЗАДАЧА";
-                            const ptEl = document.getElementById('p-title');
-                            if (ptEl) ptEl.value = taskPayload.title;
-                            const pdEl = document.getElementById('p-desc');
-                            if (pdEl) pdEl.innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
-                            document.getElementById('detail-panel').classList.add('active'); // Force open
+                    // CHECK TASK POINTS (window.taskPoints - created via input)
+                    // v3.12.7: Task points are THREE.Points, need special raycasting
+                    let taskClicked = false;
+
+                    if (window.taskPoints && window.taskPoints.length > 0) {
+                        // Set raycaster threshold for Points (larger area for easier clicking)
+                        ray.params.Points = { threshold: 15 };
+
+                        const taskMeshes = window.taskPoints
+                            .filter(t => t.mesh && t.mesh.visible)
+                            .map(t => t.mesh);
+
+                        if (taskMeshes.length > 0) {
+                            const taskHits = ray.intersectObjects(taskMeshes);
+                            if (taskHits.length > 0) {
+                                const clickedMesh = taskHits[0].object;
+                                const taskPayload = window.taskPoints.find(t => t.mesh === clickedMesh);
+                                if (taskPayload) {
+                                    taskClicked = true;
+                                    // Open detail panel for this task
+                                    if (window.showDetailPanel) {
+                                        window.showDetailPanel(taskPayload);
+                                    } else {
+                                        // Fallback: show basic info
+                                        const header = document.querySelector('.detail-header');
+                                        if (header) header.innerText = "ЗАДАЧА";
+                                        const ptEl = document.getElementById('p-title');
+                                        if (ptEl) ptEl.value = taskPayload.title;
+                                        const pdEl = document.getElementById('p-desc');
+                                        if (pdEl) pdEl.innerHTML = `Статус: <b>${taskPayload.status || 'pending'}</b><br>Создана: ${taskPayload.createdAt || 'сейчас'}`;
+                                        document.getElementById('detail-panel').classList.add('active');
+                                    }
+                                }
+                            }
                         }
-                    } else {
-                        // Clicked on Background (Void) -> RESET TO CATEGORY
-                        showDetail(currentCategory);
+                    }
+
+                    // Also check legacy userTasks
+                    if (!taskClicked && userTasks.length > 0) {
+                        const taskHits = ray.intersectObjects(userTasks.map(t => t.mesh));
+                        if (taskHits.length > 0) {
+                            const taskPayload = userTasks.find(t => t.mesh === taskHits[0].object);
+                            if (taskPayload) {
+                                taskClicked = true;
+                                const header = document.querySelector('.detail-header');
+                                if (header) header.innerText = "ПОЛЬЗОВАТЕЛЬСКАЯ ЗАДАЧА";
+                                const ptEl = document.getElementById('p-title');
+                                if (ptEl) ptEl.value = taskPayload.title;
+                                const pdEl = document.getElementById('p-desc');
+                                if (pdEl) pdEl.innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
+                                document.getElementById('detail-panel').classList.add('active');
+                            }
+                        }
+                    }
+
+                    if (!taskClicked) {
+                        // Clicked on Background (Void) -> do nothing (don't reset view)
+                        // showDetail(currentCategory); // DISABLED - keep current state
                     }
                 }
             }
@@ -2087,7 +3207,8 @@
             if (header) header.innerText = "ОБЗОР ЭКОСИСТЕМЫ";
 
             if (name === "Development") {
-                if (st) st.innerText = "VZOR development";
+                // v3.12: Hide center title to not obstruct view, keep only in top-left
+                if (st) st.style.display = 'none';
                 if (pt) pt.value = "ЕДИНАЯ ОПЕРАЦИОННАЯ СРЕДА";
                 pd.innerHTML = `Прогнозная модель управления стоимостью и эффективностью проекта.<br>
                                <ul class='detail-thesis'>
@@ -2098,27 +3219,29 @@
                                    <li><b>Эффективность:</b> Мгновенный пересчет проектирования, финмодели и продаж при любых изменениях.</li>
                                </ul>`;
             } else if (name === "Finance") {
-                if (st) st.innerText = "VZOR finance";
+                if (st) st.style.display = 'none';
                 if (pt) pt.value = "АВТОНОМНЫЙ ФИНАНСОВЫЙ ДВИЖОК";
                 if (pd) pd.innerHTML = `Синхронизация потоков капитала в реальном времени.<br><br>
                                Минимизация временной инфляции и валютных рисков через прозрачный мониторинг.<br><br>
                                Единый контур принятия решений: от точечной транзакции до глобального инвестиционного портфеля.`;
             } else if (name === "Real Estate") {
-                if (st) st.innerText = "VZOR easted";
+                if (st) st.style.display = 'none';
                 if (pt) pt.value = "ПЛАТФОРМА УПРАВЛЕНИЯ АКТИВАМИ";
                 if (pd) pd.innerHTML = `Максимизация доходности (Yield Protection) и капитализации объектов недвижимости.<br><br>
                                Прозрачное масштабирование институционального уровня через управление данными.<br><br>
                                Полный жизненный цикл актива: от анализа приобретения до реализации стратегии выхода.`;
             }
 
-            if (st) st.style.color = "#ffffff";
+            // v3.12: Title hidden in drill-down
 
             // DO NOT automatically show detail panel on entry
             // document.getElementById('detail-panel').classList.add('active'); // DISABLED
             document.getElementById('back-button').classList.add('visible');
-            document.getElementById('back-button').classList.add('visible');
-            // Show Icon Bar in Drill Down
-            document.getElementById('icon-bar').classList.add('visible');
+            document.getElementById('back-button').style.opacity = '1';
+            document.getElementById('back-button').style.pointerEvents = 'auto';
+            // Icon Bar hidden by default - user can toggle with button
+            // document.getElementById('icon-bar').classList.add('visible');
+            document.getElementById('icon-bar-toggle').style.display = 'flex';
 
             document.getElementById('scrollHint').style.opacity = "0";
             document.getElementById('progressDots').style.opacity = "0";
@@ -2230,8 +3353,10 @@
         }
 
         document.getElementById('back-button').addEventListener('click', () => {
+            console.log('[Back] Exiting drill-down, category was:', currentCategory);
+
             isDrilled = false;
-            drillProg = 0; // Animate out
+            drillProg = 0; // Reset immediately (not animate) for instant label visibility
             currentZoom = 1.0; targetZoom = 1.0;
             camera.clearViewOffset(); // Reset viewport
             controls.enabled = false; // Disable orbit
@@ -2240,22 +3365,52 @@
             document.getElementById('nav-btn').classList.remove('visible'); // Hide if any
             document.getElementById('back-button').style.opacity = '0';
             document.getElementById('back-button').style.pointerEvents = 'none';
+            document.getElementById('back-button').setAttribute('aria-hidden', 'true'); // v3.14: Accessibility
 
             // Hide Icon Bar
             document.getElementById('icon-bar').classList.remove('visible');
 
+            // v3.12: Restore center title
+            const slideTitle = document.getElementById('slideTitle');
+            if (slideTitle) slideTitle.style.display = '';
+
             // Hide Nodes Button & Close Node Editor
             if (window.hideNodesToggle) window.hideNodesToggle();
+
+            // v3.11: Hide task list button
+            if (window.hideTaskListBtn) window.hideTaskListBtn();
+
+            // v3.12.9: Hide block name label
+            const blockLabel = document.getElementById('block-label');
+            if (blockLabel) blockLabel.classList.remove('visible');
 
             // Close Side Panel
             if (typeof closeSidePanel === 'function') closeSidePanel();
 
+            // v3.11: Hide icon bar toggle
+            document.getElementById('icon-bar-toggle').style.display = 'none';
+
+            // v3.11: Hide task point meshes when leaving drill-down
+            if (window.taskPoints) {
+                window.taskPoints.forEach(task => {
+                    if (task.mesh) task.mesh.visible = false;
+                });
+            }
+
+            // v3.12: Hide 3D connections when leaving drill-down
+            if (window.task3DConnections) {
+                window.task3DConnections.forEach(conn => {
+                    if (conn.line) conn.line.visible = false;
+                });
+            }
+
             // Restore Top Header
             const st = document.getElementById('slideTitle');
             st.innerText = "VZOR";
+            st.style.display = ''; // Ensure title is visible after drill-down
 
-            // The original code had these lines, they were removed in the provided snippet.
-            // document.getElementById('back-button').classList.remove('visible');
+            // Remove visible class from back button for clean state
+            document.getElementById('back-button').classList.remove('visible');
             document.getElementById('scrollHint').style.opacity = "1";
             document.getElementById('progressDots').style.opacity = "1";
 
@@ -2274,6 +3429,14 @@
             group.rotation.set(0, 0, 0);
         });
 
+        // v3.14: Keyboard support for back button
+        document.getElementById('back-button').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('back-button').click();
+            }
+        });
+
         document.addEventListener('click', onClick);
 
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
@@ -2289,14 +3452,33 @@
                 // We keep it at 0 on mobile unless moving, but on desktop we fade it
             }, 1000);
 
-            if (isDrag && !isDrilled) { // Only manual drag if NOT drilled
+            // v3.12.9: Allow rotation in both normal and drill-down modes
+            if (isDrag) {
                 let dx = x - prevM.x; let dy = y - prevM.y;
                 group.rotation.y += dx * 0.005;
                 group.rotation.x += dy * 0.005;
                 mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
+                lastInteractTime = Date.now(); // Reset idle timer on drag
             }
         }
         document.addEventListener('mousedown', e => {
+            // v3.12.7: Don't start drag if clicking on UI elements
+            const target = e.target;
+            const isUIElement = target.closest('#task-interface') ||
+                               target.closest('#detail-panel') ||
+                               target.closest('#node-editor-panel') ||
+                               target.closest('#icon-bar') ||
+                               target.closest('#back-button') ||
+                               target.closest('.nav-btn') ||
+                               target.tagName === 'INPUT' ||
+                               target.tagName === 'TEXTAREA' ||
+                               target.tagName === 'BUTTON';
+
+            if (isUIElement) {
+                isDrag = false;
+                return; // Don't interfere with UI interactions
+            }
+
             isDrag = true;
             isClickValid = true;
             downPos = { x: e.clientX, y: e.clientY };
@@ -2305,7 +3487,16 @@
             material.uniforms.uMouseActive.value = 1;
         });
         document.addEventListener('mousemove', e => {
-            move(e.clientX, e.clientY, e.clientX, e.clientY);
+            // v3.12.7: Skip heavy processing when over UI elements
+            const target = e.target;
+            const isOverUI = target.closest('#task-interface') ||
+                            target.closest('#detail-panel') ||
+                            target.closest('#node-editor-panel');
+
+            if (!isOverUI) {
+                move(e.clientX, e.clientY, e.clientX, e.clientY);
+            }
+
             if (isDrag) {
                 const d = Math.sqrt(Math.pow(e.clientX - downPos.x, 2) + Math.pow(e.clientY - downPos.y, 2));
                 if (d > dragThreshold) isClickValid = false;
@@ -2490,7 +3681,7 @@
 
             // Also move camera for real 3D zoom effect (when drilled)
             if (isDrilled) {
-                const baseDistance = 300; // Default camera Z
+                const baseDistance = 400; // Default camera Z (v3.11: was 300, now 400)
                 const targetDistance = baseDistance / currentZoom;
                 const currentDistance = camera.position.length();
                 const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
@@ -2511,12 +3702,14 @@
                 // OrbitControls handles camera
                 controls.update();
 
-                // Scale task point spheres with zoom
-                if (typeof taskPoints !== 'undefined') {
-                    taskPoints.forEach(task => {
-                        if (task.mesh) {
-                            const baseScale = task.isSelected ? 1.5 : 1.0;
-                            task.mesh.scale.setScalar(baseScale * currentZoom);
+                // Scale task points with zoom + gentle pulsation
+                if (window.taskPoints) {
+                    window.taskPoints.forEach(task => {
+                        if (task.mesh && task.mesh.userData.material) {
+                            // v3.12.5: Simple pulsation via size change
+                            const baseSize = task.mesh.userData.baseSize || 15;
+                            const pulse = 1.0 + Math.sin(time * 1.5) * 0.1;  // Gentle 10% breathing
+                            task.mesh.userData.material.size = baseSize * pulse * currentZoom;
                         }
                     });
                 }
@@ -2552,7 +3745,8 @@
                 }
             } else {
                 // Script handles camera (Scroll Logic)
-                const baseZ = 450 - drillProg * 150;
+                // v3.11: Changed from 150 to 50 — camera stays further back (400 instead of 300)
+                const baseZ = 450 - drillProg * 50;
                 camera.position.z = baseZ;
                 camera.position.x = 0;
                 camera.position.y = 0;
@@ -2578,9 +3772,38 @@
             const globalLabelOp = x * x * (3 - 2 * x);
 
             const lOp = globalLabelOp * (1.0 - drillProg);
-            labels.forEach(l => {
-                l.material.opacity = lOp;
-                l.visible = lOp > 0.01;
+
+            // v3.14: Hover effect on category labels
+            let hoveredLabel = null;
+            if (!isDrilled && smoothP > 0.5) {
+                ray.setFromCamera(mv, camera);
+                const labelHits = ray.intersectObjects(labels);
+                if (labelHits.length > 0) {
+                    hoveredLabel = labelHits[0].object;
+                    document.body.style.cursor = 'pointer';
+                } else {
+                    document.body.style.cursor = '';
+                }
+            } else {
+                document.body.style.cursor = '';
+            }
+
+            labels.forEach((l, i) => {
+                const isHovered = l === hoveredLabel;
+                const baseScale = coreData[i].scale;
+                const targetScale = isHovered ? baseScale * 1.12 : baseScale;
+
+                // Smooth scale transition
+                const currentScale = l.scale.x / 130;
+                const newScale = currentScale + (targetScale - currentScale) * 0.15;
+                l.scale.set(130 * newScale, 32 * newScale, 1);
+
+                // Brighter opacity on hover
+                const hoverBoost = isHovered ? 0.3 : 0;
+                l.material.opacity = Math.min(1, lOp + hoverBoost);
+
+                // v3.12.6: Keep labels visible for raycasting even when opacity is low
+                l.visible = smoothP > 0.5;
             });
 
 
@@ -2614,8 +3837,75 @@
                 }
             });
 
+            // v3.12.7: CRITICAL FIX - Also control window.taskPoints visibility in animation loop
+            // This ensures task points stay visible during drill-down regardless of any other code
+            if (window.taskPoints && window.taskPoints.length > 0) {
+                window.taskPoints.forEach(task => {
+                    if (task.mesh) {
+                        // Show only if drilled AND category matches
+                        task.mesh.visible = isDrilled && task.category === currentCategory;
+                    }
+                });
+            }
+
+            // v3.12.7: Also control 3D connections visibility
+            if (window.task3DConnections && window.task3DConnections.length > 0) {
+                window.task3DConnections.forEach(conn => {
+                    if (conn.line) {
+                        conn.line.visible = isDrilled;
+                    }
+                });
+            }
+
+            // v3.12.7: CRITICAL - Continuously enforce UI visibility during drill-down
+            // This fixes the issue where UI disappears on second drill-down
+            if (isDrilled) {
+                // Show back button
+                const backBtn = document.getElementById('back-button');
+                if (backBtn) {
+                    backBtn.classList.add('visible');
+                    backBtn.style.opacity = '1';
+                    backBtn.style.pointerEvents = 'auto';
+                }
+
+                // Show task interface
+                const taskInterface = document.getElementById('task-interface');
+                if (taskInterface && !taskInterface.classList.contains('active')) {
+                    taskInterface.classList.add('active');
+                }
+
+                // Show icon bar toggle
+                const iconBarToggle = document.getElementById('icon-bar-toggle');
+                if (iconBarToggle) {
+                    iconBarToggle.style.display = 'flex';
+                }
+
+                // Show nodes toggle button
+                const nodesBtn = document.getElementById('nodes-toggle-btn');
+                if (nodesBtn && !nodesBtn.classList.contains('visible')) {
+                    nodesBtn.classList.add('visible');
+                }
+
+                // v3.12.9: Show block label with current category
+                const blockLabel = document.getElementById('block-label');
+                if (blockLabel && currentCategory) {
+                    blockLabel.textContent = currentCategory.toUpperCase();
+                    blockLabel.classList.add('visible');
+                }
+
+                // v3.12.8: Show task list button (right side) using class
+                const taskListBtn = document.getElementById('task-list-btn');
+                if (taskListBtn) {
+                    taskListBtn.classList.add('visible');
+                }
+            }
+
 
             updateUI(smoothP);
+
+            // v3.12.1: Animate 3D connection flow particles
+            if (window.animateConnections) window.animateConnections();
+
             renderer.render(scene, camera);
         }
 
@@ -2662,11 +3952,48 @@
 
                 if (!isDrilled) {
                     st.innerText = s.title;
+                    st.style.display = ''; // Ensure title is visible (restore from drill-down)
+                    sd.style.display = ''; // Ensure description is visible
                     document.getElementById('home-btn').classList.add('visible');
 
-                    // Ensure detail panel is hidden on Slide 2 Overview
+                    // Ensure ALL drill-down elements are hidden on Slide 2 Overview
                     document.getElementById('detail-panel').classList.remove('active');
                     document.getElementById('back-button').classList.remove('visible');
+                    document.getElementById('back-button').style.opacity = '0';
+                    document.getElementById('back-button').style.pointerEvents = 'none';
+                    document.getElementById('task-interface').classList.remove('active');
+                    document.getElementById('icon-bar').classList.remove('visible');
+                    document.getElementById('icon-bar-toggle').style.display = 'none';
+
+                    // v3.12.9: Hide block label
+                    const blockLabel = document.getElementById('block-label');
+                    if (blockLabel) blockLabel.classList.remove('visible');
+
+                    // Hide nodes toggle button
+                    const nodesBtn = document.getElementById('nodes-toggle-btn');
+                    if (nodesBtn) nodesBtn.classList.remove('visible');
+
+                    // Close node editor
+                    const nodePanel = document.getElementById('node-editor-panel');
+                    if (nodePanel) nodePanel.classList.remove('active');
+
+                    // v3.12.8: Hide task list button using class
+                    const taskListBtn = document.getElementById('task-list-btn');
+                    if (taskListBtn) {
+                        taskListBtn.classList.remove('visible');
+                    }
+
+                    // Hide task points and connections
+                    if (window.taskPoints) {
+                        window.taskPoints.forEach(task => {
+                            if (task.mesh) task.mesh.visible = false;
+                        });
+                    }
+                    if (window.task3DConnections) {
+                        window.task3DConnections.forEach(conn => {
+                            if (conn.line) conn.line.visible = false;
+                        });
+                    }
                 } else {
                     document.getElementById('home-btn').classList.remove('visible');
                     // Drill-down UI is handled by showDetail/onClick
@@ -2711,7 +4038,7 @@
                             console.error("addTaskPoint not defined globally!");
                         }
                         e.target.value = "";
-                        document.getElementById('task-interface').classList.remove('active');
+                        // v3.11: Don't hide task-interface — keep it visible for more task creation
                     }
                 }
             });
@@ -2738,24 +4065,12 @@
                     isRecording = true;
                     recognition.start();
 
-                    // Visual feedback - recording animation
-                    micBtn.style.opacity = '1';
-                    micBtn.style.background = 'rgba(255, 0, 0, 0.2)';
-                    micBtn.style.borderColor = '#ff0000';
-                    micBtn.style.animation = 'pulse-recording 1.5s ease-in-out infinite';
+                    // v3.14: Use CSS class for animation
+                    micBtn.classList.add('listening');
+                    micBtn.style.position = 'relative';
 
-                    // Add CSS animation if not exists
-                    if (!document.getElementById('voice-recording-style')) {
-                        const style = document.createElement('style');
-                        style.id = 'voice-recording-style';
-                        style.innerHTML = `
-                            @keyframes pulse-recording {
-                                0%, 100% { transform: scale(1); opacity: 0.8; }
-                                50% { transform: scale(1.1); opacity: 1; }
-                            }
-                        `;
-                        document.head.appendChild(style);
-                    }
+                    // Show status indicator
+                    window.showToast('Голосовой ввод', 'Слушаю...', 'info', 2000);
                 } else {
                     // Stop recording
                     recognition.stop();
@@ -2793,13 +4108,8 @@
                 resetMicButton();
                 isRecording = false;
 
-                // Show error feedback
-                if (taskInput) {
-                    taskInput.placeholder = 'Ошибка распознавания. Попробуйте ещё раз...';
-                    setTimeout(() => {
-                        taskInput.placeholder = 'New task...';
-                    }, 2000);
-                }
+                // v3.14: Show error via toast
+                window.showToast('Ошибка', 'Не удалось распознать речь', 'error', 3000);
             };
 
             recognition.onend = () => {
@@ -2808,10 +4118,8 @@
             };
 
             function resetMicButton() {
-                micBtn.style.opacity = '0.6';
-                micBtn.style.background = 'transparent';
-                micBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-                micBtn.style.animation = 'none';
+                // v3.14: Use CSS class
+                micBtn.classList.remove('listening');
             }
         } else {
             // Web Speech API not supported
@@ -2827,7 +4135,7 @@
         // UNIFIED TASK SYSTEM & NODE EDITOR LOGIC
         // ==========================================
 
-        const taskPoints = []; // Store task meshes
+        window.taskPoints = []; // Store task meshes (global for panel access)
         const raycasterTasks = new THREE.Raycaster();
 
         // 1. Function to Add Task Point (Called by Enter/Voice)
@@ -2836,37 +4144,106 @@
 
             console.log("Creating Task:", text, category);
 
-            // Create 3D Point (Orange Sphere)
-            const geometry = new THREE.SphereGeometry(2, 32, 32);
-            const material = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
-            const sphere = new THREE.Mesh(geometry, material);
+            // v3.12: Status-based colors for task points (softer, semi-transparent)
+            const statusColors = {
+                'pending': { core: 0xFFFFFF, glow: 'rgba(255, 255, 255, ' },     // Soft white
+                'in_progress': { core: 0xFFB347, glow: 'rgba(255, 179, 71, ' },  // Warm amber
+                'blocked': { core: 0xFF6B6B, glow: 'rgba(255, 107, 107, ' },     // Coral
+                'completed': { core: 0x77DD77, glow: 'rgba(119, 221, 119, ' }    // Soft green
+            };
 
-            // Random position in front of camera for visibility
-            // In a real app, this might be raycast to a plane
-            sphere.position.set(
-                (Math.random() - 0.5) * 50,
-                (Math.random() - 0.5) * 30,
-                (Math.random() - 0.5) * 20
-            );
+            const currentStatus = 'pending';
+            const colors = statusColors[currentStatus];
 
-            // Allow manual positioning override if raycast existed (simplified here)
-            // If we had the raycaster intersection from mouse, we'd use that point.
-            // For now, center-ish is fine.
+            // v3.12.5: Single gaseous point with pulsation (no cluster)
+            // Create glow texture
+            const glowCanvas = document.createElement('canvas');
+            glowCanvas.width = 64;
+            glowCanvas.height = 64;
+            const ctx = glowCanvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            gradient.addColorStop(0, 'rgba(255,255,255,1)');
+            gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
+            gradient.addColorStop(0.5, 'rgba(255,255,255,0.3)');
+            gradient.addColorStop(0.8, 'rgba(255,255,255,0.05)');
+            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 64, 64);
+            const glowTexture = new THREE.CanvasTexture(glowCanvas);
+
+            // Single point geometry
+            const pointGeo = new THREE.BufferGeometry();
+            pointGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
+
+            // PointsMaterial with glow
+            const pointMat = new THREE.PointsMaterial({
+                color: colors.core,
+                size: 15,  // Slightly larger than background points
+                transparent: true,
+                opacity: 0.95,
+                map: glowTexture,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                sizeAttenuation: true
+            });
+
+            const sphere = new THREE.Points(pointGeo, pointMat);
+            sphere.userData.isTaskPoint = true;
+            sphere.userData.material = pointMat;
+            sphere.userData.statusColors = statusColors;
+            sphere.userData.baseSize = 15;
+            sphere.userData.startTime = performance.now();
+
+            // v3.11: Smarter positioning - spread tasks out more, avoid overlapping
+            const minDistance = 30; // Minimum distance between tasks
+            let attempts = 0;
+            let validPosition = false;
+            let x, y, z;
+
+            // Try to find a position that doesn't overlap with existing tasks
+            while (!validPosition && attempts < 20) {
+                // Larger spread area: 150x100x60
+                x = (Math.random() - 0.5) * 150;
+                y = (Math.random() - 0.5) * 100;
+                z = (Math.random() - 0.5) * 60;
+
+                validPosition = true;
+                // Check distance from all existing tasks
+                for (const existingTask of window.taskPoints) {
+                    const dx = existingTask.mesh.position.x - x;
+                    const dy = existingTask.mesh.position.y - y;
+                    const dz = existingTask.mesh.position.z - z;
+                    const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    if (dist < minDistance) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+                attempts++;
+            }
+
+            sphere.position.set(x, y, z);
 
             scene.add(sphere);
 
-            // Task Data Object
+            // Task Data Object with progress tracking
             const taskData = {
                 id: Date.now(),
                 title: text,
                 category: category,
                 mesh: sphere,
-                status: 'New',
+                status: 'pending',  // pending | in_progress | blocked | completed
+                progress: 0,        // 0-100%
                 agent: 'Router Agent',
-                database: 'VZOR Core'
+                database: 'VZOR Core',
+                createdAt: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}),
+                statusColors: statusColors  // Store reference for updates
             };
 
-            taskPoints.push(taskData);
+            window.taskPoints.push(taskData);
+
+            // v3.14: Show toast notification
+            window.showToast('Задача создана', text, 'success', 3000);
 
             // AUTO-ACTION 1: Create Node in Node Editor
             addNodeToEditor(taskData);
@@ -2874,82 +4251,418 @@
             // AUTO-ACTION 2: Open Right Detail Panel
             showDetailPanel(taskData);
 
-            // AUTO-ACTION 3: Open Node Editor Panel (optional, but requested implicitly)
-            // if (!isPanelOpen) nodesToggleBtn.click(); 
+            // AUTO-ACTION 3: Auto-connect to previous task (creates graph)
+            if (window.taskPoints.length > 1) {
+                const prevTask = window.taskPoints[window.taskPoints.length - 2];
+                connect3DTasks(prevTask.id, taskData.id);
+            }
         };
 
-        // 2. Add Node to Editor — uses new node system
+        // ==========================================
+        // 3D GRAPH CONNECTIONS (v3.12.2 - Clean Matrix Graph)
+        // ==========================================
+        // Design principles:
+        // - STRAIGHT lines (not curves)
+        // - NEUTRAL color (gray, semi-transparent)
+        // - Obsidian-style: click task → connected highlight, others dim
+        // - Scalable for 100+ nodes
+
+        window.task3DConnections = [];
+        const connectionGroup = new THREE.Group();
+        scene.add(connectionGroup);
+
+        // Default connection style (neutral)
+        const CONNECTION_STYLES = {
+            normal: { color: 0xffffff, opacity: 0.12 },
+            highlighted: { color: 0xffffff, opacity: 0.5 },
+            dimmed: { color: 0xffffff, opacity: 0.03 }
+        };
+
+        // Create STRAIGHT line between two 3D points
+        function createStraightLine(startPos, endPos, style = 'normal') {
+            const points = [
+                new THREE.Vector3(startPos.x, startPos.y, startPos.z),
+                new THREE.Vector3(endPos.x, endPos.y, endPos.z)
+            ];
+
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const styleConfig = CONNECTION_STYLES[style];
+
+            const material = new THREE.LineBasicMaterial({
+                color: styleConfig.color,
+                transparent: true,
+                opacity: styleConfig.opacity,
+                depthWrite: false
+            });
+
+            const line = new THREE.Line(geometry, material);
+            line.userData.style = style;
+
+            return line;
+        }
+
+        // Connect two tasks in 3D space
+        window.connect3DTasks = function(fromTaskId, toTaskId) {
+            const fromTask = window.taskPoints.find(t => t.id === fromTaskId);
+            const toTask = window.taskPoints.find(t => t.id === toTaskId);
+
+            if (!fromTask || !toTask) return;
+
+            // Check if connection already exists
+            const exists = window.task3DConnections.some(
+                c => (c.from === fromTaskId && c.to === toTaskId) ||
+                     (c.from === toTaskId && c.to === fromTaskId)
+            );
+            if (exists) return;
+
+            const line = createStraightLine(
+                fromTask.mesh.position,
+                toTask.mesh.position,
+                'normal'
+            );
+
+            connectionGroup.add(line);
+
+            window.task3DConnections.push({
+                from: fromTaskId,
+                to: toTaskId,
+                line: line
+            });
+        };
+
+        // OBSIDIAN-STYLE: Highlight connections on task selection
+        window.selectedTaskId = null;
+
+        window.highlightTaskConnections = function(taskId) {
+            window.selectedTaskId = taskId;
+
+            if (!taskId) {
+                // Reset all to normal
+                window.task3DConnections.forEach(conn => {
+                    updateLineStyle(conn.line, 'normal');
+                });
+                window.taskPoints.forEach(task => {
+                    if (task.mesh && task.mesh.userData.material) {
+                        // v3.12.5: Reset single point opacity
+                        task.mesh.userData.material.opacity = 0.95;
+                        task.mesh.userData.baseSize = 15;  // Reset to default
+                    }
+                });
+                return;
+            }
+
+            // Find connected task IDs
+            const connectedIds = new Set([taskId]);
+            window.task3DConnections.forEach(conn => {
+                if (conn.from === taskId) connectedIds.add(conn.to);
+                if (conn.to === taskId) connectedIds.add(conn.from);
+            });
+
+            // Update connections
+            window.task3DConnections.forEach(conn => {
+                const isConnected = conn.from === taskId || conn.to === taskId;
+                updateLineStyle(conn.line, isConnected ? 'highlighted' : 'dimmed');
+            });
+
+            // Update task points (v3.12.5: single point)
+            window.taskPoints.forEach(task => {
+                if (!task.mesh || !task.mesh.userData.material) return;
+                const isConnected = connectedIds.has(task.id);
+                const isSelected = task.id === taskId;
+
+                // v3.12.5: Dim or highlight single point
+                if (isConnected) {
+                    task.mesh.userData.material.opacity = isSelected ? 1.0 : 0.9;
+                    task.mesh.userData.baseSize = isSelected ? 20 : 15;  // Selected is larger
+                } else {
+                    task.mesh.userData.material.opacity = 0.15;
+                    task.mesh.userData.baseSize = 12;  // Dimmed is smaller
+                }
+            });
+        };
+
+        function updateLineStyle(line, styleName) {
+            if (!line || !line.material) return;
+            const style = CONNECTION_STYLES[styleName];
+            line.material.opacity = style.opacity;
+            line.userData.style = styleName;
+        }
+
+        // Update connection positions (for moving tasks)
+        function update3DConnections() {
+            window.task3DConnections.forEach(conn => {
+                const fromTask = window.taskPoints.find(t => t.id === conn.from);
+                const toTask = window.taskPoints.find(t => t.id === conn.to);
+
+                if (fromTask && toTask && conn.line) {
+                    const positions = conn.line.geometry.attributes.position;
+                    positions.setXYZ(0, fromTask.mesh.position.x, fromTask.mesh.position.y, fromTask.mesh.position.z);
+                    positions.setXYZ(1, toTask.mesh.position.x, toTask.mesh.position.y, toTask.mesh.position.z);
+                    positions.needsUpdate = true;
+                }
+            });
+        }
+
+        // Animation loop hook (minimal - no particles for clean look)
+        window.animateConnections = function() {
+            // Subtle pulse for highlighted connections could go here
+        };
+
+        // 2. Update Task Status and Color (v3.12: with glow update)
+        window.updateTaskStatus = function(taskId, newStatus, progress) {
+            const task = window.taskPoints.find(t => t.id === taskId);
+            if (!task) return;
+
+            task.status = newStatus;
+            if (typeof progress === 'number') task.progress = progress;
+
+            // Status color definitions
+            const statusColors = {
+                'pending': { core: 0xFFFFFF, glow: 'rgba(255, 255, 255, ' },
+                'in_progress': { core: 0xFFB347, glow: 'rgba(255, 179, 71, ' },
+                'blocked': { core: 0xFF6B6B, glow: 'rgba(255, 107, 107, ' },
+                'completed': { core: 0x77DD77, glow: 'rgba(119, 221, 119, ' }
+            };
+
+            const colors = statusColors[newStatus] || statusColors['pending'];
+
+            // v3.12.5: Update single point color
+            if (task.mesh && task.mesh.userData.material) {
+                task.mesh.userData.material.color.setHex(colors.core);
+            }
+
+            // Update task list panel if visible
+            if (window.updateTaskListContent) window.updateTaskListContent();
+
+            // Re-show detail panel with updated status
+            showDetailPanel(task);
+
+            // v3.12.1: Update corresponding node in Node Editor
+            updateNodeStatus(taskId, newStatus, progress);
+
+            console.log(`Task ${taskId} status: ${newStatus}, progress: ${task.progress}%`);
+        };
+
+        // v3.12.1: Update node in Node Editor when task status changes
+        function updateNodeStatus(taskId, newStatus, progress) {
+            // Find node by taskId
+            for (const [nodeId, nodeData] of nodeEditorState.nodes) {
+                if (nodeData.taskId === taskId) {
+                    nodeData.status = newStatus;
+                    nodeData.progress = progress;
+
+                    // Re-render the node
+                    const container = document.querySelector('.node-editor-content');
+                    const existingNode = container?.querySelector(`[data-node-id="${nodeId}"]`);
+                    if (existingNode) {
+                        const newNode = renderNode(nodeData);
+                        existingNode.replaceWith(newNode);
+                    }
+                    break;
+                }
+            }
+        }
+
+        // 3. Add Node to Editor — uses new node system
         function addNodeToEditor(data) {
             if (typeof createNodeFromTask === 'function') {
                 createNodeFromTask(data);
             }
         }
 
-        // 3. Show Detail Panel (Structured)
+        // 3. Show Detail Panel (v3.12.1 - comprehensive info with files)
         function showDetailPanel(data) {
             const detailPanel = document.getElementById('detail-panel');
 
-            // Build Structured Content
-            detailPanel.innerHTML = `
-                <div class="detail-header" style="display:flex; justify-content:space-between; align-items:center;">
-                    <span style="font-size:12px; letter-spacing:2px; color:rgba(255,255,255,0.4);">ОБЗОР ПРОЕКТА</span>
-                    <button id="close-detail-btn" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">×</button>
-                </div>
-                <div class="detail-title" style="margin:20px 0; font-size:24px;">${data.title}</div>
-                
-                <div class="detail-content">
-                    <!-- Section: Status -->
-                    <div class="detail-section">
-                        <div class="section-title">СТАТУС</div>
-                        <div class="status-badge new">Новая</div>
-                    </div>
+            // Status config with icons
+            const statusConfig = {
+                'pending': { label: 'Ожидание', color: '#E8E8E8', bg: 'rgba(232,232,232,0.15)', icon: '○' },
+                'in_progress': { label: 'В работе', color: '#FFB347', bg: 'rgba(255,179,71,0.15)', icon: '◐' },
+                'blocked': { label: 'Проблема', color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)', icon: '⚠' },
+                'completed': { label: 'Готово', color: '#77DD77', bg: 'rgba(119,221,119,0.15)', icon: '●' }
+            };
+            const status = statusConfig[data.status] || statusConfig['pending'];
 
-                    <!-- Section: Info -->
-                    <div class="detail-section">
-                        <div class="section-title">ИНФОРМАЦИЯ</div>
-                        <div class="info-grid">
-                            <div class="info-row">
-                                <span class="info-label">ID</span>
-                                <span class="info-value">${data.id}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Агент</span>
-                                <span class="info-value">${data.agent}</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">База</span>
-                                <span class="info-value">${data.database}</span>
-                            </div>
+            // Sample files for demo (in real app, would come from task data)
+            const files = data.files || [];
+            const hasFiles = files.length > 0 || data.status === 'completed';
+
+            // Sample issues/questions
+            const issues = data.issues || [];
+            const hasIssues = issues.length > 0 || data.status === 'blocked';
+
+            // Build comprehensive panel
+            detailPanel.innerHTML = `
+                <!-- Header -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                    <div>
+                        <span style="font-size:8px; letter-spacing:1.5px; color:rgba(255,255,255,0.35); text-transform:uppercase; display:block; margin-bottom:4px;">Задача #${data.id}</span>
+                        <div style="font-size:13px; font-weight:500; color:#fff; line-height:1.3;">${data.title}</div>
+                    </div>
+                    <button id="close-detail-btn" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:16px; cursor:pointer; padding:0; margin-left:8px;">×</button>
+                </div>
+
+                <!-- Status Badge -->
+                <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 10px; background:${status.bg}; border-radius:12px; margin-bottom:12px;">
+                    <span style="color:${status.color}; font-size:12px;">${status.icon}</span>
+                    <span style="font-size:10px; color:${status.color}; font-weight:500;">${status.label}</span>
+                    <span style="font-size:9px; color:rgba(255,255,255,0.4);">${data.progress || 0}%</span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px; margin-bottom:14px; overflow:hidden;">
+                    <div style="width:${data.progress || 0}%; height:100%; background:linear-gradient(90deg, ${status.color}, ${status.color}aa); transition:width 0.3s; border-radius:2px;"></div>
+                </div>
+
+                <!-- Info Section -->
+                <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; margin-bottom:12px;">
+                    <div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:8px;">Информация</div>
+
+                    <div style="display:flex; flex-direction:column; gap:6px; font-size:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:rgba(255,255,255,0.5);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                Создано
+                            </span>
+                            <span style="color:rgba(255,255,255,0.7);">${data.createdAt || 'Только что'}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:rgba(255,255,255,0.5);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+                                Агент
+                            </span>
+                            <span style="color:#4ECDC4;">${data.agent || 'Не назначен'}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:rgba(255,255,255,0.5);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
+                                База знаний
+                            </span>
+                            <span style="color:rgba(255,255,255,0.7);">${data.database || 'VZOR Core'}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:rgba(255,255,255,0.5);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                                Категория
+                            </span>
+                            <span style="color:rgba(255,255,255,0.7);">${data.category || 'Общая'}</span>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Section: Results -->
-                    <div class="detail-section">
-                        <div class="section-title">РЕЗУЛЬТАТЫ</div>
-                        <div style="font-size:13px; color:rgba(255,255,255,0.3); font-style:italic;">Ожидание выполнения...</div>
+                <!-- Issues/Questions Section (if blocked or has issues) -->
+                ${hasIssues || data.status === 'blocked' ? `
+                <div style="background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); border-radius:8px; padding:10px; margin-bottom:12px;">
+                    <div style="font-size:8px; letter-spacing:1px; color:#FF6B6B; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        Требуется внимание
                     </div>
+                    <div style="font-size:10px; color:rgba(255,255,255,0.7); line-height:1.4;">
+                        ${issues.length > 0 ? issues.map(i => `• ${i}`).join('<br>') : '• Задача заблокирована. Проверьте входные данные.'}
+                    </div>
+                </div>
+                ` : ''}
+
+                <!-- Files Section -->
+                <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; margin-bottom:12px;">
+                    <div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>Результаты</span>
+                        <span style="color:rgba(255,255,255,0.2);">${hasFiles ? (files.length || 2) : 0} файлов</span>
+                    </div>
+
+                    ${data.status === 'completed' ? `
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div class="file-item" onclick="downloadFile('report_${data.id}.pdf')" style="display:flex; align-items:center; gap:8px; padding:8px; background:rgba(255,255,255,0.04); border-radius:6px; cursor:pointer; transition:background 0.2s;">
+                            <div style="width:28px; height:28px; background:rgba(255,71,87,0.2); border-radius:4px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF4757" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:10px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Отчёт_анализ.pdf</div>
+                                <div style="font-size:8px; color:rgba(255,255,255,0.4);">PDF • 2.4 MB</div>
+                            </div>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                        </div>
+                        <div class="file-item" onclick="downloadFile('data_${data.id}.xlsx')" style="display:flex; align-items:center; gap:8px; padding:8px; background:rgba(255,255,255,0.04); border-radius:6px; cursor:pointer; transition:background 0.2s;">
+                            <div style="width:28px; height:28px; background:rgba(46,204,113,0.2); border-radius:4px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M8 9h2"/></svg>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:10px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Данные_расчёт.xlsx</div>
+                                <div style="font-size:8px; color:rgba(255,255,255,0.4);">Excel • 856 KB</div>
+                            </div>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                        </div>
+                    </div>
+                    ` : `
+                    <div style="text-align:center; padding:15px 0; color:rgba(255,255,255,0.3);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:6px; opacity:0.5;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                        <div style="font-size:9px;">Файлы появятся после завершения</div>
+                    </div>
+                    `}
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display:flex; gap:6px; margin-top:auto;">
+                    <button onclick="updateTaskStatus(${data.id}, 'in_progress', 0)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,179,71,0.15); border:1px solid rgba(255,179,71,0.3); color:#FFB347; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        Старт
+                    </button>
+                    <button onclick="updateTaskStatus(${data.id}, 'blocked', 50)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3); color:#FF6B6B; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/></svg>
+                        Стоп
+                    </button>
+                    <button onclick="updateTaskStatus(${data.id}, 'completed', 100)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(119,221,119,0.15); border:1px solid rgba(119,221,119,0.3); color:#77DD77; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                        Готово
+                    </button>
                 </div>
             `;
 
+            // Adjust panel width for more content
+            detailPanel.style.width = '280px';
             detailPanel.classList.add('active');
 
-            // Re-attach close handler since we overwrote HTML
+            // Add hover effects for file items
+            detailPanel.querySelectorAll('.file-item').forEach(item => {
+                item.addEventListener('mouseenter', () => item.style.background = 'rgba(255,255,255,0.08)');
+                item.addEventListener('mouseleave', () => item.style.background = 'rgba(255,255,255,0.04)');
+            });
+
+            // Re-attach close handler
             document.getElementById('close-detail-btn').addEventListener('click', () => {
                 detailPanel.classList.remove('active');
                 if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
             });
 
-            // Show Nodes Button
-            const nodesBtn = document.getElementById('nodes-btn');
-            if (nodesBtn) nodesBtn.style.display = 'block';
+            // Highlight 3D point
+            window.taskPoints.forEach(t => t.mesh.scale.set(1, 1, 1));
+            data.mesh.scale.set(1.3, 1.3, 1.3);
 
-            // Highlight 3D point (simple scale up)
-            taskPoints.forEach(t => t.mesh.scale.set(1, 1, 1));
-            data.mesh.scale.set(1.5, 1.5, 1.5);
-
-            // Update Camera Aspect
             if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
         }
+
+        // File download function (demo)
+        window.downloadFile = function(filename) {
+            console.log('Downloading:', filename);
+            // In real app, would trigger actual download
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(78, 205, 196, 0.9);
+                color: #000;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 12px;
+                z-index: 9999;
+                animation: fadeInUp 0.3s ease;
+            `;
+            notification.textContent = `Скачивание: ${filename}`;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        };
 
         // 4. Click Handler for Tasks (Raycasting)
         document.addEventListener('click', (e) => {
@@ -2962,15 +4675,24 @@
 
             raycasterTasks.setFromCamera(mouse, camera);
 
-            // Check intersections with task spheres
-            const meshes = taskPoints.map(t => t.mesh);
+            // Check intersections with task points (v3.12.5: single Points objects)
+            const meshes = window.taskPoints.map(t => t.mesh);
             const intersects = raycasterTasks.intersectObjects(meshes);
 
             if (intersects.length > 0) {
                 const hitMesh = intersects[0].object;
-                const task = taskPoints.find(t => t.mesh === hitMesh);
+                const task = window.taskPoints.find(t => t.mesh === hitMesh);
                 if (task) {
                     showDetailPanel(task);
+                    // Obsidian-style highlight connected tasks
+                    if (window.highlightTaskConnections) {
+                        window.highlightTaskConnections(task.id);
+                    }
+                }
+            } else {
+                // Clicked empty space - reset highlights
+                if (window.highlightTaskConnections) {
+                    window.highlightTaskConnections(null);
                 }
             }
         });
@@ -3508,7 +5230,9 @@
             'bundle': '#FF6B6B',     // коралловый
             'reference': '#95A5A6',  // серый
             'data': '#4ECDC4',       // бирюзовый (алиас для object)
-            'document': '#6BCB77'    // зелёный (алиас для file)
+            'document': '#6BCB77',   // зелёный (алиас для file)
+            'closure': '#4ECDC4',    // бирюзовый (агент)
+            'trigger': '#FF69B4'     // розовый (flow/сигнал) — для цепочки задач
         };
 
         // ===== NODE EDITOR PANEL CONTROLS =====
@@ -3535,7 +5259,8 @@
             if (!svg) {
                 svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
                 svg.classList.add('connections-svg');
-                svg.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible;';
+                // v3.12: Changed from pointer-events:none to allow clicking on connection lines
+                svg.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:auto;z-index:5;overflow:visible;';
                 svg.innerHTML = `
                     <defs>
                         <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -3621,43 +5346,62 @@
 
             let nodeData;
             if (nodeType) {
-                // Используем готовый тип из библиотеки
+                // v3.11: Add flow ports to typed nodes
+                const inputsWithFlow = [
+                    { id: 'trigger_in', label: '▶ Старт', type: 'trigger' },
+                    { id: 'agent_ref', label: '🤖 Агент', type: 'closure' },
+                    ...nodeType.inputs
+                ];
+                const outputsWithFlow = [
+                    ...nodeType.outputs,
+                    { id: 'trigger_out', label: '✓ Готово →', type: 'trigger' }
+                ];
+
                 nodeData = {
                     id: nodeId,
                     type: detectedType,
                     title: nodeType.title,
                     category: nodeType.category,
-                    x: 50 + (nodeEditorState.nodes.size % 3) * 300,
-                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 220,
-                    inputs: [...nodeType.inputs],
-                    outputs: [...nodeType.outputs],
+                    x: 50 + (nodeEditorState.nodes.size % 3) * 340,
+                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 280,
+                    inputs: inputsWithFlow,
+                    outputs: outputsWithFlow,
                     agent: nodeType.agent,
                     database: nodeType.database,
                     taskId: taskData.id,
-                    originalTitle: taskData.title
+                    originalTitle: taskData.title,
+                    // v3.12.1: Status and files for results section
+                    status: taskData.status || 'pending',
+                    progress: taskData.progress || 0,
+                    files: taskData.files || []
                 };
             } else {
-                // Кастомная нода с базовыми портами
+                // v3.11: Custom node with flow ports
                 nodeData = {
                     id: nodeId,
                     type: 'custom',
                     title: taskData.title.toUpperCase().substring(0, 25),
                     category: 'custom',
-                    x: 50 + (nodeEditorState.nodes.size % 3) * 300,
-                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 220,
+                    x: 50 + (nodeEditorState.nodes.size % 3) * 340,
+                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 280,
                     inputs: [
+                        { id: 'trigger_in', label: '▶ Старт', type: 'trigger' },
+                        { id: 'agent_ref', label: '🤖 Агент', type: 'closure' },
                         { id: 'context', label: 'Контекст', type: 'bundle' },
-                        { id: 'data_in', label: 'Данные вход', type: 'object' },
-                        { id: 'params', label: 'Параметры', type: 'object' }
+                        { id: 'data_in', label: 'Данные вход', type: 'object' }
                     ],
                     outputs: [
                         { id: 'result', label: 'Результат', type: 'object' },
                         { id: 'report', label: 'Отчёт', type: 'file' },
-                        { id: 'data_out', label: 'Данные выход', type: 'object' }
+                        { id: 'trigger_out', label: '✓ Готово →', type: 'trigger' }
                     ],
                     agent: taskData.agent || 'Router Agent',
                     database: taskData.database || 'VZOR Core',
-                    taskId: taskData.id
+                    taskId: taskData.id,
+                    // v3.12.1: Status and files for results section
+                    status: taskData.status || 'pending',
+                    progress: taskData.progress || 0,
+                    files: taskData.files || []
                 };
             }
 
@@ -3707,10 +5451,21 @@
 
             const nodeId = nodeEditorState.nextNodeId++;
 
-            // Add agent_ref as first input for all nodes
-            const inputsWithAgent = [
-                { id: 'agent_ref', label: 'Агент', type: 'closure' },
+            // v3.11: Add flow/trigger ports + agent input for task chaining
+            // TRIGGER_IN at start → start this task when previous completes
+            // AGENT_REF → which agent executes this task
+            // ... other inputs ...
+            // ... outputs ...
+            // TRIGGER_OUT at end → signal next task to start
+            const inputsWithFlow = [
+                { id: 'trigger_in', label: '▶ Старт', type: 'trigger' },
+                { id: 'agent_ref', label: '🤖 Агент', type: 'closure' },
                 ...nodeType.inputs
+            ];
+
+            const outputsWithFlow = [
+                ...nodeType.outputs,
+                { id: 'trigger_out', label: '✓ Готово →', type: 'trigger' }
             ];
 
             const nodeData = {
@@ -3718,10 +5473,10 @@
                 type: typeKey,
                 title: nodeType.title,
                 category: nodeType.category,
-                x: 50 + (nodeEditorState.nodes.size % 3) * 320,
-                y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 250,
-                inputs: inputsWithAgent,
-                outputs: [...nodeType.outputs],
+                x: 50 + (nodeEditorState.nodes.size % 3) * 340,
+                y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 280,
+                inputs: inputsWithFlow,
+                outputs: outputsWithFlow,
                 agent: nodeType.agent,
                 database: nodeType.database
             };
@@ -3766,34 +5521,136 @@
                 </div>
             `).join('');
 
+            // v3.12.1: Status colors for node header
+            const statusColors = {
+                'pending': { color: '#888', label: 'Ожидание' },
+                'in_progress': { color: '#FFB347', label: 'В работе' },
+                'blocked': { color: '#FF6B6B', label: 'Проблема' },
+                'completed': { color: '#77DD77', label: 'Готово' }
+            };
+            const nodeStatus = statusColors[nodeData.status] || statusColors['pending'];
+
+            // v3.12.1: Generate results/files section
+            const resultsHTML = nodeData.status === 'completed' ? `
+                <div class="node-results">
+                    <div class="results-header">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                        РЕЗУЛЬТАТЫ
+                    </div>
+                    <div class="results-files">
+                        <div class="result-file" onclick="downloadFile('report_${nodeData.taskId || nodeData.id}.pdf')">
+                            <div class="file-icon pdf">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                            </div>
+                            <div class="file-info">
+                                <span class="file-name">Отчёт.pdf</span>
+                                <span class="file-size">2.4 MB</span>
+                            </div>
+                            <div class="file-download">⬇</div>
+                        </div>
+                        <div class="result-file" onclick="downloadFile('data_${nodeData.taskId || nodeData.id}.xlsx')">
+                            <div class="file-icon xlsx">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>
+                            </div>
+                            <div class="file-info">
+                                <span class="file-name">Данные.xlsx</span>
+                                <span class="file-size">856 KB</span>
+                            </div>
+                            <div class="file-download">⬇</div>
+                        </div>
+                    </div>
+                </div>
+            ` : nodeData.status === 'in_progress' ? `
+                <div class="node-results node-results-pending">
+                    <div class="results-header">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        В ПРОЦЕССЕ (${nodeData.progress || 0}%)
+                    </div>
+                    <div class="progress-bar-mini">
+                        <div class="progress-fill" style="width:${nodeData.progress || 0}%"></div>
+                    </div>
+                </div>
+            ` : `
+                <div class="node-results node-results-empty">
+                    <div class="results-header">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                        РЕЗУЛЬТАТЫ
+                    </div>
+                    <div class="no-results">Запустите для получения результатов</div>
+                </div>
+            `;
+
+            // Generate knowledge bases HTML
+            const knowledgeBases = nodeData.knowledgeBases || [];
+            const kbHTML = knowledgeBases.length > 0
+                ? knowledgeBases.map(kb => `
+                    <div class="kb-item" data-kb-id="${kb.id}">
+                        <span class="kb-check">✓</span>
+                        <span class="kb-name">${kb.name}</span>
+                        <span class="kb-remove" onclick="removeKnowledgeBase(${nodeData.id}, '${kb.id}')" title="Удалить">×</span>
+                    </div>
+                `).join('')
+                : '<div class="kb-empty">Нажмите + чтобы добавить</div>';
+
             node.innerHTML = `
                 <div class="node-header">
-                    <span class="node-status">●</span>
+                    <span class="node-status" style="color:${nodeStatus.color}" title="${nodeStatus.label}">●</span>
                     <span class="node-title">${nodeData.title}</span>
                     <span class="node-close">×</span>
                 </div>
                 <div class="node-body">
-                    <div class="node-ports">
-                        <div class="node-inputs">
-                            <div class="port-section-title">ВХОДЫ</div>
-                            ${inputsHTML}
+                    <!-- ЗАДАЧА (редактируемая) -->
+                    <div class="node-task-section">
+                        <div class="section-header">
+                            <span>📝 ЗАДАЧА</span>
                         </div>
-                        <div class="node-outputs">
-                            <div class="port-section-title">ВЫХОДЫ</div>
-                            ${outputsHTML}
+                        <textarea class="node-task-input"
+                            placeholder="Опишите задачу..."
+                            data-node-id="${nodeData.id}"
+                            onchange="updateNodeSetting(${nodeData.id}, 'taskDescription', this.value)"
+                        >${nodeData.taskDescription || nodeData.originalTitle || ''}</textarea>
+                    </div>
+
+                    <!-- БАЗЫ ЗНАНИЙ -->
+                    <div class="node-kb-section">
+                        <div class="section-header">
+                            <span>📚 БАЗЫ ЗНАНИЙ</span>
+                            <button class="section-add-btn" onclick="openKnowledgeBaseBrowser(${nodeData.id})" title="Добавить базу знаний">+</button>
+                        </div>
+                        <div class="kb-list" data-node-id="${nodeData.id}">
+                            ${kbHTML}
                         </div>
                     </div>
-                    <div class="node-settings">
-                        <div class="setting-row">
-                            <span>Agent:</span>
-                            <span class="setting-value">${nodeData.agent}</span>
+
+                    <!-- АГЕНТ -->
+                    <div class="node-agent-section">
+                        <div class="section-header">
+                            <span>🤖 АГЕНТ</span>
+                            <button class="section-change-btn" onclick="openAgentSelector(${nodeData.id})">Изменить</button>
                         </div>
-                        <div class="setting-row">
-                            <span>DB:</span>
-                            <span class="setting-value">${nodeData.database}</span>
+                        <div class="agent-card" onclick="openAgentSelector(${nodeData.id})">
+                            <div class="agent-name">${nodeData.agent || 'Не выбран'}</div>
+                            <div class="agent-model">${nodeData.agentModel || 'Выберите агента'}</div>
                         </div>
                     </div>
-                    <button class="node-run-btn">▶ ВЫПОЛНИТЬ</button>
+
+                    <!-- ПОРТЫ (свёрнуты по умолчанию) -->
+                    <details class="node-ports-details">
+                        <summary class="ports-summary">⚡ Входы/Выходы</summary>
+                        <div class="node-ports">
+                            <div class="node-inputs">
+                                <div class="port-section-title">ВХОДЫ</div>
+                                ${inputsHTML}
+                            </div>
+                            <div class="node-outputs">
+                                <div class="port-section-title">ВЫХОДЫ</div>
+                                ${outputsHTML}
+                            </div>
+                        </div>
+                    </details>
+
+                    ${resultsHTML}
+                    <button class="node-run-btn" data-node-id="${nodeData.id}">▶ ВЫПОЛНИТЬ</button>
                 </div>
             `;
 
@@ -3801,9 +5658,306 @@
             setupNodeDragging(node, nodeData);
             setupNodeClose(node, nodeData);
             setupPortConnections(node, nodeData);
+            setupNodeRunButton(node, nodeData);
 
             return node;
         }
+
+        // v3.12.1: Setup run button to execute node/task
+        function setupNodeRunButton(nodeEl, nodeData) {
+            const runBtn = nodeEl.querySelector('.node-run-btn');
+            if (!runBtn) return;
+
+            runBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+
+                // If already completed, don't run again (or reset?)
+                if (nodeData.status === 'completed') {
+                    console.log('Node already completed');
+                    return;
+                }
+
+                // Start the task
+                if (nodeData.taskId && window.updateTaskStatus) {
+                    // Simulate progress
+                    window.updateTaskStatus(nodeData.taskId, 'in_progress', 0);
+
+                    // Simulate work with progress updates
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress += Math.random() * 20 + 10;
+                        if (progress >= 100) {
+                            progress = 100;
+                            clearInterval(interval);
+                            window.updateTaskStatus(nodeData.taskId, 'completed', 100);
+                        } else {
+                            window.updateTaskStatus(nodeData.taskId, 'in_progress', Math.round(progress));
+                        }
+                    }, 800);
+                } else {
+                    // No linked task, just update node directly
+                    nodeData.status = 'in_progress';
+                    nodeData.progress = 0;
+
+                    const container = document.querySelector('.node-editor-content');
+                    const existingNode = container?.querySelector(`[data-node-id="${nodeData.id}"]`);
+                    if (existingNode) {
+                        const newNode = renderNode(nodeData);
+                        existingNode.replaceWith(newNode);
+                    }
+
+                    // Simulate completion
+                    setTimeout(() => {
+                        nodeData.status = 'completed';
+                        nodeData.progress = 100;
+                        const node2 = container?.querySelector(`[data-node-id="${nodeData.id}"]`);
+                        if (node2) {
+                            const finalNode = renderNode(nodeData);
+                            node2.replaceWith(finalNode);
+                        }
+                    }, 3000);
+                }
+            });
+        }
+
+        // v3.12.1: Update node setting (knowledge base, agent, methodology)
+        window.updateNodeSetting = function(nodeId, settingKey, value) {
+            const nodeData = nodeEditorState.nodes.get(nodeId);
+            if (!nodeData) return;
+
+            // Update the setting
+            nodeData[settingKey] = value;
+
+            // Log for debugging
+            console.log(`Node ${nodeId} setting updated:`, settingKey, '=', value);
+
+            // Visual feedback - briefly highlight the setting
+            const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+            if (nodeEl) {
+                const settingRow = nodeEl.querySelector(`[data-setting="${settingKey}"]`);
+                if (settingRow) {
+                    settingRow.style.background = 'rgba(78, 205, 196, 0.15)';
+                    setTimeout(() => {
+                        settingRow.style.background = '';
+                    }, 300);
+                }
+            }
+
+            // If this node is linked to a task, update the task data too
+            if (nodeData.taskId) {
+                const task = window.taskPoints?.find(t => t.id === nodeData.taskId);
+                if (task) {
+                    if (settingKey === 'agent') task.agent = value;
+                    if (settingKey === 'knowledgeBase') task.database = value;
+                }
+            }
+        };
+
+        // ==========================================
+        // KNOWLEDGE BASE BROWSER
+        // ==========================================
+
+        // Available knowledge bases (would come from API in production)
+        const availableKnowledgeBases = [
+            // INVEST
+            { id: 'market-moscow', name: 'Рынок недвижимости Москвы', category: 'invest', description: 'Аналитика рынка, цены, спрос' },
+            { id: 'cadastre', name: 'Кадастровые данные', category: 'invest', description: 'Росреестр, границы, обременения' },
+            { id: 'fin-models', name: 'Финансовые модели', category: 'invest', description: 'DCF, NPV, ROI шаблоны' },
+            // DESIGN
+            { id: 'sp-urban', name: 'СП 42.13330 (Градостроительство)', category: 'design', description: 'Планировка и застройка' },
+            { id: 'sp-housing', name: 'СП 54.13330 (Жилые здания)', category: 'design', description: 'Требования к жилью' },
+            { id: 'pzz-moscow', name: 'ПЗЗ Москвы', category: 'design', description: 'Правила землепользования' },
+            { id: 'references', name: 'Архитектурные референсы', category: 'design', description: 'Примеры проектов' },
+            // BUILD
+            { id: 'sp-mep', name: 'СП Инженерные системы', category: 'build', description: 'ВК, ОВ, ЭС нормативы' },
+            { id: 'smeta-norms', name: 'Сметные нормативы', category: 'build', description: 'ТЕР, ФЕР, расценки' },
+            { id: 'equipment-catalog', name: 'Каталог оборудования', category: 'build', description: 'Спецификации, цены' },
+            // SALES
+            { id: 'crm-templates', name: 'CRM шаблоны', category: 'sales', description: 'Скрипты, воронки' },
+            { id: 'marketing-db', name: 'Маркетинговые данные', category: 'sales', description: 'ЦА, каналы, конверсии' }
+        ];
+
+        let currentKBNodeId = null;
+
+        window.openKnowledgeBaseBrowser = function(nodeId) {
+            currentKBNodeId = nodeId;
+            const nodeData = nodeEditorState.nodes.get(nodeId);
+            const selectedKBs = nodeData?.knowledgeBases || [];
+            const selectedIds = selectedKBs.map(kb => kb.id);
+
+            // Create or show browser panel
+            let browser = document.getElementById('kb-browser-panel');
+            if (!browser) {
+                browser = document.createElement('div');
+                browser.id = 'kb-browser-panel';
+                browser.innerHTML = `
+                    <div class="kb-browser-header">
+                        <span>📚 Выберите базы знаний</span>
+                        <button onclick="closeKnowledgeBaseBrowser()">×</button>
+                    </div>
+                    <div class="kb-browser-search">
+                        <input type="text" placeholder="Поиск..." oninput="filterKnowledgeBases(this.value)">
+                    </div>
+                    <div class="kb-browser-list" id="kb-browser-list"></div>
+                `;
+                document.body.appendChild(browser);
+            }
+
+            // Populate list
+            const listEl = document.getElementById('kb-browser-list');
+            listEl.innerHTML = availableKnowledgeBases.map(kb => `
+                <div class="kb-browser-item ${selectedIds.includes(kb.id) ? 'selected' : ''}"
+                     data-kb-id="${kb.id}"
+                     onclick="toggleKnowledgeBase('${kb.id}')">
+                    <div class="kb-browser-check">${selectedIds.includes(kb.id) ? '✓' : ''}</div>
+                    <div class="kb-browser-info">
+                        <div class="kb-browser-name">${kb.name}</div>
+                        <div class="kb-browser-desc">${kb.description}</div>
+                    </div>
+                    <div class="kb-browser-category">${kb.category}</div>
+                </div>
+            `).join('');
+
+            browser.classList.add('active');
+        };
+
+        window.closeKnowledgeBaseBrowser = function() {
+            const browser = document.getElementById('kb-browser-panel');
+            if (browser) browser.classList.remove('active');
+            currentKBNodeId = null;
+        };
+
+        window.toggleKnowledgeBase = function(kbId) {
+            if (!currentKBNodeId) return;
+            const nodeData = nodeEditorState.nodes.get(currentKBNodeId);
+            if (!nodeData) return;
+
+            if (!nodeData.knowledgeBases) nodeData.knowledgeBases = [];
+
+            const existingIdx = nodeData.knowledgeBases.findIndex(kb => kb.id === kbId);
+            if (existingIdx >= 0) {
+                nodeData.knowledgeBases.splice(existingIdx, 1);
+            } else {
+                const kb = availableKnowledgeBases.find(k => k.id === kbId);
+                if (kb) nodeData.knowledgeBases.push({ id: kb.id, name: kb.name });
+            }
+
+            // Re-render node
+            const container = document.querySelector('.node-editor-content');
+            const existingNode = container?.querySelector(`[data-node-id="${currentKBNodeId}"]`);
+            if (existingNode) {
+                const newNode = renderNode(nodeData);
+                existingNode.replaceWith(newNode);
+            }
+
+            // Update browser UI
+            openKnowledgeBaseBrowser(currentKBNodeId);
+        };
+
+        window.removeKnowledgeBase = function(nodeId, kbId) {
+            const nodeData = nodeEditorState.nodes.get(nodeId);
+            if (!nodeData || !nodeData.knowledgeBases) return;
+
+            nodeData.knowledgeBases = nodeData.knowledgeBases.filter(kb => kb.id !== kbId);
+
+            // Re-render node
+            const container = document.querySelector('.node-editor-content');
+            const existingNode = container?.querySelector(`[data-node-id="${nodeId}"]`);
+            if (existingNode) {
+                const newNode = renderNode(nodeData);
+                existingNode.replaceWith(newNode);
+            }
+        };
+
+        window.filterKnowledgeBases = function(query) {
+            const items = document.querySelectorAll('.kb-browser-item');
+            const q = query.toLowerCase();
+            items.forEach(item => {
+                const name = item.querySelector('.kb-browser-name').textContent.toLowerCase();
+                const desc = item.querySelector('.kb-browser-desc').textContent.toLowerCase();
+                item.style.display = (name.includes(q) || desc.includes(q)) ? '' : 'none';
+            });
+        };
+
+        // ==========================================
+        // AGENT SELECTOR
+        // ==========================================
+
+        const availableAgents = [
+            { id: 'router', name: 'Router Agent', model: 'GPT-4', description: 'Маршрутизация задач, декомпозиция' },
+            { id: 'analyst-market', name: 'Market Analyst', model: 'DeepSeek R1', description: 'Анализ рынка недвижимости' },
+            { id: 'analyst-finance', name: 'Financial Analyst', model: 'DeepSeek R1', description: 'Финансовое моделирование' },
+            { id: 'architect', name: 'Architect', model: 'Claude 3', description: 'Архитектурное проектирование' },
+            { id: 'engineer-struct', name: 'Structural Engineer', model: 'DeepSeek R1', description: 'Конструктивные решения' },
+            { id: 'engineer-mep', name: 'MEP Engineer', model: 'DeepSeek R1', description: 'Инженерные системы' },
+            { id: 'legal', name: 'Legal Expert', model: 'GPT-4', description: 'Юридическая экспертиза' },
+            { id: 'estimator', name: 'Cost Estimator', model: 'DeepSeek R1', description: 'Сметные расчёты' }
+        ];
+
+        let currentAgentNodeId = null;
+
+        window.openAgentSelector = function(nodeId) {
+            currentAgentNodeId = nodeId;
+            const nodeData = nodeEditorState.nodes.get(nodeId);
+
+            let selector = document.getElementById('agent-selector-panel');
+            if (!selector) {
+                selector = document.createElement('div');
+                selector.id = 'agent-selector-panel';
+                selector.innerHTML = `
+                    <div class="agent-selector-header">
+                        <span>🤖 Выберите агента</span>
+                        <button onclick="closeAgentSelector()">×</button>
+                    </div>
+                    <div class="agent-selector-list" id="agent-selector-list"></div>
+                `;
+                document.body.appendChild(selector);
+            }
+
+            const listEl = document.getElementById('agent-selector-list');
+            listEl.innerHTML = availableAgents.map(agent => `
+                <div class="agent-selector-item ${nodeData?.agent === agent.name ? 'selected' : ''}"
+                     onclick="selectAgent('${agent.id}')">
+                    <div class="agent-selector-icon">🤖</div>
+                    <div class="agent-selector-info">
+                        <div class="agent-selector-name">${agent.name}</div>
+                        <div class="agent-selector-desc">${agent.description}</div>
+                        <div class="agent-selector-model">Модель: ${agent.model}</div>
+                    </div>
+                    ${nodeData?.agent === agent.name ? '<div class="agent-selector-check">✓</div>' : ''}
+                </div>
+            `).join('');
+
+            selector.classList.add('active');
+        };
+
+        window.closeAgentSelector = function() {
+            const selector = document.getElementById('agent-selector-panel');
+            if (selector) selector.classList.remove('active');
+            currentAgentNodeId = null;
+        };
+
+        window.selectAgent = function(agentId) {
+            if (!currentAgentNodeId) return;
+            const nodeData = nodeEditorState.nodes.get(currentAgentNodeId);
+            if (!nodeData) return;
+
+            const agent = availableAgents.find(a => a.id === agentId);
+            if (agent) {
+                nodeData.agent = agent.name;
+                nodeData.agentModel = agent.model;
+
+                // Re-render node
+                const container = document.querySelector('.node-editor-content');
+                const existingNode = container?.querySelector(`[data-node-id="${currentAgentNodeId}"]`);
+                if (existingNode) {
+                    const newNode = renderNode(nodeData);
+                    existingNode.replaceWith(newNode);
+                }
+            }
+
+            closeAgentSelector();
+        };
 
         // Setup node dragging with connection updates
         function setupNodeDragging(nodeEl, nodeData) {
@@ -3893,21 +6047,47 @@
 
         // Start dragging a new connection
         function startConnectionDrag(nodeId, portId, direction, e) {
+            console.log('🔗 Start connection drag:', nodeId, portId, direction);
+
             nodeEditorState.draggingConnection = {
                 fromNodeId: nodeId,
                 fromPortId: portId,
                 direction: direction
             };
 
+            // v3.12: Add visual feedback to source port
+            const container = document.querySelector('.node-editor-content');
+            const sourcePort = container.querySelector(`[data-node-id="${nodeId}"] .socket-output[data-port-id="${portId}"] .socket-dot`);
+            if (sourcePort) sourcePort.classList.add('dragging-from');
+
+            // v3.12: Highlight all potential input ports on OTHER nodes
+            const allInputs = container.querySelectorAll('.socket-input .socket-dot');
+            allInputs.forEach(input => {
+                const inputNode = input.closest('[data-node-id]');
+                if (inputNode && inputNode.dataset.nodeId !== nodeId) {
+                    input.classList.add('can-connect');
+                }
+            });
+
+            // Ensure SVG exists
+            initNodeEditorSVG();
+
             // Create temporary line
             const svg = document.querySelector('.connections-svg');
+            if (!svg) {
+                console.error('SVG container not found!');
+                return;
+            }
+
             const tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             tempLine.setAttribute('id', 'temp-connection');
             tempLine.setAttribute('stroke', '#4ECDC4');
-            tempLine.setAttribute('stroke-width', '2');
+            tempLine.setAttribute('stroke-width', '2.5');
             tempLine.setAttribute('fill', 'none');
-            tempLine.setAttribute('stroke-dasharray', '5,5');
+            tempLine.setAttribute('stroke-dasharray', '8,4');
+            tempLine.style.filter = 'drop-shadow(0 0 4px #4ECDC4)';
             svg.appendChild(tempLine);
+            console.log('🔗 Temp line created');
 
             const moveHandler = (e) => {
                 updateTempConnection(e);
@@ -3918,6 +6098,11 @@
                 document.removeEventListener('mouseup', upHandler);
                 const temp = document.getElementById('temp-connection');
                 if (temp) temp.remove();
+
+                // v3.12: Remove visual feedback
+                if (sourcePort) sourcePort.classList.remove('dragging-from');
+                allInputs.forEach(input => input.classList.remove('can-connect'));
+
                 nodeEditorState.draggingConnection = null;
             };
 
@@ -3925,36 +6110,131 @@
             document.addEventListener('mouseup', upHandler);
         }
 
-        // Update temporary connection line
+        // Update temporary connection line (v3.11: fixed for zoom/pan)
         function updateTempConnection(e) {
             const tempLine = document.getElementById('temp-connection');
             if (!tempLine || !nodeEditorState.draggingConnection) return;
 
-            const fromNode = nodeEditorState.nodes.get(nodeEditorState.draggingConnection.fromNodeId);
             const container = document.querySelector('.node-editor-content');
             const containerRect = container.getBoundingClientRect();
+            const { zoom, pan } = nodeEditorState;
 
-            const startX = fromNode.x + 260; // Right side of node
-            const startY = fromNode.y + 60;
-            const endX = (e.clientX - containerRect.left) / nodeEditorState.zoom;
-            const endY = (e.clientY - containerRect.top) / nodeEditorState.zoom;
+            // Get start position from the actual port element (screen coords)
+            const fromPos = getPortPosition(
+                nodeEditorState.draggingConnection.fromNodeId,
+                nodeEditorState.draggingConnection.fromPortId,
+                true // isOutput
+            );
+
+            // Fallback if port not found
+            const fromNode = nodeEditorState.nodes.get(nodeEditorState.draggingConnection.fromNodeId);
+            const startX = fromPos ? fromPos.x : (fromNode.x + 280) * zoom + pan.x;
+            const startY = fromPos ? fromPos.y : (fromNode.y + 60) * zoom + pan.y;
+
+            // Mouse position in screen coords relative to container
+            const endX = e.clientX - containerRect.left;
+            const endY = e.clientY - containerRect.top;
 
             const path = createBezierPath(startX, startY, endX, endY);
             tempLine.setAttribute('d', path);
         }
 
-        // Complete a connection
+        // Complete a connection with TYPE VALIDATION
         function completeConnection(toNodeId, toPortId) {
+            console.log('🔗 Complete connection attempt:', toNodeId, toPortId);
             const drag = nodeEditorState.draggingConnection;
-            if (!drag || drag.fromNodeId === toNodeId) return;
+            if (!drag) {
+                console.log('🔗 No drag state');
+                return;
+            }
+            if (drag.fromNodeId === toNodeId) {
+                console.log('🔗 Same node, skipping');
+                return;
+            }
+
+            // v3.12: TYPE VALIDATION - get port types
+            const fromNode = nodeEditorState.nodes.get(drag.fromNodeId);
+            const toNode = nodeEditorState.nodes.get(toNodeId);
+            if (!fromNode || !toNode) return;
+
+            const fromPort = fromNode.outputs.find(p => p.id === drag.fromPortId);
+            const toPort = toNode.inputs.find(p => p.id === toPortId);
+            if (!fromPort || !toPort) return;
+
+            const fromType = fromPort.type;
+            const toType = toPort.type;
+
+            // Type compatibility rules
+            const isCompatible = checkTypeCompatibility(fromType, toType);
+            if (!isCompatible) {
+                console.log(`🔗 ❌ Incompatible types: ${fromType} → ${toType}`);
+                // Visual feedback - flash red
+                showConnectionError(`Нельзя соединить ${fromType} → ${toType}`);
+                return;
+            }
+
+            // Check if connection already exists
+            const exists = nodeEditorState.connections.some(c =>
+                c.from.nodeId === drag.fromNodeId && c.from.portId === drag.fromPortId &&
+                c.to.nodeId === toNodeId && c.to.portId === toPortId
+            );
+            if (exists) {
+                console.log('🔗 Connection already exists');
+                return;
+            }
 
             // Add connection
-            nodeEditorState.connections.push({
+            const connection = {
                 from: { nodeId: drag.fromNodeId, portId: drag.fromPortId },
-                to: { nodeId: toNodeId, portId: toPortId }
-            });
+                to: { nodeId: toNodeId, portId: toPortId },
+                fromType: fromType,
+                toType: toType
+            };
+            nodeEditorState.connections.push(connection);
+            console.log('🔗 ✓ Connection created:', connection);
 
             renderAllConnections();
+        }
+
+        // Check type compatibility for connections
+        function checkTypeCompatibility(fromType, toType) {
+            // Exact match always works
+            if (fromType === toType) return true;
+
+            // Compatible type groups
+            const compatibleGroups = {
+                // Trigger flow: trigger → trigger
+                'trigger': ['trigger'],
+                // Data types that can connect to generic inputs
+                'string': ['string', 'any'],
+                'number': ['number', 'any'],
+                'boolean': ['boolean', 'any'],
+                'object': ['object', 'bundle', 'any'],
+                'array': ['array', 'any'],
+                'file': ['file', 'document', 'any'],
+                'document': ['document', 'file', 'any'],
+                'geo': ['geo', 'object', 'any'],
+                'bundle': ['bundle', 'object', 'any'],
+                'reference': ['reference', 'string', 'any'],
+                'date': ['date', 'string', 'any'],
+                'closure': ['closure']  // Agent only to agent
+            };
+
+            const allowed = compatibleGroups[fromType] || [fromType, 'any'];
+            return allowed.includes(toType);
+        }
+
+        // Show connection error feedback
+        function showConnectionError(message) {
+            const hint = document.getElementById('node-editor-hint');
+            if (hint) {
+                hint.innerText = `❌ ${message}`;
+                hint.style.color = '#FF6B6B';
+                hint.style.opacity = '1';
+                setTimeout(() => {
+                    hint.style.opacity = '0';
+                }, 2500);
+            }
         }
 
         // Get port position relative to container
@@ -4012,15 +6292,29 @@
                 const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
                 path.setAttribute('d', createBezierPath(fromX, fromY, toX, toY));
                 path.setAttribute('stroke', 'url(#wireGradient)');
-                path.setAttribute('stroke-width', '2');
+                path.setAttribute('stroke-width', '2.5');
                 path.setAttribute('fill', 'none');
                 path.setAttribute('data-conn-idx', idx);
                 path.style.cursor = 'pointer';
+                path.style.pointerEvents = 'stroke';  // Enable clicks on the line
+
+                // v3.12: Hover effect
+                path.addEventListener('mouseenter', () => {
+                    path.setAttribute('stroke-width', '4');
+                    path.style.filter = 'drop-shadow(0 0 4px #FF6B6B)';
+                });
+                path.addEventListener('mouseleave', () => {
+                    path.setAttribute('stroke-width', '2.5');
+                    path.style.filter = '';
+                });
 
                 // Click to delete connection
-                path.addEventListener('click', () => {
-                    nodeEditorState.connections.splice(idx, 1);
-                    renderAllConnections();
+                path.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (confirm('Удалить соединение?')) {
+                        nodeEditorState.connections.splice(idx, 1);
+                        renderAllConnections();
+                    }
                 });
 
                 svg.appendChild(path);
@@ -4137,6 +6431,12 @@
                 panel.classList.remove('active');
                 panel.style.height = '';  // Reset to CSS default
                 if (btn) btn.classList.remove('active');
+
+                // v3.12.7: Also close agent selector and KB browser when node editor closes
+                if (window.closeAgentSelector) window.closeAgentSelector();
+                const kbPanel = document.getElementById('kb-browser-panel');
+                if (kbPanel) kbPanel.classList.remove('active');
+
                 setTimeout(() => {
                     if (window.updateCameraAspect) window.updateCameraAspect();
                 }, 350);
@@ -4322,61 +6622,7 @@
             });
         });
 
-        // ===== VOICE INPUT (Web Speech API) =====
-        (function() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                console.warn('Speech Recognition not supported');
-                return;
-            }
-
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'ru-RU';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            const micBtn = document.getElementById('mic-btn');
-            const taskInput = document.getElementById('task-input');
-            let isListening = false;
-
-            if (!micBtn) return;
-
-            micBtn.addEventListener('click', () => {
-                if (isListening) {
-                    recognition.stop();
-                } else {
-                    recognition.start();
-                    micBtn.classList.add('listening');
-                    micBtn.style.background = 'rgba(255, 107, 107, 0.2)';
-                    micBtn.style.borderColor = '#FF6B6B';
-                    micBtn.style.color = '#FF6B6B';
-                    isListening = true;
-                }
-            });
-
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                if (taskInput) taskInput.value = text;
-                console.log('Voice input:', text);
-            };
-
-            recognition.onend = () => {
-                micBtn.classList.remove('listening');
-                micBtn.style.background = '';
-                micBtn.style.borderColor = '';
-                micBtn.style.color = '';
-                isListening = false;
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Speech error:', event.error);
-                micBtn.classList.remove('listening');
-                micBtn.style.background = '';
-                micBtn.style.borderColor = '';
-                micBtn.style.color = '';
-                isListening = false;
-            };
-        })();
+        // ===== VOICE INPUT - Removed duplicate (main voice input is above in VOICE INPUT PRIORITY section) =====
 
         // ===== SHOW/HIDE NODES TOGGLE BUTTON =====
         // Show when drilled into a project (isDrilled = true)
@@ -4389,6 +6635,122 @@
             const btn = document.getElementById('nodes-toggle-btn');
             if (btn) btn.classList.remove('visible');
             closeNodeEditor();
+        };
+
+        // ===== v3.12.8: TASK LIST PANEL =====
+        window.showTaskListBtn = function() {
+            const btn = document.getElementById('task-list-btn');
+            if (btn) {
+                btn.classList.add('visible');
+            }
+        };
+
+        window.hideTaskListBtn = function() {
+            const btn = document.getElementById('task-list-btn');
+            const panel = document.getElementById('task-list-panel');
+            if (btn) {
+                btn.classList.remove('visible');
+            }
+            if (panel) panel.style.right = '-240px';
+        };
+
+        // v3.11: Toggle Icon Bar visibility
+        window.toggleIconBar = function() {
+            const iconBar = document.getElementById('icon-bar');
+            const toggleBtn = document.getElementById('icon-bar-toggle');
+            if (!iconBar) return;
+
+            const isVisible = iconBar.classList.contains('visible');
+            if (isVisible) {
+                iconBar.classList.remove('visible');
+                if (toggleBtn) toggleBtn.innerHTML = '☰';
+            } else {
+                iconBar.classList.add('visible');
+                if (toggleBtn) toggleBtn.innerHTML = '×';
+            }
+        };
+
+        window.toggleTaskList = function() {
+            const panel = document.getElementById('task-list-panel');
+            if (!panel) return;
+
+            const isOpen = panel.style.right === '15px';
+            panel.style.right = isOpen ? '-220px' : '15px';
+
+            // Update task list content
+            if (!isOpen) {
+                updateTaskListContent();
+            }
+        };
+
+        window.updateTaskListContent = function() {
+            const content = document.getElementById('task-list-content');
+            if (!content) return;
+
+            if (!window.taskPoints || window.taskPoints.length === 0) {
+                content.innerHTML = '<div style="color: rgba(255,255,255,0.3); font-style: italic; font-size: 9px;">Нет задач</div>';
+                return;
+            }
+
+            // Status icons and colors (synced with 3D points)
+            const statusConfig = {
+                'pending': { icon: '○', color: 'rgba(255,255,255,0.5)' },
+                'in_progress': { icon: '◐', color: '#FFB347' },  // Amber - matches 3D
+                'blocked': { icon: '⚠', color: '#FF6B6B' },       // Coral - matches 3D
+                'completed': { icon: '●', color: '#77DD77' },     // Soft green - matches 3D
+                'error': { icon: '✕', color: '#FF6B6B' }
+            };
+
+            content.innerHTML = window.taskPoints.map((task, idx) => {
+                const status = statusConfig[task.status] || statusConfig['pending'];
+                const progressBar = task.progress > 0 ? `
+                    <div style="
+                        height: 2px;
+                        background: rgba(255,255,255,0.1);
+                        border-radius: 1px;
+                        margin-top: 4px;
+                        overflow: hidden;
+                    ">
+                        <div style="
+                            width: ${task.progress}%;
+                            height: 100%;
+                            background: ${status.color};
+                            transition: width 0.3s;
+                        "></div>
+                    </div>
+                ` : '';
+
+                return `
+                <div style="
+                    padding: 6px 8px;
+                    margin-bottom: 4px;
+                    background: rgba(255,255,255,0.03);
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background 0.15s;
+                    border-left: 2px solid ${status.color};
+                " onmouseover="this.style.background='rgba(255,255,255,0.06)'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.03)'"
+                   onclick="focusOnTask(${idx})">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 9px; color: rgba(255,255,255,0.8); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${task.title}</span>
+                        <span style="font-size: 8px; color: ${status.color}; margin-left: 4px;">${status.icon}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 7px; color: rgba(255,255,255,0.35); margin-top: 2px;">
+                        <span>${task.createdAt || ''}</span>
+                        <span>${task.progress > 0 ? task.progress + '%' : ''}</span>
+                    </div>
+                    ${progressBar}
+                </div>
+            `}).join('');
+        };
+
+        window.focusOnTask = function(idx) {
+            if (!window.taskPoints || !window.taskPoints[idx]) return;
+            const task = window.taskPoints[idx];
+            if (task && typeof showDetailPanel === 'function') {
+                showDetailPanel(task);
+            }
         };
 
         // ===== AUTO-CLOSE PANELS ON CLICK OUTSIDE =====
@@ -4404,8 +6766,13 @@
             const isDetailPanel = target.closest('#detail-panel');
             const isTaskInterface = target.closest('#task-interface');
 
+            // Also check task list panel and icon bar toggle
+            const isTaskListPanel = target.closest('#task-list-panel');
+            const isTaskListBtn = target.closest('#task-list-btn');
+            const isIconBarToggle = target.closest('#icon-bar-toggle');
+
             // If clicked on empty canvas area (not on any panel)
-            if (isCanvas && !isIconBar && !isSidePanel && !isNodeEditor && !isNodesBtn && !isDetailPanel && !isTaskInterface) {
+            if (isCanvas && !isIconBar && !isSidePanel && !isNodeEditor && !isNodesBtn && !isDetailPanel && !isTaskInterface && !isTaskListPanel && !isTaskListBtn && !isIconBarToggle) {
                 // Close side panel
                 const sidePanel = document.getElementById('side-panel');
                 if (sidePanel && sidePanel.classList.contains('active')) {
@@ -4423,6 +6790,20 @@
                 if (detailPanel && detailPanel.classList.contains('active')) {
                     detailPanel.classList.remove('active');
                     if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+                }
+
+                // Close task list panel
+                const taskListPanel = document.getElementById('task-list-panel');
+                if (taskListPanel && taskListPanel.style.right === '15px') {
+                    taskListPanel.style.right = '-220px';
+                }
+
+                // Hide icon bar
+                const iconBar = document.getElementById('icon-bar');
+                if (iconBar && iconBar.classList.contains('visible')) {
+                    iconBar.classList.remove('visible');
+                    const toggleBtn = document.getElementById('icon-bar-toggle');
+                    if (toggleBtn) toggleBtn.innerHTML = '☰';
                 }
             }
         });

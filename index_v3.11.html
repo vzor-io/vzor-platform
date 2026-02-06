@@ -1,4 +1,4 @@
-﻿Посмотрели по девятому скриншоту: пропало окно обвода текстового и голосового после того, как я поработал, открывал разные окна, открыл и закрыл их. Например, захотел сделать новую задачу<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 
 <head>
@@ -192,69 +192,76 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
-        /* Detail View Overlay (Side Panel) */
+        /* Detail View Overlay (Side Panel) - v3.11: more compact */
         #detail-panel {
             position: fixed;
             top: 50%;
-            right: -450px;
+            right: -320px;
             transform: translateY(-50%);
-            width: 360px;
+            width: 260px;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-right: none;
-            padding: 50px 35px;
+            padding: 25px 20px;
             z-index: 100;
             transition: right 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            height: 100vh;
-            /* Full height for side panel or centered? Orig was centered fixed height effectively. Let's keep it centered but taller if needed or stick to original. Orig was fixed width. */
-            /* Reverting to original height behavior but ensuring separation from task interface */
+            gap: 12px;
             height: auto;
-            min-height: 600px;
-            max-height: 90vh;
-            border-radius: 20px 0 0 20px;
+            min-height: 300px;
+            max-height: 70vh;
+            border-radius: 15px 0 0 15px;
+            font-size: 11px;
         }
 
         #detail-panel.active {
             right: 0;
         }
 
-        /* TASK INTERFACE (Floating Pill - Minimal) */
+        /* TASK INTERFACE (Floating Pill - Minimal) - v3.11: smaller, subtle glow */
         #task-interface {
             position: fixed;
-            bottom: -150px;
+            bottom: -100px;
             left: 50%;
             transform: translateX(-50%);
             width: auto;
-            min-width: 320px;
-            /* Much smaller */
-            max-width: 600px;
-            background: rgba(10, 10, 10, 0.85);
-            /* Slightly more transparent/dark */
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 6px 14px;
-            /* Very compact */
+            min-width: 200px;
+            max-width: 400px;
+            background: rgba(8, 8, 8, 0.9);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(78, 205, 196, 0.2);
+            padding: 5px 12px;
             z-index: 100;
-            transition: bottom 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.4s;
+            transition: bottom 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
             display: flex;
             align-items: center;
-            gap: 10px;
-            border-radius: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            gap: 8px;
+            border-radius: 25px;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.1), 0 8px 25px rgba(0, 0, 0, 0.4);
             opacity: 0;
             pointer-events: none;
         }
 
         #task-interface.active {
-            bottom: 30px;
+            bottom: 25px;
             opacity: 1;
             pointer-events: auto;
+        }
+
+        #task-interface #task-input {
+            font-size: 11px;
+            padding: 6px 10px;
+            min-width: 150px;
+        }
+
+        #task-interface #mic-btn {
+            width: 26px;
+            height: 26px;
+            font-size: 11px;
         }
 
 
@@ -508,30 +515,59 @@
         /* --- NEW CSS FOR V3.8 --- */
 
         /* 1. Icon Bar (Floating High-Tech) */
+        /* v3.11: Minimalist icon bar — smaller, less intrusive */
         #icon-bar {
             position: fixed;
-            left: 20px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
-            width: 48px;
+            width: 36px;
             height: auto;
             background: transparent;
-            /* No solid panel */
             border: none;
             z-index: 200;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 15px;
+            gap: 8px;
             pointer-events: none;
-            /* Initially disabled */
             opacity: 0;
             transition: opacity 0.5s ease;
         }
 
         #icon-bar.visible {
-            opacity: 1;
+            opacity: 0.6; /* More subtle */
             pointer-events: auto;
+        }
+
+        #icon-bar:hover {
+            opacity: 1;
+        }
+
+        /* v3.11: Icon bar toggle button */
+        #icon-bar-toggle {
+            display: none;
+            position: fixed;
+            left: 10px;
+            top: 10px;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+            cursor: pointer;
+            z-index: 201;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        #icon-bar-toggle:hover {
+            background: rgba(78, 205, 196, 0.2);
+            border-color: rgba(78, 205, 196, 0.4);
+            color: rgba(255, 255, 255, 0.8);
         }
 
         .icon-btn {
@@ -696,47 +732,49 @@
             font-family: monospace;
         }
 
-        /* NODES Toggle Button */
+        /* v3.11: NODES Toggle Button — smaller, more subtle */
         #nodes-toggle-btn {
             position: fixed;
-            bottom: 20px;
-            left: 60px;
-            padding: 10px 20px;
-            background: rgba(20, 20, 20, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
+            bottom: 15px;
+            left: 50px;
+            padding: 6px 12px;
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
             font-weight: 500;
             letter-spacing: 0.1em;
             cursor: pointer;
             z-index: 90;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
             transition: all 0.2s ease;
             opacity: 0;
             pointer-events: none;
         }
 
         #nodes-toggle-btn.visible {
-            opacity: 1;
+            opacity: 0.7;
             pointer-events: auto;
         }
 
         #nodes-toggle-btn:hover {
-            background: rgba(30, 30, 30, 0.95);
-            border-color: rgba(78, 205, 196, 0.4);
+            opacity: 1;
+            background: rgba(20, 20, 20, 0.9);
+            border-color: rgba(78, 205, 196, 0.3);
         }
 
         #nodes-toggle-btn.active {
-            background: rgba(78, 205, 196, 0.15);
-            border-color: rgba(78, 205, 196, 0.5);
+            background: rgba(78, 205, 196, 0.1);
+            border-color: rgba(78, 205, 196, 0.4);
             color: #4ECDC4;
+            opacity: 1;
         }
 
         #nodes-toggle-btn .btn-icon {
-            font-size: 16px;
+            font-size: 12px;
         }
 
         /* Legacy modal — HIDDEN */
@@ -1215,7 +1253,12 @@
 </head>
 
 <body>
-    <!-- ICON BAR (Always visible) - SVG High-Tech Icons -->
+    <!-- ICON BAR TOGGLE BUTTON (v3.11: hidden by default) -->
+    <button id="icon-bar-toggle" onclick="toggleIconBar()" title="Показать меню">
+        ☰
+    </button>
+
+    <!-- ICON BAR (Hidden by default in v3.11) - SVG High-Tech Icons -->
     <div id="icon-bar">
         <!-- Invest -->
         <div class="icon-btn" data-panel="invest" title="Invest">
@@ -1334,14 +1377,17 @@
                 position: absolute;
                 bottom: 10px;
                 left: 10px;
-                padding: 6px 10px;
-                background: rgba(0,0,0,0.6);
+                padding: 8px 12px;
+                background: rgba(0,0,0,0.7);
                 border-radius: 4px;
                 font-size: 9px;
-                color: rgba(255,255,255,0.5);
+                color: rgba(255,255,255,0.6);
                 pointer-events: none;
+                line-height: 1.6;
             ">
-                💡 Тяните от <span style="color:#4ECDC4">●</span> ВЫХОДА к <span style="color:#FF6B6B">●</span> ВХОДУ для соединения
+                💡 <b>Соединения:</b> тяните от ● ВЫХОДА к ● ВХОДУ<br>
+                🔗 <span style="color:#FF69B4">●</span> <b>Готово →</b> соединяйте с <span style="color:#FF69B4">●</span> <b>Старт</b> следующей задачи<br>
+                🤖 <span style="color:#4ECDC4">●</span> <b>Агент</b> — подключите источник агента
             </div>
         </div>
     </div>
@@ -1371,13 +1417,55 @@
 
     <!-- BACK TO START (Visible on Slide 2) -->
     <div id="home-btn" class="nav-btn" style="top: 40px; left: 40px;">
-        ← START
+        ← BACK
     </div>
 
-    <!-- ADD BUTTON (Visible on Slide 2) -->
-    <!-- ADD BUTTON (Visible on Slide 2) -->
-    <!-- ADD BUTTON REMOVED (Logic replaced by automated context) -->
-    <!-- <div id="add-task-btn" ...></div> -->
+    <!-- v3.11: Task List Button (top right) -->
+    <button id="task-list-btn" onclick="toggleTaskList()" style="
+        position: fixed;
+        top: 15px;
+        right: 15px;
+        width: 32px;
+        height: 32px;
+        background: rgba(10, 10, 10, 0.6);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 6px;
+        color: rgba(255,255,255,0.5);
+        font-size: 14px;
+        cursor: pointer;
+        z-index: 150;
+        opacity: 0;
+        pointer-events: none;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    " title="Список задач">
+        ☰
+    </button>
+
+    <!-- v3.11: Task List Panel (slides from right) -->
+    <div id="task-list-panel" style="
+        position: fixed;
+        top: 55px;
+        right: -220px;
+        width: 200px;
+        max-height: 60vh;
+        background: rgba(10, 10, 12, 0.95);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 10px;
+        z-index: 149;
+        transition: right 0.3s ease;
+        overflow-y: auto;
+    ">
+        <div style="font-size: 9px; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px;">
+            Задачи
+        </div>
+        <div id="task-list-content" style="font-size: 11px; color: rgba(255,255,255,0.7);">
+            <div style="color: rgba(255,255,255,0.3); font-style: italic;">Нет задач</div>
+        </div>
+    </div>
 
     <!-- TASK CREATION INTERFACE (Floating Pill - Minimal) -->
     <div id="task-interface">
@@ -1385,7 +1473,7 @@
         <!-- Input Field -->
         <input type="text" id="task-input" placeholder="New task..."
             style="flex-grow: 1; background: transparent; border: none; color: white; font-family: 'Outfit'; font-size: 0.9em; outline: none; padding: 4px 5px; letter-spacing: 0.05em;"
-            onkeydown="if(event.key === 'Enter') { console.log('Task Created'); document.getElementById('task-interface').classList.remove('active'); }">
+            onkeydown="if(event.key === 'Enter' && this.value.trim()) { window.addTaskPoint(this.value.trim(), currentCategory || 'General'); this.value = ''; }">
 
         <!-- Icons Group -->
         <div style="display: flex; gap: 8px; padding-left: 5px; border-left: 1px solid rgba(255,255,255,0.15);">
@@ -1410,10 +1498,12 @@
             </button>
         </div>
 
-        <!-- Close Button -->
-        <button onclick="document.getElementById('task-interface').classList.remove('active')"
+        <!-- v3.11: Removed close button - task interface should always be accessible in drill-down -->
+        <!-- Clear input button instead -->
+        <button onclick="document.getElementById('task-input').value = ''; document.getElementById('task-input').focus();"
             style="background: transparent; border: none; color: rgba(255,255,255,0.3); font-size: 0.9em; cursor: pointer; padding: 0 5px; margin-left: 5px;"
-            onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+            onmouseover="this.style.color='white'" onmouseout="this.style.color='rgba(255,255,255,0.3)'"
+            title="Очистить">
             ✕
         </button>
     </div>
@@ -1834,8 +1924,8 @@
                              // GRAPH NODE -> HIDE
                              drillVisibility = 1.0 - smoothstep(0.1, 0.3, t3);
                          } else {
-                             // CLOUD -> VISIBLE BACKGROUND
-                             drillVisibility = 0.4;
+                             // CLOUD -> VISIBLE BACKGROUND (v3.11: increased 0.4 -> 0.65)
+                             drillVisibility = 0.65;
                          }
                     }
                     
@@ -2046,6 +2136,16 @@
 
                     // SHOW NODES TOGGLE BUTTON
                     if (window.showNodesToggle) window.showNodesToggle();
+
+                    // v3.11: Show task list button
+                    if (window.showTaskListBtn) window.showTaskListBtn();
+
+                    // v3.11: Show task point meshes when entering drill-down
+                    if (window.taskPoints) {
+                        window.taskPoints.forEach(task => {
+                            if (task.mesh) task.mesh.visible = true;
+                        });
+                    }
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
@@ -2117,8 +2217,9 @@
             // document.getElementById('detail-panel').classList.add('active'); // DISABLED
             document.getElementById('back-button').classList.add('visible');
             document.getElementById('back-button').classList.add('visible');
-            // Show Icon Bar in Drill Down
-            document.getElementById('icon-bar').classList.add('visible');
+            // Icon Bar hidden by default - user can toggle with button
+            // document.getElementById('icon-bar').classList.add('visible');
+            document.getElementById('icon-bar-toggle').style.display = 'flex';
 
             document.getElementById('scrollHint').style.opacity = "0";
             document.getElementById('progressDots').style.opacity = "0";
@@ -2247,8 +2348,21 @@
             // Hide Nodes Button & Close Node Editor
             if (window.hideNodesToggle) window.hideNodesToggle();
 
+            // v3.11: Hide task list button
+            if (window.hideTaskListBtn) window.hideTaskListBtn();
+
             // Close Side Panel
             if (typeof closeSidePanel === 'function') closeSidePanel();
+
+            // v3.11: Hide icon bar toggle
+            document.getElementById('icon-bar-toggle').style.display = 'none';
+
+            // v3.11: Hide task point meshes when leaving drill-down
+            if (window.taskPoints) {
+                window.taskPoints.forEach(task => {
+                    if (task.mesh) task.mesh.visible = false;
+                });
+            }
 
             // Restore Top Header
             const st = document.getElementById('slideTitle');
@@ -2490,7 +2604,7 @@
 
             // Also move camera for real 3D zoom effect (when drilled)
             if (isDrilled) {
-                const baseDistance = 300; // Default camera Z
+                const baseDistance = 400; // Default camera Z (v3.11: was 300, now 400)
                 const targetDistance = baseDistance / currentZoom;
                 const currentDistance = camera.position.length();
                 const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
@@ -2512,8 +2626,8 @@
                 controls.update();
 
                 // Scale task point spheres with zoom
-                if (typeof taskPoints !== 'undefined') {
-                    taskPoints.forEach(task => {
+                if (window.taskPoints) {
+                    window.taskPoints.forEach(task => {
                         if (task.mesh) {
                             const baseScale = task.isSelected ? 1.5 : 1.0;
                             task.mesh.scale.setScalar(baseScale * currentZoom);
@@ -2552,7 +2666,8 @@
                 }
             } else {
                 // Script handles camera (Scroll Logic)
-                const baseZ = 450 - drillProg * 150;
+                // v3.11: Changed from 150 to 50 — camera stays further back (400 instead of 300)
+                const baseZ = 450 - drillProg * 50;
                 camera.position.z = baseZ;
                 camera.position.x = 0;
                 camera.position.y = 0;
@@ -2711,7 +2826,7 @@
                             console.error("addTaskPoint not defined globally!");
                         }
                         e.target.value = "";
-                        document.getElementById('task-interface').classList.remove('active');
+                        // v3.11: Don't hide task-interface — keep it visible for more task creation
                     }
                 }
             });
@@ -2827,7 +2942,7 @@
         // UNIFIED TASK SYSTEM & NODE EDITOR LOGIC
         // ==========================================
 
-        const taskPoints = []; // Store task meshes
+        window.taskPoints = []; // Store task meshes (global for panel access)
         const raycasterTasks = new THREE.Raycaster();
 
         // 1. Function to Add Task Point (Called by Enter/Voice)
@@ -2836,22 +2951,40 @@
 
             console.log("Creating Task:", text, category);
 
-            // Create 3D Point (Orange Sphere)
-            const geometry = new THREE.SphereGeometry(2, 32, 32);
+            // Create 3D Point (Orange Sphere) - v3.11: increased size 2 -> 5
+            const geometry = new THREE.SphereGeometry(5, 32, 32);
             const material = new THREE.MeshBasicMaterial({ color: 0xffaa00 });
             const sphere = new THREE.Mesh(geometry, material);
 
-            // Random position in front of camera for visibility
-            // In a real app, this might be raycast to a plane
-            sphere.position.set(
-                (Math.random() - 0.5) * 50,
-                (Math.random() - 0.5) * 30,
-                (Math.random() - 0.5) * 20
-            );
+            // v3.11: Smarter positioning - spread tasks out more, avoid overlapping
+            const minDistance = 30; // Minimum distance between tasks
+            let attempts = 0;
+            let validPosition = false;
+            let x, y, z;
 
-            // Allow manual positioning override if raycast existed (simplified here)
-            // If we had the raycaster intersection from mouse, we'd use that point.
-            // For now, center-ish is fine.
+            // Try to find a position that doesn't overlap with existing tasks
+            while (!validPosition && attempts < 20) {
+                // Larger spread area: 150x100x60
+                x = (Math.random() - 0.5) * 150;
+                y = (Math.random() - 0.5) * 100;
+                z = (Math.random() - 0.5) * 60;
+
+                validPosition = true;
+                // Check distance from all existing tasks
+                for (const existingTask of window.taskPoints) {
+                    const dx = existingTask.mesh.position.x - x;
+                    const dy = existingTask.mesh.position.y - y;
+                    const dz = existingTask.mesh.position.z - z;
+                    const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                    if (dist < minDistance) {
+                        validPosition = false;
+                        break;
+                    }
+                }
+                attempts++;
+            }
+
+            sphere.position.set(x, y, z);
 
             scene.add(sphere);
 
@@ -2866,7 +2999,7 @@
                 database: 'VZOR Core'
             };
 
-            taskPoints.push(taskData);
+            window.taskPoints.push(taskData);
 
             // AUTO-ACTION 1: Create Node in Node Editor
             addNodeToEditor(taskData);
@@ -2944,7 +3077,7 @@
             if (nodesBtn) nodesBtn.style.display = 'block';
 
             // Highlight 3D point (simple scale up)
-            taskPoints.forEach(t => t.mesh.scale.set(1, 1, 1));
+            window.taskPoints.forEach(t => t.mesh.scale.set(1, 1, 1));
             data.mesh.scale.set(1.5, 1.5, 1.5);
 
             // Update Camera Aspect
@@ -2963,12 +3096,12 @@
             raycasterTasks.setFromCamera(mouse, camera);
 
             // Check intersections with task spheres
-            const meshes = taskPoints.map(t => t.mesh);
+            const meshes = window.taskPoints.map(t => t.mesh);
             const intersects = raycasterTasks.intersectObjects(meshes);
 
             if (intersects.length > 0) {
                 const hitMesh = intersects[0].object;
-                const task = taskPoints.find(t => t.mesh === hitMesh);
+                const task = window.taskPoints.find(t => t.mesh === hitMesh);
                 if (task) {
                     showDetailPanel(task);
                 }
@@ -3508,7 +3641,9 @@
             'bundle': '#FF6B6B',     // коралловый
             'reference': '#95A5A6',  // серый
             'data': '#4ECDC4',       // бирюзовый (алиас для object)
-            'document': '#6BCB77'    // зелёный (алиас для file)
+            'document': '#6BCB77',   // зелёный (алиас для file)
+            'closure': '#4ECDC4',    // бирюзовый (агент)
+            'trigger': '#FF69B4'     // розовый (flow/сигнал) — для цепочки задач
         };
 
         // ===== NODE EDITOR PANEL CONTROLS =====
@@ -3621,39 +3756,50 @@
 
             let nodeData;
             if (nodeType) {
-                // Используем готовый тип из библиотеки
+                // v3.11: Add flow ports to typed nodes
+                const inputsWithFlow = [
+                    { id: 'trigger_in', label: '▶ Старт', type: 'trigger' },
+                    { id: 'agent_ref', label: '🤖 Агент', type: 'closure' },
+                    ...nodeType.inputs
+                ];
+                const outputsWithFlow = [
+                    ...nodeType.outputs,
+                    { id: 'trigger_out', label: '✓ Готово →', type: 'trigger' }
+                ];
+
                 nodeData = {
                     id: nodeId,
                     type: detectedType,
                     title: nodeType.title,
                     category: nodeType.category,
-                    x: 50 + (nodeEditorState.nodes.size % 3) * 300,
-                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 220,
-                    inputs: [...nodeType.inputs],
-                    outputs: [...nodeType.outputs],
+                    x: 50 + (nodeEditorState.nodes.size % 3) * 340,
+                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 280,
+                    inputs: inputsWithFlow,
+                    outputs: outputsWithFlow,
                     agent: nodeType.agent,
                     database: nodeType.database,
                     taskId: taskData.id,
                     originalTitle: taskData.title
                 };
             } else {
-                // Кастомная нода с базовыми портами
+                // v3.11: Custom node with flow ports
                 nodeData = {
                     id: nodeId,
                     type: 'custom',
                     title: taskData.title.toUpperCase().substring(0, 25),
                     category: 'custom',
-                    x: 50 + (nodeEditorState.nodes.size % 3) * 300,
-                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 220,
+                    x: 50 + (nodeEditorState.nodes.size % 3) * 340,
+                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 280,
                     inputs: [
+                        { id: 'trigger_in', label: '▶ Старт', type: 'trigger' },
+                        { id: 'agent_ref', label: '🤖 Агент', type: 'closure' },
                         { id: 'context', label: 'Контекст', type: 'bundle' },
-                        { id: 'data_in', label: 'Данные вход', type: 'object' },
-                        { id: 'params', label: 'Параметры', type: 'object' }
+                        { id: 'data_in', label: 'Данные вход', type: 'object' }
                     ],
                     outputs: [
                         { id: 'result', label: 'Результат', type: 'object' },
                         { id: 'report', label: 'Отчёт', type: 'file' },
-                        { id: 'data_out', label: 'Данные выход', type: 'object' }
+                        { id: 'trigger_out', label: '✓ Готово →', type: 'trigger' }
                     ],
                     agent: taskData.agent || 'Router Agent',
                     database: taskData.database || 'VZOR Core',
@@ -3707,10 +3853,21 @@
 
             const nodeId = nodeEditorState.nextNodeId++;
 
-            // Add agent_ref as first input for all nodes
-            const inputsWithAgent = [
-                { id: 'agent_ref', label: 'Агент', type: 'closure' },
+            // v3.11: Add flow/trigger ports + agent input for task chaining
+            // TRIGGER_IN at start → start this task when previous completes
+            // AGENT_REF → which agent executes this task
+            // ... other inputs ...
+            // ... outputs ...
+            // TRIGGER_OUT at end → signal next task to start
+            const inputsWithFlow = [
+                { id: 'trigger_in', label: '▶ Старт', type: 'trigger' },
+                { id: 'agent_ref', label: '🤖 Агент', type: 'closure' },
                 ...nodeType.inputs
+            ];
+
+            const outputsWithFlow = [
+                ...nodeType.outputs,
+                { id: 'trigger_out', label: '✓ Готово →', type: 'trigger' }
             ];
 
             const nodeData = {
@@ -3718,10 +3875,10 @@
                 type: typeKey,
                 title: nodeType.title,
                 category: nodeType.category,
-                x: 50 + (nodeEditorState.nodes.size % 3) * 320,
-                y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 250,
-                inputs: inputsWithAgent,
-                outputs: [...nodeType.outputs],
+                x: 50 + (nodeEditorState.nodes.size % 3) * 340,
+                y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 280,
+                inputs: inputsWithFlow,
+                outputs: outputsWithFlow,
                 agent: nodeType.agent,
                 database: nodeType.database
             };
@@ -3925,19 +4082,30 @@
             document.addEventListener('mouseup', upHandler);
         }
 
-        // Update temporary connection line
+        // Update temporary connection line (v3.11: fixed for zoom/pan)
         function updateTempConnection(e) {
             const tempLine = document.getElementById('temp-connection');
             if (!tempLine || !nodeEditorState.draggingConnection) return;
 
-            const fromNode = nodeEditorState.nodes.get(nodeEditorState.draggingConnection.fromNodeId);
             const container = document.querySelector('.node-editor-content');
             const containerRect = container.getBoundingClientRect();
+            const { zoom, pan } = nodeEditorState;
 
-            const startX = fromNode.x + 260; // Right side of node
-            const startY = fromNode.y + 60;
-            const endX = (e.clientX - containerRect.left) / nodeEditorState.zoom;
-            const endY = (e.clientY - containerRect.top) / nodeEditorState.zoom;
+            // Get start position from the actual port element (screen coords)
+            const fromPos = getPortPosition(
+                nodeEditorState.draggingConnection.fromNodeId,
+                nodeEditorState.draggingConnection.fromPortId,
+                true // isOutput
+            );
+
+            // Fallback if port not found
+            const fromNode = nodeEditorState.nodes.get(nodeEditorState.draggingConnection.fromNodeId);
+            const startX = fromPos ? fromPos.x : (fromNode.x + 280) * zoom + pan.x;
+            const startY = fromPos ? fromPos.y : (fromNode.y + 60) * zoom + pan.y;
+
+            // Mouse position in screen coords relative to container
+            const endX = e.clientX - containerRect.left;
+            const endY = e.clientY - containerRect.top;
 
             const path = createBezierPath(startX, startY, endX, endY);
             tempLine.setAttribute('d', path);
@@ -4322,61 +4490,7 @@
             });
         });
 
-        // ===== VOICE INPUT (Web Speech API) =====
-        (function() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                console.warn('Speech Recognition not supported');
-                return;
-            }
-
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'ru-RU';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            const micBtn = document.getElementById('mic-btn');
-            const taskInput = document.getElementById('task-input');
-            let isListening = false;
-
-            if (!micBtn) return;
-
-            micBtn.addEventListener('click', () => {
-                if (isListening) {
-                    recognition.stop();
-                } else {
-                    recognition.start();
-                    micBtn.classList.add('listening');
-                    micBtn.style.background = 'rgba(255, 107, 107, 0.2)';
-                    micBtn.style.borderColor = '#FF6B6B';
-                    micBtn.style.color = '#FF6B6B';
-                    isListening = true;
-                }
-            });
-
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                if (taskInput) taskInput.value = text;
-                console.log('Voice input:', text);
-            };
-
-            recognition.onend = () => {
-                micBtn.classList.remove('listening');
-                micBtn.style.background = '';
-                micBtn.style.borderColor = '';
-                micBtn.style.color = '';
-                isListening = false;
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Speech error:', event.error);
-                micBtn.classList.remove('listening');
-                micBtn.style.background = '';
-                micBtn.style.borderColor = '';
-                micBtn.style.color = '';
-                isListening = false;
-            };
-        })();
+        // ===== VOICE INPUT - Removed duplicate (main voice input is above in VOICE INPUT PRIORITY section) =====
 
         // ===== SHOW/HIDE NODES TOGGLE BUTTON =====
         // Show when drilled into a project (isDrilled = true)
@@ -4389,6 +4503,88 @@
             const btn = document.getElementById('nodes-toggle-btn');
             if (btn) btn.classList.remove('visible');
             closeNodeEditor();
+        };
+
+        // ===== v3.11: TASK LIST PANEL =====
+        window.showTaskListBtn = function() {
+            const btn = document.getElementById('task-list-btn');
+            if (btn) {
+                btn.style.opacity = '0.6';
+                btn.style.pointerEvents = 'auto';
+            }
+        };
+
+        window.hideTaskListBtn = function() {
+            const btn = document.getElementById('task-list-btn');
+            const panel = document.getElementById('task-list-panel');
+            if (btn) {
+                btn.style.opacity = '0';
+                btn.style.pointerEvents = 'none';
+            }
+            if (panel) panel.style.right = '-220px';
+        };
+
+        // v3.11: Toggle Icon Bar visibility
+        window.toggleIconBar = function() {
+            const iconBar = document.getElementById('icon-bar');
+            const toggleBtn = document.getElementById('icon-bar-toggle');
+            if (!iconBar) return;
+
+            const isVisible = iconBar.classList.contains('visible');
+            if (isVisible) {
+                iconBar.classList.remove('visible');
+                if (toggleBtn) toggleBtn.innerHTML = '☰';
+            } else {
+                iconBar.classList.add('visible');
+                if (toggleBtn) toggleBtn.innerHTML = '×';
+            }
+        };
+
+        window.toggleTaskList = function() {
+            const panel = document.getElementById('task-list-panel');
+            if (!panel) return;
+
+            const isOpen = panel.style.right === '15px';
+            panel.style.right = isOpen ? '-220px' : '15px';
+
+            // Update task list content
+            if (!isOpen) {
+                updateTaskListContent();
+            }
+        };
+
+        window.updateTaskListContent = function() {
+            const content = document.getElementById('task-list-content');
+            if (!content) return;
+
+            if (!window.taskPoints || window.taskPoints.length === 0) {
+                content.innerHTML = '<div style="color: rgba(255,255,255,0.3); font-style: italic;">Нет задач</div>';
+                return;
+            }
+
+            content.innerHTML = window.taskPoints.map((task, idx) => `
+                <div style="
+                    padding: 6px 8px;
+                    margin-bottom: 4px;
+                    background: rgba(255,255,255,0.03);
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background 0.15s;
+                " onmouseover="this.style.background='rgba(78,205,196,0.1)'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.03)'"
+                   onclick="focusOnTask(${idx})">
+                    <div style="font-size: 10px; color: rgba(255,255,255,0.8);">${task.title}</div>
+                    <div style="font-size: 8px; color: rgba(255,255,255,0.4);">${task.category || 'General'}</div>
+                </div>
+            `).join('');
+        };
+
+        window.focusOnTask = function(idx) {
+            if (!window.taskPoints || !window.taskPoints[idx]) return;
+            const task = window.taskPoints[idx];
+            if (task && typeof showDetailPanel === 'function') {
+                showDetailPanel(task);
+            }
         };
 
         // ===== AUTO-CLOSE PANELS ON CLICK OUTSIDE =====
@@ -4404,8 +4600,13 @@
             const isDetailPanel = target.closest('#detail-panel');
             const isTaskInterface = target.closest('#task-interface');
 
+            // Also check task list panel and icon bar toggle
+            const isTaskListPanel = target.closest('#task-list-panel');
+            const isTaskListBtn = target.closest('#task-list-btn');
+            const isIconBarToggle = target.closest('#icon-bar-toggle');
+
             // If clicked on empty canvas area (not on any panel)
-            if (isCanvas && !isIconBar && !isSidePanel && !isNodeEditor && !isNodesBtn && !isDetailPanel && !isTaskInterface) {
+            if (isCanvas && !isIconBar && !isSidePanel && !isNodeEditor && !isNodesBtn && !isDetailPanel && !isTaskInterface && !isTaskListPanel && !isTaskListBtn && !isIconBarToggle) {
                 // Close side panel
                 const sidePanel = document.getElementById('side-panel');
                 if (sidePanel && sidePanel.classList.contains('active')) {
@@ -4423,6 +4624,20 @@
                 if (detailPanel && detailPanel.classList.contains('active')) {
                     detailPanel.classList.remove('active');
                     if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+                }
+
+                // Close task list panel
+                const taskListPanel = document.getElementById('task-list-panel');
+                if (taskListPanel && taskListPanel.style.right === '15px') {
+                    taskListPanel.style.right = '-220px';
+                }
+
+                // Hide icon bar
+                const iconBar = document.getElementById('icon-bar');
+                if (iconBar && iconBar.classList.contains('visible')) {
+                    iconBar.classList.remove('visible');
+                    const toggleBtn = document.getElementById('icon-bar-toggle');
+                    if (toggleBtn) toggleBtn.innerHTML = '☰';
                 }
             }
         });

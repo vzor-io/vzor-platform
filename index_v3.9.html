@@ -1,4 +1,4 @@
-﻿Посмотрели по девятому скриншоту: пропало окно обвода текстового и голосового после того, как я поработал, открывал разные окна, открыл и закрыл их. Например, захотел сделать новую задачу<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ru">
 
 <head>
@@ -563,18 +563,6 @@
             transform: scale(1.1);
         }
 
-        .icon-btn.active {
-            background: rgba(78, 205, 196, 0.15);
-            border-color: rgba(78, 205, 196, 0.5);
-            color: #4ECDC4;
-            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
-        }
-
-        .icon-btn svg {
-            width: 20px;
-            height: 20px;
-        }
-
         .icon-separator {
             width: 20px;
             height: 1px;
@@ -594,544 +582,129 @@
             background: #0a0a0a !important;
         }
 
-        /* 3. Node Editor Panel — ВЫДВИЖНАЯ ПАНЕЛЬ СНИЗУ (Blender-style) */
-        #node-editor-panel {
-            position: fixed;
-            bottom: 0;
-            left: 48px;  /* После icon-bar */
-            right: 0;
-            height: 0;
-            background: rgba(10, 10, 10, 0.98);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            z-index: 100;
-            display: flex;
-            flex-direction: column;
-            transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-            overflow: hidden;
+        /* 3. Node Editor Modal (Styles to override inline or support class toggling) */
+        #node-editor-modal.active {
+            display: flex !important;
         }
 
-        #node-editor-panel.active {
-            height: 300px;
-        }
-
-        .node-editor-resize-handle {
-            position: absolute;
-            top: -5px;
-            left: 0;
-            right: 0;
-            height: 10px;
-            cursor: ns-resize;
-            z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .node-editor-resize-handle:hover::after,
-        .node-editor-resize-handle.active::after {
-            content: '';
-            width: 50px;
-            height: 4px;
-            background: rgba(78, 205, 196, 0.5);
-            border-radius: 2px;
-        }
-
-        .node-editor-header {
-            height: 36px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            flex-shrink: 0;
-        }
-
-        .node-editor-header-title {
-            font-size: 12px;
-            font-weight: 400;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .node-editor-header-actions {
-            display: flex;
-            gap: 8px;
-        }
-
-        .node-editor-header-actions button {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.4);
-            cursor: pointer;
-            padding: 4px 8px;
-            font-size: 14px;
-            transition: color 0.2s;
-        }
-
-        .node-editor-header-actions button:hover {
-            color: white;
-        }
-
-        .node-editor-canvas {
-            flex: 1;
-            position: relative;
-            overflow: hidden;
-            background:
-                radial-gradient(circle at center, rgba(78, 205, 196, 0.03) 0%, transparent 70%),
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 100% 100%, 20px 20px, 20px 20px;
-        }
-
-        .node-editor-zoom-indicator {
-            position: absolute;
-            bottom: 10px;
-            right: 15px;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.3);
-            font-family: monospace;
-        }
-
-        /* NODES Toggle Button */
-        #nodes-toggle-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 60px;
-            padding: 10px 20px;
-            background: rgba(20, 20, 20, 0.9);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 8px;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            z-index: 90;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #nodes-toggle-btn.visible {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        #nodes-toggle-btn:hover {
-            background: rgba(30, 30, 30, 0.95);
-            border-color: rgba(78, 205, 196, 0.4);
-        }
-
-        #nodes-toggle-btn.active {
-            background: rgba(78, 205, 196, 0.15);
-            border-color: rgba(78, 205, 196, 0.5);
-            color: #4ECDC4;
-        }
-
-        #nodes-toggle-btn .btn-icon {
-            font-size: 16px;
-        }
-
-        /* Legacy modal — HIDDEN */
-        #node-editor-modal {
-            display: none !important;
-        }
-
-        /* Side Panel (Obsidian-style) */
-        #side-panel {
-            position: fixed;
-            left: 68px;
-            top: 0;
-            width: 280px;
-            height: 100vh;
-            background: rgba(15, 15, 15, 0.98);
-            backdrop-filter: blur(20px);
-            border-right: 1px solid rgba(255, 255, 255, 0.08);
-            z-index: 150;
-            transform: translateX(-100%);
-            transition: transform 0.25s ease, opacity 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        #side-panel.active {
-            transform: translateX(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .side-panel-header {
-            padding: 20px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .side-panel-title {
-            font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        .side-panel-close {
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.4);
-            cursor: pointer;
-            font-size: 18px;
-            padding: 5px;
-            line-height: 1;
-        }
-
-        .side-panel-close:hover {
-            color: white;
-        }
-
-        .side-panel-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 15px;
-        }
-
-        .side-panel-section {
-            margin-bottom: 20px;
-        }
-
-        .side-panel-section-title {
-            font-size: 10px;
-            font-weight: 400;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.35);
-            margin-bottom: 10px;
-            padding: 0 5px;
-        }
-
-        .side-panel-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 13px;
-            transition: all 0.15s ease;
-        }
-
-        .side-panel-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-        }
-
-        .side-panel-item.action {
-            background: rgba(78, 205, 196, 0.08);
-            border: 1px solid rgba(78, 205, 196, 0.15);
-            color: #4ECDC4;
-            font-weight: 500;
-        }
-
-        .side-panel-item.action:hover {
-            background: rgba(78, 205, 196, 0.15);
-            border-color: rgba(78, 205, 196, 0.3);
-        }
-
-        .side-panel-item-icon {
-            font-size: 16px;
-            width: 20px;
-            text-align: center;
-        }
-
-        /* 4. Node Styles — REDESIGNED */
+        /* 4. Node Styles (Grasshopper) */
         .node {
             position: absolute;
-            min-width: 260px;
-            max-width: 320px;
-            background: rgba(18, 18, 20, 0.98);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 6px;
-            font-size: 11px;
+            width: 260px;
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            font-size: 12px;
             user-select: none;
-            z-index: 10;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
-            transform-origin: top left;
-        }
-
-        .node:hover {
-            border-color: rgba(78, 205, 196, 0.5);
         }
 
         .node-header {
-            height: 28px;
-            background: linear-gradient(135deg, rgba(78, 205, 196, 0.15), rgba(30, 30, 35, 1));
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 6px 6px 0 0;
+            height: 32px;
+            background: rgba(30, 30, 30, 1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px 8px 0 0;
             display: flex;
             align-items: center;
-            padding: 0 8px;
-            gap: 6px;
-            cursor: grab;
-        }
-
-        .node-header:active {
-            cursor: grabbing;
+            padding: 0 10px;
+            gap: 8px;
         }
 
         .node-status {
             color: #4ECDC4;
-            font-size: 8px;
         }
 
         .node-title {
             flex: 1;
             font-weight: 600;
             text-transform: uppercase;
-            font-size: 9px;
-            letter-spacing: 0.5px;
-            color: rgba(255,255,255,0.9);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            font-size: 11px;
         }
 
         .node-close {
             cursor: pointer;
-            opacity: 0.4;
-            font-size: 14px;
-            line-height: 1;
+            opacity: 0.5;
         }
 
         .node-close:hover {
             opacity: 1;
-            color: #FF6B6B;
         }
 
         .node-body {
-            padding: 8px;
-        }
-
-        /* Ports layout — два столбца */
-        .node-ports {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 8px;
-        }
-
-        .node-inputs, .node-outputs {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .node-inputs {
-            align-items: flex-start;
-        }
-
-        .node-outputs {
-            align-items: flex-end;
-        }
-
-        .port-section-title {
-            font-size: 8px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.35);
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            padding-bottom: 3px;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-
-        .setting-value {
-            opacity: 0.6;
-            font-size: 9px;
-            max-width: 100px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            padding: 12px;
+            position: relative;
         }
 
         .socket {
             display: flex;
             align-items: center;
-            gap: 4px;
-            padding: 2px 0;
+            gap: 6px;
+            margin: 6px 0;
             cursor: pointer;
-            transition: background 0.15s;
-            border-radius: 3px;
-            font-size: 9px;
-        }
-
-        .socket:hover {
-            background: rgba(255,255,255,0.05);
         }
 
         .socket-dot {
             width: 12px;
             height: 12px;
-            font-size: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            border-radius: 50%;
-            transition: transform 0.15s, box-shadow 0.15s;
         }
 
-        .socket-output .socket-dot {
-            cursor: crosshair;
+        .socket-bundle .socket-dot {
+            color: #FF6B6B;
         }
 
-        .socket-output .socket-dot:hover {
-            transform: scale(1.4);
-            box-shadow: 0 0 8px currentColor;
+        .socket-data .socket-dot {
+            color: #4ECDC4;
         }
 
-        .socket-input .socket-dot:hover {
-            transform: scale(1.3);
-            box-shadow: 0 0 6px currentColor;
+        .node-inputs {
+            position: absolute;
+            left: -6px;
+            top: 40px;
         }
 
-        .socket-label {
-            color: rgba(255,255,255,0.6);
-            font-size: 9px;
-            white-space: nowrap;
-        }
-
-        .socket:hover .socket-label {
-            color: rgba(255,255,255,0.9);
-        }
-
-        /* Разделитель */
-        .node-divider {
-            height: 1px;
-            background: rgba(255,255,255,0.08);
-            margin: 6px 0;
+        .node-outputs {
+            position: absolute;
+            right: -6px;
+            top: 40px;
         }
 
         .node-settings {
-            padding: 6px 8px;
-            background: rgba(0, 0, 0, 0.25);
+            margin: 15px 0;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 4px;
-            margin-bottom: 8px;
         }
 
         .setting-row {
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            font-size: 9px;
-            color: rgba(255,255,255,0.4);
-            padding: 2px 0;
+            margin: 5px 0;
         }
 
-        .setting-row span:last-child {
-            color: rgba(255,255,255,0.7);
-            text-align: right;
-            max-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+        .setting-row select {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: white;
+            padding: 2px 5px;
+            border-radius: 3px;
         }
 
         .node-run-btn {
             width: 100%;
-            padding: 6px 10px;
-            background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(78, 205, 196, 0.1));
-            border: 1px solid rgba(78, 205, 196, 0.3);
+            padding: 8px;
+            background: rgba(78, 205, 196, 0.2);
+            border: 1px solid rgba(78, 205, 196, 0.4);
             border-radius: 4px;
             color: #4ECDC4;
             cursor: pointer;
-            font-size: 10px;
+            font-size: 11px;
             font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.2s;
         }
 
         .node-run-btn:hover {
-            background: linear-gradient(135deg, rgba(78, 205, 196, 0.3), rgba(78, 205, 196, 0.2));
-            border-color: rgba(78, 205, 196, 0.5);
-            box-shadow: 0 0 15px rgba(78, 205, 196, 0.2);
-        }
-
-        /* Node Library Panel */
-        #node-library-btn {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            padding: 6px 12px;
-            background: rgba(30, 30, 35, 0.9);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 4px;
-            color: rgba(255,255,255,0.7);
-            font-size: 10px;
-            cursor: pointer;
-            z-index: 20;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        #node-library-btn:hover {
-            background: rgba(40, 40, 45, 0.95);
-            border-color: rgba(78, 205, 196, 0.4);
-        }
-
-        #node-library {
-            position: absolute;
-            top: 45px;
-            left: 10px;
-            width: 200px;
-            max-height: 300px;
-            overflow-y: auto;
-            background: rgba(20, 20, 25, 0.98);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 6px;
-            z-index: 20;
-            display: none;
-        }
-
-        #node-library.active {
-            display: block;
-        }
-
-        .library-section {
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-        }
-
-        .library-section-title {
-            padding: 8px 10px;
-            font-size: 9px;
-            font-weight: 600;
-            letter-spacing: 1px;
-            color: rgba(255,255,255,0.4);
-            text-transform: uppercase;
-            background: rgba(0,0,0,0.3);
-        }
-
-        .library-item {
-            padding: 6px 10px;
-            font-size: 10px;
-            color: rgba(255,255,255,0.7);
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-
-        .library-item:hover {
-            background: rgba(78, 205, 196, 0.1);
-            color: #4ECDC4;
+            background: rgba(78, 205, 196, 0.3);
         }
 
         /* 5. Structured Detail Panel */
@@ -1215,151 +788,17 @@
 </head>
 
 <body>
-    <!-- ICON BAR (Always visible) - SVG High-Tech Icons -->
+    <!-- ICON BAR (Always visible) -->
     <div id="icon-bar">
-        <!-- Invest -->
-        <div class="icon-btn" data-panel="invest" title="Invest">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M3 3v18h18"/>
-                <path d="M7 14l4-4 4 4 5-5"/>
-                <circle cx="20" cy="9" r="2"/>
-            </svg>
-        </div>
-        <!-- Design -->
-        <div class="icon-btn" data-panel="design" title="Design">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="3" y="3" width="7" height="7" rx="1"/>
-                <rect x="14" y="3" width="7" height="7" rx="1"/>
-                <rect x="3" y="14" width="7" height="7" rx="1"/>
-                <path d="M14 14h7v7"/>
-            </svg>
-        </div>
-        <!-- Build -->
-        <div class="icon-btn" data-panel="build" title="Build">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M2 20h20"/>
-                <path d="M5 20v-8l7-5 7 5v8"/>
-                <path d="M10 20v-4h4v4"/>
-            </svg>
-        </div>
-        <!-- Sales -->
-        <div class="icon-btn" data-panel="sales" title="Sales">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="9"/>
-                <path d="M12 6v6l4 2"/>
-            </svg>
-        </div>
+        <div class="icon-btn" title="Invest">📊</div>
+        <div class="icon-btn" title="Design">📐</div>
+        <div class="icon-btn" title="Build">🏗</div>
+        <div class="icon-btn" title="Sales">💰</div>
         <div class="icon-separator"></div>
-        <!-- Files -->
-        <div class="icon-btn" data-panel="files" title="Files">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M3 7v13a2 2 0 002 2h14a2 2 0 002-2V7"/>
-                <path d="M3 7l3-5h12l3 5"/>
-                <path d="M12 11v6"/>
-                <path d="M9 14h6"/>
-            </svg>
-        </div>
+        <div class="icon-btn" title="Files">📁</div>
         <div style="flex:1"></div>
-        <!-- Settings -->
-        <div class="icon-btn" data-panel="settings" title="Settings">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
-            </svg>
-        </div>
+        <div class="icon-btn" title="Settings">⚙</div>
     </div>
-
-    <!-- SIDE PANEL (Obsidian-style) -->
-    <div id="side-panel">
-        <div class="side-panel-header">
-            <span class="side-panel-title" id="side-panel-title">Panel</span>
-            <button class="side-panel-close" onclick="closeSidePanel()">×</button>
-        </div>
-        <div class="side-panel-content" id="side-panel-content">
-            <!-- Content will be populated by JavaScript -->
-        </div>
-    </div>
-
-    <!-- NODE EDITOR PANEL (Bottom, Resizable) -->
-    <div id="node-editor-panel">
-        <div class="node-editor-resize-handle" id="node-editor-resize-handle"></div>
-        <div class="node-editor-header">
-            <span class="node-editor-header-title">Node Editor</span>
-            <div class="node-editor-header-actions">
-                <button onclick="minimizeNodeEditor()" title="Minimize">−</button>
-                <button onclick="closeNodeEditor()" title="Close">×</button>
-            </div>
-        </div>
-        <div class="node-editor-canvas node-editor-content" id="node-editor-canvas">
-            <!-- Node Library Button & Panel -->
-            <button id="node-library-btn" onclick="toggleNodeLibrary()">+ Добавить ноду</button>
-            <div id="node-library">
-                <div class="library-section">
-                    <div class="library-section-title">INVEST</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('cadastre-analysis', event)">Анализ участка</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('urban-analysis', event)">Градостроительный анализ</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('market-analysis', event)">Анализ рынка</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('financial-model', event)">Финансовая модель</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('risk-assessment', event)">Оценка рисков</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('invest-decision', event)">Инвест-решение</div>
-                </div>
-                <div class="library-section">
-                    <div class="library-section-title">DESIGN</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('concept-generator', event)">Генерация концепций</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('tep-calculator', event)">Расчёт ТЭП</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('parking-calculator', event)">Расчёт парковок</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('apartment-mix', event)">Квартирография</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('facade-generator', event)">Генерация фасадов</div>
-                </div>
-                <div class="library-section">
-                    <div class="library-section-title">BUILD</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('schedule-generator', event)">Генерация графика</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('cost-estimator', event)">Сметный расчёт</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('contractor-selector', event)">Выбор подрядчика</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('quality-control', event)">Контроль качества</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('progress-tracker', event)">Трекер прогресса</div>
-                </div>
-                <div class="library-section">
-                    <div class="library-section-title">SALES</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('pricing-engine', event)">Ценообразование</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('crm-integration', event)">CRM интеграция</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('marketing-planner', event)">План маркетинга</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('sales-forecast', event)">Прогноз продаж</div>
-                    <div class="library-item" onclick="addNodeFromLibrary('handover-manager', event)">Передача ключей</div>
-                </div>
-            </div>
-            <!-- Nodes will be rendered here -->
-            <div class="node-editor-zoom-indicator" id="node-zoom-indicator">100%</div>
-            <div id="node-editor-hint" style="
-                position: absolute;
-                bottom: 10px;
-                left: 10px;
-                padding: 6px 10px;
-                background: rgba(0,0,0,0.6);
-                border-radius: 4px;
-                font-size: 9px;
-                color: rgba(255,255,255,0.5);
-                pointer-events: none;
-            ">
-                💡 Тяните от <span style="color:#4ECDC4">●</span> ВЫХОДА к <span style="color:#FF6B6B">●</span> ВХОДУ для соединения
-            </div>
-        </div>
-    </div>
-
-    <!-- NODES TOGGLE BUTTON -->
-    <button id="nodes-toggle-btn" onclick="toggleNodeEditor()">
-        <span class="btn-icon">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <rect x="2" y="2" width="8" height="6" rx="1"/>
-                <rect x="14" y="2" width="8" height="6" rx="1"/>
-                <rect x="8" y="16" width="8" height="6" rx="1"/>
-                <path d="M6 8v4h12V8"/>
-                <path d="M12 12v4"/>
-            </svg>
-        </span>
-        NODES
-    </button>
-
     <div id="scroll-container"></div>
     <div id="canvas-wrapper"></div>
 
@@ -1832,10 +1271,10 @@
                          // We are drilling down
                          if (aStatic > 0.5) {
                              // GRAPH NODE -> HIDE
-                             drillVisibility = 1.0 - smoothstep(0.1, 0.3, t3);
+                             drillVisibility = 1.0 - smoothstep(0.1, 0.3, t3); 
                          } else {
-                             // CLOUD -> VISIBLE BACKGROUND
-                             drillVisibility = 0.4;
+                             // CLOUD -> KEEP VISIBLE (maybe slight dimming?)
+                             drillVisibility = 0.6; 
                          }
                     }
                     
@@ -2043,9 +1482,6 @@
                     if (allowed.includes(data.name)) {
                         document.getElementById('task-interface').classList.add('active');
                     }
-
-                    // SHOW NODES TOGGLE BUTTON
-                    if (window.showNodesToggle) window.showNodesToggle();
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
@@ -2063,11 +1499,9 @@
                         if (taskPayload) {
                             // Open panel with Task Info
                             const header = document.querySelector('.detail-header');
-                            if (header) header.innerText = "ПОЛЬЗОВАТЕЛЬСКАЯ ЗАДАЧА";
-                            const ptEl = document.getElementById('p-title');
-                            if (ptEl) ptEl.value = taskPayload.title;
-                            const pdEl = document.getElementById('p-desc');
-                            if (pdEl) pdEl.innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
+                            header.innerText = "ПОЛЬЗОВАТЕЛЬСКАЯ ЗАДАЧА";
+                            document.getElementById('p-title').innerText = taskPayload.title;
+                            document.getElementById('p-desc').innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
                             document.getElementById('detail-panel').classList.add('active'); // Force open
                         }
                     } else {
@@ -2084,11 +1518,11 @@
             const pt = document.getElementById('p-title');
             const pd = document.getElementById('p-desc');
             const header = document.querySelector('.detail-header');
-            if (header) header.innerText = "ОБЗОР ЭКОСИСТЕМЫ";
+            header.innerText = "ОБЗОР ЭКОСИСТЕМЫ";
 
             if (name === "Development") {
-                if (st) st.innerText = "VZOR development";
-                if (pt) pt.value = "ЕДИНАЯ ОПЕРАЦИОННАЯ СРЕДА";
+                st.innerText = "VZOR development";
+                pt.innerText = "ЕДИНАЯ ОПЕРАЦИОННАЯ СРЕДА";
                 pd.innerHTML = `Прогнозная модель управления стоимостью и эффективностью проекта.<br>
                                <ul class='detail-thesis'>
                                    <li><b>Экономия:</b> Точность бюджета 95%+, снижение стоимости переделок на 60%.</li>
@@ -2098,20 +1532,20 @@
                                    <li><b>Эффективность:</b> Мгновенный пересчет проектирования, финмодели и продаж при любых изменениях.</li>
                                </ul>`;
             } else if (name === "Finance") {
-                if (st) st.innerText = "VZOR finance";
-                if (pt) pt.value = "АВТОНОМНЫЙ ФИНАНСОВЫЙ ДВИЖОК";
-                if (pd) pd.innerHTML = `Синхронизация потоков капитала в реальном времени.<br><br>
+                st.innerText = "VZOR finance";
+                pt.innerText = "АВТОНОМНЫЙ ФИНАНСОВЫЙ ДВИЖОК";
+                pd.innerHTML = `Синхронизация потоков капитала в реальном времени.<br><br>
                                Минимизация временной инфляции и валютных рисков через прозрачный мониторинг.<br><br>
                                Единый контур принятия решений: от точечной транзакции до глобального инвестиционного портфеля.`;
             } else if (name === "Real Estate") {
-                if (st) st.innerText = "VZOR easted";
-                if (pt) pt.value = "ПЛАТФОРМА УПРАВЛЕНИЯ АКТИВАМИ";
-                if (pd) pd.innerHTML = `Максимизация доходности (Yield Protection) и капитализации объектов недвижимости.<br><br>
+                st.innerText = "VZOR easted";
+                pt.innerText = "ПЛАТФОРМА УПРАВЛЕНИЯ АКТИВАМИ";
+                pd.innerHTML = `Максимизация доходности (Yield Protection) и капитализации объектов недвижимости.<br><br>
                                Прозрачное масштабирование институционального уровня через управление данными.<br><br>
                                Полный жизненный цикл актива: от анализа приобретения до реализации стратегии выхода.`;
             }
 
-            if (st) st.style.color = "#ffffff";
+            st.style.color = "#ffffff";
 
             // DO NOT automatically show detail panel on entry
             // document.getElementById('detail-panel').classList.add('active'); // DISABLED
@@ -2147,7 +1581,7 @@
 
             const header = document.querySelector('.detail-header');
             if (currentCategory === "Development") {
-                if (header) header.innerText = "ПРОЦЕСС ДЕВЕЛОПМЕНТА";
+                header.innerText = "ПРОЦЕСС ДЕВЕЛОПМЕНТА";
                 const subTasks = [
                     "Инвестиционный меморандум", "Архитектурная концепция", "ГПЗУ и ИРД", "Проектная документация",
                     "Экспертиза проекта", "Тендерная документация", "Нулевой цикл", "Конструктив здания",
@@ -2172,7 +1606,7 @@
                     desc = subDescs[idx];
                 }
             } else if (currentCategory === "Finance") {
-                if (header) header.innerText = "ФИНАНСОВЫЙ КОНТУР";
+                header.innerText = "ФИНАНСОВЫЙ КОНТУР";
                 const subTasks = [
                     "Бюджетирование", "Движение денежных средств", "Анализ P&L", "Аудит",
                     "Инвестиционная стратегия", "Оценка рисков", "Налоговое планирование", "M&A сделки",
@@ -2197,7 +1631,7 @@
                     desc = subDescs[idx];
                 }
             } else if (currentCategory === "Real Estate") {
-                if (header) header.innerText = "УПРАВЛЕНИЕ АКТИВАМИ";
+                header.innerText = "УПРАВЛЕНИЕ АКТИВАМИ";
                 const subTasks = [
                     "Покупка активов", "Управление недвижимостью", "Аренда", "Оценка объектов",
                     "Эксплуатация зданий", "Анализ рынка", "Портфельная стратегия", "Юридическое сопровождение",
@@ -2223,10 +1657,8 @@
                 }
             }
 
-            const ptEl = document.getElementById('p-title');
-            const pdEl = document.getElementById('p-desc');
-            if (ptEl) ptEl.value = title;
-            if (pdEl) pdEl.innerHTML = desc;
+            document.getElementById('p-title').innerText = title;
+            document.getElementById('p-desc').innerHTML = desc;
         }
 
         document.getElementById('back-button').addEventListener('click', () => {
@@ -2244,11 +1676,9 @@
             // Hide Icon Bar
             document.getElementById('icon-bar').classList.remove('visible');
 
-            // Hide Nodes Button & Close Node Editor
-            if (window.hideNodesToggle) window.hideNodesToggle();
-
-            // Close Side Panel
-            if (typeof closeSidePanel === 'function') closeSidePanel();
+            // Hide Nodes Button
+            const nodesBtn = document.getElementById('nodes-btn');
+            if (nodesBtn) nodesBtn.style.display = 'none';
 
             // Restore Top Header
             const st = document.getElementById('slideTitle');
@@ -2378,33 +1808,12 @@
 
         // Manual Wheel Zoom for Graph elements when drilled
         window.addEventListener('wheel', (event) => {
-            // Check if mouse is over active panels
-            const nodePanel = document.getElementById('node-editor-panel');
-            const detailPanel = document.getElementById('detail-panel');
-            const leftPanel = document.getElementById('left-panel');
-
-            // Only check panels that are actually active/visible
-            const isOverNodeEditor = nodePanel &&
-                nodePanel.classList.contains('active') &&
-                nodePanel.contains(event.target);
-            const isOverDetailPanel = detailPanel &&
-                detailPanel.classList.contains('active') &&
-                detailPanel.contains(event.target);
-            const isOverLeftPanel = leftPanel &&
-                leftPanel.classList.contains('active') &&
-                leftPanel.contains(event.target);
-
-            // Only zoom 3D when drilled AND not over any active panel
-            if (isDrilled && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
+            if (isDrilled) {
                 event.preventDefault(); // Prevent page scrolling
-
-                // Faster, more noticeable zoom
-                const zoomSpeed = 0.08;
-                const delta = event.deltaY > 0 ? -zoomSpeed : zoomSpeed;
-                targetZoom = Math.max(0.2, Math.min(5.0, targetZoom + delta));
+                const zoomSpeed = 0.001;
+                targetZoom -= event.deltaY * zoomSpeed;
+                targetZoom = Math.max(0.5, Math.min(2.5, targetZoom)); // Clamp zoom level
                 lastZoomTime = Date.now();
-
-                console.log('3D Zoom:', targetZoom.toFixed(2)); // Debug
             }
         }, { passive: false });
 
@@ -2484,21 +1893,9 @@
             smoothP += (targetP - smoothP) * 0.05;
             // Removed duplicate 'const time'
 
-            // Zoom Smoothing for Graph (smooth interpolation)
-            currentZoom += (targetZoom - currentZoom) * 0.12;
+            // Zoom Smoothing for Graph
+            currentZoom += (targetZoom - currentZoom) * 0.1;
             material.uniforms.uGraphZoom.value = currentZoom;
-
-            // Also move camera for real 3D zoom effect (when drilled)
-            if (isDrilled) {
-                const baseDistance = 300; // Default camera Z
-                const targetDistance = baseDistance / currentZoom;
-                const currentDistance = camera.position.length();
-                const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
-
-                // Move camera along its viewing direction
-                const direction = camera.position.clone().normalize();
-                camera.position.copy(direction.multiplyScalar(newDistance));
-            }
 
             // Update Progress Uniforms
             material.uniforms.uProgress1.value = Math.max(0, Math.min(1, (smoothP - 0.05) / 0.3));
@@ -2510,16 +1907,6 @@
             if (isDrilled) {
                 // OrbitControls handles camera
                 controls.update();
-
-                // Scale task point spheres with zoom
-                if (typeof taskPoints !== 'undefined') {
-                    taskPoints.forEach(task => {
-                        if (task.mesh) {
-                            const baseScale = task.isSelected ? 1.5 : 1.0;
-                            task.mesh.scale.setScalar(baseScale * currentZoom);
-                        }
-                    });
-                }
 
                 // ROBUST IDLE DETECTION - FIXED
                 // User requirement: "Hold for 10 seconds", do not reset on damping or drift.
@@ -2878,10 +2265,101 @@
             // if (!isPanelOpen) nodesToggleBtn.click(); 
         };
 
-        // 2. Add Node to Editor — uses new node system
+        // 2. Add Node to Editor (Grasshopper Style)
         function addNodeToEditor(data) {
-            if (typeof createNodeFromTask === 'function') {
-                createNodeFromTask(data);
+            const container = document.querySelector('.node-editor-content');
+            // Remove content if it's the placeholder p tag
+            const placeholder = document.getElementById('node-editor-placeholder');
+            if (placeholder) {
+                placeholder.remove();
+            }
+
+            // Or if we clear completely? Better append.
+
+            const node = document.createElement('div');
+            node.className = 'node';
+            // Random position logic or centered
+            node.style.left = (Math.random() * 200 + 50) + 'px';
+            node.style.top = (Math.random() * 200 + 50) + 'px';
+
+            node.innerHTML = `
+                <div class="node-header">
+                    <span class="node-status">●</span>
+                    <span class="node-title">${data.title}</span>
+                    <span class="node-close">×</span>
+                </div>
+
+                <div class="node-body">
+                    <!-- Input Sockets -->
+                    <div class="node-inputs">
+                        <div class="socket socket-bundle">
+                            <span class="socket-dot">◆</span>
+                            <span class="socket-label">Context</span>
+                        </div>
+                        <div class="socket socket-data">
+                            <span class="socket-dot">●</span>
+                            <span class="socket-label">Data In</span>
+                        </div>
+                    </div>
+
+                    <!-- Output Sockets -->
+                    <div class="node-outputs">
+                        <div class="socket socket-data">
+                            <span class="socket-label">Out</span>
+                            <span class="socket-dot">●</span>
+                        </div>
+                    </div>
+
+                    <!-- Settings -->
+                    <div class="node-settings">
+                        <div class="setting-row">
+                            <span>Agent:</span>
+                            <div style="font-size:11px; opacity:0.8">${data.agent}</div>
+                        </div>
+                        <div class="setting-row">
+                            <span>DB:</span>
+                            <div style="font-size:11px; opacity:0.8">${data.database}</div>
+                        </div>
+                    </div>
+
+                    <!-- Run Button -->
+                    <button class="node-run-btn">▶ ВЫПОЛНИТЬ</button>
+                </div>
+            `;
+
+            // Drag logic for nodes (simple)
+            let isDragging = false;
+            let offset = { x: 0, y: 0 };
+            const header = node.querySelector('.node-header');
+
+            header.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                const rect = node.getBoundingClientRect();
+                offset.x = e.clientX - rect.left;
+                offset.y = e.clientY - rect.top;
+                node.style.zIndex = 1000;
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                node.style.left = (e.clientX - offset.x) + 'px';
+                node.style.top = (e.clientY - offset.y) + 'px';
+            });
+
+            document.addEventListener('mouseup', () => {
+                isDragging = false;
+                node.style.zIndex = '';
+            });
+
+            // Click node to select task
+            node.addEventListener('click', (e) => {
+                if (!isDragging) {
+                    showDetailPanel(data);
+                }
+            });
+
+            if (container) {
+                container.appendChild(node);
             }
         }
 
@@ -2989,15 +2467,8 @@
         }
 
         // Hide menu on click elsewhere
-        document.addEventListener('click', (e) => {
+        document.addEventListener('click', () => {
             contextMenu.style.display = 'none';
-
-            // Close node library if clicking outside
-            const nodeLibrary = document.getElementById('node-library');
-            const libraryBtn = document.getElementById('node-library-btn');
-            if (nodeLibrary && !nodeLibrary.contains(e.target) && !libraryBtn.contains(e.target)) {
-                nodeLibrary.classList.remove('active');
-            }
         });
 
         // Context Menu Actions
@@ -3026,29 +2497,17 @@
 
 
 
-        // Global Camera Aspect Update (Bug 6 Fix) — Now accounts for Node Editor Panel
+        // Global Camera Aspect Update (Bug 6 Fix)
         window.updateCameraAspect = function () {
             if (!camera || !renderer) return;
-
-            // Calculate available height (minus Node Editor panel if open)
-            const nodePanel = document.getElementById('node-editor-panel');
-            const nodePanelHeight = nodePanel && nodePanel.classList.contains('active')
-                ? nodePanel.offsetHeight
-                : 0;
-
+            const container = document.getElementById('canvas-wrapper') || document.body;
             const width = window.innerWidth;
-            const height = window.innerHeight - nodePanelHeight;
+            const height = window.innerHeight;
 
             camera.aspect = width / height;
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
             material.uniforms.uPixelRatio.value = renderer.getPixelRatio();
-
-            // Update canvas wrapper position
-            const wrapper = document.getElementById('canvas-wrapper');
-            if (wrapper) {
-                wrapper.style.height = height + 'px';
-            }
         };
 
         window.addEventListener('resize', window.updateCameraAspect);
@@ -3057,1375 +2516,6 @@
         // (Called in showDetailPanel and hide logic)
 
         animate();
-    </script>
-
-    <!-- ==================== NODE EDITOR & PANEL CONTROLS ==================== -->
-    <script>
-        // ===== NODE EDITOR STATE =====
-        const nodeEditorState = {
-            nodes: new Map(),          // id -> nodeData
-            connections: [],           // [{from: {nodeId, portId}, to: {nodeId, portId}}]
-            zoom: 1,
-            pan: { x: 0, y: 0 },       // Canvas offset in screen pixels
-            nextNodeId: 1,
-            draggingConnection: null,  // Для создания новых соединений
-            selectedNode: null,
-            isPanning: false           // Middle mouse panning
-        };
-
-        // ===== ПОЛНАЯ БИБЛИОТЕКА ТИПОВ НОД (21 тип) =====
-        const nodeTypes = {
-            // ==================== БЛОК INVEST (6 нод) ====================
-            'cadastre-analysis': {
-                title: 'АНАЛИЗ УЧАСТКА',
-                category: 'invest',
-                inputs: [
-                    { id: 'cadastral_number', label: 'Кадастровый №', type: 'string' },
-                    { id: 'address', label: 'Адрес', type: 'string' },
-                    { id: 'api_key', label: 'API ключ', type: 'string' }
-                ],
-                outputs: [
-                    { id: 'geo_json', label: 'GeoJSON', type: 'geo' },
-                    { id: 'area', label: 'Площадь (м²)', type: 'number' },
-                    { id: 'vri', label: 'ВРИ', type: 'string' },
-                    { id: 'category', label: 'Категория земель', type: 'string' },
-                    { id: 'encumbrances', label: 'Обременения', type: 'array' },
-                    { id: 'owner_info', label: 'Собственник', type: 'object' }
-                ],
-                agent: 'Cadastre Agent',
-                database: 'Росреестр API'
-            },
-            'urban-analysis': {
-                title: 'ГРАДОСТРОИТЕЛЬНЫЙ АНАЛИЗ',
-                category: 'invest',
-                inputs: [
-                    { id: 'geo_json', label: 'GeoJSON', type: 'geo' },
-                    { id: 'pzz_database', label: 'База ПЗЗ', type: 'reference' },
-                    { id: 'snip_database', label: 'База СНиП', type: 'reference' }
-                ],
-                outputs: [
-                    { id: 'max_floors', label: 'Макс. этажность', type: 'number' },
-                    { id: 'max_density', label: 'Плотность застройки', type: 'number' },
-                    { id: 'setbacks', label: 'Отступы', type: 'object' },
-                    { id: 'allowed_functions', label: 'Разреш. функции', type: 'array' },
-                    { id: 'restrictions', label: 'Ограничения', type: 'array' },
-                    { id: 'tep_preliminary', label: 'ТЭП предварит.', type: 'object' }
-                ],
-                agent: 'Urban Analyst',
-                database: 'ПЗЗ Москвы'
-            },
-            'market-analysis': {
-                title: 'АНАЛИЗ РЫНКА',
-                category: 'invest',
-                inputs: [
-                    { id: 'coordinates', label: 'Координаты', type: 'geo' },
-                    { id: 'radius_km', label: 'Радиус (км)', type: 'number' },
-                    { id: 'object_type', label: 'Тип объекта', type: 'string' },
-                    { id: 'market_database', label: 'База рынка', type: 'reference' }
-                ],
-                outputs: [
-                    { id: 'competitors', label: 'Конкуренты', type: 'array' },
-                    { id: 'avg_price_sqm', label: 'Сред. цена/м²', type: 'number' },
-                    { id: 'price_range', label: 'Диапазон цен', type: 'object' },
-                    { id: 'absorption_rate', label: 'Скорость продаж', type: 'number' },
-                    { id: 'demand_index', label: 'Индекс спроса', type: 'number' },
-                    { id: 'market_report', label: 'Отчёт PDF', type: 'file' }
-                ],
-                agent: 'Market Analyst',
-                database: 'ЦИАН / ДомКлик'
-            },
-            'legal-check': {
-                title: 'ЮРИДИЧЕСКАЯ ПРОВЕРКА',
-                category: 'invest',
-                inputs: [
-                    { id: 'cadastral_number', label: 'Кадастровый №', type: 'string' },
-                    { id: 'owner_info', label: 'Владелец', type: 'object' },
-                    { id: 'legal_database', label: 'Судебная база', type: 'reference' }
-                ],
-                outputs: [
-                    { id: 'title_clean', label: 'Чистота титула', type: 'boolean' },
-                    { id: 'disputes', label: 'Судебные споры', type: 'array' },
-                    { id: 'liens', label: 'Залоги', type: 'array' },
-                    { id: 'risk_score', label: 'Риск (0-100)', type: 'number' },
-                    { id: 'legal_report', label: 'Заключение', type: 'file' }
-                ],
-                agent: 'Legal Agent',
-                database: 'Судебная база'
-            },
-            'financial-model': {
-                title: 'ФИНАНСОВАЯ МОДЕЛЬ',
-                category: 'invest',
-                inputs: [
-                    { id: 'tep', label: 'ТЭП', type: 'object' },
-                    { id: 'prices', label: 'Цены рынка', type: 'object' },
-                    { id: 'construction_cost', label: 'Стоим. строит.', type: 'number' },
-                    { id: 'land_cost', label: 'Стоим. земли', type: 'number' },
-                    { id: 'financing', label: 'Финансирование', type: 'object' },
-                    { id: 'timeline', label: 'Сроки', type: 'object' }
-                ],
-                outputs: [
-                    { id: 'npv', label: 'NPV', type: 'number' },
-                    { id: 'irr', label: 'IRR (%)', type: 'number' },
-                    { id: 'payback_period', label: 'Окупаемость', type: 'number' },
-                    { id: 'profit_margin', label: 'Маржа (%)', type: 'number' },
-                    { id: 'cashflow', label: 'Cash Flow', type: 'array' },
-                    { id: 'sensitivity', label: 'Чувствительность', type: 'object' },
-                    { id: 'finmodel_file', label: 'Excel модель', type: 'file' }
-                ],
-                agent: 'Finance Agent',
-                database: 'DCF Engine'
-            },
-            'investment-memo': {
-                title: 'ИНВЕСТ. МЕМОРАНДУМ',
-                category: 'invest',
-                inputs: [
-                    { id: 'all_analysis', label: 'Все анализы', type: 'bundle' },
-                    { id: 'project_description', label: 'Описание', type: 'string' },
-                    { id: 'company_info', label: 'Инфо о компании', type: 'object' },
-                    { id: 'template', label: 'Шаблон', type: 'reference' }
-                ],
-                outputs: [
-                    { id: 'memo_pdf', label: 'Меморандум PDF', type: 'file' },
-                    { id: 'presentation', label: 'Презентация', type: 'file' },
-                    { id: 'one_pager', label: 'One Pager', type: 'file' },
-                    { id: 'data_room', label: 'Data Room', type: 'object' }
-                ],
-                agent: 'Document Agent',
-                database: 'Template Engine'
-            },
-
-            // ==================== БЛОК DESIGN (6 нод) ====================
-            'concept': {
-                title: 'КОНЦЕПЦИЯ',
-                category: 'design',
-                inputs: [
-                    { id: 'tep', label: 'ТЭП', type: 'object' },
-                    { id: 'site_geo', label: 'GeoJSON участка', type: 'geo' },
-                    { id: 'style', label: 'Арх. стиль', type: 'string' },
-                    { id: 'target_audience', label: 'ЦА', type: 'string' },
-                    { id: 'reference_images', label: 'Референсы', type: 'array' }
-                ],
-                outputs: [
-                    { id: 'concept_document', label: 'Концепция PDF', type: 'file' },
-                    { id: 'massing_3d', label: '3D массинг', type: 'file' },
-                    { id: 'renders', label: 'Визуализации', type: 'array' },
-                    { id: 'functional_scheme', label: 'Функц. схема', type: 'file' },
-                    { id: 'preliminary_tep', label: 'ТЭП уточнённый', type: 'object' }
-                ],
-                agent: 'Concept Agent',
-                database: 'Design Library'
-            },
-            'master-plan': {
-                title: 'ГЕНПЛАН',
-                category: 'design',
-                inputs: [
-                    { id: 'concept', label: 'Концепция', type: 'bundle' },
-                    { id: 'site_geo', label: 'GeoJSON', type: 'geo' },
-                    { id: 'utilities_data', label: 'Данные по сетям', type: 'object' },
-                    { id: 'transport_data', label: 'Транспорт', type: 'object' }
-                ],
-                outputs: [
-                    { id: 'master_plan_dwg', label: 'Генплан DWG', type: 'file' },
-                    { id: 'master_plan_pdf', label: 'Генплан PDF', type: 'file' },
-                    { id: 'roads_scheme', label: 'Схема проездов', type: 'file' },
-                    { id: 'parking_scheme', label: 'Паркинг', type: 'file' },
-                    { id: 'landscaping_scheme', label: 'Благоустройство', type: 'file' },
-                    { id: 'site_tep', label: 'ТЭП площадки', type: 'object' }
-                ],
-                agent: 'Master Plan Agent',
-                database: 'GIS Engine'
-            },
-            'architecture': {
-                title: 'АРХИТЕКТУРА',
-                category: 'design',
-                inputs: [
-                    { id: 'master_plan', label: 'Генплан', type: 'bundle' },
-                    { id: 'building_type', label: 'Тип здания', type: 'string' },
-                    { id: 'floors', label: 'Этажность', type: 'number' },
-                    { id: 'unit_mix', label: 'Квартирография', type: 'object' }
-                ],
-                outputs: [
-                    { id: 'floor_plans', label: 'Планы этажей', type: 'array' },
-                    { id: 'facades', label: 'Фасады', type: 'array' },
-                    { id: 'sections', label: 'Разрезы', type: 'array' },
-                    { id: '3d_model', label: 'BIM модель', type: 'file' },
-                    { id: 'unit_layouts', label: 'Планировки', type: 'array' },
-                    { id: 'architecture_tep', label: 'ТЭП здания', type: 'object' }
-                ],
-                agent: 'Architecture Agent',
-                database: 'BIM Library'
-            },
-            'structure': {
-                title: 'КОНСТРУКТИВ',
-                category: 'design',
-                inputs: [
-                    { id: 'architecture', label: 'Архитектура', type: 'bundle' },
-                    { id: 'geology_report', label: 'Геология', type: 'file' },
-                    { id: 'structural_system', label: 'Тип конструктива', type: 'string' },
-                    { id: 'loads', label: 'Нагрузки', type: 'object' }
-                ],
-                outputs: [
-                    { id: 'structural_scheme', label: 'Констр. схема', type: 'file' },
-                    { id: 'foundation_plan', label: 'План фундаментов', type: 'file' },
-                    { id: 'reinforcement', label: 'Армирование', type: 'array' },
-                    { id: 'structural_calcs', label: 'Расчёты', type: 'file' },
-                    { id: 'structure_bom', label: 'Ведомость', type: 'object' }
-                ],
-                agent: 'Structure Agent',
-                database: 'Calc Engine'
-            },
-            'engineering': {
-                title: 'ИНЖЕНЕРИЯ',
-                category: 'design',
-                inputs: [
-                    { id: 'architecture', label: 'Архитектура', type: 'bundle' },
-                    { id: 'structure', label: 'Конструктив', type: 'bundle' },
-                    { id: 'utility_connections', label: 'Точки подключ.', type: 'object' },
-                    { id: 'climate_data', label: 'Климат', type: 'object' }
-                ],
-                outputs: [
-                    { id: 'hvac_scheme', label: 'Схема ОВиК', type: 'file' },
-                    { id: 'electrical_scheme', label: 'Электрика', type: 'file' },
-                    { id: 'plumbing_scheme', label: 'Водоснабжение', type: 'file' },
-                    { id: 'fire_safety', label: 'Пожарная безоп.', type: 'file' },
-                    { id: 'bim_mep', label: 'BIM сети', type: 'file' },
-                    { id: 'engineering_bom', label: 'Ведомость обор.', type: 'object' }
-                ],
-                agent: 'MEP Agent',
-                database: 'MEP Library'
-            },
-            'expertise': {
-                title: 'ЭКСПЕРТИЗА',
-                category: 'design',
-                inputs: [
-                    { id: 'all_sections', label: 'Все разделы', type: 'bundle' },
-                    { id: 'permit_docs', label: 'Разрешит. докум.', type: 'array' },
-                    { id: 'expertise_type', label: 'Тип экспертизы', type: 'string' }
-                ],
-                outputs: [
-                    { id: 'expertise_conclusion', label: 'Заключение', type: 'file' },
-                    { id: 'remarks', label: 'Замечания', type: 'array' },
-                    { id: 'approval_status', label: 'Одобрено', type: 'boolean' },
-                    { id: 'corrected_docs', label: 'Исправл. докум.', type: 'array' }
-                ],
-                agent: 'Expertise Agent',
-                database: 'Standards DB'
-            },
-
-            // ==================== БЛОК BUILD (5 нод) ====================
-            'estimate': {
-                title: 'СМЕТА',
-                category: 'build',
-                inputs: [
-                    { id: 'design_docs', label: 'Проект. докум.', type: 'bundle' },
-                    { id: 'bom_materials', label: 'Ведомости', type: 'object' },
-                    { id: 'price_database', label: 'База расценок', type: 'reference' },
-                    { id: 'region', label: 'Регион', type: 'string' }
-                ],
-                outputs: [
-                    { id: 'estimate_total', label: 'Общая стоимость', type: 'number' },
-                    { id: 'estimate_breakdown', label: 'Разбивка', type: 'object' },
-                    { id: 'materials_list', label: 'Материалы', type: 'array' },
-                    { id: 'labor_cost', label: 'Стоим. работ', type: 'number' },
-                    { id: 'estimate_file', label: 'Смета Excel', type: 'file' },
-                    { id: 'abc_analysis', label: 'ABC анализ', type: 'object' }
-                ],
-                agent: 'Estimate Agent',
-                database: 'ГЭСН / ТЕР'
-            },
-            'schedule': {
-                title: 'КАЛЕНДАРНЫЙ ПЛАН',
-                category: 'build',
-                inputs: [
-                    { id: 'estimate', label: 'Смета', type: 'bundle' },
-                    { id: 'start_date', label: 'Дата начала', type: 'date' },
-                    { id: 'resources', label: 'Ресурсы', type: 'object' },
-                    { id: 'constraints', label: 'Ограничения', type: 'array' }
-                ],
-                outputs: [
-                    { id: 'gantt_chart', label: 'Диаграмма Ганта', type: 'file' },
-                    { id: 'critical_path', label: 'Критич. путь', type: 'array' },
-                    { id: 'milestones', label: 'Вехи', type: 'array' },
-                    { id: 'resource_plan', label: 'План ресурсов', type: 'object' },
-                    { id: 'finish_date', label: 'Дата завершения', type: 'date' },
-                    { id: 'schedule_file', label: 'MS Project', type: 'file' }
-                ],
-                agent: 'Schedule Agent',
-                database: 'Primavera'
-            },
-            'procurement': {
-                title: 'ЗАКУПКИ',
-                category: 'build',
-                inputs: [
-                    { id: 'materials_list', label: 'Список материалов', type: 'array' },
-                    { id: 'schedule', label: 'График', type: 'bundle' },
-                    { id: 'supplier_database', label: 'База поставщиков', type: 'reference' },
-                    { id: 'budget', label: 'Бюджет', type: 'number' }
-                ],
-                outputs: [
-                    { id: 'purchase_orders', label: 'Заказы', type: 'array' },
-                    { id: 'delivery_schedule', label: 'График поставок', type: 'object' },
-                    { id: 'supplier_contracts', label: 'Договоры', type: 'array' },
-                    { id: 'savings_report', label: 'Экономия', type: 'object' },
-                    { id: 'procurement_plan', label: 'План закупок', type: 'file' }
-                ],
-                agent: 'Procurement Agent',
-                database: 'Supplier DB'
-            },
-            'construction-control': {
-                title: 'КОНТРОЛЬ СТРОИТЕЛЬСТВА',
-                category: 'build',
-                inputs: [
-                    { id: 'schedule', label: 'Плановый график', type: 'bundle' },
-                    { id: 'actual_progress', label: 'Факт. прогресс', type: 'object' },
-                    { id: 'quality_reports', label: 'Отчёты качества', type: 'array' },
-                    { id: 'photo_reports', label: 'Фотоотчёты', type: 'array' }
-                ],
-                outputs: [
-                    { id: 'deviation_report', label: 'Отклонения', type: 'object' },
-                    { id: 'spi', label: 'SPI', type: 'number' },
-                    { id: 'cpi', label: 'CPI', type: 'number' },
-                    { id: 'issues', label: 'Проблемы/риски', type: 'array' },
-                    { id: 'forecast_completion', label: 'Прогноз завершения', type: 'date' },
-                    { id: 'control_dashboard', label: 'Дашборд', type: 'object' }
-                ],
-                agent: 'Control Agent',
-                database: 'Progress DB'
-            },
-            'acceptance': {
-                title: 'ПРИЁМКА',
-                category: 'build',
-                inputs: [
-                    { id: 'as_built_docs', label: 'Исполнит. докум.', type: 'bundle' },
-                    { id: 'quality_certificates', label: 'Сертификаты', type: 'array' },
-                    { id: 'test_reports', label: 'Протоколы', type: 'array' },
-                    { id: 'inspection_results', label: 'Осмотры', type: 'array' }
-                ],
-                outputs: [
-                    { id: 'acceptance_acts', label: 'Акты приёмки', type: 'array' },
-                    { id: 'defects_list', label: 'Дефекты', type: 'array' },
-                    { id: 'commissioning_cert', label: 'Разреш. на ввод', type: 'file' },
-                    { id: 'warranty_docs', label: 'Гарантии', type: 'array' },
-                    { id: 'handover_package', label: 'Пакет документов', type: 'object' }
-                ],
-                agent: 'Acceptance Agent',
-                database: 'Quality DB'
-            },
-
-            // ==================== БЛОК SALES (4 ноды) ====================
-            'pricing': {
-                title: 'ЦЕНООБРАЗОВАНИЕ',
-                category: 'sales',
-                inputs: [
-                    { id: 'unit_layouts', label: 'Планировки', type: 'array' },
-                    { id: 'market_analysis', label: 'Анализ рынка', type: 'bundle' },
-                    { id: 'construction_cost', label: 'Себестоимость', type: 'number' },
-                    { id: 'margin_target', label: 'Целевая маржа', type: 'number' }
-                ],
-                outputs: [
-                    { id: 'price_matrix', label: 'Ценовая матрица', type: 'object' },
-                    { id: 'price_per_unit', label: 'Цены по квартирам', type: 'array' },
-                    { id: 'floor_coefficients', label: 'Коэфф. этажей', type: 'object' },
-                    { id: 'view_premiums', label: 'Премии за вид', type: 'object' },
-                    { id: 'pricing_strategy', label: 'Стратегия', type: 'file' },
-                    { id: 'revenue_forecast', label: 'Прогноз выручки', type: 'number' }
-                ],
-                agent: 'Pricing Agent',
-                database: 'Market DB'
-            },
-            'marketing': {
-                title: 'МАРКЕТИНГ',
-                category: 'sales',
-                inputs: [
-                    { id: 'project_info', label: 'Инфо о проекте', type: 'bundle' },
-                    { id: 'renders', label: 'Визуализации', type: 'array' },
-                    { id: 'target_audience', label: 'ЦА', type: 'object' },
-                    { id: 'budget', label: 'Бюджет', type: 'number' }
-                ],
-                outputs: [
-                    { id: 'marketing_strategy', label: 'Стратегия', type: 'file' },
-                    { id: 'brand_book', label: 'Брендбук', type: 'file' },
-                    { id: 'advertising_materials', label: 'Рекл. материалы', type: 'array' },
-                    { id: 'media_plan', label: 'Медиаплан', type: 'object' },
-                    { id: 'website_content', label: 'Контент сайта', type: 'object' },
-                    { id: 'sales_office_design', label: 'Дизайн офиса', type: 'file' }
-                ],
-                agent: 'Marketing Agent',
-                database: 'Content DB'
-            },
-            'crm-sales': {
-                title: 'CRM И ПРОДАЖИ',
-                category: 'sales',
-                inputs: [
-                    { id: 'leads', label: 'Лиды', type: 'array' },
-                    { id: 'price_matrix', label: 'Ценовая матрица', type: 'object' },
-                    { id: 'available_units', label: 'Свободные кв.', type: 'array' },
-                    { id: 'sales_team', label: 'Команда', type: 'array' }
-                ],
-                outputs: [
-                    { id: 'deals_funnel', label: 'Воронка', type: 'object' },
-                    { id: 'conversion_rate', label: 'Конверсия', type: 'number' },
-                    { id: 'sales_velocity', label: 'Скорость продаж', type: 'number' },
-                    { id: 'client_database', label: 'База клиентов', type: 'object' },
-                    { id: 'sales_forecast', label: 'Прогноз продаж', type: 'object' },
-                    { id: 'commission_report', label: 'Комиссии', type: 'object' }
-                ],
-                agent: 'CRM Agent',
-                database: 'CRM DB'
-            },
-            'documentation': {
-                title: 'ДОКУМЕНТООБОРОТ',
-                category: 'sales',
-                inputs: [
-                    { id: 'client_info', label: 'Данные клиента', type: 'object' },
-                    { id: 'unit_info', label: 'Данные квартиры', type: 'object' },
-                    { id: 'payment_terms', label: 'Условия оплаты', type: 'object' },
-                    { id: 'document_templates', label: 'Шаблоны', type: 'array' }
-                ],
-                outputs: [
-                    { id: 'ddu_contract', label: 'ДДУ', type: 'file' },
-                    { id: 'payment_schedule', label: 'График платежей', type: 'object' },
-                    { id: 'booking_agreement', label: 'Бронирование', type: 'file' },
-                    { id: 'mortgage_docs', label: 'Докум. ипотеки', type: 'array' },
-                    { id: 'registration_docs', label: 'Для регистрации', type: 'array' },
-                    { id: 'handover_act', label: 'Акт приёма-перед.', type: 'file' }
-                ],
-                agent: 'Document Agent',
-                database: 'Contract DB'
-            }
-        };
-
-        // ===== PORT COLORS (согласно плану) =====
-        const portColors = {
-            'string': '#FFD93D',     // жёлтый
-            'number': '#4ECDC4',     // бирюзовый
-            'boolean': '#FFFFFF',    // белый
-            'date': '#9B59B6',       // фиолетовый
-            'file': '#6BCB77',       // зелёный
-            'array': '#3498DB',      // синий
-            'object': '#E74C3C',     // красный
-            'geo': '#1ABC9C',        // морской
-            'bundle': '#FF6B6B',     // коралловый
-            'reference': '#95A5A6',  // серый
-            'data': '#4ECDC4',       // бирюзовый (алиас для object)
-            'document': '#6BCB77'    // зелёный (алиас для file)
-        };
-
-        // ===== NODE EDITOR PANEL CONTROLS =====
-        function openNodeEditor() {
-            const panel = document.getElementById('node-editor-panel');
-            const btn = document.getElementById('nodes-toggle-btn');
-            if (panel) {
-                panel.classList.add('active');
-                if (btn) btn.classList.add('active');
-                setTimeout(() => {
-                    if (window.updateCameraAspect) window.updateCameraAspect();
-                }, 350);
-                initNodeEditorSVG();
-                renderAllConnections();
-            }
-        }
-
-        // Initialize SVG layer for connections
-        function initNodeEditorSVG() {
-            const container = document.querySelector('.node-editor-content');
-            if (!container) return;
-
-            let svg = container.querySelector('.connections-svg');
-            if (!svg) {
-                svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-                svg.classList.add('connections-svg');
-                svg.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible;';
-                svg.innerHTML = `
-                    <defs>
-                        <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#4ECDC4;stop-opacity:0.8"/>
-                            <stop offset="100%" style="stop-color:#FF6B6B;stop-opacity:0.8"/>
-                        </linearGradient>
-                    </defs>
-                `;
-                container.insertBefore(svg, container.firstChild);
-            }
-        }
-
-        // Определить тип ноды по названию задачи
-        function detectNodeType(title) {
-            const text = title.toLowerCase();
-
-            // INVEST блок
-            if (text.includes('кадастр') || text.includes('участ') || text.includes('cadastre'))
-                return 'cadastre-analysis';
-            if (text.includes('градо') || text.includes('urban') || text.includes('пзз'))
-                return 'urban-analysis';
-            if (text.includes('рынок') || text.includes('market') || text.includes('конкурент'))
-                return 'market-analysis';
-            if (text.includes('юрид') || text.includes('legal') || text.includes('право'))
-                return 'legal-check';
-            if (text.includes('финанс') || text.includes('dcf') || text.includes('npv') || text.includes('irr'))
-                return 'financial-model';
-            if (text.includes('меморанд') || text.includes('инвест') && text.includes('презент'))
-                return 'investment-memo';
-
-            // DESIGN блок
-            if (text.includes('концеп') || text.includes('concept'))
-                return 'concept';
-            if (text.includes('генплан') || text.includes('master'))
-                return 'master-plan';
-            if (text.includes('архитект') || text.includes('architect') || text.includes('фасад'))
-                return 'architecture';
-            if (text.includes('конструкт') || text.includes('struct') || text.includes('фундамент'))
-                return 'structure';
-            if (text.includes('инженер') || text.includes('engineer') || text.includes('сети') || text.includes('овик'))
-                return 'engineering';
-            if (text.includes('экспертиз') || text.includes('expertise'))
-                return 'expertise';
-
-            // BUILD блок
-            if (text.includes('смет') || text.includes('estimate') || text.includes('бюджет'))
-                return 'estimate';
-            if (text.includes('график') || text.includes('schedule') || text.includes('calendar') || text.includes('план'))
-                return 'schedule';
-            if (text.includes('закупк') || text.includes('procurement') || text.includes('поставщик'))
-                return 'procurement';
-            if (text.includes('контрол') || text.includes('control') || text.includes('надзор'))
-                return 'construction-control';
-            if (text.includes('приёмк') || text.includes('приемк') || text.includes('acceptance') || text.includes('ввод'))
-                return 'acceptance';
-
-            // SALES блок
-            if (text.includes('цен') || text.includes('pricing') || text.includes('прайс'))
-                return 'pricing';
-            if (text.includes('маркетинг') || text.includes('marketing') || text.includes('реклам'))
-                return 'marketing';
-            if (text.includes('crm') || text.includes('продаж') || text.includes('sales') || text.includes('лид'))
-                return 'crm-sales';
-            if (text.includes('документ') || text.includes('дду') || text.includes('договор'))
-                return 'documentation';
-
-            // По умолчанию — универсальная нода с минимальными портами
-            return null; // Будем создавать кастомную ноду
-        }
-
-        // Create node from task data
-        function createNodeFromTask(taskData) {
-            const container = document.querySelector('.node-editor-content');
-            if (!container) return;
-
-            // Remove placeholder
-            const placeholder = document.getElementById('node-editor-placeholder');
-            if (placeholder) placeholder.remove();
-
-            const nodeId = nodeEditorState.nextNodeId++;
-            const detectedType = detectNodeType(taskData.title);
-            const nodeType = detectedType ? nodeTypes[detectedType] : null;
-
-            let nodeData;
-            if (nodeType) {
-                // Используем готовый тип из библиотеки
-                nodeData = {
-                    id: nodeId,
-                    type: detectedType,
-                    title: nodeType.title,
-                    category: nodeType.category,
-                    x: 50 + (nodeEditorState.nodes.size % 3) * 300,
-                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 220,
-                    inputs: [...nodeType.inputs],
-                    outputs: [...nodeType.outputs],
-                    agent: nodeType.agent,
-                    database: nodeType.database,
-                    taskId: taskData.id,
-                    originalTitle: taskData.title
-                };
-            } else {
-                // Кастомная нода с базовыми портами
-                nodeData = {
-                    id: nodeId,
-                    type: 'custom',
-                    title: taskData.title.toUpperCase().substring(0, 25),
-                    category: 'custom',
-                    x: 50 + (nodeEditorState.nodes.size % 3) * 300,
-                    y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 220,
-                    inputs: [
-                        { id: 'context', label: 'Контекст', type: 'bundle' },
-                        { id: 'data_in', label: 'Данные вход', type: 'object' },
-                        { id: 'params', label: 'Параметры', type: 'object' }
-                    ],
-                    outputs: [
-                        { id: 'result', label: 'Результат', type: 'object' },
-                        { id: 'report', label: 'Отчёт', type: 'file' },
-                        { id: 'data_out', label: 'Данные выход', type: 'object' }
-                    ],
-                    agent: taskData.agent || 'Router Agent',
-                    database: taskData.database || 'VZOR Core',
-                    taskId: taskData.id
-                };
-            }
-
-            nodeEditorState.nodes.set(nodeId, nodeData);
-
-            const nodeEl = renderNode(nodeData);
-            container.appendChild(nodeEl);
-
-            return nodeId;
-        }
-
-        // Toggle Node Library Panel
-        function toggleNodeLibrary() {
-            const library = document.getElementById('node-library');
-            if (library) {
-                library.classList.toggle('active');
-            }
-        }
-        window.toggleNodeLibrary = toggleNodeLibrary;
-
-        // Add Node from Library
-        function addNodeFromLibrary(typeKey, event) {
-            // Stop event propagation to prevent document click closing library too early
-            if (event) {
-                event.stopPropagation();
-            }
-
-            const container = document.querySelector('.node-editor-content');
-            if (!container) {
-                console.error('Node editor container not found');
-                return;
-            }
-
-            const nodeType = nodeTypes[typeKey];
-            if (!nodeType) {
-                console.error('Node type not found:', typeKey);
-                return;
-            }
-
-            // Hide library after selection
-            const library = document.getElementById('node-library');
-            if (library) library.classList.remove('active');
-
-            // Remove placeholder
-            const placeholder = document.getElementById('node-editor-placeholder');
-            if (placeholder) placeholder.remove();
-
-            const nodeId = nodeEditorState.nextNodeId++;
-
-            // Add agent_ref as first input for all nodes
-            const inputsWithAgent = [
-                { id: 'agent_ref', label: 'Агент', type: 'closure' },
-                ...nodeType.inputs
-            ];
-
-            const nodeData = {
-                id: nodeId,
-                type: typeKey,
-                title: nodeType.title,
-                category: nodeType.category,
-                x: 50 + (nodeEditorState.nodes.size % 3) * 320,
-                y: 30 + Math.floor(nodeEditorState.nodes.size / 3) * 250,
-                inputs: inputsWithAgent,
-                outputs: [...nodeType.outputs],
-                agent: nodeType.agent,
-                database: nodeType.database
-            };
-
-            nodeEditorState.nodes.set(nodeId, nodeData);
-
-            const nodeEl = renderNode(nodeData);
-            container.appendChild(nodeEl);
-
-            console.log('Added node from library:', typeKey, nodeData);
-        }
-        window.addNodeFromLibrary = addNodeFromLibrary;
-
-        // Render a single node
-        function renderNode(nodeData) {
-            const node = document.createElement('div');
-            node.className = 'node';
-            node.dataset.nodeId = nodeData.id;
-
-            // Apply current zoom and pan transform
-            const { zoom, pan } = nodeEditorState;
-            const screenX = nodeData.x * zoom + pan.x;
-            const screenY = nodeData.y * zoom + pan.y;
-            node.style.left = screenX + 'px';
-            node.style.top = screenY + 'px';
-            node.style.transform = `scale(${zoom})`;
-            node.style.transformOrigin = 'top left';
-
-            // Generate inputs HTML
-            const inputsHTML = nodeData.inputs.map((port, idx) => `
-                <div class="socket socket-input" data-port-id="${port.id}" data-port-type="${port.type}">
-                    <span class="socket-dot" style="color:${portColors[port.type] || '#fff'}">●</span>
-                    <span class="socket-label">${port.label}</span>
-                </div>
-            `).join('');
-
-            // Generate outputs HTML
-            const outputsHTML = nodeData.outputs.map((port, idx) => `
-                <div class="socket socket-output" data-port-id="${port.id}" data-port-type="${port.type}">
-                    <span class="socket-label">${port.label}</span>
-                    <span class="socket-dot" style="color:${portColors[port.type] || '#fff'}">●</span>
-                </div>
-            `).join('');
-
-            node.innerHTML = `
-                <div class="node-header">
-                    <span class="node-status">●</span>
-                    <span class="node-title">${nodeData.title}</span>
-                    <span class="node-close">×</span>
-                </div>
-                <div class="node-body">
-                    <div class="node-ports">
-                        <div class="node-inputs">
-                            <div class="port-section-title">ВХОДЫ</div>
-                            ${inputsHTML}
-                        </div>
-                        <div class="node-outputs">
-                            <div class="port-section-title">ВЫХОДЫ</div>
-                            ${outputsHTML}
-                        </div>
-                    </div>
-                    <div class="node-settings">
-                        <div class="setting-row">
-                            <span>Agent:</span>
-                            <span class="setting-value">${nodeData.agent}</span>
-                        </div>
-                        <div class="setting-row">
-                            <span>DB:</span>
-                            <span class="setting-value">${nodeData.database}</span>
-                        </div>
-                    </div>
-                    <button class="node-run-btn">▶ ВЫПОЛНИТЬ</button>
-                </div>
-            `;
-
-            // Event handlers
-            setupNodeDragging(node, nodeData);
-            setupNodeClose(node, nodeData);
-            setupPortConnections(node, nodeData);
-
-            return node;
-        }
-
-        // Setup node dragging with connection updates
-        function setupNodeDragging(nodeEl, nodeData) {
-            const header = nodeEl.querySelector('.node-header');
-            let isDragging = false;
-            let startMouseX, startMouseY, startNodeX, startNodeY;
-
-            header.addEventListener('mousedown', (e) => {
-                if (e.target.classList.contains('node-close')) return;
-                isDragging = true;
-                startMouseX = e.clientX;
-                startMouseY = e.clientY;
-                startNodeX = nodeData.x; // World coordinates
-                startNodeY = nodeData.y;
-                nodeEl.style.zIndex = 100;
-                e.preventDefault();
-                e.stopPropagation(); // Don't trigger pan
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isDragging) return;
-
-                // Calculate delta in world coordinates
-                const { zoom, pan } = nodeEditorState;
-                const dx = (e.clientX - startMouseX) / zoom;
-                const dy = (e.clientY - startMouseY) / zoom;
-
-                // Update world position
-                nodeData.x = startNodeX + dx;
-                nodeData.y = startNodeY + dy;
-
-                // Update screen position
-                const screenX = nodeData.x * zoom + pan.x;
-                const screenY = nodeData.y * zoom + pan.y;
-                nodeEl.style.left = screenX + 'px';
-                nodeEl.style.top = screenY + 'px';
-
-                // Update connections in real-time
-                renderAllConnections();
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (isDragging) {
-                    isDragging = false;
-                    nodeEl.style.zIndex = '';
-                }
-            });
-        }
-
-        // Setup node close button
-        function setupNodeClose(nodeEl, nodeData) {
-            const closeBtn = nodeEl.querySelector('.node-close');
-            closeBtn.addEventListener('click', () => {
-                // Remove connections involving this node
-                nodeEditorState.connections = nodeEditorState.connections.filter(
-                    conn => conn.from.nodeId !== nodeData.id && conn.to.nodeId !== nodeData.id
-                );
-                nodeEditorState.nodes.delete(nodeData.id);
-                nodeEl.remove();
-                renderAllConnections();
-            });
-        }
-
-        // Setup port connection dragging
-        function setupPortConnections(nodeEl, nodeData) {
-            const outputs = nodeEl.querySelectorAll('.socket-output .socket-dot');
-            const inputs = nodeEl.querySelectorAll('.socket-input .socket-dot');
-
-            outputs.forEach(dot => {
-                dot.style.cursor = 'crosshair';
-                dot.addEventListener('mousedown', (e) => {
-                    e.stopPropagation();
-                    const socket = dot.closest('.socket');
-                    startConnectionDrag(nodeData.id, socket.dataset.portId, 'output', e);
-                });
-            });
-
-            inputs.forEach(dot => {
-                dot.addEventListener('mouseup', (e) => {
-                    if (nodeEditorState.draggingConnection) {
-                        const socket = dot.closest('.socket');
-                        completeConnection(nodeData.id, socket.dataset.portId);
-                    }
-                });
-            });
-        }
-
-        // Start dragging a new connection
-        function startConnectionDrag(nodeId, portId, direction, e) {
-            nodeEditorState.draggingConnection = {
-                fromNodeId: nodeId,
-                fromPortId: portId,
-                direction: direction
-            };
-
-            // Create temporary line
-            const svg = document.querySelector('.connections-svg');
-            const tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            tempLine.setAttribute('id', 'temp-connection');
-            tempLine.setAttribute('stroke', '#4ECDC4');
-            tempLine.setAttribute('stroke-width', '2');
-            tempLine.setAttribute('fill', 'none');
-            tempLine.setAttribute('stroke-dasharray', '5,5');
-            svg.appendChild(tempLine);
-
-            const moveHandler = (e) => {
-                updateTempConnection(e);
-            };
-
-            const upHandler = () => {
-                document.removeEventListener('mousemove', moveHandler);
-                document.removeEventListener('mouseup', upHandler);
-                const temp = document.getElementById('temp-connection');
-                if (temp) temp.remove();
-                nodeEditorState.draggingConnection = null;
-            };
-
-            document.addEventListener('mousemove', moveHandler);
-            document.addEventListener('mouseup', upHandler);
-        }
-
-        // Update temporary connection line
-        function updateTempConnection(e) {
-            const tempLine = document.getElementById('temp-connection');
-            if (!tempLine || !nodeEditorState.draggingConnection) return;
-
-            const fromNode = nodeEditorState.nodes.get(nodeEditorState.draggingConnection.fromNodeId);
-            const container = document.querySelector('.node-editor-content');
-            const containerRect = container.getBoundingClientRect();
-
-            const startX = fromNode.x + 260; // Right side of node
-            const startY = fromNode.y + 60;
-            const endX = (e.clientX - containerRect.left) / nodeEditorState.zoom;
-            const endY = (e.clientY - containerRect.top) / nodeEditorState.zoom;
-
-            const path = createBezierPath(startX, startY, endX, endY);
-            tempLine.setAttribute('d', path);
-        }
-
-        // Complete a connection
-        function completeConnection(toNodeId, toPortId) {
-            const drag = nodeEditorState.draggingConnection;
-            if (!drag || drag.fromNodeId === toNodeId) return;
-
-            // Add connection
-            nodeEditorState.connections.push({
-                from: { nodeId: drag.fromNodeId, portId: drag.fromPortId },
-                to: { nodeId: toNodeId, portId: toPortId }
-            });
-
-            renderAllConnections();
-        }
-
-        // Get port position relative to container
-        // Get port position in SCREEN coordinates (for SVG rendering)
-        function getPortPosition(nodeId, portId, isOutput) {
-            const container = document.querySelector('.node-editor-content');
-            const nodeEl = container.querySelector(`[data-node-id="${nodeId}"]`);
-            if (!nodeEl) return null;
-
-            const portSelector = isOutput ? '.socket-output' : '.socket-input';
-            let port = nodeEl.querySelector(`${portSelector}[data-port-id="${portId}"] .socket-dot`);
-
-            // Fallback to first port of that type
-            if (!port) {
-                port = nodeEl.querySelector(`${portSelector} .socket-dot`);
-            }
-            if (!port) return null;
-
-            const rect = port.getBoundingClientRect();
-            const containerRect = container.getBoundingClientRect();
-
-            // Return screen coordinates relative to container (SVG is in screen space)
-            return {
-                x: rect.left + rect.width / 2 - containerRect.left,
-                y: rect.top + rect.height / 2 - containerRect.top
-            };
-        }
-
-        // Render all connections (in screen coordinates)
-        function renderAllConnections() {
-            const svg = document.querySelector('.connections-svg');
-            if (!svg) return;
-
-            // Clear existing paths (except defs and temp)
-            svg.querySelectorAll('path:not(#temp-connection)').forEach(p => p.remove());
-
-            const { zoom, pan } = nodeEditorState;
-
-            // Draw each connection
-            nodeEditorState.connections.forEach((conn, idx) => {
-                const fromNode = nodeEditorState.nodes.get(conn.from.nodeId);
-                const toNode = nodeEditorState.nodes.get(conn.to.nodeId);
-                if (!fromNode || !toNode) return;
-
-                // Try to get actual port positions (screen coords)
-                const fromPos = getPortPosition(conn.from.nodeId, conn.from.portId, true);
-                const toPos = getPortPosition(conn.to.nodeId, conn.to.portId, false);
-
-                // Fallback: calculate screen position from world + offset
-                const fromX = fromPos ? fromPos.x : (fromNode.x + 280) * zoom + pan.x;
-                const fromY = fromPos ? fromPos.y : (fromNode.y + 60) * zoom + pan.y;
-                const toX = toPos ? toPos.x : toNode.x * zoom + pan.x + 10;
-                const toY = toPos ? toPos.y : (toNode.y + 60) * zoom + pan.y;
-
-                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-                path.setAttribute('d', createBezierPath(fromX, fromY, toX, toY));
-                path.setAttribute('stroke', 'url(#wireGradient)');
-                path.setAttribute('stroke-width', '2');
-                path.setAttribute('fill', 'none');
-                path.setAttribute('data-conn-idx', idx);
-                path.style.cursor = 'pointer';
-
-                // Click to delete connection
-                path.addEventListener('click', () => {
-                    nodeEditorState.connections.splice(idx, 1);
-                    renderAllConnections();
-                });
-
-                svg.appendChild(path);
-            });
-        }
-
-        // Create bezier path
-        function createBezierPath(x1, y1, x2, y2) {
-            const dx = Math.abs(x2 - x1) * 0.5;
-            return `M ${x1} ${y1} C ${x1 + dx} ${y1}, ${x2 - dx} ${y2}, ${x2} ${y2}`;
-        }
-
-        // ===== NODE EDITOR ZOOM & PAN (Blender-style) =====
-        // Key principle: point under cursor stays fixed during zoom
-        function setupNodeEditorZoomPan() {
-            const container = document.querySelector('.node-editor-content');
-            if (!container) return;
-
-            // --- WHEEL ZOOM (Blender-style: zoom to cursor) ---
-            container.addEventListener('wheel', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const rect = container.getBoundingClientRect();
-                // Mouse position in screen coords relative to container
-                const mouseScreenX = e.clientX - rect.left;
-                const mouseScreenY = e.clientY - rect.top;
-
-                // Mouse position in world coords (before zoom)
-                const mouseWorldX = (mouseScreenX - nodeEditorState.pan.x) / nodeEditorState.zoom;
-                const mouseWorldY = (mouseScreenY - nodeEditorState.pan.y) / nodeEditorState.zoom;
-
-                // Apply zoom
-                const zoomDelta = e.deltaY > 0 ? 0.9 : 1.1; // Multiplicative for smooth feel
-                const newZoom = Math.max(0.2, Math.min(4, nodeEditorState.zoom * zoomDelta));
-
-                // Adjust pan so mouse world position stays at same screen position
-                // Formula: screenPos = worldPos * zoom + pan
-                // We want: mouseScreenX = mouseWorldX * newZoom + newPanX
-                // So: newPanX = mouseScreenX - mouseWorldX * newZoom
-                nodeEditorState.pan.x = mouseScreenX - mouseWorldX * newZoom;
-                nodeEditorState.pan.y = mouseScreenY - mouseWorldY * newZoom;
-                nodeEditorState.zoom = newZoom;
-
-                applyCanvasTransform();
-
-                // Update indicator
-                const indicator = document.getElementById('node-zoom-indicator');
-                if (indicator) {
-                    indicator.textContent = Math.round(newZoom * 100) + '%';
-                }
-            });
-
-            // --- MIDDLE MOUSE PAN ---
-            container.addEventListener('mousedown', (e) => {
-                if (e.button === 1) { // Middle mouse
-                    e.preventDefault();
-                    nodeEditorState.isPanning = true;
-                    nodeEditorState.panStart = { x: e.clientX, y: e.clientY };
-                    nodeEditorState.panStartOffset = { ...nodeEditorState.pan };
-                    container.style.cursor = 'grabbing';
-                }
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (nodeEditorState.isPanning) {
-                    const dx = e.clientX - nodeEditorState.panStart.x;
-                    const dy = e.clientY - nodeEditorState.panStart.y;
-                    nodeEditorState.pan.x = nodeEditorState.panStartOffset.x + dx;
-                    nodeEditorState.pan.y = nodeEditorState.panStartOffset.y + dy;
-                    applyCanvasTransform();
-                }
-            });
-
-            document.addEventListener('mouseup', (e) => {
-                if (e.button === 1 && nodeEditorState.isPanning) {
-                    nodeEditorState.isPanning = false;
-                    container.style.cursor = '';
-                }
-            });
-        }
-
-        // Apply zoom and pan to all nodes
-        function applyCanvasTransform() {
-            const container = document.querySelector('.node-editor-content');
-            if (!container) return;
-
-            const { zoom, pan } = nodeEditorState;
-
-            // Update each node's visual position
-            nodeEditorState.nodes.forEach((nodeData, nodeId) => {
-                const nodeEl = container.querySelector(`[data-node-id="${nodeId}"]`);
-                if (nodeEl) {
-                    // Screen position = world position * zoom + pan
-                    const screenX = nodeData.x * zoom + pan.x;
-                    const screenY = nodeData.y * zoom + pan.y;
-                    nodeEl.style.left = screenX + 'px';
-                    nodeEl.style.top = screenY + 'px';
-                    nodeEl.style.transform = `scale(${zoom})`;
-                    nodeEl.style.transformOrigin = 'top left';
-                }
-            });
-
-            renderAllConnections();
-        }
-
-        // Initialize zoom/pan on load
-        document.addEventListener('DOMContentLoaded', setupNodeEditorZoomPan);
-
-        function closeNodeEditor() {
-            const panel = document.getElementById('node-editor-panel');
-            const btn = document.getElementById('nodes-toggle-btn');
-            if (panel) {
-                panel.classList.remove('active');
-                panel.style.height = '';  // Reset to CSS default
-                if (btn) btn.classList.remove('active');
-                setTimeout(() => {
-                    if (window.updateCameraAspect) window.updateCameraAspect();
-                }, 350);
-            }
-        }
-
-        function minimizeNodeEditor() {
-            const panel = document.getElementById('node-editor-panel');
-            if (panel) {
-                panel.style.height = '36px';  // Only header visible
-                setTimeout(() => {
-                    if (window.updateCameraAspect) window.updateCameraAspect();
-                }, 100);
-            }
-        }
-
-        function toggleNodeEditor() {
-            const panel = document.getElementById('node-editor-panel');
-            if (panel && panel.classList.contains('active')) {
-                closeNodeEditor();
-            } else {
-                openNodeEditor();
-            }
-        }
-
-        // ===== NODE EDITOR RESIZE FUNCTIONALITY =====
-        (function() {
-            const panel = document.getElementById('node-editor-panel');
-            const handle = document.getElementById('node-editor-resize-handle');
-            if (!panel || !handle) return;
-
-            let isResizing = false;
-            let startY, startHeight;
-
-            handle.addEventListener('mousedown', (e) => {
-                isResizing = true;
-                startY = e.clientY;
-                startHeight = panel.offsetHeight;
-                handle.classList.add('active');
-                // Disable transition for smooth resize
-                panel.style.transition = 'none';
-                document.body.style.cursor = 'ns-resize';
-                document.body.style.userSelect = 'none';
-                e.preventDefault();
-            });
-
-            document.addEventListener('mousemove', (e) => {
-                if (!isResizing) return;
-
-                const deltaY = startY - e.clientY;
-                const newHeight = Math.max(100, Math.min(window.innerHeight * 0.8, startHeight + deltaY));
-
-                panel.style.height = newHeight + 'px';
-
-                // Update camera immediately for smooth visual
-                if (window.updateCameraAspect) {
-                    window.updateCameraAspect();
-                }
-            });
-
-            document.addEventListener('mouseup', () => {
-                if (isResizing) {
-                    isResizing = false;
-                    handle.classList.remove('active');
-                    // Restore transition after resize
-                    panel.style.transition = '';
-                    document.body.style.cursor = '';
-                    document.body.style.userSelect = '';
-                }
-            });
-
-            // Double-click to expand to 50%
-            handle.addEventListener('dblclick', () => {
-                panel.style.height = '50vh';
-                if (window.updateCameraAspect) {
-                    window.updateCameraAspect();
-                }
-            });
-        })();
-
-        // ===== SIDE PANEL CONTROLS =====
-        const sidePanelContent = {
-            invest: {
-                title: 'Invest',
-                sections: [
-                    { title: 'Анализ', items: ['Градостроительный анализ', 'Юридическая проверка', 'Анализ рынка'] },
-                    { title: 'Финансы', items: ['DCF-модель', 'Бюджет проекта', 'Источники финансирования'] }
-                ]
-            },
-            design: {
-                title: 'Design',
-                sections: [
-                    { title: 'Проектирование', items: ['Мастер-план', 'Архитектура', 'Инженерия'] },
-                    { title: 'Документация', items: ['АР', 'КР', 'ИОС', 'Экспертиза'] }
-                ]
-            },
-            build: {
-                title: 'Build',
-                sections: [
-                    { title: 'Управление', items: ['Подрядчики', 'График работ', 'Контроль качества'] },
-                    { title: 'Ресурсы', items: ['Закупки', 'Логистика', 'Отчётность'] }
-                ]
-            },
-            sales: {
-                title: 'Sales',
-                sections: [
-                    { title: 'Продажи', items: ['Ценообразование', 'ДДУ', 'CRM'] },
-                    { title: 'Маркетинг', items: ['Стратегия', 'Визуализация', 'Реклама'] }
-                ]
-            },
-            files: {
-                title: 'Files',
-                sections: [
-                    { title: 'Документы', items: ['Все файлы', 'Недавние', 'Избранное'] }
-                ]
-            },
-            settings: {
-                title: 'Settings',
-                sections: [
-                    { title: 'Настройки', items: ['Профиль', 'Тема', 'Язык', 'API'] }
-                ]
-            }
-        };
-
-        function openSidePanel(panelType) {
-            const panel = document.getElementById('side-panel');
-            const title = document.getElementById('side-panel-title');
-            const content = document.getElementById('side-panel-content');
-            const buttons = document.querySelectorAll('#icon-bar .icon-btn');
-
-            if (!panel || !content) return;
-
-            // Update active icon
-            buttons.forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.panel === panelType);
-            });
-
-            // Get content for this panel
-            const data = sidePanelContent[panelType];
-            if (!data) return;
-
-            title.textContent = data.title;
-
-            // Generate HTML
-            let html = '';
-            data.sections.forEach(section => {
-                html += `<div class="side-panel-section">
-                    <div class="side-panel-section-title">${section.title}</div>`;
-                section.items.forEach(item => {
-                    html += `<div class="side-panel-item" onclick="console.log('Selected: ${item}')">${item}</div>`;
-                });
-                html += '</div>';
-            });
-
-            content.innerHTML = html;
-            panel.classList.add('active');
-        }
-
-        function closeSidePanel() {
-            const panel = document.getElementById('side-panel');
-            const buttons = document.querySelectorAll('#icon-bar .icon-btn');
-            if (panel) {
-                panel.classList.remove('active');
-                buttons.forEach(btn => btn.classList.remove('active'));
-            }
-        }
-
-        // Icon bar click handlers
-        document.querySelectorAll('#icon-bar .icon-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const panelType = btn.dataset.panel;
-                if (!panelType) return;
-
-                const sidePanel = document.getElementById('side-panel');
-                const isCurrentlyOpen = sidePanel && sidePanel.classList.contains('active');
-                const isCurrentPanel = btn.classList.contains('active');
-
-                if (isCurrentlyOpen && isCurrentPanel) {
-                    closeSidePanel();
-                } else {
-                    openSidePanel(panelType);
-                }
-            });
-        });
-
-        // ===== VOICE INPUT (Web Speech API) =====
-        (function() {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRecognition) {
-                console.warn('Speech Recognition not supported');
-                return;
-            }
-
-            const recognition = new SpeechRecognition();
-            recognition.lang = 'ru-RU';
-            recognition.continuous = false;
-            recognition.interimResults = false;
-
-            const micBtn = document.getElementById('mic-btn');
-            const taskInput = document.getElementById('task-input');
-            let isListening = false;
-
-            if (!micBtn) return;
-
-            micBtn.addEventListener('click', () => {
-                if (isListening) {
-                    recognition.stop();
-                } else {
-                    recognition.start();
-                    micBtn.classList.add('listening');
-                    micBtn.style.background = 'rgba(255, 107, 107, 0.2)';
-                    micBtn.style.borderColor = '#FF6B6B';
-                    micBtn.style.color = '#FF6B6B';
-                    isListening = true;
-                }
-            });
-
-            recognition.onresult = (event) => {
-                const text = event.results[0][0].transcript;
-                if (taskInput) taskInput.value = text;
-                console.log('Voice input:', text);
-            };
-
-            recognition.onend = () => {
-                micBtn.classList.remove('listening');
-                micBtn.style.background = '';
-                micBtn.style.borderColor = '';
-                micBtn.style.color = '';
-                isListening = false;
-            };
-
-            recognition.onerror = (event) => {
-                console.error('Speech error:', event.error);
-                micBtn.classList.remove('listening');
-                micBtn.style.background = '';
-                micBtn.style.borderColor = '';
-                micBtn.style.color = '';
-                isListening = false;
-            };
-        })();
-
-        // ===== SHOW/HIDE NODES TOGGLE BUTTON =====
-        // Show when drilled into a project (isDrilled = true)
-        window.showNodesToggle = function() {
-            const btn = document.getElementById('nodes-toggle-btn');
-            if (btn) btn.classList.add('visible');
-        };
-
-        window.hideNodesToggle = function() {
-            const btn = document.getElementById('nodes-toggle-btn');
-            if (btn) btn.classList.remove('visible');
-            closeNodeEditor();
-        };
-
-        // ===== AUTO-CLOSE PANELS ON CLICK OUTSIDE =====
-        document.addEventListener('click', (e) => {
-            const target = e.target;
-
-            // Check if click is on canvas/empty area (not on UI elements)
-            const isCanvas = target.closest('#canvas-wrapper') || target.tagName === 'CANVAS';
-            const isIconBar = target.closest('#icon-bar');
-            const isSidePanel = target.closest('#side-panel');
-            const isNodeEditor = target.closest('#node-editor-panel');
-            const isNodesBtn = target.closest('#nodes-toggle-btn');
-            const isDetailPanel = target.closest('#detail-panel');
-            const isTaskInterface = target.closest('#task-interface');
-
-            // If clicked on empty canvas area (not on any panel)
-            if (isCanvas && !isIconBar && !isSidePanel && !isNodeEditor && !isNodesBtn && !isDetailPanel && !isTaskInterface) {
-                // Close side panel
-                const sidePanel = document.getElementById('side-panel');
-                if (sidePanel && sidePanel.classList.contains('active')) {
-                    closeSidePanel();
-                }
-
-                // Close node editor panel
-                const nodePanel = document.getElementById('node-editor-panel');
-                if (nodePanel && nodePanel.classList.contains('active')) {
-                    closeNodeEditor();
-                }
-
-                // Close detail panel
-                const detailPanel = document.getElementById('detail-panel');
-                if (detailPanel && detailPanel.classList.contains('active')) {
-                    detailPanel.classList.remove('active');
-                    if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
-                }
-            }
-        });
     </script>
     <!-- NODE EDITOR MODAL -->
     <div id="node-editor-modal" style="
@@ -4470,7 +2560,21 @@
         </div>
     </div>
 
-    <!-- Old Nodes Button REMOVED - Using new #nodes-toggle-btn defined above -->
+    <!-- Nodes Button -->
+    <button id="nodes-btn" onclick="openNodeEditor()" style="
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 20px;
+        color: rgba(255,255,255,0.6);
+        font-size: 13px;
+        cursor: pointer;
+        z-index: 100;
+        display: none;
+    ">⚙ Nodes</button>
 
     <script>
         // 1. Draggable Task Interface
@@ -4505,8 +2609,26 @@
             });
         })();
 
-        // Note: Node Editor functions (openNodeEditor, closeNodeEditor, toggleNodeEditor)
-        // are defined in the panel controls script above. No duplication needed here.
+        // 2. Node Editor Modal Logic
+        function openNodeEditor() {
+            document.getElementById('node-editor-modal').style.display = 'flex';
+        }
+
+        function closeNodeEditor() {
+            document.getElementById('node-editor-modal').style.display = 'none';
+            // The instruction mentions "timeouts in show/hide detail" for updateCameraAspect.
+            // Adding a timeout here to ensure camera aspect is correct after modal closes.
+            if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+        }
+
+        // Logic to toggle button visibility is handled where showDetail/hideDetail are defined (or integrated here if possible)
+        // Since showDetail/hideDetail are inside type="module", we might need to hook into window or just run checks.
+        // However, the provided instruction says "Add to showDetail(): ...".
+        // I should Edit the existing script content for that.
+
+        // Let's expose these to window so modules can call them
+        window.openNodeEditor = openNodeEditor;
+        window.closeNodeEditor = closeNodeEditor;
     </script>
 </body>
 
