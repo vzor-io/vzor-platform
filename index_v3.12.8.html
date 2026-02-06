@@ -360,14 +360,45 @@
             pointer-events: auto;
         }
 
-        /* v3.12.8: BACK button - positioned to avoid overlap with icon-bar-toggle */
-        #back-button {
-            left: 50px;
+        /* v3.12.9: Category label - top left, readable but not distracting */
+        #block-label {
+            position: fixed;
             top: 15px;
+            left: 55px;
+            font-size: 0.75em;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.6);
+            z-index: 102;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
+        #block-label.visible {
+            opacity: 1;
+        }
+
+        /* v3.12.9: BACK button - below the category label, more subtle */
+        #back-button {
+            left: 55px;
+            top: 38px;
+            font-size: 0.55em;
+            padding: 4px 10px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.3);
         }
 
         #back-button.visible {
             opacity: 1;
+        }
+
+        #back-button:hover {
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .nav-btn:hover {
@@ -2106,8 +2137,8 @@
         <span>←</span> BACK
     </div>
 
-    <!-- v3.12.7: Block Label HIDDEN - was causing overlap issues, not in v3.11 -->
-    <div id="block-label" style="display: none;"></div>
+    <!-- v3.12.9: Category Label at top -->
+    <div id="block-label"></div>
     <div id="detail-panel">
         <div class="detail-header">Structural Level 2</div>
         <!-- Editable Task Title -->
@@ -2731,11 +2762,11 @@
                 taskListBtn.classList.add('visible');
             }
 
-            // 6. Show Block Label
+            // 6. Show Block Label (v3.12.9)
             const blockLabel = document.getElementById('block-label');
             if (blockLabel) {
                 blockLabel.textContent = categoryName.toUpperCase();
-                blockLabel.style.opacity = '1';
+                blockLabel.classList.add('visible');
             }
 
             // 7. Show Task Points for this category
@@ -3112,9 +3143,9 @@
             // v3.11: Hide task list button
             if (window.hideTaskListBtn) window.hideTaskListBtn();
 
-            // v3.12.1: Hide block name label
+            // v3.12.9: Hide block name label
             const blockLabel = document.getElementById('block-label');
-            if (blockLabel) blockLabel.style.opacity = '0';
+            if (blockLabel) blockLabel.classList.remove('visible');
 
             // Close Side Panel
             if (typeof closeSidePanel === 'function') closeSidePanel();
@@ -3176,11 +3207,13 @@
                 // We keep it at 0 on mobile unless moving, but on desktop we fade it
             }, 1000);
 
-            if (isDrag && !isDrilled) { // Only manual drag if NOT drilled
+            // v3.12.9: Allow rotation in both normal and drill-down modes
+            if (isDrag) {
                 let dx = x - prevM.x; let dy = y - prevM.y;
                 group.rotation.y += dx * 0.005;
                 group.rotation.x += dy * 0.005;
                 mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
+                lastInteractTime = Date.now(); // Reset idle timer on drag
             }
         }
         document.addEventListener('mousedown', e => {
@@ -3581,11 +3614,11 @@
                     nodesBtn.classList.add('visible');
                 }
 
-                // Show block label with current category
+                // v3.12.9: Show block label with current category
                 const blockLabel = document.getElementById('block-label');
                 if (blockLabel && currentCategory) {
                     blockLabel.textContent = currentCategory.toUpperCase();
-                    blockLabel.style.opacity = '1';
+                    blockLabel.classList.add('visible');
                 }
 
                 // v3.12.8: Show task list button (right side) using class
@@ -3660,9 +3693,9 @@
                     document.getElementById('icon-bar').classList.remove('visible');
                     document.getElementById('icon-bar-toggle').style.display = 'none';
 
-                    // Hide block label
+                    // v3.12.9: Hide block label
                     const blockLabel = document.getElementById('block-label');
-                    if (blockLabel) blockLabel.style.opacity = '0';
+                    if (blockLabel) blockLabel.classList.remove('visible');
 
                     // Hide nodes toggle button
                     const nodesBtn = document.getElementById('nodes-toggle-btn');

@@ -18,17 +18,22 @@
     --glass-blur: blur(12px);
   }
 
+  html,
   body {
     background-color: var(--bg-dark);
     color: var(--text-main);
     font-family: var(--font-family);
     margin: 0;
     overflow: hidden;
-    /* Grid Background */
-    background-image:
-      linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
-    background-size: 30px 30px;
+    height: 100%;
+    width: 100%;
+    /* Grid removed for original VZOR aesthetic */
+    background-image: none;
+  }
+
+  #root {
+    height: 100%;
+    width: 100%;
   }
 }
 

@@ -1,10 +1,20 @@
 ﻿<!DOCTYPE html>
+<!--
+    VZOR v3.18 - ШАБЛОН (НЕ РЕДАКТИРОВАТЬ)
+    ======================================
+    Стабильная версия с исправлениями:
+    - Точки и линии вращаются с облаком
+    - Точки кликабельные (threshold + координаты)
+    - Формула плотности облака (600 задач)
+    - Удаление задач
+    - Highlight fade (не исчезает)
+-->
 <html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VZOR - Multi-Stage Evolution</title>
+    <title>VZOR v3.18 (ШАБЛОН)</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
@@ -15,12 +25,132 @@
             box-sizing: border-box;
         }
 
+        /* ===== v3.14 DESIGN TOKENS ===== */
+        :root {
+            /* Colors */
+            --color-bg: #000000;
+            --color-surface: rgba(12, 12, 14, 0.65);
+            --color-accent: #00ffff;
+            --color-accent-dim: rgba(0, 255, 255, 0.3);
+            --color-success: #77DD77;
+            --color-warning: #FFB347;
+            --color-error: #FF6B6B;
+
+            /* Text opacity levels (standardized) */
+            --text-primary: rgba(255, 255, 255, 1.0);
+            --text-secondary: rgba(255, 255, 255, 0.7);
+            --text-tertiary: rgba(255, 255, 255, 0.4);
+            --text-hint: rgba(255, 255, 255, 0.25);
+
+            /* Surface opacity */
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --surface-active: rgba(255, 255, 255, 0.12);
+            --border-subtle: rgba(255, 255, 255, 0.1);
+            --border-medium: rgba(255, 255, 255, 0.2);
+
+            /* Transitions */
+            --transition-fast: 0.2s ease;
+            --transition-medium: 0.3s ease;
+            --transition-slow: 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+            /* Spacing */
+            --spacing-xs: 4px;
+            --spacing-sm: 8px;
+            --spacing-md: 16px;
+            --spacing-lg: 24px;
+            --spacing-xl: 32px;
+        }
+
         body {
             font-family: 'Outfit', -apple-system, sans-serif;
-            background: #000000;
-            color: #ffffff;
+            background: var(--color-bg);
+            color: var(--text-primary);
             overflow: hidden;
             -webkit-font-smoothing: antialiased;
+        }
+
+        /* ===== v3.14 TOAST NOTIFICATIONS ===== */
+        #toast-container {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            background: var(--color-surface);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transform: translateX(120%);
+            opacity: 0;
+            transition: all var(--transition-slow);
+            pointer-events: auto;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+            opacity: 1;
+        }
+
+        .toast-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .toast-message {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .toast.success { border-left: 3px solid var(--color-success); }
+        .toast.error { border-left: 3px solid var(--color-error); }
+        .toast.warning { border-left: 3px solid var(--color-warning); }
+        .toast.info { border-left: 3px solid var(--color-accent); }
+
+        /* ===== v3.14 FOCUS STATES (Accessibility) ===== */
+        button:focus-visible,
+        input:focus-visible,
+        [role="button"]:focus-visible,
+        [tabindex]:focus-visible {
+            outline: 2px solid var(--color-accent);
+            outline-offset: 2px;
+        }
+
+        /* Screen reader only */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
         }
 
         #scroll-container {
@@ -276,7 +406,59 @@
             font-size: 11px;
         }
 
+        /* v3.14: Microphone listening animation */
+        #mic-btn.listening {
+            background: rgba(255, 107, 107, 0.15) !important;
+            border-color: var(--color-error) !important;
+            color: var(--color-error) !important;
+            animation: mic-pulse 1.5s ease-in-out infinite;
+        }
 
+        #mic-btn.listening::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid var(--color-error);
+            animation: mic-ring 1.5s ease-out infinite;
+        }
+
+        @keyframes mic-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(255, 107, 107, 0); }
+        }
+
+        @keyframes mic-ring {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+            100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+        }
+
+        /* v3.14: Listening status indicator */
+        #mic-status {
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--color-surface);
+            backdrop-filter: blur(10px);
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 10px;
+            color: var(--color-error);
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+
+        #mic-btn.listening + #mic-status,
+        #mic-status.visible {
+            opacity: 1;
+        }
 
         .detail-header {
             font-size: 0.7em;
@@ -360,14 +542,46 @@
             pointer-events: auto;
         }
 
-        /* v3.12.8: BACK button - positioned to avoid overlap with icon-bar-toggle */
+        /* v3.14: Category label - top left, readable but not distracting */
+        #block-label {
+            position: fixed;
+            top: var(--spacing-md);
+            left: 55px;
+            font-size: 0.75em;
+            font-weight: 400;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            z-index: 102;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--transition-slow);
+        }
+
+        #block-label.visible {
+            opacity: 1;
+        }
+
+        /* v3.14: BACK button - below the category label, more subtle */
         #back-button {
-            left: 50px;
-            top: 15px;
+            left: 55px;
+            top: 38px;
+            font-size: 0.55em;
+            padding: var(--spacing-xs) 10px;
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--text-tertiary);
+            transition: all var(--transition-fast);
         }
 
         #back-button.visible {
             opacity: 1;
+        }
+
+        #back-button:hover {
+            color: var(--text-secondary);
+            background: var(--surface-hover);
+            border-color: var(--border-medium);
         }
 
         .nav-btn:hover {
@@ -534,13 +748,13 @@
             display: none;
         }
 
-        /* --- NEW CSS FOR V3.8 --- */
+        /* --- v3.14 UI COMPONENTS --- */
 
         /* 1. Icon Bar (Floating High-Tech) */
-        /* v3.11: Minimalist icon bar — smaller, less intrusive */
+        /* v3.14: Minimalist icon bar — smaller, less intrusive */
         #icon-bar {
             position: fixed;
-            left: 10px;
+            left: var(--spacing-sm);
             top: 50%;
             transform: translateY(-50%);
             width: 36px;
@@ -551,10 +765,10 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
+            gap: var(--spacing-sm);
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.5s ease;
+            transition: opacity var(--transition-slow);
         }
 
         #icon-bar.visible {
@@ -566,30 +780,30 @@
             opacity: 1;
         }
 
-        /* v3.11: Icon bar toggle button */
+        /* v3.14: Icon bar toggle button */
         #icon-bar-toggle {
             display: none;
             position: fixed;
-            left: 10px;
-            top: 10px;
+            left: var(--spacing-sm);
+            top: var(--spacing-sm);
             width: 28px;
             height: 28px;
             border-radius: 6px;
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: rgba(255, 255, 255, 0.5);
+            background: var(--color-surface);
+            border: 1px solid var(--border-medium);
+            color: var(--text-tertiary);
             font-size: 12px;
             cursor: pointer;
             z-index: 201;
             align-items: center;
             justify-content: center;
-            transition: all 0.2s ease;
+            transition: all var(--transition-fast);
         }
 
         #icon-bar-toggle:hover {
-            background: rgba(78, 205, 196, 0.2);
-            border-color: rgba(78, 205, 196, 0.4);
-            color: rgba(255, 255, 255, 0.8);
+            background: var(--color-accent-dim);
+            border-color: var(--color-accent);
+            color: var(--text-secondary);
         }
 
         .icon-btn {
@@ -652,21 +866,21 @@
             background: #0a0a0a !important;
         }
 
-        /* 3. Node Editor Panel — v3.12.1: Unified airy design */
+        /* v3.14: Node Editor Panel — Unified airy design with tokens */
         #node-editor-panel {
             position: fixed;
             bottom: 0;
             left: 0;
             right: 0;
             height: 0;
-            background: rgba(10, 10, 12, 0.7);
+            background: var(--color-surface);
             backdrop-filter: blur(35px);
             -webkit-backdrop-filter: blur(35px);
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-top: 1px solid var(--border-subtle);
             z-index: 100;
             display: flex;
             flex-direction: column;
-            transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: height var(--transition-medium);
             overflow: hidden;
             box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.3);
         }
@@ -755,16 +969,16 @@
             font-family: monospace;
         }
 
-        /* v3.11: NODES Toggle Button — smaller, more subtle */
+        /* v3.14: NODES Toggle Button — smaller, more subtle */
         #nodes-toggle-btn {
             position: fixed;
-            bottom: 15px;
+            bottom: var(--spacing-md);
             left: 50px;
             padding: 6px 12px;
-            background: rgba(10, 10, 10, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--color-surface);
+            border: 1px solid var(--border-subtle);
             border-radius: 6px;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-tertiary);
             font-size: 10px;
             font-weight: 500;
             letter-spacing: 0.1em;
@@ -773,7 +987,7 @@
             display: flex;
             align-items: center;
             gap: 5px;
-            transition: all 0.2s ease;
+            transition: all var(--transition-fast);
             opacity: 0;
             pointer-events: none;
         }
@@ -785,8 +999,8 @@
 
         #nodes-toggle-btn:hover {
             opacity: 1;
-            background: rgba(20, 20, 20, 0.9);
-            border-color: rgba(78, 205, 196, 0.3);
+            background: var(--surface-active);
+            border-color: var(--color-accent-dim);
         }
 
         #nodes-toggle-btn.active {
@@ -800,7 +1014,7 @@
             font-size: 12px;
         }
 
-        /* v3.12.8: Task List Button visibility */
+        /* v3.14: Task List Button visibility */
         #task-list-btn.visible {
             opacity: 0.6 !important;
             pointer-events: auto !important;
@@ -808,8 +1022,8 @@
 
         #task-list-btn.visible:hover {
             opacity: 1 !important;
-            background: rgba(78, 205, 196, 0.2);
-            border-color: rgba(78, 205, 196, 0.4);
+            background: var(--color-accent-dim);
+            border-color: var(--color-accent);
         }
 
         /* Legacy modal — HIDDEN */
@@ -817,20 +1031,20 @@
             display: none !important;
         }
 
-        /* Side Panel (v3.12.1: Unified airy design) */
+        /* v3.14: Side Panel (Unified airy design with tokens) */
         #side-panel {
             position: fixed;
             left: 68px;
             top: 0;
             width: 280px;
             height: 100vh;
-            background: rgba(12, 12, 14, 0.6);
+            background: var(--color-surface);
             backdrop-filter: blur(35px);
             -webkit-backdrop-filter: blur(35px);
-            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            border-right: 1px solid var(--border-subtle);
             z-index: 150;
             transform: translateX(-100%);
-            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.25s ease;
+            transition: transform var(--transition-medium), opacity var(--transition-fast);
             display: flex;
             flex-direction: column;
             opacity: 0;
@@ -845,8 +1059,8 @@
         }
 
         .side-panel-header {
-            padding: 20px 15px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: var(--spacing-lg) var(--spacing-md);
+            border-bottom: 1px solid var(--border-subtle);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -857,21 +1071,22 @@
             font-weight: 500;
             letter-spacing: 0.15em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-secondary);
         }
 
         .side-panel-close {
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--text-tertiary);
             cursor: pointer;
             font-size: 18px;
             padding: 5px;
             line-height: 1;
+            transition: color var(--transition-fast);
         }
 
         .side-panel-close:hover {
-            color: white;
+            color: var(--text-primary);
         }
 
         .side-panel-content {
@@ -1835,6 +2050,9 @@
 </head>
 
 <body>
+    <!-- v3.14: Toast Notification Container -->
+    <div id="toast-container" aria-live="polite" aria-label="Уведомления"></div>
+
     <!-- ICON BAR TOGGLE BUTTON (v3.11: hidden by default) -->
     <button id="icon-bar-toggle" onclick="toggleIconBar()" title="Показать меню">
         ☰
@@ -2054,9 +2272,12 @@
     <div id="task-interface">
 
         <!-- Input Field -->
-        <input type="text" id="task-input" placeholder="New task..."
+        <input type="text" id="task-input" placeholder="Новая задача..."
+            aria-label="Создать новую задачу"
+            aria-describedby="task-input-help"
             style="flex-grow: 1; background: transparent; border: none; color: white; font-family: 'Outfit'; font-size: 0.9em; outline: none; padding: 4px 5px; letter-spacing: 0.05em;"
             onkeydown="if(event.key === 'Enter' && this.value.trim()) { window.addTaskPoint(this.value.trim(), currentCategory || 'General'); this.value = ''; }">
+        <span id="task-input-help" class="sr-only">Нажмите Enter для создания задачи или используйте микрофон для голосового ввода</span>
 
         <!-- Icons Group -->
         <div style="display: flex; gap: 8px; padding-left: 5px; border-left: 1px solid rgba(255,255,255,0.15);">
@@ -2068,8 +2289,11 @@
             </button>
 
             <!-- Mic Button (Voice Input - PRIORITY!) -->
-            <button id="mic-btn" class="nav-btn"
-                style="position: static; padding: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: transparent; opacity: 0.6; pointer-events: auto; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.2);"
+            <button id="mic-btn"
+                aria-label="Голосовой ввод"
+                aria-pressed="false"
+                role="button"
+                style="position: relative; padding: 0; width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; background: transparent; opacity: 0.6; pointer-events: auto; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.2); color: white; cursor: pointer;"
                 title="Голосовой ввод">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                     stroke-linecap="round" stroke-linejoin="round">
@@ -2102,12 +2326,16 @@
     <button class="cta-button" id="ctaButton">Access VZOR Standard</button>
 
     <!-- BACK BUTTON (Drill Down) -->
-    <div id="back-button" class="nav-btn">
-        <span>←</span> BACK
+    <div id="back-button" class="nav-btn"
+        role="button"
+        tabindex="0"
+        aria-label="Вернуться к общему виду"
+        aria-hidden="true">
+        <span aria-hidden="true">←</span> BACK
     </div>
 
-    <!-- v3.12.7: Block Label HIDDEN - was causing overlap issues, not in v3.11 -->
-    <div id="block-label" style="display: none;"></div>
+    <!-- v3.12.9: Category Label at top -->
+    <div id="block-label"></div>
     <div id="detail-panel">
         <div class="detail-header">Structural Level 2</div>
         <!-- Editable Task Title -->
@@ -2133,6 +2361,42 @@
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // ===== v3.14: TOAST NOTIFICATION SYSTEM =====
+        window.showToast = function(title, message, type = 'info', duration = 4000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const icons = {
+                success: '✓',
+                error: '✕',
+                warning: '⚠',
+                info: '●'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <span class="toast-icon">${icons[type] || icons.info}</span>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    ${message ? `<div class="toast-message">${message}</div>` : ''}
+                </div>
+            `;
+
+            container.appendChild(toast);
+
+            // Trigger animation
+            requestAnimationFrame(() => {
+                toast.classList.add('show');
+            });
+
+            // Auto-remove
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 500);
+            }, duration);
+        };
 
         // --- Data ---
         const finalNodes = [
@@ -2376,7 +2640,8 @@
                 uMouseActive: { value: 0 },
                 uTexture: { value: createGlowTexture() },
                 uGraphZoom: { value: 1.0 },
-                uMobile: { value: 0.0 }
+                uMobile: { value: 0.0 },
+                uDensity: { value: 1.0 }  // v3.18: Cloud density (decreases as tasks are created)
             },
             vertexShader: `
                 uniform float uTime;
@@ -2388,6 +2653,7 @@
                 uniform float uMouseActive;
                 uniform float uGraphZoom;
                 uniform float uMobile;
+                uniform float uDensity;  // v3.18: Cloud density
 
                 attribute vec3 aIncubator;
                 attribute vec3 aTarget;
@@ -2492,8 +2758,8 @@
 
                     // Fix Cloud Visibility: Keep opacity high on Slide 2 (0.6 instead of 0.15)
                     // If Drilled (t3 > 0.1) and NOT static -> THIN OUT (Reduce alpha significantly)
-                    float targetAlpha = (aSize < 5.0 ? 0.6 : 1.0);
-                    float drillAlpha = (aStatic < 0.5 ? 0.45 : 1.0);
+                    float targetAlpha = (aSize < 5.0 ? 0.7 : 1.0);  // v3.17: brighter
+                    float drillAlpha = (aStatic < 0.5 ? 0.5 : 1.0);  // v3.17: brighter
                     
                     // Transition to slide 2 alpha (t2=0 but keeping the mix structure)
                     float s2Alpha = mix(1.0, targetAlpha, t2);
@@ -2510,13 +2776,13 @@
                              // GRAPH NODE -> HIDE
                              drillVisibility = 1.0 - smoothstep(0.1, 0.3, t3);
                          } else {
-                             // CLOUD -> VISIBLE BACKGROUND (v3.11: increased 0.4 -> 0.65)
-                             drillVisibility = 0.65;
+                             // CLOUD -> VISIBLE BACKGROUND (v3.17: increased 0.65 -> 0.7)
+                             drillVisibility = 0.7;
                          }
                     }
                     
-                    // Final Alpha is combination
-                    vAlpha = s2Alpha * drillVisibility;
+                    // Final Alpha is combination (v3.18: multiplied by uDensity for thinning effect)
+                    vAlpha = s2Alpha * drillVisibility * uDensity;
                 }
             `,
             fragmentShader: `
@@ -2642,6 +2908,8 @@
 
         // --- Interaction ---
         let targetP = 0; let smoothP = 0;
+        let wasInStage1 = true; // v3.15: Флаг для сброса вращения при переходе Stage 1→2
+        let wasDrilled = false; // v3.15: Флаг для сброса вращения при выходе из drill-down
         let isDrilled = false; let drillProg = 0;
         let currentCategory = "";
         let isDrag = false; let prevM = { x: 0, y: 0 }; let mom = { x: 0, y: 0 };
@@ -2654,8 +2922,8 @@
 
         // --- USER TASKS LOGIC ---
         const userTasks = []; // Each: { mesh: THREE.Mesh, title: string, created: number }
-        const taskGeo = new THREE.SphereGeometry(4, 16, 16); // Task Points
-        const taskMat = new THREE.MeshBasicMaterial({ color: 0xffaa00 }); // Orange for User Tasks
+        const taskGeo = new THREE.SphereGeometry(6, 16, 16); // Task Points (v3.17: bigger)
+        const taskMat = new THREE.MeshBasicMaterial({ color: 0xffcc00 }); // Orange for User Tasks (v3.17: brighter)
 
         function addTaskPoint(title, category) {
             // Create visual point in the cloud
@@ -2686,6 +2954,7 @@
         let currentZoom = 1.0;
         let lastZoomTime = 0;
         let lastInteractTime = Date.now(); // Initialize to NOW so it doesn't trigger immediately
+        let hasEverDrilled = false; // v3.18: Track if user ever clicked a category (for pulsation hint)
 
         // v3.12.6: Centralized function to show ALL drill-down UI
         // This ensures consistent state regardless of how we enter drill-down
@@ -2699,6 +2968,7 @@
                 backBtn.style.opacity = '1';
                 backBtn.style.pointerEvents = 'auto';
                 backBtn.style.display = ''; // Ensure not hidden
+                backBtn.setAttribute('aria-hidden', 'false'); // v3.14: Accessibility
             }
 
             // 2. Show Task Interface for allowed categories
@@ -2731,11 +3001,11 @@
                 taskListBtn.classList.add('visible');
             }
 
-            // 6. Show Block Label
+            // 6. Show Block Label (v3.12.9)
             const blockLabel = document.getElementById('block-label');
             if (blockLabel) {
                 blockLabel.textContent = categoryName.toUpperCase();
-                blockLabel.style.opacity = '1';
+                blockLabel.classList.add('visible');
             }
 
             // 7. Show Task Points for this category
@@ -2781,8 +3051,10 @@
                 return;
             }
 
-            mv.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mv.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            // v3.18 FIX: Calculate mouse coordinates relative to canvas, not window
+            const rect = renderer.domElement.getBoundingClientRect();
+            mv.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mv.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
             // v3.12.6: Ensure camera matrix is up-to-date before raycasting
             // This fixes issues when camera was just reset by controls.reset()
@@ -2803,6 +3075,7 @@
 
                     // Set drill-down state
                     isDrilled = true;
+                    hasEverDrilled = true; // v3.18: Stop pulsation hint after first click
                     currentCategory = data.name;
 
                     // Update detail panel content
@@ -2874,7 +3147,7 @@
 
                     if (window.taskPoints && window.taskPoints.length > 0) {
                         // Set raycaster threshold for Points (larger area for easier clicking)
-                        ray.params.Points = { threshold: 15 };
+                        ray.params.Points = { threshold: 20 };  // v3.18: increased for better clickability
 
                         const taskMeshes = window.taskPoints
                             .filter(t => t.mesh && t.mesh.visible)
@@ -3098,6 +3371,7 @@
             document.getElementById('nav-btn').classList.remove('visible'); // Hide if any
             document.getElementById('back-button').style.opacity = '0';
             document.getElementById('back-button').style.pointerEvents = 'none';
+            document.getElementById('back-button').setAttribute('aria-hidden', 'true'); // v3.14: Accessibility
 
             // Hide Icon Bar
             document.getElementById('icon-bar').classList.remove('visible');
@@ -3112,9 +3386,9 @@
             // v3.11: Hide task list button
             if (window.hideTaskListBtn) window.hideTaskListBtn();
 
-            // v3.12.1: Hide block name label
+            // v3.12.9: Hide block name label
             const blockLabel = document.getElementById('block-label');
-            if (blockLabel) blockLabel.style.opacity = '0';
+            if (blockLabel) blockLabel.classList.remove('visible');
 
             // Close Side Panel
             if (typeof closeSidePanel === 'function') closeSidePanel();
@@ -3161,6 +3435,14 @@
             group.rotation.set(0, 0, 0);
         });
 
+        // v3.14: Keyboard support for back button
+        document.getElementById('back-button').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                document.getElementById('back-button').click();
+            }
+        });
+
         document.addEventListener('click', onClick);
 
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
@@ -3176,11 +3458,13 @@
                 // We keep it at 0 on mobile unless moving, but on desktop we fade it
             }, 1000);
 
-            if (isDrag && !isDrilled) { // Only manual drag if NOT drilled
+            // v3.12.9: Allow rotation in both normal and drill-down modes
+            if (isDrag) {
                 let dx = x - prevM.x; let dy = y - prevM.y;
                 group.rotation.y += dx * 0.005;
                 group.rotation.x += dy * 0.005;
                 mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
+                lastInteractTime = Date.now(); // Reset idle timer on drag
             }
         }
         document.addEventListener('mousedown', e => {
@@ -3395,6 +3679,24 @@
             }
 
             smoothP += (targetP - smoothP) * 0.05;
+
+            // v3.15 FIX: Сброс вращения при переходе Stage 1 → Stage 2
+            // Чтобы вращение на первом этапе не влияло на второй
+            const stage2Threshold = 0.25;
+            if (wasInStage1 && smoothP > stage2Threshold) {
+                group.rotation.set(0, 0, 0);
+                mom.x = 0; mom.y = 0;
+                wasInStage1 = false;
+            } else if (smoothP < 0.1) {
+                wasInStage1 = true;
+            }
+
+            // v3.15 FIX: Сброс вращения при выходе из drill-down (Stage 3 → Stage 2)
+            if (wasDrilled && !isDrilled) {
+                group.rotation.set(0, 0, 0);
+                mom.x = 0; mom.y = 0;
+            }
+            wasDrilled = isDrilled;
             // Removed duplicate 'const time'
 
             // Zoom Smoothing for Graph (smooth interpolation)
@@ -3494,11 +3796,46 @@
             const globalLabelOp = x * x * (3 - 2 * x);
 
             const lOp = globalLabelOp * (1.0 - drillProg);
-            labels.forEach(l => {
-                l.material.opacity = lOp;
+
+            // v3.14: Hover effect on category labels
+            let hoveredLabel = null;
+            if (!isDrilled && smoothP > 0.5) {
+                ray.setFromCamera(mv, camera);
+                const labelHits = ray.intersectObjects(labels);
+                if (labelHits.length > 0) {
+                    hoveredLabel = labelHits[0].object;
+                    document.body.style.cursor = 'pointer';
+                } else {
+                    document.body.style.cursor = '';
+                }
+            } else {
+                document.body.style.cursor = '';
+            }
+
+            labels.forEach((l, i) => {
+                const isHovered = l === hoveredLabel;
+                const baseScale = coreData[i].scale;
+                const targetScale = isHovered ? baseScale * 1.12 : baseScale;
+
+                // Smooth scale transition
+                const currentScale = l.scale.x / 130;
+                const newScale = currentScale + (targetScale - currentScale) * 0.15;
+                l.scale.set(130 * newScale, 32 * newScale, 1);
+
+                // Brighter opacity on hover
+                const hoverBoost = isHovered ? 0.3 : 0;
+
+                // v3.18: Subtle pulsation on first category (Development) to hint clickability
+                // Pulse until user clicks on ANY category for the first time
+                let pulseBoost = 0;
+                if (i === 0 && !isDrilled && !isHovered && !hasEverDrilled) {
+                    pulseBoost = Math.sin(time * 3) * 0.2; // More visible pulse
+                }
+
+                l.material.opacity = Math.min(1, lOp + hoverBoost + pulseBoost);
+
                 // v3.12.6: Keep labels visible for raycasting even when opacity is low
-                // This ensures clicking on labels works immediately after exiting drill-down
-                l.visible = smoothP > 0.5; // Visible on Slide 2, hidden on Slide 1
+                l.visible = smoothP > 0.5;
             });
 
 
@@ -3535,10 +3872,24 @@
             // v3.12.7: CRITICAL FIX - Also control window.taskPoints visibility in animation loop
             // This ensures task points stay visible during drill-down regardless of any other code
             if (window.taskPoints && window.taskPoints.length > 0) {
+                const now = performance.now();
                 window.taskPoints.forEach(task => {
                     if (task.mesh) {
                         // Show only if drilled AND category matches
                         task.mesh.visible = isDrilled && task.category === currentCategory;
+
+                        // v3.17: Scale-up animation for new task points
+                        if (task.mesh.userData.startTime) {
+                            const age = now - task.mesh.userData.startTime;
+                            if (age < 500) {
+                                // Ease-out bounce: 0 → 1 over 500ms
+                                const t = age / 500;
+                                const ease = 1 - Math.pow(1 - t, 3); // Cubic ease-out
+                                const bounce = ease > 0.8 ? 1 + (1 - ease) * 0.5 : ease * 1.25; // Slight overshoot
+                                const scale = Math.min(1.1, bounce);
+                                task.mesh.material.size = task.mesh.userData.baseSize * scale;
+                            }
+                        }
                     }
                 });
             }
@@ -3581,11 +3932,11 @@
                     nodesBtn.classList.add('visible');
                 }
 
-                // Show block label with current category
+                // v3.12.9: Show block label with current category
                 const blockLabel = document.getElementById('block-label');
                 if (blockLabel && currentCategory) {
                     blockLabel.textContent = currentCategory.toUpperCase();
-                    blockLabel.style.opacity = '1';
+                    blockLabel.classList.add('visible');
                 }
 
                 // v3.12.8: Show task list button (right side) using class
@@ -3660,9 +4011,9 @@
                     document.getElementById('icon-bar').classList.remove('visible');
                     document.getElementById('icon-bar-toggle').style.display = 'none';
 
-                    // Hide block label
+                    // v3.12.9: Hide block label
                     const blockLabel = document.getElementById('block-label');
-                    if (blockLabel) blockLabel.style.opacity = '0';
+                    if (blockLabel) blockLabel.classList.remove('visible');
 
                     // Hide nodes toggle button
                     const nodesBtn = document.getElementById('nodes-toggle-btn');
@@ -3760,24 +4111,12 @@
                     isRecording = true;
                     recognition.start();
 
-                    // Visual feedback - recording animation
-                    micBtn.style.opacity = '1';
-                    micBtn.style.background = 'rgba(255, 0, 0, 0.2)';
-                    micBtn.style.borderColor = '#ff0000';
-                    micBtn.style.animation = 'pulse-recording 1.5s ease-in-out infinite';
+                    // v3.14: Use CSS class for animation
+                    micBtn.classList.add('listening');
+                    micBtn.style.position = 'relative';
 
-                    // Add CSS animation if not exists
-                    if (!document.getElementById('voice-recording-style')) {
-                        const style = document.createElement('style');
-                        style.id = 'voice-recording-style';
-                        style.innerHTML = `
-                            @keyframes pulse-recording {
-                                0%, 100% { transform: scale(1); opacity: 0.8; }
-                                50% { transform: scale(1.1); opacity: 1; }
-                            }
-                        `;
-                        document.head.appendChild(style);
-                    }
+                    // Show status indicator
+                    window.showToast('Голосовой ввод', 'Слушаю...', 'info', 2000);
                 } else {
                     // Stop recording
                     recognition.stop();
@@ -3815,13 +4154,8 @@
                 resetMicButton();
                 isRecording = false;
 
-                // Show error feedback
-                if (taskInput) {
-                    taskInput.placeholder = 'Ошибка распознавания. Попробуйте ещё раз...';
-                    setTimeout(() => {
-                        taskInput.placeholder = 'New task...';
-                    }, 2000);
-                }
+                // v3.14: Show error via toast
+                window.showToast('Ошибка', 'Не удалось распознать речь', 'error', 3000);
             };
 
             recognition.onend = () => {
@@ -3830,10 +4164,8 @@
             };
 
             function resetMicButton() {
-                micBtn.style.opacity = '0.6';
-                micBtn.style.background = 'transparent';
-                micBtn.style.borderColor = 'rgba(255,255,255,0.2)';
-                micBtn.style.animation = 'none';
+                // v3.14: Use CSS class
+                micBtn.classList.remove('listening');
             }
         } else {
             // Web Speech API not supported
@@ -3851,6 +4183,7 @@
 
         window.taskPoints = []; // Store task meshes (global for panel access)
         const raycasterTasks = new THREE.Raycaster();
+        raycasterTasks.params.Points = { threshold: 20 };  // v3.18 FIX: Enable clicking on Points objects
 
         // 1. Function to Add Task Point (Called by Enter/Voice)
         window.addTaskPoint = function (text, category) {
@@ -3889,10 +4222,10 @@
             const pointGeo = new THREE.BufferGeometry();
             pointGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
 
-            // PointsMaterial with glow
+            // PointsMaterial with glow (v3.17: increased size for visibility)
             const pointMat = new THREE.PointsMaterial({
                 color: colors.core,
-                size: 15,  // Slightly larger than background points
+                size: 25,  // v3.17: bigger for better visibility
                 transparent: true,
                 opacity: 0.95,
                 map: glowTexture,
@@ -3905,7 +4238,7 @@
             sphere.userData.isTaskPoint = true;
             sphere.userData.material = pointMat;
             sphere.userData.statusColors = statusColors;
-            sphere.userData.baseSize = 15;
+            sphere.userData.baseSize = 25;  // v3.17: match increased size
             sphere.userData.startTime = performance.now();
 
             // v3.11: Smarter positioning - spread tasks out more, avoid overlapping
@@ -3938,7 +4271,7 @@
 
             sphere.position.set(x, y, z);
 
-            scene.add(sphere);
+            group.add(sphere);  // v3.18 FIX: Add to group so it rotates with cloud
 
             // Task Data Object with progress tracking
             const taskData = {
@@ -3955,6 +4288,22 @@
             };
 
             window.taskPoints.push(taskData);
+
+            // v3.14: Show toast notification
+            window.showToast('Задача создана', text, 'success', 3000);
+
+            // v3.18: Cloud thinning effect - proportional to expected tasks
+            // ~600 tasks expected for Development (Invest + Design + Build + Sales)
+            // Can be adjusted if actual count differs
+            if (material && material.uniforms && material.uniforms.uDensity) {
+                const EXPECTED_TASKS = 600;  // Total expected tasks for Development
+                const MIN_DENSITY = 0.4;     // Cloud never disappears completely
+                const taskCount = window.taskPoints.length;
+
+                // Linear formula: 0 tasks = 100%, 600 tasks = 40%
+                const density = Math.max(MIN_DENSITY, 1.0 - (taskCount / EXPECTED_TASKS) * (1.0 - MIN_DENSITY));
+                material.uniforms.uDensity.value = density;
+            }
 
             // AUTO-ACTION 1: Create Node in Node Editor
             addNodeToEditor(taskData);
@@ -3980,7 +4329,7 @@
 
         window.task3DConnections = [];
         const connectionGroup = new THREE.Group();
-        scene.add(connectionGroup);
+        group.add(connectionGroup);  // v3.18 FIX: Add to group so lines rotate with cloud
 
         // Default connection style (neutral)
         const CONNECTION_STYLES = {
@@ -4081,13 +4430,14 @@
                 const isConnected = connectedIds.has(task.id);
                 const isSelected = task.id === taskId;
 
-                // v3.12.5: Dim or highlight single point
+                // v3.18: Dim or highlight single point (fade, don't disappear)
                 if (isConnected) {
                     task.mesh.userData.material.opacity = isSelected ? 1.0 : 0.9;
-                    task.mesh.userData.baseSize = isSelected ? 20 : 15;  // Selected is larger
+                    task.mesh.userData.baseSize = isSelected ? 22 : 18;  // Selected is larger
                 } else {
-                    task.mesh.userData.material.opacity = 0.15;
-                    task.mesh.userData.baseSize = 12;  // Dimmed is smaller
+                    // v3.18: Other points fade to 50%, not disappear
+                    task.mesh.userData.material.opacity = 0.5;
+                    task.mesh.userData.baseSize = 14;  // Slightly smaller but still visible
                 }
             });
         };
@@ -4379,21 +4729,28 @@
         document.addEventListener('click', (e) => {
             if (!isDrilled) return;
 
-            // Normalize mouse coordinates
+            // v3.18 FIX: Only process clicks on canvas, not on UI elements
+            const isCanvas = e.target.tagName === 'CANVAS' || e.target.closest('#canvas-wrapper');
+            const isUIElement = e.target.closest('#icon-bar, #side-panel, #task-interface, #detail-panel, #node-editor-panel, #task-list-panel, button, input');
+            if (!isCanvas || isUIElement) return;
+
+            // Normalize mouse coordinates relative to canvas
+            const rect = renderer.domElement.getBoundingClientRect();
             const mouse = new THREE.Vector2();
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
 
             raycasterTasks.setFromCamera(mouse, camera);
 
             // Check intersections with task points (v3.12.5: single Points objects)
-            const meshes = window.taskPoints.map(t => t.mesh);
+            const meshes = window.taskPoints.map(t => t.mesh).filter(m => m && m.visible);
             const intersects = raycasterTasks.intersectObjects(meshes);
 
             if (intersects.length > 0) {
                 const hitMesh = intersects[0].object;
                 const task = window.taskPoints.find(t => t.mesh === hitMesh);
                 if (task) {
+                    console.log('[Task Click] Hit:', task.title);
                     showDetailPanel(task);
                     // Obsidian-style highlight connected tasks
                     if (window.highlightTaskConnections) {
@@ -6432,7 +6789,7 @@
                 ` : '';
 
                 return `
-                <div style="
+                <div class="task-item" style="
                     padding: 6px 8px;
                     margin-bottom: 4px;
                     background: rgba(255,255,255,0.03);
@@ -6440,10 +6797,31 @@
                     cursor: pointer;
                     transition: background 0.15s;
                     border-left: 2px solid ${status.color};
-                " onmouseover="this.style.background='rgba(255,255,255,0.06)'"
-                   onmouseout="this.style.background='rgba(255,255,255,0.03)'"
+                    position: relative;
+                " onmouseover="this.style.background='rgba(255,255,255,0.06)'; this.querySelector('.delete-btn').style.opacity='1';"
+                   onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.querySelector('.delete-btn').style.opacity='0';"
                    onclick="focusOnTask(${idx})">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <button class="delete-btn" onclick="event.stopPropagation(); deleteTask(${idx});" style="
+                        position: absolute;
+                        right: 4px;
+                        top: 4px;
+                        width: 14px;
+                        height: 14px;
+                        border: none;
+                        background: rgba(255,100,100,0.2);
+                        border-radius: 3px;
+                        color: #FF6B6B;
+                        font-size: 10px;
+                        cursor: pointer;
+                        opacity: 0;
+                        transition: opacity 0.15s, background 0.15s;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        padding: 0;
+                    " onmouseover="this.style.background='rgba(255,100,100,0.4)';"
+                       onmouseout="this.style.background='rgba(255,100,100,0.2)';">×</button>
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding-right: 16px;">
                         <span style="font-size: 9px; color: rgba(255,255,255,0.8); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${task.title}</span>
                         <span style="font-size: 8px; color: ${status.color}; margin-left: 4px;">${status.icon}</span>
                     </div>
@@ -6462,6 +6840,56 @@
             if (task && typeof showDetailPanel === 'function') {
                 showDetailPanel(task);
             }
+        };
+
+        // v3.18: Delete task function
+        window.deleteTask = function(idx) {
+            if (!window.taskPoints || !window.taskPoints[idx]) return;
+
+            const task = window.taskPoints[idx];
+            console.log('[Task] Deleting:', task.title);
+
+            // Remove 3D mesh from scene/group
+            if (task.mesh) {
+                // Try to find parent and remove
+                if (task.mesh.parent) {
+                    task.mesh.parent.remove(task.mesh);
+                }
+                // Dispose geometry and material
+                if (task.mesh.geometry) task.mesh.geometry.dispose();
+                if (task.mesh.material) task.mesh.material.dispose();
+            }
+
+            // Remove any 3D connections involving this task
+            if (window.task3DConnections) {
+                window.task3DConnections = window.task3DConnections.filter(conn => {
+                    if (conn.from === task.id || conn.to === task.id) {
+                        // Remove the line from scene
+                        if (conn.line && conn.line.parent) {
+                            conn.line.parent.remove(conn.line);
+                            if (conn.line.geometry) conn.line.geometry.dispose();
+                            if (conn.line.material) conn.line.material.dispose();
+                        }
+                        return false;
+                    }
+                    return true;
+                });
+            }
+
+            // Remove from taskPoints array
+            window.taskPoints.splice(idx, 1);
+
+            // Update task list panel
+            if (window.updateTaskListContent) {
+                window.updateTaskListContent();
+            }
+
+            // Show toast notification
+            if (window.showToast) {
+                window.showToast('Задача удалена', 'info');
+            }
+
+            console.log('[Task] Remaining tasks:', window.taskPoints.length);
         };
 
         // ===== AUTO-CLOSE PANELS ON CLICK OUTSIDE =====

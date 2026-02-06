@@ -4,6 +4,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { useTaskStore } from '../store/taskStore';
 import type { Task } from '../types/task';
 import { NodeEditor } from './NodeEditor/NodeEditor';
+import { GeminiLayout } from './Layout/GeminiLayout';
 import { useShallow } from 'zustand/react/shallow';
 
 // --- CONFIG ---
@@ -415,7 +416,7 @@ const Viewport3D_V3: React.FC = () => {
             animateUniform('uProgress2', 0);
         } else if (appState === 'WORK') {
             animateUniform('uProgress1', 0);
-            animateUniform('uProgress2', 1);
+            animateUniform('uProgress2', 0); // Reset to 0 for uniform cloud in WORK mode
         }
 
     }, [appState]);
@@ -517,6 +518,95 @@ const Viewport3D_V3: React.FC = () => {
     }, [tasks, appState]);
 
 
+    // --- FIX: RE-ATTACH CANVAS AND HANDLE RESIZE ON STATE CHANGE ---
+    useEffect(() => {
+        if (!rendererRef.current || !containerRef.current || !cameraRef.current) return;
+
+        const container = containerRef.current;
+        const canvas = rendererRef.current.domElement;
+        const camera = cameraRef.current;
+        const renderer = rendererRef.current;
+
+        // 1. Re-attach if needed
+        if (canvas.parentNode !== container) {
+            console.log('[VZOR] Viewport: Re-attaching canvas to new container');
+            container.appendChild(canvas);
+        }
+
+        // 2. Click Handler
+        const handleClick = (e: MouseEvent) => {
+            const rect = container.getBoundingClientRect();
+            const m = new THREE.Vector2(
+                ((e.clientX - rect.left) / rect.width) * 2 - 1,
+                -((e.clientY - rect.top) / rect.height) * 2 + 1
+            );
+            raycaster.current.setFromCamera(m, camera);
+            const hits = raycaster.current.intersectObjects(hitTargetsRef.current.children, true);
+
+            if (hits.length > 0) {
+                const id = hits[0].object.userData.id;
+                console.log('[VZOR] CLICKED NODE ID:', id);
+                selectTask(id);
+            } else {
+                console.log('[VZOR] Background clicked, closing panel');
+                selectTask(null);
+            }
+        };
+
+        // 3. Mouse Move Handler
+        const handleMouseMove = (e: MouseEvent) => {
+            const rect = container.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+            // Update Uniforms
+            if (materialRef.current) {
+                // Simplified mouse raycast for shader
+                raycaster.current.setFromCamera(new THREE.Vector2(x, y), camera);
+                const pt = new THREE.Vector3();
+                const mousePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+                raycaster.current.ray.intersectPlane(mousePlane, pt);
+                if (pt) {
+                    materialRef.current.uniforms.uMouse.value.set(pt.x, pt.y);
+                    materialRef.current.uniforms.uMouseActive.value = 1.0;
+                }
+            }
+        };
+
+        container.addEventListener('click', handleClick);
+        container.addEventListener('mousemove', handleMouseMove);
+
+        // 4. Resize Observer (CRITICAL: Handles Flexbox Layout changes)
+        const resizeObserver = new ResizeObserver(() => {
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            if (width > 0 && height > 0) {
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+            }
+        });
+
+        resizeObserver.observe(container);
+
+        // Initial size check
+        const w = container.clientWidth;
+        const h = container.clientHeight;
+        if (w > 0 && h > 0) {
+            renderer.setSize(w, h);
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+        }
+
+        return () => {
+            container.removeEventListener('click', handleClick);
+            container.removeEventListener('mousemove', handleMouseMove);
+            resizeObserver.disconnect();
+        };
+    }, [appState, selectTask]);
+
+
     // --- UI OVERLAYS (STRICT CSS PORT) ---
     // Using inline styles or exact Tailwind equivalents to match the CSS from lines 54-192
 
@@ -570,12 +660,38 @@ const Viewport3D_V3: React.FC = () => {
         label: selectedTask.name
     } : null;
 
-    return (
-        <div ref={containerRef} className="w-full h-full relative bg-black overflow-hidden font-['Outfit'] text-white pointer-events-auto">
+    // --- RENDER ---
 
-            {/* 1. TITLE SCREEN (Center Text Exact Match) */}
+    // 1. WORK MODE (New Gemini UI)
+    if (appState === 'WORK') {
+        // In Work mode, we wrap the 3D canvas in the Gemini Layout
+        return (
+            <div className="w-full h-full relative bg-black text-white font-['Outfit']">
+                <GeminiLayout
+                    NodeEditorComponent={<NodeEditor />}
+                    inputText={taskInput}
+                    setInputText={setTaskInput}
+                    onTaskCreate={handleCreateTask}
+                    isListening={false} // Connect actual state if needed
+                    onMicToggle={() => { }} // Connect actual handler if needed
+                >
+                    {/* The 3D Canvas lives here in the Center Panel */}
+                    <div ref={containerRef} className="w-full h-full relative overflow-hidden" />
+                </GeminiLayout>
+            </div>
+        );
+    }
+
+    // 2. INTRO / INCUBATOR MODE (Preserve original simple UI)
+    // IMPORTANT: Labels are OUTSIDE containerRef to ensure they don't move with camera rotation
+    return (
+        <div className="w-full h-full relative bg-black overflow-hidden font-['Outfit'] text-white">
+            {/* 3D Canvas Container - ONLY canvas goes here */}
+            <div ref={containerRef} className="absolute inset-0 pointer-events-auto" />
+
+            {/* TITLE SCREEN - OUTSIDE containerRef, uses fixed positioning */}
             <div
-                className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-10 pointer-events-none transition-opacity duration-1000 ${appState !== 'IDLE' ? 'opacity-0' : 'opacity-100'}`}
+                className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20 pointer-events-none transition-opacity duration-1000 ${appState !== 'IDLE' ? 'opacity-0' : 'opacity-100'}`}
             >
                 <h1 className="text-[5.5em] font-light tracking-[0.6em] mb-6 uppercase text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.15)] mr-[-0.6em]">
                     VZOR
@@ -591,121 +707,22 @@ const Viewport3D_V3: React.FC = () => {
                 </div>
             </div>
 
-            {/* SCROLL HINT */}
-            {appState === 'IDLE' && (
-                <div className="fixed bottom-[50px] left-1/2 -translate-x-1/2 text-[0.75em] text-white/25 tracking-[0.15em] uppercase z-10 animate-pulse pointer-events-none">
-                    Scroll Down / Tap to Enter
-                </div>
-            )}
-
-            {/* 2. INCUBATOR (Selection) */}
+            {/* INCUBATOR SELECTION - OUTSIDE containerRef, uses fixed positioning */}
             {appState === 'INCUBATOR' && (
-                <div className="absolute inset-0 z-10 pointer-events-none flex items-center justify-center gap-16">
-                    {/* Left Core -> Development */}
+                <div className="fixed inset-0 z-20 pointer-events-none flex items-center justify-center gap-16">
                     <div className="flex flex-col items-center pointer-events-auto cursor-pointer group opacity-60 hover:opacity-100 transition-opacity" onClick={() => setAppState('WORK')}>
                         <div className="text-[2em] font-light tracking-[0.12em] text-white transition-colors drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
                             Development
                         </div>
                     </div>
-
-                    {/* Center Core -> Finance */}
                     <div className="flex flex-col items-center opacity-60">
                         <div className="text-[2em] font-light tracking-[0.12em] text-white">Finance</div>
                     </div>
-
-                    {/* Right Core -> Real Estate */}
                     <div className="flex flex-col items-center opacity-60">
                         <div className="text-[2em] font-light tracking-[0.12em] text-white">Real Estate</div>
                     </div>
                 </div>
             )}
-
-            {/* 3. WORK MODE UI (Dynamic Input) */}
-            {appState === 'WORK' && (
-                <>
-                    {/* Header REMOVED as per user request */}
-
-                    {/* TASK INPUT (The Missing Piece!) */}
-                    <div className="fixed bottom-[100px] left-1/2 -translate-x-1/2 w-[400px] pointer-events-auto z-20 flex gap-4">
-                        <div className="bg-black/80 backdrop-blur-md border border-white/20 rounded-full flex items-center px-6 py-3 w-full shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                            <input
-                                type="text"
-                                value={taskInput}
-                                onChange={(e) => setTaskInput(e.target.value)}
-                                placeholder="Voice Command or Type Task..."
-                                className="bg-transparent border-none outline-none text-white font-light tracking-wider w-full placeholder-white/30"
-                                onKeyDown={(e) => e.key === 'Enter' && handleCreateTask()}
-                            />
-                            <button className="text-cyan-400/80 hover:text-cyan-400 ml-4">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* Back Button */}
-                    <div
-                        className="fixed top-[40px] left-[40px] text-[0.75em] tracking-[0.2em] uppercase cursor-pointer hover:text-white/60 pointer-events-auto z-50 flex items-center gap-4"
-                        onClick={() => setAppState('INCUBATOR')}
-                    >
-                        <span>←</span> BACK
-                    </div>
-
-                    {/* Node Editor Toggle */}
-                    <div
-                        className="fixed top-[40px] right-[40px] text-[0.75em] tracking-[0.2em] uppercase cursor-pointer hover:text-cyan-400 pointer-events-auto z-50 flex items-center gap-4 border border-white/20 px-4 py-2 rounded-full"
-                        onClick={() => setShowNodeEditor(!showNodeEditor)}
-                    >
-                        {showNodeEditor ? 'Close Node Editor' : 'Open Node Editor'}
-                    </div>
-
-                    {/* Node Editor Overlay */}
-                    {showNodeEditor && (
-                        <div className="fixed inset-0 z-30 bg-black/90 pt-20 px-10 pb-10">
-                            <NodeEditor />
-                        </div>
-                    )}
-                </>
-            )}
-
-            {/* SIDE PANEL (Dynamic Task Details) */}
-            <div className={`fixed top-0 right-0 w-[400px] h-full bg-black/80 backdrop-blur-xl border-l border-white/10 p-8 pt-20 transform transition-transform duration-500 ease-out z-40 ${selectedTask && !showNodeEditor ? 'translate-x-0' : 'translate-x-full'}`}>
-                <div className="absolute top-8 right-8 cursor-pointer text-white/50 hover:text-white" onClick={() => selectTask(null)}>CLOSE</div>
-                {selectedTask && (
-                    <div className="animate-fade-in-up">
-                        <div className="text-[10px] tracking-[0.3em] uppercase text-cyan-400 mb-2">Selected Task</div>
-                        <div className="text-[3em] font-extralight leading-none mb-6 text-white">{selectedTask.name}</div>
-                        <div className="h-px w-full bg-gradient-to-r from-cyan-500/50 to-transparent mb-8"></div>
-
-                        <div className="space-y-6 font-light text-white/70">
-                            <div>
-                                <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Status</div>
-                                <div className="text-xl uppercase text-cyan-400">{nodeDetails?.status}</div>
-                            </div>
-                            <div>
-                                <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Type</div>
-                                <div className="text-xl uppercase">{nodeDetails?.type}</div>
-                            </div>
-                            <div>
-                                <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Role</div>
-                                <div className="text-lg text-white">{nodeDetails?.label || nodeDetails?.role}</div>
-                            </div>
-                            <div>
-                                <div className="text-[10px] tracking-widest uppercase text-white/40 mb-1">Load</div>
-                                <div className="bg-white/10 h-1 w-full mt-2 rounded-full overflow-hidden">
-                                    <div className="bg-cyan-400 h-full w-[65%]"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-12">
-                            <div className="border border-white/20 hover:border-cyan-400 text-white hover:text-cyan-400 px-6 py-3 text-center uppercase tracking-widest text-[12px] cursor-pointer transition-all">
-                                Open Protocol
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-
         </div>
     );
 };

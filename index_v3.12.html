@@ -360,12 +360,7 @@
             pointer-events: auto;
         }
 
-        /* v3.12.8: BACK button - positioned to avoid overlap with icon-bar-toggle */
-        #back-button {
-            left: 50px;
-            top: 15px;
-        }
-
+        /* v3.12.7: BACK button - restored to v3.11 visible style */
         #back-button.visible {
             opacity: 1;
         }
@@ -798,18 +793,6 @@
 
         #nodes-toggle-btn .btn-icon {
             font-size: 12px;
-        }
-
-        /* v3.12.8: Task List Button visibility */
-        #task-list-btn.visible {
-            opacity: 0.6 !important;
-            pointer-events: auto !important;
-        }
-
-        #task-list-btn.visible:hover {
-            opacity: 1 !important;
-            background: rgba(78, 205, 196, 0.2);
-            border-color: rgba(78, 205, 196, 0.4);
         }
 
         /* Legacy modal — HIDDEN */
@@ -2725,10 +2708,14 @@
             }
 
             // 5. Show Task List Button
-            // v3.12.8: Show Task List Button using class
-            const taskListBtn = document.getElementById('task-list-btn');
-            if (taskListBtn) {
-                taskListBtn.classList.add('visible');
+            if (window.showTaskListBtn) {
+                window.showTaskListBtn();
+            } else {
+                const taskListBtn = document.getElementById('task-list-btn');
+                if (taskListBtn) {
+                    taskListBtn.style.opacity = '0.6';
+                    taskListBtn.style.pointerEvents = 'auto';
+                }
             }
 
             // 6. Show Block Label
@@ -2830,11 +2817,16 @@
                         nodesBtn.style.cssText = 'opacity: 0.6 !important; pointer-events: auto !important;';
                     }
 
-                    // v3.12.8: Show task list button using class
+                    // Show task list button
                     const taskListBtn = document.getElementById('task-list-btn');
-                    if (taskListBtn) taskListBtn.classList.add('visible');
+                    if (taskListBtn) taskListBtn.style.cssText = 'opacity: 0.6 !important; pointer-events: auto !important;';
 
-                    // v3.12.8: Block label is hidden - category shown in slideTitle instead
+                    // Show block label
+                    const blockLabel = document.getElementById('block-label');
+                    if (blockLabel) {
+                        blockLabel.textContent = data.name.toUpperCase();
+                        blockLabel.style.cssText = 'opacity: 1 !important;';
+                    }
 
                     // Show task points
                     if (window.taskPoints) {
@@ -3588,10 +3580,11 @@
                     blockLabel.style.opacity = '1';
                 }
 
-                // v3.12.8: Show task list button (right side) using class
+                // v3.12.7: Show task list button (right side)
                 const taskListBtn = document.getElementById('task-list-btn');
                 if (taskListBtn) {
-                    taskListBtn.classList.add('visible');
+                    taskListBtn.style.opacity = '0.6';
+                    taskListBtn.style.pointerEvents = 'auto';
                 }
             }
 
@@ -3672,10 +3665,11 @@
                     const nodePanel = document.getElementById('node-editor-panel');
                     if (nodePanel) nodePanel.classList.remove('active');
 
-                    // v3.12.8: Hide task list button using class
+                    // Hide task list button
                     const taskListBtn = document.getElementById('task-list-btn');
                     if (taskListBtn) {
-                        taskListBtn.classList.remove('visible');
+                        taskListBtn.style.opacity = '0';
+                        taskListBtn.style.pointerEvents = 'none';
                     }
 
                     // Hide task points and connections
@@ -6348,11 +6342,12 @@
             closeNodeEditor();
         };
 
-        // ===== v3.12.8: TASK LIST PANEL =====
+        // ===== v3.11: TASK LIST PANEL =====
         window.showTaskListBtn = function() {
             const btn = document.getElementById('task-list-btn');
             if (btn) {
-                btn.classList.add('visible');
+                btn.style.opacity = '0.6';
+                btn.style.pointerEvents = 'auto';
             }
         };
 
@@ -6360,9 +6355,10 @@
             const btn = document.getElementById('task-list-btn');
             const panel = document.getElementById('task-list-panel');
             if (btn) {
-                btn.classList.remove('visible');
+                btn.style.opacity = '0';
+                btn.style.pointerEvents = 'none';
             }
-            if (panel) panel.style.right = '-240px';
+            if (panel) panel.style.right = '-220px';
         };
 
         // v3.11: Toggle Icon Bar visibility
