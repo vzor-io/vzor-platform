@@ -1,0 +1,196 @@
+
+networks:
+  vzor-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  n8n_data:
+  grafana_data:
+  prometheus_data:
+  infisical_data:
+  obsidian_data:
+
+services:
+  # PostgreSQL + pgvector (Долгосрочная память)
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: vzor-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vzor_db
+      POSTGRES_USER: vzor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - vzor-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U vzor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis (Кэш и очередь задач)
+  redis:
+    image: redis:7-alpine
+    container_name: vzor-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - vzor-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # n8n (Автоматизация процессов)
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: vzor-n8n
+    restart: unless-stopped
+    environment:
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=vzor_db
+      - DB_POSTGRESDB_USER=vzor
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
+      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme}
+      - N8N_SECURE_COOKIE=false
+      - WEBHOOK_URL=https://agvzor.io/n8n/
+      - GENERIC_TIMEZONE=Europe/Moscow
+    volumes:
+      - ./data/n8n:/home/node/.n8n
+    ports:
+      - "5678:5678"
+    networks:
+      - vzor-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Infisical (Менеджер секретов)
+  infisical:
+    image: infisical/infisical:latest
+    container_name: vzor-infisical
+    restart: unless-stopped
+    environment:
+      - DB_CONNECTION_URI=postgresql://vzor:${POSTGRES_PASSWORD:-changeme}@postgres:5432/vzor_db
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./data/infisical:/data
+    ports:
+      - "8080:8080"
+    networks:
+      - vzor-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Whisper (Распознавание речи - КРИТИЧЕСКИ ВАЖНО)
+
+  # Prometheus (Метрики)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: vzor-prometheus
+    restart: unless-stopped
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    volumes:
+      - ./config/prometheus:/etc/prometheus
+      - ./data/prometheus:/prometheus
+    ports:
+      - "9090:9090"
+    networks:
+      - vzor-network
+
+  # Grafana (Мониторинг)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: vzor-grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-changeme}
+    volumes:
+      - ./data/grafana:/var/lib/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - vzor-network
+    depends_on:
+      - prometheus
+
+  # 3X-UI (VLESS-Reality)
+  xui:
+    image: ghcr.io/mhsanaei/3x-ui:latest
+    container_name: vzor-3x-ui
+    restart: unless-stopped
+    environment:
+      - XRAY_VMESS_AEAD_FORCED=false
+    volumes:
+      - ./data/3x-ui:/etc/x-ui
+    ports:
+      - "2053:2053"
+      - "443:443"
+    networks:
+      - vzor-network
+
+  # Trilium Notes (База знаний - аналог Obsidian)
+  trilium:
+    image: zadam/trilium:latest
+    container_name: vzor-trilium
+    restart: unless-stopped
+    environment:
+      - TRILIUM_DATA_DIR=/data
+    volumes:
+      - ./data/trilium:/data
+    ports:
+      - "8081:8080"
+    networks:
+      - vzor-network
+
+  # Nginx (Reverse Proxy + SSL)
+  nginx:
+    image: nginx:alpine
+    container_name: vzor-nginx
+    restart: unless-stopped
+    volumes:
+      - ./config/nginx:/etc/nginx/conf.d
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      - vzor-network
+    depends_on:
+      - n8n
+      - grafana
+      - infisical
+      - trilium
+
+  # Certbot для SSL
+  certbot:
+    image: certbot/certbot:latest
+    container_name: vzor-certbot
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
