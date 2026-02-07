@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <!--
     VZOR v3.22 — РАБОЧАЯ ВЕРСИЯ
     ===========================
@@ -782,8 +782,8 @@
         
         #task-list-btn {
             position: fixed;
-            right: var(--spacing-sm);
-            top: var(--spacing-sm);
+            right: 40px;
+            top: 90px;
             width: 34px;
             height: 34px;
             border-radius: 6px;
@@ -802,7 +802,7 @@
         }
 
         #task-list-btn.visible {
-            opacity: 0.7;
+            opacity: 1;
             pointer-events: auto;
         }
 
@@ -818,9 +818,9 @@
             display: none;
             position: fixed;
             left: var(--spacing-sm);
-            top: var(--spacing-sm);
-            width: 34px;
-            height: 34px;
+            top: 90px;
+            width: 36px;
+            height: 36px;
             border-radius: 6px;
             background: var(--color-surface);
             border: 1px solid var(--border-medium);
@@ -908,6 +908,7 @@
             left: 0;
             right: 0;
             height: 0;
+            opacity: 0;
             background: var(--color-surface);
             backdrop-filter: blur(35px);
             -webkit-backdrop-filter: blur(35px);
@@ -915,13 +916,14 @@
             z-index: 100;
             display: flex;
             flex-direction: column;
-            transition: height var(--transition-medium);
+            transition: height var(--transition-medium), opacity 0.15s ease;
             overflow: hidden;
             box-shadow: 0 -10px 50px rgba(0, 0, 0, 0.3);
         }
 
         #node-editor-panel.active {
             height: 300px;
+            opacity: 1;
         }
 
         .node-editor-resize-handle {
@@ -1055,21 +1057,7 @@
             font-size: 12px;
         }
 
-        /* v3.14: Task List Button visibility */
-        #task-list-btn.visible {
-            opacity: 0.6 !important;
-            pointer-events: auto !important;
-        }
-
-        #task-list-btn:hover {
-            transform: scale(1.15);
-        }
-
-        #task-list-btn.visible:hover {
-            opacity: 1 !important;
-            background: var(--color-accent-dim);
-            border-color: var(--color-accent);
-        }
+        /* task-list-btn uses nav-btn class, no overrides needed */
 
         /* Legacy modal — HIDDEN */
         #node-editor-modal {
@@ -2096,10 +2084,8 @@
             bottom: 80px;
             width: 380px;
             height: 480px;
-            min-width: 300px;
-            max-width: 600px;
-            min-height: 350px;
-            max-height: 700px;
+            min-width: 280px;
+            min-height: 200px;
             background: rgba(10, 10, 12, 0.92);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(250, 245, 235, 0.15);
@@ -2157,8 +2143,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            min-height: 200px;
-            max-height: 350px;
+            min-height: 0;
         }
 
         .agent-message {
@@ -2234,6 +2219,17 @@
             animation: pulse-mic 1s infinite;
         }
 
+        @keyframes pulse-mic {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
+                transform: scale(1);
+            }
+            50% {
+                box-shadow: 0 0 12px 4px rgba(255, 0, 0, 0.3);
+                transform: scale(1.1);
+            }
+        }
+
         /* Кнопка открытия чата Agent Zero */
         #agent-chat-toggle {
             position: fixed;
@@ -2307,6 +2303,46 @@
         .resize-corner-tl {
             top: 0;
             left: 0;
+            width: 10px;
+            height: 10px;
+            cursor: nwse-resize;
+        }
+
+        .resize-right {
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 5px;
+            cursor: ew-resize;
+        }
+
+        .resize-bottom {
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            cursor: ns-resize;
+        }
+
+        .resize-corner-tr {
+            top: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            cursor: nesw-resize;
+        }
+
+        .resize-corner-bl {
+            bottom: 0;
+            left: 0;
+            width: 10px;
+            height: 10px;
+            cursor: nesw-resize;
+        }
+
+        .resize-corner-br {
+            bottom: 0;
+            right: 0;
             width: 10px;
             height: 10px;
             cursor: nwse-resize;
@@ -2500,9 +2536,9 @@
     </div>
 
     <!-- v3.11: Task List Button (top right) -->
-    <button id="task-list-btn" onclick="toggleTaskList()" title="Список задач">☰</button>
+    <div id="task-list-btn" onclick="toggleTaskList()" title="Список задач" >
         ☰
-    </button>
+    </div>
 
     <!-- v3.12.1: Task List Panel (slides from right) - airy, transparent -->
     <div id="task-list-panel" style="
@@ -2791,20 +2827,25 @@
             fragmentShader: `
                 varying vec2 vUv;
                 uniform float uRatio;
+
+                float dither(vec2 co) {
+                    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453) / 255.0;
+                }
+
                 void main() {
                     vec2 uv = (vUv - 0.5) * vec2(uRatio, 1.0);
                     float dist = length(uv);
 
-                    // v3.21: Очень плавный градиент без резких колец
-                    vec3 colorCenter = vec3(0.02, 0.035, 0.06);  // Тёмно-синий
-                    vec3 colorEdge = vec3(0.0, 0.0, 0.0);        // Чёрный
+                    vec3 colorCenter = vec3(0.02, 0.035, 0.06);
+                    vec3 colorEdge = vec3(0.0, 0.0, 0.0);
 
-                    // Квадратичный переход — более органичный чем smoothstep
-                    // Синий остаётся дольше в центре, очень плавно угасает к краям
-                    float t = dist * dist * 0.5;  // Квадрат даёт мягкий fade
-                    t = clamp(t, 0.0, 1.0);
+                    // Gaussian: perfectly smooth fade, no visible rings
+                    float t = 1.0 - exp(-dist * dist * 3.0);
 
                     vec3 color = mix(colorCenter, colorEdge, t);
+
+                    // Dithering eliminates banding in dark gradients
+                    color += dither(gl_FragCoord.xy) - 0.5 / 255.0;
 
                     gl_FragColor = vec4(color, 1.0);
                 }
@@ -6839,8 +6880,10 @@
             const panel = document.getElementById('node-editor-panel');
             const btn = document.getElementById('nodes-toggle-btn');
             if (panel) {
+                // Instant close - no lingering black bar
+                panel.style.transition = 'none';
                 panel.classList.remove('active');
-                panel.style.height = '';  // Reset to CSS default
+                panel.style.height = '';
                 if (btn) btn.classList.remove('active');
 
                 // v3.12.7: Also close agent selector and KB browser when node editor closes
@@ -6848,9 +6891,12 @@
                 const kbPanel = document.getElementById('kb-browser-panel');
                 if (kbPanel) kbPanel.classList.remove('active');
 
-                setTimeout(() => {
-                    if (window.updateCameraAspect) window.updateCameraAspect();
-                }, 350);
+                if (window.updateCameraAspect) window.updateCameraAspect();
+
+                // Restore transition for next open
+                requestAnimationFrame(() => {
+                    panel.style.transition = '';
+                });
             }
         }
 
@@ -7427,6 +7473,11 @@ async function sendToAgentZero(message) {
         <div class="chat-resize-handle resize-top"></div>
         <div class="chat-resize-handle resize-left"></div>
         <div class="chat-resize-handle resize-corner-tl"></div>
+        <div class="chat-resize-handle resize-right"></div>
+        <div class="chat-resize-handle resize-bottom"></div>
+        <div class="chat-resize-handle resize-corner-tr"></div>
+        <div class="chat-resize-handle resize-corner-bl"></div>
+        <div class="chat-resize-handle resize-corner-br"></div>
         <div id="agent-chat-header">
             <div id="agent-chat-title">AGENT ZERO</div>
             <button id="agent-chat-close">×</button>
@@ -7447,6 +7498,417 @@ async function sendToAgentZero(message) {
 
     <!-- Кнопка открытия чата -->
     <button id="agent-chat-toggle">V</button>
+
+    <script>
+    // ===== AGENT CHAT PANEL — Full functionality =====
+    (function() {
+        const toggle = document.getElementById('agent-chat-toggle');
+        const panel = document.getElementById('agent-chat-panel');
+        const closeBtn = document.getElementById('agent-chat-close');
+        const chatInput = document.getElementById('agent-chat-input');
+        const chatMessages = document.getElementById('agent-chat-messages');
+        const chatMicBtn = document.getElementById('agent-mic-btn');
+        const chatHeader = document.getElementById('agent-chat-header');
+        if (!toggle || !panel) return;
+
+        // --- Position panel next to toggle button ---
+        function positionPanel() {
+            const btnRect = toggle.getBoundingClientRect();
+            const pw = panel.offsetWidth || 380;
+            const ph = panel.offsetHeight || 480;
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const btnCX = btnRect.left + btnRect.width / 2;
+            const btnCY = btnRect.top + btnRect.height / 2;
+
+            let left, top;
+
+            // Horizontal: if button is in right half, panel goes left of button; otherwise right
+            if (btnCX > vw / 2) {
+                left = btnRect.left - pw - 10;
+            } else {
+                left = btnRect.right + 10;
+            }
+            // Vertical: if button is in bottom half, panel goes above; otherwise below
+            if (btnCY > vh / 2) {
+                top = btnRect.top - ph;
+            } else {
+                top = btnRect.bottom + 10;
+            }
+
+            // Clamp to viewport
+            left = Math.max(5, Math.min(left, vw - pw - 5));
+            top = Math.max(5, Math.min(top, vh - ph - 5));
+
+            panel.style.left = left + 'px';
+            panel.style.top = top + 'px';
+            panel.style.right = 'auto';
+            panel.style.bottom = 'auto';
+        }
+
+        // --- Toggle button: drag + click ---
+        let dragStartX, dragStartY, btnStartX, btnStartY, isDraggingBtn = false, wasDragged = false;
+        let panelOffsetX = null, panelOffsetY = null;
+
+        toggle.addEventListener('mousedown', function(e) {
+            e.preventDefault();
+            isDraggingBtn = true;
+            wasDragged = false;
+            dragStartX = e.clientX;
+            dragStartY = e.clientY;
+            const rect = toggle.getBoundingClientRect();
+            btnStartX = rect.left;
+            btnStartY = rect.top;
+            toggle.style.transition = 'none';
+            if (panel.classList.contains('active')) {
+                const pr = panel.getBoundingClientRect();
+                panelOffsetX = pr.left - rect.left;
+                panelOffsetY = pr.top - rect.top;
+            }
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDraggingBtn) return;
+            const dx = e.clientX - dragStartX;
+            const dy = e.clientY - dragStartY;
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wasDragged = true;
+            if (wasDragged) {
+                toggle.style.left = (btnStartX + dx) + 'px';
+                toggle.style.top = (btnStartY + dy) + 'px';
+                toggle.style.right = 'auto';
+                toggle.style.bottom = 'auto';
+                if (panel.classList.contains('active') && panelOffsetX !== null) {
+                    panel.style.left = (btnStartX + dx + panelOffsetX) + 'px';
+                    panel.style.top = (btnStartY + dy + panelOffsetY) + 'px';
+                    panel.style.right = 'auto';
+                    panel.style.bottom = 'auto';
+                }
+            }
+        });
+
+        document.addEventListener('mouseup', function() {
+            if (!isDraggingBtn) return;
+            isDraggingBtn = false;
+            toggle.style.transition = '';
+            if (!wasDragged) {
+                const isOpening = !panel.classList.contains('active');
+                panel.classList.toggle('active');
+                if (isOpening) {
+                    positionPanel();
+                    if (chatInput) setTimeout(function() { chatInput.focus(); }, 100);
+                }
+            }
+        });
+
+        // Touch support for drag
+        toggle.addEventListener('touchstart', function(e) {
+            const t = e.touches[0];
+            isDraggingBtn = true;
+            wasDragged = false;
+            dragStartX = t.clientX;
+            dragStartY = t.clientY;
+            const rect = toggle.getBoundingClientRect();
+            btnStartX = rect.left;
+            btnStartY = rect.top;
+            toggle.style.transition = 'none';
+            if (panel.classList.contains('active')) {
+                const pr = panel.getBoundingClientRect();
+                panelOffsetX = pr.left - rect.left;
+                panelOffsetY = pr.top - rect.top;
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchmove', function(e) {
+            if (!isDraggingBtn) return;
+            const t = e.touches[0];
+            const dx = t.clientX - dragStartX;
+            const dy = t.clientY - dragStartY;
+            if (Math.abs(dx) > 5 || Math.abs(dy) > 5) wasDragged = true;
+            if (wasDragged) {
+                toggle.style.left = (btnStartX + dx) + 'px';
+                toggle.style.top = (btnStartY + dy) + 'px';
+                toggle.style.right = 'auto';
+                toggle.style.bottom = 'auto';
+                if (panel.classList.contains('active') && panelOffsetX !== null) {
+                    panel.style.left = (btnStartX + dx + panelOffsetX) + 'px';
+                    panel.style.top = (btnStartY + dy + panelOffsetY) + 'px';
+                    panel.style.right = 'auto';
+                    panel.style.bottom = 'auto';
+                }
+            }
+        }, { passive: true });
+
+        document.addEventListener('touchend', function() {
+            if (!isDraggingBtn) return;
+            isDraggingBtn = false;
+            toggle.style.transition = '';
+            if (!wasDragged) {
+                const isOpening = !panel.classList.contains('active');
+                panel.classList.toggle('active');
+                if (isOpening) positionPanel();
+            }
+        });
+
+        // --- Close button ---
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                panel.classList.remove('active');
+            });
+        }
+
+        // --- Close by clicking outside panel and toggle ---
+        document.addEventListener('mousedown', function(e) {
+            if (!panel.classList.contains('active')) return;
+            if (panel.contains(e.target) || toggle.contains(e.target)) return;
+            panel.classList.remove('active');
+        });
+        document.addEventListener('touchstart', function(e) {
+            if (!panel.classList.contains('active')) return;
+            if (panel.contains(e.target) || toggle.contains(e.target)) return;
+            panel.classList.remove('active');
+        }, { passive: true });
+
+        // --- Drag panel by header (moves toggle button too) ---
+        if (chatHeader) {
+            let panelDragStartX, panelDragStartY, panelStartL, panelStartT, isDraggingPanel = false;
+            let btnOffsetFromPanel_X, btnOffsetFromPanel_Y;
+
+            chatHeader.addEventListener('mousedown', function(e) {
+                if (e.target === closeBtn) return;
+                e.preventDefault();
+                isDraggingPanel = true;
+                panelDragStartX = e.clientX;
+                panelDragStartY = e.clientY;
+                const rect = panel.getBoundingClientRect();
+                panelStartL = rect.left;
+                panelStartT = rect.top;
+                const btnRect = toggle.getBoundingClientRect();
+                btnOffsetFromPanel_X = btnRect.left - rect.left;
+                btnOffsetFromPanel_Y = btnRect.top - rect.top;
+                toggle.style.transition = 'none';
+            });
+
+            document.addEventListener('mousemove', function(e) {
+                if (!isDraggingPanel) return;
+                const dx = e.clientX - panelDragStartX;
+                const dy = e.clientY - panelDragStartY;
+                const newPL = panelStartL + dx;
+                const newPT = panelStartT + dy;
+                panel.style.left = newPL + 'px';
+                panel.style.top = newPT + 'px';
+                panel.style.right = 'auto';
+                panel.style.bottom = 'auto';
+                toggle.style.left = (newPL + btnOffsetFromPanel_X) + 'px';
+                toggle.style.top = (newPT + btnOffsetFromPanel_Y) + 'px';
+                toggle.style.right = 'auto';
+                toggle.style.bottom = 'auto';
+            });
+
+            document.addEventListener('mouseup', function() {
+                if (isDraggingPanel) toggle.style.transition = '';
+                isDraggingPanel = false;
+            });
+
+            // Touch drag for panel header
+            chatHeader.addEventListener('touchstart', function(e) {
+                if (e.target === closeBtn) return;
+                const t = e.touches[0];
+                isDraggingPanel = true;
+                panelDragStartX = t.clientX;
+                panelDragStartY = t.clientY;
+                const rect = panel.getBoundingClientRect();
+                panelStartL = rect.left;
+                panelStartT = rect.top;
+                const btnRect = toggle.getBoundingClientRect();
+                btnOffsetFromPanel_X = btnRect.left - rect.left;
+                btnOffsetFromPanel_Y = btnRect.top - rect.top;
+                toggle.style.transition = 'none';
+            }, { passive: true });
+
+            document.addEventListener('touchmove', function(e) {
+                if (!isDraggingPanel) return;
+                const t = e.touches[0];
+                const dx = t.clientX - panelDragStartX;
+                const dy = t.clientY - panelDragStartY;
+                const newPL = panelStartL + dx;
+                const newPT = panelStartT + dy;
+                panel.style.left = newPL + 'px';
+                panel.style.top = newPT + 'px';
+                panel.style.right = 'auto';
+                panel.style.bottom = 'auto';
+                toggle.style.left = (newPL + btnOffsetFromPanel_X) + 'px';
+                toggle.style.top = (newPT + btnOffsetFromPanel_Y) + 'px';
+                toggle.style.right = 'auto';
+                toggle.style.bottom = 'auto';
+            }, { passive: true });
+
+            document.addEventListener('touchend', function() {
+                if (isDraggingPanel) toggle.style.transition = '';
+                isDraggingPanel = false;
+            });
+        }
+
+        // --- Resize handles (all sides and corners) ---
+        const handles = panel.querySelectorAll('.chat-resize-handle');
+        handles.forEach(function(handle) {
+            const cl = handle.classList;
+            const hasTop = cl.contains('resize-top') || cl.contains('resize-corner-tl') || cl.contains('resize-corner-tr');
+            const hasBottom = cl.contains('resize-bottom') || cl.contains('resize-corner-bl') || cl.contains('resize-corner-br');
+            const hasLeft = cl.contains('resize-left') || cl.contains('resize-corner-tl') || cl.contains('resize-corner-bl');
+            const hasRight = cl.contains('resize-right') || cl.contains('resize-corner-tr') || cl.contains('resize-corner-br');
+
+            function startResize(sx, sy) {
+                const rect = panel.getBoundingClientRect();
+                const startW = rect.width, startH = rect.height;
+                const startL = rect.left, startT = rect.top;
+
+                function onMove(mx, my) {
+                    const dx = mx - sx;
+                    const dy = my - sy;
+
+                    if (hasLeft) {
+                        const newW = Math.max(280, startW - dx);
+                        panel.style.width = newW + 'px';
+                        panel.style.left = (startL + (startW - newW)) + 'px';
+                        panel.style.right = 'auto';
+                    }
+                    if (hasRight) {
+                        const newW = Math.max(280, startW + dx);
+                        panel.style.width = newW + 'px';
+                    }
+                    if (hasTop) {
+                        const newH = Math.max(200, startH - dy);
+                        panel.style.height = newH + 'px';
+                        panel.style.top = (startT + (startH - newH)) + 'px';
+                        panel.style.bottom = 'auto';
+                    }
+                    if (hasBottom) {
+                        const newH = Math.max(200, startH + dy);
+                        panel.style.height = newH + 'px';
+                    }
+                }
+                return onMove;
+            }
+
+            handle.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const onMove = startResize(e.clientX, e.clientY);
+                function mouseMoveHandler(ev) { onMove(ev.clientX, ev.clientY); }
+                function mouseUpHandler() {
+                    document.removeEventListener('mousemove', mouseMoveHandler);
+                    document.removeEventListener('mouseup', mouseUpHandler);
+                }
+                document.addEventListener('mousemove', mouseMoveHandler);
+                document.addEventListener('mouseup', mouseUpHandler);
+            });
+
+            handle.addEventListener('touchstart', function(e) {
+                e.stopPropagation();
+                const t = e.touches[0];
+                const onMove = startResize(t.clientX, t.clientY);
+                function touchMoveHandler(ev) {
+                    const tt = ev.touches[0];
+                    onMove(tt.clientX, tt.clientY);
+                }
+                function touchEndHandler() {
+                    document.removeEventListener('touchmove', touchMoveHandler);
+                    document.removeEventListener('touchend', touchEndHandler);
+                }
+                document.addEventListener('touchmove', touchMoveHandler, { passive: true });
+                document.addEventListener('touchend', touchEndHandler);
+            }, { passive: true });
+        });
+
+        // --- Chat messages ---
+        function addMessage(text, sender) {
+            const msg = document.createElement('div');
+            msg.style.cssText = 'margin: 8px 0; padding: 8px 12px; border-radius: 8px; font-size: 0.85em; line-height: 1.4; max-width: 85%; word-wrap: break-word;';
+            if (sender === 'user') {
+                msg.style.cssText += 'background: rgba(250,245,235,0.1); margin-left: auto; text-align: right; color: rgba(250,245,235,0.9);';
+            } else {
+                msg.style.cssText += 'background: rgba(120,100,180,0.15); margin-right: auto; color: rgba(250,245,235,0.8);';
+            }
+            msg.textContent = text;
+            chatMessages.appendChild(msg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function sendMessage(text) {
+            if (!text.trim()) return;
+            addMessage(text, 'user');
+            chatInput.value = '';
+
+            const loading = document.createElement('div');
+            loading.style.cssText = 'margin: 8px 0; padding: 8px 12px; color: rgba(250,245,235,0.4); font-size: 0.8em;';
+            loading.textContent = 'Думаю...';
+            chatMessages.appendChild(loading);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                const response = await fetch('/api/task', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ message: text })
+                });
+                const data = await response.json();
+                loading.remove();
+                addMessage(data.response || 'Нет ответа', 'agent');
+            } catch (err) {
+                loading.remove();
+                addMessage('Ошибка: ' + err.message, 'agent');
+            }
+        }
+
+        // --- Input: Enter to send ---
+        if (chatInput) {
+            chatInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage(chatInput.value);
+                }
+            });
+        }
+
+        // --- Voice input for chat ---
+        if (chatMicBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const chatRecog = new SR();
+            chatRecog.lang = 'ru-RU';
+            chatRecog.continuous = false;
+            chatRecog.interimResults = false;
+            let chatRecording = false;
+
+            chatMicBtn.addEventListener('click', function() {
+                if (!chatRecording) {
+                    chatRecording = true;
+                    chatRecog.start();
+                    chatMicBtn.classList.add('listening');
+                } else {
+                    chatRecog.stop();
+                }
+            });
+
+            chatRecog.onresult = function(e) {
+                const text = e.results[0][0].transcript;
+                chatRecording = false;
+                chatMicBtn.classList.remove('listening');
+                sendMessage(text);
+            };
+
+            chatRecog.onerror = function() {
+                chatRecording = false;
+                chatMicBtn.classList.remove('listening');
+            };
+
+            chatRecog.onend = function() {
+                chatRecording = false;
+                chatMicBtn.classList.remove('listening');
+            };
+        }
+    })();
+    </script>
+
 
 
     
