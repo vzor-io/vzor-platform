@@ -1,0 +1,18 @@
+services:
+  whisper:
+    image: onerahmet/openai-whisper-asr-webservice:latest
+    container_name: vzor-whisper
+    restart: unless-stopped
+    environment:
+      - ASR_MODEL=medium
+      - ASR_ENGINE=openai_whisper
+    ports:
+      - "9000:9000"
+    networks:
+      - vzor_vzor-network
+    volumes:
+      - ./data/whisper:/root/.cache/whisper
+
+networks:
+  vzor_vzor-network:
+    external: true
