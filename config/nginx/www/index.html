@@ -2077,7 +2077,7 @@
             color: white;
         }
 
-        /* Agent Zero Chat Panel - справа внизу */
+        /* Agent VZOR Chat Panel — unified with platform design */
         #agent-chat-panel {
             position: fixed;
             right: 20px;
@@ -2086,14 +2086,15 @@
             height: 480px;
             min-width: 280px;
             min-height: 200px;
-            background: rgba(10, 10, 12, 0.92);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(250, 245, 235, 0.15);
+            background: var(--color-surface);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid var(--border-subtle);
             border-radius: 12px;
             display: none;
             flex-direction: column;
             z-index: 99999;
-            box-shadow: 0 0 25px rgba(250, 245, 235, 0.08), 0 8px 32px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             will-change: transform;
             transform: translateZ(0);
         }
@@ -2103,76 +2104,176 @@
         }
 
         #agent-chat-header {
-            padding: 12px 16px;
-            border-bottom: 1px solid rgba(250, 245, 235, 0.15);
+            padding: var(--spacing-lg) var(--spacing-md);
+            border-bottom: 1px solid var(--border-subtle);
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: move;
+            flex-shrink: 0;
         }
 
         #agent-chat-title {
-            color: rgba(250, 245, 235, 0.9);
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.95em;
-            font-weight: 600;
-            letter-spacing: 0.1em;
-            text-shadow: 0 0 8px rgba(250, 245, 235, 0.3);
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
         }
 
         #agent-chat-close {
-            background: transparent;
+            background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.5);
+            color: var(--text-tertiary);
             cursor: pointer;
-            font-size: 1.2em;
-            padding: 0;
-            width: 24px;
-            height: 24px;
-            transition: color 0.3s;
+            font-size: 18px;
+            padding: 5px;
+            line-height: 1;
+            transition: color var(--transition-fast);
         }
 
         #agent-chat-close:hover {
-            color: #00ffff;
+            color: var(--text-primary);
+        }
+
+        #agent-model-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px var(--spacing-md);
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        #agent-model-bar:hover { background: rgba(255, 255, 255, 0.05); }
+        #agent-model-icon {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            font-size: 10px; font-weight: 700; color: rgba(255, 255, 255, 0.7);
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.02em;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        #agent-model-name {
+            flex: 1; font-size: 13px; color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.03em;
+        }
+        #agent-model-arrow {
+            font-size: 10px; color: var(--text-tertiary);
+            transition: transform var(--transition-fast);
+        }
+        #agent-model-dropdown {
+            display: none; border-bottom: 1px solid var(--border-subtle);
+            max-height: 280px; overflow: hidden; flex-direction: column;
+        }
+        #agent-model-dropdown.open { display: flex; }
+        #agent-model-tabs {
+            display: flex; padding: 0 5px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .model-tab {
+            flex: 1; padding: 8px 5px; background: transparent; border: none;
+            color: rgba(255, 255, 255, 0.35); font-size: 10px; font-weight: 400;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.15s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .model-tab.active {
+            color: var(--text-secondary);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+        .model-tab:hover { color: rgba(255, 255, 255, 0.6); }
+        .model-list { overflow-y: auto; max-height: 240px; padding: 5px; }
+        .model-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px; border-radius: 6px;
+            cursor: pointer; transition: all 0.15s ease;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .model-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        .model-item.active {
+            background: rgba(78, 205, 196, 0.08);
+            border: 1px solid rgba(78, 205, 196, 0.15);
+            color: #4ECDC4;
+        }
+        .mi-icon {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            font-size: 10px; font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .model-item:hover .mi-icon {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+        }
+        .model-item.active .mi-icon {
+            background: rgba(78, 205, 196, 0.15);
+            border-color: rgba(78, 205, 196, 0.5);
+            color: #4ECDC4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+        }
+        .mi-name {
+            flex: 1; font-size: 13px; letter-spacing: 0.03em;
+        }
+        .mi-tag {
+            font-size: 10px; color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.05em;
         }
 
         #agent-chat-messages {
             flex: 1;
             overflow-y: auto;
-            padding: 16px;
+            padding: var(--spacing-md);
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
             min-height: 0;
         }
 
         .agent-message {
             padding: 10px 14px;
             border-radius: 8px;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.85em;
-            line-height: 1.5;
+            font-size: 13px;
+            line-height: 1.6;
             max-width: 85%;
             word-wrap: break-word;
+            letter-spacing: 0.03em;
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .agent-message.user {
-            background: rgba(250, 245, 235, 0.1);
-            border: 1px solid rgba(250, 245, 235, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             align-self: flex-end;
-            color: rgba(250, 245, 235, 0.95);
+            color: #fff;
         }
 
         .agent-message.assistant {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: transparent;
+            border: none;
             align-self: flex-start;
-            color: rgba(255, 255, 255, 0.9);
+            color: rgba(255, 255, 255, 0.7);
+            border-left: 2px solid rgba(78, 205, 196, 0.3);
+            border-radius: 0 8px 8px 0;
+            padding-left: 12px;
         }
 
         #agent-chat-input-container {
-            padding: 12px 16px;
-            border-top: 1px solid rgba(250, 245, 235, 0.15);
+            padding: 10px 15px;
+            border-top: 1px solid var(--border-subtle);
             display: flex;
             gap: 8px;
             align-items: center;
@@ -2182,94 +2283,83 @@
             flex: 1;
             background: transparent;
             border: none;
-            color: white;
-            font-family: 'Outfit', sans-serif;
-            font-size: 0.9em;
+            color: var(--text-primary);
+            font-size: 13px;
             outline: none;
-            padding: 8px 12px;
-            letter-spacing: 0.05em;
+            padding: 6px 10px;
+            letter-spacing: 0.03em;
         }
 
         #agent-chat-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
+            color: var(--text-hint);
+            letter-spacing: 0.1em;
+            font-size: 11px;
+            text-transform: uppercase;
         }
 
         #agent-mic-btn {
             width: 32px;
             height: 32px;
             border-radius: 50%;
-            background: transparent;
-            border: 1px solid rgba(250, 245, 235, 0.3);
-            color: rgba(250, 245, 235, 0.8);
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary);
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: all 0.3s;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         #agent-mic-btn:hover {
-            background: rgba(250, 245, 235, 0.1);
-            border-color: rgba(250, 245, 235, 0.6);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            transform: scale(1.15);
         }
 
         #agent-mic-btn.listening {
-            background: rgba(255, 0, 0, 0.2);
-            border-color: #ff0000;
-            animation: pulse-mic 1s infinite;
+            background: rgba(255, 107, 107, 0.15);
+            border-color: var(--color-error);
+            color: var(--color-error);
+            animation: pulse-mic 1.5s ease-in-out infinite;
         }
 
         @keyframes pulse-mic {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.4);
-                transform: scale(1);
-            }
-            50% {
-                box-shadow: 0 0 12px 4px rgba(255, 0, 0, 0.3);
-                transform: scale(1.1);
-            }
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(255, 107, 107, 0); }
         }
 
-        /* Кнопка открытия чата Agent Zero */
+        /* Chat toggle button — matches platform icon-btn style */
         #agent-chat-toggle {
             position: fixed;
             right: 20px;
             bottom: 20px;
             cursor: move;
-            width: 56px;
-            height: 56px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            background: rgba(8, 8, 8, 0.95);
-            backdrop-filter: blur(15px);
-            border: 1.5px solid rgba(250, 245, 235, 0.3);
-            box-shadow: 0 0 40px rgba(250, 245, 235, 0.08), 0 8px 25px rgba(0, 0, 0, 0.3);
-            color: rgba(250, 245, 235, 0.95);
-            text-shadow: 0 0 10px rgba(250, 245, 235, 0.6);
-            font-size: 1.2em;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1em;
             font-weight: 600;
-            font-family: 'Outfit', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9998;
-            transition: all 0.3s;
-            animation: pulse-glow 3s ease-in-out infinite;
-        }
-
-        @keyframes pulse-glow {
-            0%, 100% {
-                box-shadow: 0 0 40px rgba(250, 245, 235, 0.08), 0 8px 25px rgba(0, 0, 0, 0.3);
-                border-color: rgba(250, 245, 235, 0.2);
-            }
-            50% {
-                box-shadow: 0 0 50px rgba(250, 245, 235, 0.12), 0 8px 30px rgba(0, 0, 0, 0.4);
-                border-color: rgba(250, 245, 235, 0.3);
-            }
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
 
         #agent-chat-toggle:hover {
-            background: rgba(15, 15, 18, 0.98);
-            box-shadow: 0 0 50px rgba(250, 245, 235, 0.15), 0 10px 35px rgba(0, 0, 0, 0.4);
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            transform: scale(1.15);
         }
 
         #agent-chat-toggle.hidden {
@@ -3338,21 +3428,10 @@
                 iconBarToggle.style.display = 'flex';
             }
 
-            // 4. Show Nodes Toggle Button - ТОЛЬКО для Development (v3.20)
-            if (categoryName === "Development") {
-                if (window.showNodesToggle) {
-                    window.showNodesToggle();
-                } else {
-                    const nodesBtn = document.getElementById('nodes-toggle-btn');
-                    if (nodesBtn) nodesBtn.classList.add('visible');
-                }
-            } else {
-                // Explicitly HIDE for non-Development categories (v3.20 fix)
+            // 4. Show Nodes Toggle Button - for ALL categories
+            {
                 const nodesBtn = document.getElementById('nodes-toggle-btn');
-                if (nodesBtn) {
-                    nodesBtn.classList.remove('visible');
-                    nodesBtn.style.cssText = '';
-                }
+                if (nodesBtn) nodesBtn.classList.add('visible');
             }
 
             // 5. Show Task List Button
@@ -3454,20 +3533,10 @@
                     const iconBarToggle = document.getElementById('icon-bar-toggle');
                     if (iconBarToggle) iconBarToggle.style.cssText = 'display: flex !important;';
 
-                    // Show nodes toggle - ТОЛЬКО для Development (v3.20)
-                    if (data.name === "Development") {
+                    // Show nodes toggle - for ALL categories
+                    {
                         const nodesBtn = document.getElementById('nodes-toggle-btn');
-                        if (nodesBtn) {
-                            nodesBtn.classList.add('visible');
-                            nodesBtn.style.cssText = 'opacity: 0.6 !important; pointer-events: auto !important;';
-                        }
-                    } else {
-                        // Explicitly HIDE for non-Development categories (v3.20 fix)
-                        const nodesBtn = document.getElementById('nodes-toggle-btn');
-                        if (nodesBtn) {
-                            nodesBtn.classList.remove('visible');
-                            nodesBtn.style.cssText = '';
-                        }
+                        if (nodesBtn) nodesBtn.classList.add('visible');
                     }
 
                     // v3.12.8: Show task list button using class
@@ -4285,18 +4354,11 @@
                     iconBarToggle.style.display = 'flex';
                 }
 
-                // Show nodes toggle button - ТОЛЬКО для Development (v3.20)
-                if (currentCategory === "Development") {
+                // Show nodes toggle for all categories
+                {
                     const nodesBtn = document.getElementById('nodes-toggle-btn');
                     if (nodesBtn && !nodesBtn.classList.contains('visible')) {
                         nodesBtn.classList.add('visible');
-                    }
-                } else {
-                    // Explicitly HIDE for non-Development categories (v3.20 fix)
-                    const nodesBtn = document.getElementById('nodes-toggle-btn');
-                    if (nodesBtn && nodesBtn.classList.contains('visible')) {
-                        nodesBtn.classList.remove('visible');
-                        nodesBtn.style.cssText = '';
                     }
                 }
 
@@ -4502,7 +4564,7 @@
                 const transcript = event.results[0][0].transcript;
                 console.log('Голосовой ввод:', transcript);
 
-                // НОВОЕ: Отправить Agent Zero
+                // НОВОЕ: Отправить Agent VZOR
                 sendToAgentZero(transcript);
 
                 // Оригинал: Auto-create task from voice
@@ -7434,10 +7496,10 @@
         // Note: Node Editor functions (openNodeEditor, closeNodeEditor, toggleNodeEditor)
         // are defined in the panel controls script above. No duplication needed here.
     
-// ===== AGENT ZERO INTEGRATION =====
+// ===== AGENT VZOR INTEGRATION =====
 async function sendToAgentZero(message) {
     // Показать что отправлено
-    window.showToast('Agent Zero', 'Обрабатываю: ' + message, 'info', 2000);
+    window.showToast('Agent VZOR', 'Обрабатываю: ' + message, 'info', 2000);
     
     try {
         const response = await fetch('/api/task', {
@@ -7448,11 +7510,11 @@ async function sendToAgentZero(message) {
         
         const data = await response.json();
         
-        // Показать ответ Agent Zero
-        window.showToast('Agent Zero', data.response.substring(0, 150) + '...', 'success', 8000);
+        // Показать ответ Agent VZOR
+        window.showToast('Agent VZOR', data.response.substring(0, 150) + '...', 'success', 8000);
         
     } catch (error) {
-        window.showToast('Agent Zero', 'Ошибка: ' + error.message, 'error', 3000);
+        window.showToast('Agent VZOR', 'Ошибка: ' + error.message, 'error', 3000);
     }
 }
 
@@ -7468,7 +7530,7 @@ async function sendToAgentZero(message) {
 
 </script>
 
-    <!-- Agent Zero Chat Panel -->
+    <!-- Agent VZOR Chat Panel -->
     <div id="agent-chat-panel">
         <div class="chat-resize-handle resize-top"></div>
         <div class="chat-resize-handle resize-left"></div>
@@ -7479,12 +7541,63 @@ async function sendToAgentZero(message) {
         <div class="chat-resize-handle resize-corner-bl"></div>
         <div class="chat-resize-handle resize-corner-br"></div>
         <div id="agent-chat-header">
-            <div id="agent-chat-title">AGENT ZERO</div>
+            <div id="agent-chat-title">AGENT VZOR</div>
             <button id="agent-chat-close">×</button>
+        </div>
+        <div id="agent-model-bar" title="Click to change model">
+            <span id="agent-model-icon">DS</span>
+            <span id="agent-model-name">DeepSeek V3</span>
+            <span id="agent-model-arrow">&#9662;</span>
+        </div>
+        <div id="agent-model-dropdown">
+            <div id="agent-model-tabs">
+                <button class="model-tab active" data-tab="direct">Direct</button>
+                <button class="model-tab" data-tab="openrouter">OpenRouter</button>
+            </div>
+            <div class="model-list" id="model-list-direct">
+                <div class="model-item active" data-id="deepseek" data-label="DeepSeek V3" data-icon="DS">
+                    <span class="mi-icon">DS</span><span class="mi-name">DeepSeek V3</span><span class="mi-tag">connected</span>
+                </div>
+                <div class="model-item" data-id="claude" data-label="Claude Sonnet" data-icon="CL">
+                    <span class="mi-icon">CL</span><span class="mi-name">Claude 4.5 Sonnet</span><span class="mi-tag">key needed</span>
+                </div>
+                <div class="model-item" data-id="gemini" data-label="Gemini Flash" data-icon="GM">
+                    <span class="mi-icon">GM</span><span class="mi-name">Gemini 2.0 Flash</span><span class="mi-tag">key needed</span>
+                </div>
+                <div class="model-item" data-id="local" data-label="Local Model" data-icon="LC">
+                    <span class="mi-icon">LC</span><span class="mi-name">Local (Ollama)</span><span class="mi-tag">not installed</span>
+                </div>
+            </div>
+            <div class="model-list" id="model-list-openrouter" style="display:none">
+                <div class="model-item" data-id="or/anthropic/claude-sonnet-4-5-20250929" data-label="Claude Sonnet" data-icon="CL">
+                    <span class="mi-icon">CL</span><span class="mi-name">Claude 4.5 Sonnet</span><span class="mi-tag">$3/M</span>
+                </div>
+                <div class="model-item" data-id="or/openai/gpt-4o" data-label="GPT-4o" data-icon="4o">
+                    <span class="mi-icon">4o</span><span class="mi-name">GPT-4o</span><span class="mi-tag">$2.5/M</span>
+                </div>
+                <div class="model-item" data-id="or/deepseek/deepseek-chat" data-label="DeepSeek V3" data-icon="DS">
+                    <span class="mi-icon">DS</span><span class="mi-name">DeepSeek V3</span><span class="mi-tag">$0.27/M</span>
+                </div>
+                <div class="model-item" data-id="or/google/gemini-2.0-flash-001" data-label="Gemini Flash" data-icon="GM">
+                    <span class="mi-icon">GM</span><span class="mi-name">Gemini 2.0 Flash</span><span class="mi-tag">free</span>
+                </div>
+                <div class="model-item" data-id="or/meta-llama/llama-3.3-70b-instruct" data-label="Llama 3.3 70B" data-icon="LL">
+                    <span class="mi-icon">LL</span><span class="mi-name">Llama 3.3 70B</span><span class="mi-tag">$0.39/M</span>
+                </div>
+                <div class="model-item" data-id="or/mistralai/mistral-large-latest" data-label="Mistral Large" data-icon="MI">
+                    <span class="mi-icon">MI</span><span class="mi-name">Mistral Large</span><span class="mi-tag">$2/M</span>
+                </div>
+                <div class="model-item" data-id="or/qwen/qwen-2.5-72b-instruct" data-label="Qwen 72B" data-icon="QW">
+                    <span class="mi-icon">QW</span><span class="mi-name">Qwen 2.5 72B</span><span class="mi-tag">$0.36/M</span>
+                </div>
+                <div class="model-item" data-id="or/google/gemini-2.5-pro-preview" data-label="Gemini 2.5 Pro" data-icon="GP">
+                    <span class="mi-icon">GP</span><span class="mi-name">Gemini 2.5 Pro</span><span class="mi-tag">$1.25/M</span>
+                </div>
+            </div>
         </div>
         <div id="agent-chat-messages"></div>
         <div id="agent-chat-input-container">
-            <input type="text" id="agent-chat-input" placeholder="Спросите Agent Zero..." />
+            <input type="text" id="agent-chat-input" placeholder="Спросите Agent VZOR..." />
             <button id="agent-mic-btn">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -7823,15 +7936,60 @@ async function sendToAgentZero(message) {
         // --- Chat messages ---
         function addMessage(text, sender) {
             const msg = document.createElement('div');
-            msg.style.cssText = 'margin: 8px 0; padding: 8px 12px; border-radius: 8px; font-size: 0.85em; line-height: 1.4; max-width: 85%; word-wrap: break-word;';
-            if (sender === 'user') {
-                msg.style.cssText += 'background: rgba(250,245,235,0.1); margin-left: auto; text-align: right; color: rgba(250,245,235,0.9);';
-            } else {
-                msg.style.cssText += 'background: rgba(120,100,180,0.15); margin-right: auto; color: rgba(250,245,235,0.8);';
-            }
+            msg.className = 'agent-message ' + (sender === 'user' ? 'user' : 'assistant');
             msg.textContent = text;
             chatMessages.appendChild(msg);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // --- Model dropdown selector ---
+        let selectedModel = 'deepseek';
+        const modelBar = document.getElementById('agent-model-bar');
+        const modelDropdown = document.getElementById('agent-model-dropdown');
+        const modelIcon = document.getElementById('agent-model-icon');
+        const modelNameEl = document.getElementById('agent-model-name');
+        const modelArrow = document.getElementById('agent-model-arrow');
+
+        if (modelBar && modelDropdown) {
+            modelBar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                modelDropdown.classList.toggle('open');
+                modelArrow.style.transform = modelDropdown.classList.contains('open') ? 'rotate(180deg)' : '';
+            });
+
+            var mTabs = modelDropdown.querySelectorAll('.model-tab');
+            var listDirect = document.getElementById('model-list-direct');
+            var listOR = document.getElementById('model-list-openrouter');
+            mTabs.forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    mTabs.forEach(function(t) { t.classList.remove('active'); });
+                    tab.classList.add('active');
+                    if (tab.getAttribute('data-tab') === 'direct') {
+                        listDirect.style.display = ''; listOR.style.display = 'none';
+                    } else {
+                        listDirect.style.display = 'none'; listOR.style.display = '';
+                    }
+                });
+            });
+
+            var allModelItems = modelDropdown.querySelectorAll('.model-item');
+            allModelItems.forEach(function(item) {
+                item.addEventListener('click', function() {
+                    allModelItems.forEach(function(i) { i.classList.remove('active'); });
+                    item.classList.add('active');
+                    selectedModel = item.getAttribute('data-id');
+                    modelIcon.textContent = item.getAttribute('data-icon');
+                    modelNameEl.textContent = item.getAttribute('data-label');
+                    modelDropdown.classList.remove('open');
+                    modelArrow.style.transform = '';
+                });
+            });
+
+            document.addEventListener('click', function() {
+                modelDropdown.classList.remove('open');
+                modelArrow.style.transform = '';
+            });
+            modelDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
         }
 
         async function sendMessage(text) {
@@ -7840,8 +7998,8 @@ async function sendToAgentZero(message) {
             chatInput.value = '';
 
             const loading = document.createElement('div');
-            loading.style.cssText = 'margin: 8px 0; padding: 8px 12px; color: rgba(250,245,235,0.4); font-size: 0.8em;';
-            loading.textContent = 'Думаю...';
+            loading.style.cssText = 'margin: 8px 0; padding: 8px 12px; color: var(--text-tertiary); font-size: 11px; letter-spacing: 0.05em;';
+            loading.textContent = 'Agent VZOR думает...';
             chatMessages.appendChild(loading);
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -7849,7 +8007,7 @@ async function sendToAgentZero(message) {
                 const response = await fetch('/api/task', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ message: text })
+                    body: JSON.stringify({ message: text, model: selectedModel })
                 });
                 const data = await response.json();
                 loading.remove();
