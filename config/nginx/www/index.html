@@ -728,7 +728,54 @@
             padding-bottom: 5px;
         }
 
-        .node-body {
+
+        /* Phase navigation panel - DISABLED */
+        #phase-nav-panel {
+            display: none !important;
+        }
+        #phase-nav-panel-old {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 8px;
+            z-index: 200;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90vw;
+        }
+        #phase-nav-panel.visible { display: flex; }
+        .phase-nav-btn {
+            padding: 6px 14px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            background: rgba(255,255,255,0.05);
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        .phase-nav-btn:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.05);
+        }
+        .phase-nav-btn .phase-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+                .node-body {
             font-size: 0.8em;
             color: #aaa;
         }
@@ -2441,6 +2488,118 @@
         
 
         
+
+
+        /* Block progress dashboard */
+        #block-dashboard {
+            position: fixed;
+            bottom: 90px;
+            left: 16px;
+            z-index: 300;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(10,10,15,0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-family: 'Outfit', sans-serif;
+            min-width: 180px;
+        }
+        #block-dashboard.visible { display: flex; }
+        .dash-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dash-dot {
+            width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+        }
+        .dash-label {
+            font-size: 10px; color: rgba(255,255,255,0.7); flex: 1; white-space: nowrap;
+        }
+        .dash-pct {
+            font-size: 10px; color: rgba(255,255,255,0.5); width: 32px; text-align: right;
+        }
+        .dash-bar-bg {
+            width: 50px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
+        }
+        .dash-bar-fill {
+            height: 100%; border-radius: 2px; transition: width 0.5s ease;
+        }
+
+        /* Block progress dashboard */
+        #block-dashboard {
+            position: fixed;
+            bottom: 90px;
+            left: 16px;
+            z-index: 300;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(10,10,15,0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-family: 'Outfit', sans-serif;
+            min-width: 180px;
+        }
+        #block-dashboard.visible { display: flex; }
+        .dash-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dash-dot {
+            width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+        }
+        .dash-label {
+            font-size: 10px; color: rgba(255,255,255,0.7); flex: 1; white-space: nowrap;
+        }
+        .dash-pct {
+            font-size: 10px; color: rgba(255,255,255,0.5); width: 32px; text-align: right;
+        }
+        .dash-bar-bg {
+            width: 50px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
+        }
+        .dash-bar-fill {
+            height: 100%; border-radius: 2px; transition: width 0.5s ease;
+        }
+        /* Task hover tooltip */
+        #task-tooltip {
+            position: fixed;
+            display: none;
+            pointer-events: none;
+            z-index: 500;
+            background: rgba(10, 10, 15, 0.92);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 8px 12px;
+            max-width: 260px;
+            font-family: 'Outfit', sans-serif;
+        }
+        #task-tooltip .tt-title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #fff;
+            margin-bottom: 3px;
+            line-height: 1.3;
+        }
+        #task-tooltip .tt-phase {
+            font-size: 9px;
+            color: rgba(255,255,255,0.5);
+            letter-spacing: 0.5px;
+        }
+        #task-tooltip .tt-status {
+            font-size: 9px;
+            margin-top: 4px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            display: inline-block;
+        }
     </style>
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -2448,6 +2607,63 @@
 </head>
 
 <body>
+    
+    <div id="block-dashboard">
+        <div style="font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:2px;">Прогресс</div>
+        <div class="dash-row" data-block="analysis">
+            <span class="dash-dot" style="background:#4D96FF;"></span>
+            <span class="dash-label">Анализ</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4D96FF;"></div></div>
+        </div>
+        <div class="dash-row" data-block="design">
+            <span class="dash-dot" style="background:#C084FC;"></span>
+            <span class="dash-label">Проектирование</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#C084FC;"></div></div>
+        </div>
+        <div class="dash-row" data-block="build">
+            <span class="dash-dot" style="background:#FF8C42;"></span>
+            <span class="dash-label">Строительство</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#FF8C42;"></div></div>
+        </div>
+        <div class="dash-row" data-block="sales">
+            <span class="dash-dot" style="background:#4ECDC4;"></span>
+            <span class="dash-label">Продажи</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4ECDC4;"></div></div>
+        </div>
+    </div>
+    
+    <div id="block-dashboard">
+        <div style="font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:2px;">Прогресс</div>
+        <div class="dash-row" data-block="analysis">
+            <span class="dash-dot" style="background:#4D96FF;"></span>
+            <span class="dash-label">Анализ</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4D96FF;"></div></div>
+        </div>
+        <div class="dash-row" data-block="design">
+            <span class="dash-dot" style="background:#C084FC;"></span>
+            <span class="dash-label">Проектирование</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#C084FC;"></div></div>
+        </div>
+        <div class="dash-row" data-block="build">
+            <span class="dash-dot" style="background:#FF8C42;"></span>
+            <span class="dash-label">Строительство</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#FF8C42;"></div></div>
+        </div>
+        <div class="dash-row" data-block="sales">
+            <span class="dash-dot" style="background:#4ECDC4;"></span>
+            <span class="dash-label">Продажи</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4ECDC4;"></div></div>
+        </div>
+    </div>
+    <div id="task-tooltip"><div class="tt-title"></div><div class="tt-phase"></div><div class="tt-status"></div></div>
     <!-- v3.14: Toast Notification Container -->
     <div id="toast-container" aria-live="polite" aria-label="Уведомления"></div>
 
@@ -2876,8 +3092,9 @@
             const ctx = canvas.getContext('2d');
             const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
             grad.addColorStop(0, 'rgba(255,255,255,1)');
-            grad.addColorStop(0.2, 'rgba(255,255,255,0.6)');
-            grad.addColorStop(0.5, 'rgba(255,255,255,0.1)');
+            grad.addColorStop(0.15, 'rgba(255,255,255,0.9)');
+            grad.addColorStop(0.3, 'rgba(255,255,255,0.4)');
+            grad.addColorStop(0.5, 'rgba(255,255,255,0.05)');
             grad.addColorStop(1, 'rgba(0,0,0,0)');
             ctx.fillStyle = grad;
             ctx.fillRect(0, 0, 64, 64);
@@ -3518,6 +3735,11 @@
                     hasEverDrilled = true; // v3.18: Stop pulsation hint after first click
                     currentCategory = data.name;
 
+                    // Load saved tasks from DB for this category
+                    setTimeout(() => {
+                        if (window.loadTasksFromDB) window.loadTasksFromDB(data.name);
+                    }, 500);
+
                     // Update detail panel content
                     showDetail(data.name);
 
@@ -3583,10 +3805,18 @@
 
                     if (window.taskPoints && window.taskPoints.length > 0) {
                         // Set raycaster threshold for Points (larger area for easier clicking)
-                        ray.params.Points = { threshold: 20 };  // v3.18: increased for better clickability
+                        ray.params.Points = { threshold: 30 };  // Scaled for larger shell radii
 
+                        // In focus mode: only raycast against focused block tasks
                         const taskMeshes = window.taskPoints
-                            .filter(t => t.mesh && t.mesh.visible)
+                            .filter(t => {
+                                if (!t.mesh || !t.mesh.visible) return false;
+                                if (window._focusedBlock) {
+                                    const tc = getPhaseColor(t.phase || 'General');
+                                    return tc === window._focusedBlock;
+                                }
+                                return true;
+                            })
                             .map(t => t.mesh);
 
                         if (taskMeshes.length > 0) {
@@ -3596,6 +3826,36 @@
                                 const taskPayload = window.taskPoints.find(t => t.mesh === clickedMesh);
                                 if (taskPayload) {
                                     taskClicked = true;
+                                    // Block focus: click task -> focus its COLOR BLOCK
+                                    // Clicking within same block keeps focus (shows detail panel)
+                                    // Clicking task in different block switches focus
+                                    // Double-click empty space to unfocus
+                                    {
+                                        const clickedColor = getPhaseColor(taskPayload.phase || 'General');
+                                        const currentColor = window._focusedBlock || null;
+
+                                        if (currentColor === clickedColor) {
+                                            // Same block: keep focus, just show detail panel
+                                            // (no unfocus, no camera fly)
+                                        } else {
+                                            // Different block (or no focus): focus this block + fly
+                                            window._focusedBlock = clickedColor;
+                                            window._focusedPhase = taskPayload.phase; // for flyToPhase
+                                            if (typeof flyToBlock === 'function') flyToBlock(clickedColor);
+                                            group.children.forEach(ch => {
+                                                if (ch.userData && ch.userData.isLabel) {
+                                                    const owner = window.taskPoints.find(tp =>
+                                                        tp.mesh && tp.mesh.userData.labelSprite === ch);
+                                                    if (owner) {
+                                                        const ownerColor = getPhaseColor(owner.phase || 'General');
+                                                        ch.visible = ownerColor === clickedColor;
+                                                    } else {
+                                                        ch.visible = true;
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
                                     // Open detail panel for this task
                                     if (window.showDetailPanel) {
                                         window.showDetailPanel(taskPayload);
@@ -3800,7 +4060,7 @@
             controls.enabled = false; // Disable orbit
             document.getElementById('detail-panel').classList.remove('active');
             document.getElementById('task-interface').classList.remove('active'); // Hide Task Interface
-            document.getElementById('nav-btn').classList.remove('visible'); // Hide if any
+            const _navBtn = document.getElementById('nav-btn'); if (_navBtn) _navBtn.classList.remove('visible');
             document.getElementById('back-button').style.opacity = '0';
             document.getElementById('back-button').style.pointerEvents = 'none';
             document.getElementById('back-button').setAttribute('aria-hidden', 'true'); // v3.14: Accessibility
@@ -3944,6 +4204,46 @@
         window.addEventListener('mouseleave', () => { isDrag = false; material.uniforms.uMouseActive.value = 0; });
         window.addEventListener('blur', () => { isDrag = false; material.uniforms.uMouseActive.value = 0; });
 
+        // Double-click on empty space = unfocus block (registered ONCE)
+        document.getElementById('canvas-wrapper').addEventListener('dblclick', (event) => {
+            if (!window._focusedBlock) return;
+            const dblMouse = new THREE.Vector2(
+                (event.clientX / window.innerWidth) * 2 - 1,
+                -(event.clientY / window.innerHeight) * 2 + 1
+            );
+            const dblRay = new THREE.Raycaster();
+            dblRay.setFromCamera(dblMouse, camera);
+            dblRay.params.Points = { threshold: 20 };
+            const taskMeshes2 = (window.taskPoints || [])
+                .filter(t => t.mesh && t.mesh.visible)
+                .map(t => t.mesh);
+            const dblHits = dblRay.intersectObjects(taskMeshes2);
+            if (dblHits.length === 0) {
+                window._focusedBlock = null;
+                window._focusedPhase = null;
+                group.children.forEach(ch => {
+                    if (ch.userData && ch.userData.isLabel) ch.visible = true;
+                });
+                // Return camera to overview position
+                const startPos = camera.position.clone();
+                const startTarget = controls.target.clone();
+                const overviewPos = new THREE.Vector3(0, 0, 450);
+                const overviewTarget = new THREE.Vector3(0, 0, 0);
+                const duration = 1000;
+                const startTime = Date.now();
+                function flyBack() {
+                    const elapsed = Date.now() - startTime;
+                    const t = Math.min(elapsed / duration, 1);
+                    const ease = 1 - Math.pow(1 - t, 3);
+                    camera.position.lerpVectors(startPos, overviewPos, ease);
+                    controls.target.lerpVectors(startTarget, overviewTarget, ease);
+                    controls.update();
+                    if (t < 1) requestAnimationFrame(flyBack);
+                }
+                flyBack();
+            }
+        });
+
         // TOUCH SUPPORT
         document.addEventListener('touchstart', e => {
             isDrag = true; isClickValid = true;
@@ -3980,6 +4280,11 @@
                 const isClickOnTask = e.target.closest('.task-point'); // If task points have class
                 const isClickInsideTaskInterface = taskInterface && taskInterface.contains(e.target);
 
+                // Single click on empty: do nothing (keep focus)
+                // Block unfocus handled by dblclick event
+                if (false) {
+                    // Placeholder
+                }
                 // Close panel if clicking on black screen (not on panel, not on task interface)
                 if (!isClickInsidePanel && !isClickInsideTaskInterface && !isClickOnTask) {
                     detailPanel.classList.remove('active');
@@ -4158,17 +4463,62 @@
                 // OrbitControls handles camera
                 controls.update();
 
+                // Nucleus pulse
+                if (window._nucleus) {
+                    window._nucleus.material.opacity = 0.25 + Math.sin(time * 1.5) * 0.1;
+                    window._nucleus.scale.setScalar(1.0 + Math.sin(time * 0.8) * 0.05);
+                }
+                if (window._nucleusGlow) {
+                    window._nucleusGlow.material.opacity = 0.06 + Math.sin(time * 1.2) * 0.03;
+                    window._nucleusGlow.scale.setScalar(1.0 + Math.sin(time * 0.5) * 0.15);
+                }
+
                 // Scale task points with zoom + gentle pulsation
                 if (window.taskPoints) {
                     window.taskPoints.forEach(task => {
                         if (task.mesh && task.mesh.userData.material) {
-                            // v3.12.5: Simple pulsation via size change
                             const baseSize = task.mesh.userData.baseSize || 15;
-                            const pulse = 1.0 + Math.sin(time * 1.5) * 0.1;  // Gentle 10% breathing
+                            let pulse = 1.0;
+
+                            const taskBlockColor = getPhaseColor(task.phase || 'General');
+
+                            if (window._focusedBlock) {
+                                // FOCUSED MODE: show statuses for entire focused block
+                                if (taskBlockColor === window._focusedBlock) {
+                                    if (task.status === 'in_progress') {
+                                        pulse = 1.3 + Math.sin(time * 3.5) * 0.5;
+                                        task.mesh.userData.material.opacity = 1.0;
+                                    } else if (task.status === 'completed') {
+                                        pulse = 1.5;
+                                        task.mesh.userData.material.opacity = 1.0;
+                                    } else {
+                                        pulse = 0.7;
+                                        task.mesh.userData.material.opacity = 0.5;
+                                    }
+                                } else {
+                                    // Other blocks: dim and small
+                                    pulse = 0.5;
+                                    task.mesh.userData.material.opacity = 0.08;
+                                }
+                            } else {
+                                // DEFAULT MODE: uniform look, phase nodes show progress
+                                if (task.level === 0) {
+                                    const pTasks = window.taskPoints.filter(t => t.phase === task.phase && t.level !== 0);
+                                    const pDone = pTasks.filter(t => t.status === 'completed').length;
+                                    const progress = pTasks.length > 0 ? pDone / pTasks.length : 0;
+                                    pulse = 1.0 + progress * 0.6;
+                                    task.mesh.userData.material.opacity = 0.6 + progress * 0.4;
+                                } else {
+                                    pulse = 0.9;
+                                    task.mesh.userData.material.opacity = 0.7;
+                                }
+                            }
                             task.mesh.userData.material.size = baseSize * pulse * currentZoom;
                         }
+
                     });
                 }
+
 
                 // ROBUST IDLE DETECTION - FIXED
                 // User requirement: "Hold for 10 seconds", do not reset on damping or drift.
@@ -4626,6 +4976,55 @@
         const raycasterTasks = new THREE.Raycaster();
         raycasterTasks.params.Points = { threshold: 20 };  // v3.18 FIX: Enable clicking on Points objects
 
+        // Hover tooltip for task identification
+        const _hoverRay = new THREE.Raycaster();
+        _hoverRay.params.Points = { threshold: 15 };
+        const _hoverMouse = new THREE.Vector2();
+        let _hoveredTask = null;
+        const _tooltip = document.getElementById('task-tooltip');
+
+        document.addEventListener('mousemove', function(e) {
+            if (!isDrilled || !window.taskPoints || window.taskPoints.length === 0) {
+                if (_tooltip) _tooltip.style.display = 'none';
+                return;
+            }
+            _hoverMouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            _hoverMouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+            _hoverRay.setFromCamera(_hoverMouse, camera);
+
+            const meshes = window.taskPoints.filter(t => t.mesh && t.mesh.visible).map(t => t.mesh);
+            const hits = _hoverRay.intersectObjects(meshes);
+
+            if (hits.length > 0) {
+                const hitMesh = hits[0].object;
+                const task = window.taskPoints.find(t => t.mesh === hitMesh);
+                if (task && _tooltip) {
+                    _hoveredTask = task;
+                    const statusMap = {
+                        'pending': { label: 'Ожидает', color: '#888', bg: 'rgba(255,255,255,0.08)' },
+                        'in_progress': { label: 'В работе', color: '#FFB347', bg: 'rgba(255,179,71,0.15)' },
+                        'completed': { label: 'Готово', color: '#77DD77', bg: 'rgba(119,221,119,0.15)' },
+                        'blocked': { label: 'Блок', color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)' }
+                    };
+                    const st = statusMap[task.status] || statusMap['pending'];
+                    const phaseCol = getPhaseColorCSS(task.phase || 'General');
+                    _tooltip.querySelector('.tt-title').textContent = task.title || 'Задача';
+                    _tooltip.querySelector('.tt-phase').innerHTML = '<span style="color:' + phaseCol + '">●</span> ' + (task.phase || '');
+                    _tooltip.querySelector('.tt-status').textContent = st.label;
+                    _tooltip.querySelector('.tt-status').style.color = st.color;
+                    _tooltip.querySelector('.tt-status').style.background = st.bg;
+                    _tooltip.style.display = 'block';
+                    _tooltip.style.left = (e.clientX + 14) + 'px';
+                    _tooltip.style.top = (e.clientY - 10) + 'px';
+                    // Highlight hovered point
+                    hitMesh.userData.material.size = (task.mesh.userData.baseSize || 15) * 1.6 * currentZoom;
+                }
+            } else {
+                if (_tooltip) _tooltip.style.display = 'none';
+                _hoveredTask = null;
+            }
+        });
+
         // 1. Function to Add Task Point (Called by Enter/Voice)
         window.addTaskPoint = function (text, category) {
             if (!isDrilled) return; // Only in drill-down mode
@@ -4644,17 +5043,18 @@
             const colors = statusColors[currentStatus];
 
             // v3.12.5: Single gaseous point with pulsation (no cluster)
-            // Create glow texture
+            // Create glow texture with phase color
+            const _cr = (colors.core >> 16) & 255, _cg = (colors.core >> 8) & 255, _cb = colors.core & 255;
             const glowCanvas = document.createElement('canvas');
             glowCanvas.width = 64;
             glowCanvas.height = 64;
             const ctx = glowCanvas.getContext('2d');
             const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-            gradient.addColorStop(0, 'rgba(255,255,255,1)');
-            gradient.addColorStop(0.2, 'rgba(255,255,255,0.8)');
-            gradient.addColorStop(0.5, 'rgba(255,255,255,0.3)');
-            gradient.addColorStop(0.8, 'rgba(255,255,255,0.05)');
-            gradient.addColorStop(1, 'rgba(255,255,255,0)');
+            gradient.addColorStop(0, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',1)');
+            gradient.addColorStop(0.12, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.9)');
+            gradient.addColorStop(0.25, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.4)');
+            gradient.addColorStop(0.4, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.08)');
+            gradient.addColorStop(1, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0)');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, 64, 64);
             const glowTexture = new THREE.CanvasTexture(glowCanvas);
@@ -4666,9 +5066,9 @@
             // PointsMaterial with glow (v3.17: increased size for visibility)
             const pointMat = new THREE.PointsMaterial({
                 color: colors.core,
-                size: 25,  // v3.17: bigger for better visibility
+                size: 22,  // Sized for shell layout at R=170
                 transparent: true,
-                opacity: 0.95,
+                opacity: 0.35,
                 map: glowTexture,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false,
@@ -4679,7 +5079,7 @@
             sphere.userData.isTaskPoint = true;
             sphere.userData.material = pointMat;
             sphere.userData.statusColors = statusColors;
-            sphere.userData.baseSize = 25;  // v3.17: match increased size
+            sphere.userData.baseSize = 22;  // Sized for shell layout at R=170
             sphere.userData.startTime = performance.now();
 
             // v3.11: Smarter positioning - spread tasks out more, avoid overlapping
@@ -4727,6 +5127,12 @@
                 createdAt: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}),
                 statusColors: statusColors  // Store reference for updates
             };
+
+            // Status ring (only for level 1 and 2)
+            taskData.statusRing = null;
+            taskData.progressArc = null;
+            // Store dependsOn for later use
+            taskData.dependsOn = [];
 
             window.taskPoints.push(taskData);
 
@@ -4816,11 +5222,24 @@
             );
             if (exists) return;
 
-            const line = createStraightLine(
-                fromTask.mesh.position,
-                toTask.mesh.position,
-                'normal'
-            );
+            // Color: same phase = phase color, cross-phase = gray
+            let lineColor = 0x444444;
+            let lineOpacity = 0.08;
+            if (fromTask.phase && toTask.phase && fromTask.phase === toTask.phase) {
+                lineColor = getPhaseColor(fromTask.phase);
+                lineOpacity = 0.2;
+            }
+
+            const points = [
+                new THREE.Vector3(fromTask.mesh.position.x, fromTask.mesh.position.y, fromTask.mesh.position.z),
+                new THREE.Vector3(toTask.mesh.position.x, toTask.mesh.position.y, toTask.mesh.position.z)
+            ];
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({
+                color: lineColor, transparent: true, opacity: lineOpacity, depthWrite: false
+            });
+            const line = new THREE.Line(geometry, material);
+            line.userData.style = 'normal';
 
             connectionGroup.add(line);
 
@@ -4910,15 +5329,357 @@
             // Subtle pulse for highlighted connections could go here
         };
 
-        // 2. Update Task Status and Color (v3.12: with glow update)
-        window.updateTaskStatus = function(taskId, newStatus, progress) {
-            const task = window.taskPoints.find(t => t.id === taskId);
-            if (!task) return;
+        // ==========================================
+        // STRUCTURED TASKS — Create from Agent Response
+        // ==========================================
 
-            task.status = newStatus;
-            if (typeof progress === 'number') task.progress = progress;
+        // Layout constants
+        const PHASE_SPACING_X = 80;   // legacy, not used in cloud layout
+        const TASK_SPACING_Y = 35;    // legacy
+        const SUBTASK_OFFSET_Z = 20;  // legacy
+        // === GALAXY LAYOUT CONSTANTS ===
+        const ARM_LENGTH = 130;       // how far each arm extends from nucleus
+        const PHASE_ORBIT = 25;       // spread between phases along arm
+        const TASK_ORBIT = 18;        // task distance from phase node
+        const SUBTASK_ORBIT = 8;      // subtask distance from parent task
+        const LEVEL_SIZES = { 0: 55, 1: 28, 2: 16 };
 
-            // Status color definitions
+        // Block directions: 4 arms in XZ plane
+        const BLOCK_ANGLES = {
+            0x4D96FF: Math.PI * 0.0,      // Analysis - right
+            0xC084FC: Math.PI * 0.5,      // Design - forward
+            0xFF8C42: Math.PI * 1.0,      // Construction - left
+            0x4ECDC4: Math.PI * 1.5       // Sales - back
+        };
+        const BLOCK_NAMES = {
+            0x4D96FF: 'Анализ',
+            0xC084FC: 'Проектирование',
+            0xFF8C42: 'Строительство',
+            0x4ECDC4: 'Продажи'
+        };
+
+        function getBlockAngle(phaseName) {
+            const color = getPhaseColor(phaseName);
+            return BLOCK_ANGLES[color] !== undefined ? BLOCK_ANGLES[color] : 0;
+        }
+
+        // Concentric shells layout: L0 outer, L1 middle, L2 inner, nucleus at center
+        function calcGalaxyPositions(phaseOrder, phases, existingTaskMap) {
+            const positions = {};
+            const SHELL_R0 = 195;    // Phase nodes (L0) — outer shell (on cloud surface ~220)
+            const SHELL_R1 = 170;    // Tasks (L1) — middle shell
+            const SHELL_R2 = 145;    // Subtasks (L2) — inner shell
+
+            // 4 sectors by azimuthal angle (theta in XZ plane)
+            const SECTORS = {};
+            SECTORS[0x4D96FF] = { tStart: 0,              tEnd: Math.PI * 0.5 };   // Analysis: 0-90°
+            SECTORS[0xC084FC] = { tStart: Math.PI * 0.5,  tEnd: Math.PI };         // Design: 90-180°
+            SECTORS[0xFF8C42] = { tStart: Math.PI,        tEnd: Math.PI * 1.5 };   // Construction: 180-270°
+            SECTORS[0x4ECDC4] = { tStart: Math.PI * 1.5,  tEnd: Math.PI * 2 };     // Sales: 270-360°
+
+            // Group phases by block color
+            const blockPhases = {};
+            phaseOrder.forEach(pn => {
+                const c = getPhaseColor(pn);
+                if (!blockPhases[c]) blockPhases[c] = [];
+                blockPhases[c].push(pn);
+            });
+
+            Object.keys(blockPhases).forEach(ck => {
+                const color = parseInt(ck);
+                const sec = SECTORS[color] || SECTORS[0x4D96FF];
+                const bpList = blockPhases[ck];
+                const thetaRange = sec.tEnd - sec.tStart;
+
+                // Collect ALL tasks of this block for shell distribution
+                let allL1 = [], allL2 = [];
+                const phaseL0 = [];
+
+                bpList.forEach((phaseName, pIdx) => {
+                    const phaseTasks = phases[phaseName];
+                    const sorted = [...phaseTasks].sort((a, b) => (a.level||1) - (b.level||1));
+
+                    sorted.forEach(t => {
+                        const level = t.level || 1;
+                        const tid = t.id || t.title;
+                        if (level === 0) {
+                            phaseL0.push({ tid, phaseName, pIdx });
+                        } else if (level === 1) {
+                            allL1.push({ tid, phaseName, pIdx, task: t });
+                        } else {
+                            allL2.push({ tid, phaseName, pIdx, task: t });
+                        }
+                    });
+                });
+
+                // --- SHELL 0 (outer): Phase nodes ---
+                phaseL0.forEach((item, i) => {
+                    const nP = phaseL0.length;
+                    const theta = sec.tStart + thetaRange * (i + 0.5) / Math.max(nP, 1);
+                    const phi = Math.PI * (0.3 + 0.4 * (i / Math.max(nP - 1, 1)));
+                    positions[item.tid] = {
+                        x: SHELL_R0 * Math.sin(phi) * Math.cos(theta),
+                        y: SHELL_R0 * Math.cos(phi),
+                        z: SHELL_R0 * Math.sin(phi) * Math.sin(theta)
+                    };
+                });
+
+                // --- SHELL 1 (middle): Tasks ---
+                // Distribute evenly within sector, with slight radial jitter
+                allL1.forEach((item, i) => {
+                    const nT = allL1.length;
+                    // Find which phase this task belongs to, spread within sub-sector
+                    const pIdx = item.pIdx;
+                    const nPhases = bpList.length;
+                    const subStart = sec.tStart + thetaRange * pIdx / Math.max(nPhases, 1);
+                    const subEnd = sec.tStart + thetaRange * (pIdx + 1) / Math.max(nPhases, 1);
+                    const subRange = subEnd - subStart;
+
+                    // Count tasks in this phase's L1
+                    const phaseL1 = allL1.filter(x => x.pIdx === pIdx);
+                    const idxInPhase = phaseL1.indexOf(item);
+                    const nInPhase = phaseL1.length;
+
+                    // Fibonacci-like distribution within sub-sector
+                    const golden = Math.PI * (3 - Math.sqrt(5));
+                    const theta = subStart + subRange * (idxInPhase + 0.5) / Math.max(nInPhase, 1);
+                    const phi = Math.acos(1 - 2 * (idxInPhase + 0.5) / Math.max(nInPhase * 2.5, 1));
+                    // Clamp phi to avoid poles (keep in 30-150 degree band)
+                    const clampedPhi = Math.PI * 0.15 + (phi % (Math.PI * 0.7));
+
+                    const r = SHELL_R1 + (Math.random() - 0.5) * 8; // slight radial jitter
+                    positions[item.tid] = {
+                        x: r * Math.sin(clampedPhi) * Math.cos(theta),
+                        y: r * Math.cos(clampedPhi),
+                        z: r * Math.sin(clampedPhi) * Math.sin(theta)
+                    };
+                });
+
+                // --- SHELL 2 (inner): Subtasks ---
+                // Near their parent task but on inner shell
+                const l1PosMap = {};
+                allL1.forEach(item => { l1PosMap[item.tid] = positions[item.tid]; });
+
+                allL2.forEach((item, i) => {
+                    const t = item.task;
+                    const pid = (t.dependsOn && t.dependsOn.length > 0) ? t.dependsOn[0] : null;
+                    const parentPos = (pid && l1PosMap[pid]) || (pid && positions[pid]);
+
+                    if (parentPos) {
+                        // Project parent position to inner shell + small offset
+                        const len = Math.sqrt(parentPos.x**2 + parentPos.y**2 + parentPos.z**2) || 1;
+                        const nx = parentPos.x/len, ny = parentPos.y/len, nz = parentPos.z/len;
+                        const angle = (i / Math.max(allL2.length, 1)) * Math.PI * 2;
+                        const jitter = 10;
+                        positions[item.tid] = {
+                            x: nx * SHELL_R2 + Math.cos(angle) * jitter,
+                            y: ny * SHELL_R2 + (Math.random() - 0.5) * jitter,
+                            z: nz * SHELL_R2 + Math.sin(angle) * jitter
+                        };
+                    } else {
+                        // No parent: distribute evenly on inner shell within sector
+                        const nS = allL2.length;
+                        const theta = sec.tStart + thetaRange * (i + 0.5) / Math.max(nS, 1);
+                        const phi = Math.PI * (0.25 + 0.5 * (i / Math.max(nS - 1, 1)));
+                        positions[item.tid] = {
+                            x: SHELL_R2 * Math.sin(phi) * Math.cos(theta),
+                            y: SHELL_R2 * Math.cos(phi),
+                            z: SHELL_R2 * Math.sin(phi) * Math.sin(theta)
+                        };
+                    }
+                });
+            });
+
+            return positions;
+        }
+
+        // Phase focus state
+        window._focusedPhase = null;
+        window._focusedBlock = null;  // Color of focused block (e.g. 0x4D96FF)
+
+        // Fly camera to center of a color block (all tasks of that color)
+        function flyToBlock(blockColor) {
+            if (!window.taskPoints || window.taskPoints.length === 0) return;
+            const blockTasks = window.taskPoints.filter(tp => {
+                const c = getPhaseColor(tp.phase || 'General');
+                return c === blockColor && tp.mesh;
+            });
+            if (blockTasks.length === 0) return;
+
+            let cx = 0, cy = 0, cz = 0;
+            blockTasks.forEach(tp => {
+                cx += tp.mesh.position.x;
+                cy += tp.mesh.position.y;
+                cz += tp.mesh.position.z;
+            });
+            cx /= blockTasks.length;
+            cy /= blockTasks.length;
+            cz /= blockTasks.length;
+
+            // Camera: positioned outside the cluster, looking toward center(0,0,0)
+            // The block center is at ~R=170 from origin. We go further out.
+            const dir = new THREE.Vector3(cx, cy, cz).normalize();
+            const camTarget = new THREE.Vector3(cx, cy, cz);
+            const camPos = new THREE.Vector3(
+                cx + dir.x * 120,
+                cy + dir.y * 80 + 30,
+                cz + dir.z * 120
+            );
+
+            const startPos = camera.position.clone();
+            const startTarget = controls.target.clone();
+            const duration = 1500;
+            const startTime = Date.now();
+
+            // Disable idle spring-back during fly
+            lastInteractTime = Date.now() + 30000;
+
+            function animateFly() {
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+                camera.position.lerpVectors(startPos, camPos, ease);
+                controls.target.lerpVectors(startTarget, camTarget, ease);
+                controls.update();
+                if (t < 1) {
+                    requestAnimationFrame(animateFly);
+                } else {
+                    // After fly: keep controls enabled, allow free orbit around block
+                    controls.enabled = true;
+                    lastInteractTime = Date.now();
+                }
+            }
+            animateFly();
+        }
+
+        // === GALAXY NUCLEUS ===
+        (function createNucleus() {
+            const nucGeo = new THREE.SphereGeometry(12, 32, 32);
+            const nucMat = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.35
+            });
+            const nucleus = new THREE.Mesh(nucGeo, nucMat);
+            nucleus.position.set(0, 0, 0);
+            nucleus.userData.isNucleus = true;
+            group.add(nucleus);
+            window._nucleus = nucleus;
+
+            // Glow around nucleus
+            const glowGeo = new THREE.SphereGeometry(25, 24, 24);
+            const glowMat = new THREE.MeshBasicMaterial({
+                color: 0x4488ff,
+                transparent: true,
+                opacity: 0.08,
+                side: THREE.BackSide
+            });
+            const glow = new THREE.Mesh(glowGeo, glowMat);
+            glow.position.set(0, 0, 0);
+            glow.userData.isNucleusGlow = true;
+            group.add(glow);
+            window._nucleusGlow = glow;
+        })();
+
+        // Create status ring around a task node
+        function createStatusRing(position, color, radius, rotating) {
+            const ringGeo = new THREE.RingGeometry(radius * 0.8, radius, 32);
+            const ringMat = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: rotating ? 0.6 : 0.8,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.position.copy(position);
+            ring.userData.isStatusRing = true;
+            ring.userData.rotating = rotating;
+            // Random tilt for visual variety
+            ring.rotation.x = Math.PI * 0.3 + Math.random() * 0.4;
+            ring.rotation.y = Math.random() * Math.PI;
+            group.add(ring);
+            return ring;
+        }
+
+        // Create progress arc around phase node
+        function createProgressArc(position, color, progress, radius) {
+            // progress: 0..1
+            const arcLength = Math.PI * 2 * Math.max(progress, 0.01);
+            const arcGeo = new THREE.RingGeometry(radius * 0.85, radius * 1.0, 48, 1, 0, arcLength);
+            const arcMat = new THREE.MeshBasicMaterial({
+                color: color,
+                transparent: true,
+                opacity: 0.7,
+                side: THREE.DoubleSide,
+                depthWrite: false
+            });
+            const arc = new THREE.Mesh(arcGeo, arcMat);
+            arc.position.copy(position);
+            arc.rotation.x = Math.PI * 0.5;
+            arc.userData.isProgressArc = true;
+            group.add(arc);
+            return arc;
+        }
+
+        // Update progress arc geometry
+        function updateProgressArc(arc, progress) {
+            if (!arc) return;
+            const arcLength = Math.PI * 2 * Math.max(progress, 0.01);
+            const newGeo = new THREE.RingGeometry(
+                arc.geometry.parameters.innerRadius,
+                arc.geometry.parameters.outerRadius,
+                48, 1, 0, arcLength
+            );
+            arc.geometry.dispose();
+            arc.geometry = newGeo;
+        }
+
+        // Phase color palette (10 distinct colors)
+        const PHASE_COLOR_MAP = {
+            'analysis':  0x4D96FF,  // blue
+            'design':    0xC084FC,  // purple
+            'build':     0xFF8C42,  // orange
+            'sales':     0x4ECDC4,  // teal
+        };
+        const PHASE_COLOR_KEYWORDS = [
+            { keys: ['анализ', 'инвест', 'research', 'analysis', 'feasib', 'due dil', 'оценк'], color: 0x4D96FF },
+            { keys: ['проект', 'design', 'архитект', 'план', 'concept', 'blueprint'], color: 0xC084FC },
+            { keys: ['строит', 'build', 'construct', 'develop', 'монтаж', 'возвед', 'СМР', 'engineer'], color: 0xFF8C42 },
+            { keys: ['продаж', 'sales', 'market', 'реализ', 'брокер', 'реклам', 'PR', 'launch'], color: 0x4ECDC4 },
+        ];
+        const PHASE_FALLBACK_COLORS = [0x4D96FF, 0xC084FC, 0xFF8C42, 0x4ECDC4];
+        window._phaseColorMap = {};
+        window._phaseColorIdx = 0;
+
+        function getPhaseColor(phaseName) {
+            if (window._phaseColorMap[phaseName]) return window._phaseColorMap[phaseName];
+            const lower = (phaseName || '').toLowerCase();
+            for (const rule of PHASE_COLOR_KEYWORDS) {
+                if (rule.keys.some(k => lower.includes(k.toLowerCase()))) {
+                    window._phaseColorMap[phaseName] = rule.color;
+                    return rule.color;
+                }
+            }
+            // Fallback: cycle
+            window._phaseColorMap[phaseName] = PHASE_FALLBACK_COLORS[window._phaseColorIdx % PHASE_FALLBACK_COLORS.length];
+            window._phaseColorIdx++;
+            return window._phaseColorMap[phaseName];
+        }
+
+        function getPhaseColorCSS(phaseName) {
+            const hex = getPhaseColor(phaseName);
+            const r = (hex >> 16) & 255, g = (hex >> 8) & 255, b = hex & 255;
+            return 'rgb(' + r + ',' + g + ',' + b + ')';
+        }
+
+        // Create task point with explicit size and position
+        window.addTaskPointStructured = function(taskInfo, posX, posY, posZ) {
+            if (!isDrilled) return null;
+
+            const level = taskInfo.level || 1;
+            const pointSize = LEVEL_SIZES[level] || 25;
+
             const statusColors = {
                 'pending': { core: 0xFFFFFF, glow: 'rgba(255, 255, 255, ' },
                 'in_progress': { core: 0xFFB347, glow: 'rgba(255, 179, 71, ' },
@@ -4926,12 +5687,613 @@
                 'completed': { core: 0x77DD77, glow: 'rgba(119, 221, 119, ' }
             };
 
-            const colors = statusColors[newStatus] || statusColors['pending'];
-
-            // v3.12.5: Update single point color
-            if (task.mesh && task.mesh.userData.material) {
-                task.mesh.userData.material.color.setHex(colors.core);
+            const currentStatus = taskInfo.status || 'pending';
+            // Color by phase
+            const phaseColor = getPhaseColor(taskInfo.phase || 'General');
+            let coreColor;
+            if (level === 0) {
+                coreColor = phaseColor;  // phase node = full phase color
+            } else if (level === 1) {
+                coreColor = phaseColor;  // task = same phase color
+            } else {
+                coreColor = phaseColor;  // subtask = same but will be smaller/dimmer
             }
+
+            // Create glow texture with phase color
+            const _cr = (coreColor >> 16) & 255, _cg = (coreColor >> 8) & 255, _cb = coreColor & 255;
+            const glowCanvas = document.createElement('canvas');
+            glowCanvas.width = 64;
+            glowCanvas.height = 64;
+            const ctx = glowCanvas.getContext('2d');
+            const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            gradient.addColorStop(0, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',1)');
+            gradient.addColorStop(0.12, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.9)');
+            gradient.addColorStop(0.25, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.4)');
+            gradient.addColorStop(0.4, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.08)');
+            gradient.addColorStop(1, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0)');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 64, 64);
+            const glowTexture = new THREE.CanvasTexture(glowCanvas);
+
+            const pointGeo = new THREE.BufferGeometry();
+            pointGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
+
+            const _initOpacity = 0.7;  // Uniform default, status shown only in focused mode
+            const pointMat = new THREE.PointsMaterial({
+                color: coreColor,
+                size: pointSize,
+                transparent: true,
+                opacity: _initOpacity,
+                map: glowTexture,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false,
+                sizeAttenuation: true
+            });
+
+            const sphere = new THREE.Points(pointGeo, pointMat);
+            sphere.userData.isTaskPoint = true;
+            sphere.userData.material = pointMat;
+            sphere.userData.statusColors = statusColors;
+            sphere.userData.baseSize = pointSize;
+            sphere.userData.startTime = performance.now();
+
+            sphere.position.set(posX, posY, posZ);
+            group.add(sphere);
+
+            // Billboard label for phase nodes (level 0)
+            if (level === 0 && taskInfo.title) {
+                const labelCanvas = document.createElement('canvas');
+                const labelCtx = labelCanvas.getContext('2d');
+                labelCanvas.width = 512;
+                labelCanvas.height = 64;
+                labelCtx.clearRect(0, 0, 512, 64);
+                labelCtx.font = 'bold 32px Arial';
+                labelCtx.textAlign = 'center';
+                labelCtx.fillStyle = getPhaseColorCSS(taskInfo.phase || 'General');
+                labelCtx.fillText(taskInfo.title, 256, 40);
+                const labelTexture = new THREE.CanvasTexture(labelCanvas);
+                const labelMat = new THREE.SpriteMaterial({
+                    map: labelTexture,
+                    transparent: true,
+                    opacity: 0.9,
+                    depthWrite: false
+                });
+                const labelSprite = new THREE.Sprite(labelMat);
+                labelSprite.position.set(posX, posY + 12, posZ);
+                labelSprite.scale.set(60, 8, 1);
+                labelSprite.userData.isLabel = true;
+                group.add(labelSprite);
+                sphere.userData.labelSprite = labelSprite;
+            }
+
+            const taskData = {
+                id: taskInfo.id || ('task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5)),
+                title: taskInfo.title || 'Untitled',
+                category: typeof currentCategory !== 'undefined' ? currentCategory : '',
+                mesh: sphere,
+                status: currentStatus,
+                progress: taskInfo.progress || 0,
+                agent: taskInfo.agent || 'Router Agent',
+                database: taskInfo.database || 'VZOR Core',
+                phase: taskInfo.phase || '',
+                level: level,
+                createdAt: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}),
+                statusColors: statusColors
+            };
+
+            window.taskPoints.push(taskData);
+
+            // Cloud thinning
+            if (material && material.uniforms && material.uniforms.uDensity) {
+                const EXPECTED_TASKS = 600;
+                const MIN_DENSITY = 0.4;
+                const taskCount = window.taskPoints.length;
+                const density = Math.max(MIN_DENSITY, 1.0 - (taskCount / EXPECTED_TASKS) * (1.0 - MIN_DENSITY));
+                material.uniforms.uDensity.value = density;
+            }
+
+            // Add to Node Editor
+            if (typeof addNodeToEditor === 'function') addNodeToEditor(taskData);
+
+            return taskData;
+        };
+
+        // Create all structured tasks with layout by phase
+        window.createStructuredTasks = function(tasks) {
+            if (!tasks || tasks.length === 0) return;
+            if (!isDrilled) {
+                console.warn('[VZOR-Tasks] Cannot create tasks outside drill-down mode');
+                return;
+            }
+
+            console.log('[VZOR-Tasks] Creating', tasks.length, 'structured tasks');
+
+            // Group by phase
+            const phases = {};
+            const phaseOrder = [];
+            tasks.forEach(t => {
+                const phase = t.phase || 'General';
+                if (!phases[phase]) {
+                    phases[phase] = [];
+                    phaseOrder.push(phase);
+                }
+                phases[phase].push(t);
+            });
+
+            // === GALAXY LAYOUT: 4 sector arms + nucleus ===
+            const taskIdMap = {};
+
+            // Calculate all positions
+            const galaxyPos = calcGalaxyPositions(phaseOrder, phases, {});
+
+            // Create tasks at calculated positions
+            phaseOrder.forEach((phaseName) => {
+                const phaseTasks = phases[phaseName];
+                phaseTasks.sort((a, b) => (a.level || 1) - (b.level || 1));
+
+                phaseTasks.forEach(t => {
+                    const pos = galaxyPos[t.id] || galaxyPos[t.title] || { x: 0, y: 0, z: 0 };
+                    const taskData = window.addTaskPointStructured(t, pos.x, pos.y, pos.z);
+                    if (taskData) {
+                        taskIdMap[t.id] = taskData;
+                    }
+                });
+            });
+
+            // Create dependency connections
+            let connCount = 0;
+            tasks.forEach(t => {
+                if (t.dependsOn && Array.isArray(t.dependsOn)) {
+                    t.dependsOn.forEach(depId => {
+                        const fromTask = taskIdMap[depId];
+                        const toTask = taskIdMap[t.id];
+                        if (fromTask && toTask) {
+                            window.connect3DTasks(fromTask.id, toTask.id);
+                            connCount++;
+                        }
+                    });
+                }
+            });
+
+            console.log('[VZOR-Tasks] Created', Object.keys(taskIdMap).length, 'tasks,', connCount, 'connections');
+
+            // Show detail panel for first phase task
+            const firstPhase = tasks.find(t => t.level === 0);
+            if (firstPhase && taskIdMap[firstPhase.id]) {
+                if (typeof showDetailPanel === 'function') showDetailPanel(taskIdMap[firstPhase.id]);
+            }
+
+            window.showToast('VZOR Tasks', 'Создано ' + Object.keys(taskIdMap).length + ' задач на графе', 'success', 4000);
+
+            // Build phase navigation
+            if (window.buildPhaseNav) window.buildPhaseNav();
+
+            // Save to DB
+            saveTasksToDB(tasks);
+        };
+
+        // Re-layout existing tasks into galaxy formation
+        window.relayoutExistingTasks = function() {
+            if (!window.taskPoints || window.taskPoints.length === 0) return;
+
+            // Group by phase
+            const phases = {};
+            const phaseOrder = [];
+            window.taskPoints.forEach(tp => {
+                const phase = tp.phase || 'General';
+                if (!phases[phase]) {
+                    phases[phase] = [];
+                    phaseOrder.push(phase);
+                }
+                phases[phase].push(tp);
+            });
+
+            // Calculate galaxy positions
+            const galaxyPos = calcGalaxyPositions(phaseOrder, phases, {});
+
+            phaseOrder.forEach((phaseName) => {
+                const phaseTasks = phases[phaseName];
+                phaseTasks.forEach(tp => {
+                    const pos = galaxyPos[tp.id] || galaxyPos[tp.title] || null;
+                    if (!pos) return;
+
+                    // Animate position change
+                    if (tp.mesh) {
+                        const startX = tp.mesh.position.x;
+                        const startY = tp.mesh.position.y;
+                        const startZ = tp.mesh.position.z;
+                        const duration = 1500;
+                        const startTime = Date.now();
+
+                        function animateMove() {
+                            const elapsed = Date.now() - startTime;
+                            const progress = Math.min(elapsed / duration, 1);
+                            // Ease out cubic
+                            const ease = 1 - Math.pow(1 - progress, 3);
+
+                            tp.mesh.position.x = startX + (posX - startX) * ease;
+                            tp.mesh.position.y = startY + (posY - startY) * ease;
+                            tp.mesh.position.z = startZ + (posZ - startZ) * ease;
+
+                            if (progress < 1) {
+                                requestAnimationFrame(animateMove);
+                            }
+                        }
+                        animateMove();
+                    }
+                });
+            });
+
+            // Update connections after a delay (wait for animation)
+            setTimeout(() => {
+                if (typeof updateAllConnections === 'function') {
+                    updateAllConnections();
+                }
+                // Re-save with new positions
+                const tasksArray = window.taskPoints.map(tp => ({
+                    id: tp.id,
+                    title: tp.title,
+                    phase: tp.phase,
+                    level: tp.level,
+                    dependsOn: tp.dependsOn || []
+                }));
+                saveTasksToDB(tasksArray);
+            }, 1600);
+
+            console.log('[VZOR-Tasks] Relayout complete: ' + window.taskPoints.length + ' tasks repositioned to cloud');
+            window.showToast('VZOR', 'Граф перестроен в облако', 'success', 3000);
+        };
+
+        // Calculate and display phase progress
+        // Dashboard: update block progress bars
+        window.updateDashboard = function() {
+            const dash = document.getElementById('block-dashboard');
+            if (!dash || !window.taskPoints || window.taskPoints.length === 0) return;
+            dash.classList.add('visible');
+
+            const BLOCK_COLORS = {
+                'analysis': 0x4D96FF,
+                'design': 0xC084FC,
+                'build': 0xFF8C42,
+                'sales': 0x4ECDC4
+            };
+
+            // Group tasks by block (based on their phase color)
+            const blocks = { analysis: {done:0,total:0}, design: {done:0,total:0}, build: {done:0,total:0}, sales: {done:0,total:0} };
+            window.taskPoints.forEach(tp => {
+                if (tp.level === 0) return; // Skip phase nodes
+                const color = getPhaseColor(tp.phase || 'General');
+                let block = 'analysis';
+                if (color === 0xC084FC) block = 'design';
+                else if (color === 0xFF8C42) block = 'build';
+                else if (color === 0x4ECDC4) block = 'sales';
+                blocks[block].total++;
+                if (tp.status === 'completed') blocks[block].done++;
+            });
+
+            Object.keys(blocks).forEach(key => {
+                const row = dash.querySelector('[data-block="' + key + '"]');
+                if (!row) return;
+                const b = blocks[key];
+                const pct = b.total > 0 ? Math.round(b.done / b.total * 100) : 0;
+                row.querySelector('.dash-pct').textContent = pct + '%';
+                row.querySelector('.dash-bar-fill').style.width = pct + '%';
+            });
+        };
+
+                // Dashboard: update block progress bars
+        window.updateDashboard = function() {
+            const dash = document.getElementById('block-dashboard');
+            if (!dash || !window.taskPoints || window.taskPoints.length === 0) return;
+            dash.classList.add('visible');
+
+            const BLOCK_COLORS = {
+                'analysis': 0x4D96FF,
+                'design': 0xC084FC,
+                'build': 0xFF8C42,
+                'sales': 0x4ECDC4
+            };
+
+            // Group tasks by block (based on their phase color)
+            const blocks = { analysis: {done:0,total:0}, design: {done:0,total:0}, build: {done:0,total:0}, sales: {done:0,total:0} };
+            window.taskPoints.forEach(tp => {
+                if (tp.level === 0) return; // Skip phase nodes
+                const color = getPhaseColor(tp.phase || 'General');
+                let block = 'analysis';
+                if (color === 0xC084FC) block = 'design';
+                else if (color === 0xFF8C42) block = 'build';
+                else if (color === 0x4ECDC4) block = 'sales';
+                blocks[block].total++;
+                if (tp.status === 'completed') blocks[block].done++;
+            });
+
+            Object.keys(blocks).forEach(key => {
+                const row = dash.querySelector('[data-block="' + key + '"]');
+                if (!row) return;
+                const b = blocks[key];
+                const pct = b.total > 0 ? Math.round(b.done / b.total * 100) : 0;
+                row.querySelector('.dash-pct').textContent = pct + '%';
+                row.querySelector('.dash-bar-fill').style.width = pct + '%';
+            });
+        };
+
+                function updatePhaseProgress(phaseName) {
+            if (!phaseName) return;
+            const phaseTasks = window.taskPoints.filter(t => t.phase === phaseName && t.level !== 0);
+            const phaseNode = window.taskPoints.find(t => t.phase === phaseName && t.level === 0);
+            if (!phaseNode || phaseTasks.length === 0) return;
+
+            const completed = phaseTasks.filter(t => t.status === 'completed').length;
+            const progress = completed / phaseTasks.length;
+
+            // Update or create progress arc
+            if (phaseNode.progressArc) {
+                updateProgressArc(phaseNode.progressArc, progress);
+            } else {
+                const phaseColor = getPhaseColor(phaseName);
+                phaseNode.progressArc = createProgressArc(
+                    phaseNode.mesh.position, phaseColor, progress, 16
+                );
+            }
+
+            // Update label to show "Phase X/Y"
+            if (phaseNode.mesh.userData.labelSprite) {
+                const labelCanvas = document.createElement('canvas');
+                const labelCtx = labelCanvas.getContext('2d');
+                labelCanvas.width = 512;
+                labelCanvas.height = 64;
+                labelCtx.clearRect(0, 0, 512, 64);
+                labelCtx.font = 'bold 28px Arial';
+                labelCtx.textAlign = 'center';
+                labelCtx.fillStyle = getPhaseColorCSS(phaseName);
+                labelCtx.fillText(phaseName + ' ' + completed + '/' + phaseTasks.length, 256, 40);
+                const labelTexture = new THREE.CanvasTexture(labelCanvas);
+                phaseNode.mesh.userData.labelSprite.material.map.dispose();
+                phaseNode.mesh.userData.labelSprite.material.map = labelTexture;
+                phaseNode.mesh.userData.labelSprite.material.needsUpdate = true;
+            }
+
+            // Update nav panel if exists
+            if (window.buildPhaseNav) window.buildPhaseNav();
+        }
+
+        // Update all phase progress (call after bulk status changes)
+        window.updateAllPhaseProgress = function() {
+            const phases = new Set();
+            window.taskPoints.forEach(t => { if (t.phase) phases.add(t.phase); });
+            phases.forEach(p => updatePhaseProgress(p));
+        };
+
+        // Build phase navigation panel
+        window.buildPhaseNav = function() {
+            const panel = document.getElementById('phase-nav-panel');
+            if (!panel) return;
+            panel.innerHTML = '';
+
+            // Collect phases from taskPoints
+            const phases = [];
+            const seen = {};
+            window.taskPoints.forEach(tp => {
+                if (tp.phase && !seen[tp.phase]) {
+                    seen[tp.phase] = true;
+                    phases.push(tp.phase);
+                }
+            });
+
+            if (phases.length === 0) {
+                panel.classList.remove('visible');
+                return;
+            }
+
+            phases.forEach(phaseName => {
+                const btn = document.createElement('div');
+                btn.className = 'phase-nav-btn';
+                const colorCSS = getPhaseColorCSS(phaseName);
+                // Count progress
+                const pTasks = window.taskPoints.filter(t => t.phase === phaseName && t.level !== 0);
+                const pDone = pTasks.filter(t => t.status === 'completed').length;
+                const pTotal = pTasks.length;
+                const progText = pTotal > 0 ? ' ' + pDone + '/' + pTotal : '';
+                btn.innerHTML = '<span class="phase-dot" style="background:' + colorCSS + '"></span>' + phaseName + '<span style="opacity:0.5;font-size:10px;">' + progText + '</span>';
+                btn.onclick = () => flyToPhase(phaseName);
+                panel.appendChild(btn);
+            });
+
+            panel.classList.add('visible');
+        };
+
+        // Fly camera to phase cluster
+        function flyToPhase(phaseName) {
+            const phaseTasks = window.taskPoints.filter(tp => tp.phase === phaseName);
+            if (phaseTasks.length === 0) return;
+
+            // Calculate center of phase cluster
+            let cx = 0, cy = 0, cz = 0;
+            phaseTasks.forEach(tp => {
+                cx += tp.mesh.position.x;
+                cy += tp.mesh.position.y;
+                cz += tp.mesh.position.z;
+            });
+            cx /= phaseTasks.length;
+            cy /= phaseTasks.length;
+            cz /= phaseTasks.length;
+
+            // Fly camera to look at cluster center, positioned outside sphere looking in
+            const targetPos = new THREE.Vector3(cx, cy, cz);
+            // Camera position: outside the cluster, looking at it
+            const dir = new THREE.Vector3(cx, cy, cz).normalize();
+            const camOffset = new THREE.Vector3(
+                cx + dir.x * 120,
+                cy + dir.y * 80 + 30,
+                cz + dir.z * 120
+            );
+
+            const startPos = camera.position.clone();
+            const startTarget = controls.target.clone();
+            const duration = 1200;
+            const startTime = Date.now();
+
+            function animateFly() {
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+
+                camera.position.lerpVectors(startPos, camOffset, ease);
+                controls.target.lerpVectors(startTarget, targetPos, ease);
+                controls.update();
+
+                if (t < 1) requestAnimationFrame(animateFly);
+            }
+            animateFly();
+
+            // Opacity handled by animate loop via _focusedPhase
+        }
+
+        // Save tasks to database
+        async function saveTasksToDB(tasksArray) {
+            const cat = typeof currentCategory !== 'undefined' ? currentCategory : '';
+            const tasksToSave = [];
+
+            // Build save payload from taskPoints (which have positions)
+            for (const t of tasksArray) {
+                const tp = window.taskPoints.find(p => p.id === t.id);
+                tasksToSave.push({
+                    id: t.id,
+                    title: t.title,
+                    phase: t.phase || '',
+                    level: t.level || 1,
+                    status: t.status || 'pending',
+                    progress: t.progress || 0,
+                    agent: t.agent || '',
+                    database: t.database || '',
+                    dependsOn: t.dependsOn || [],
+                    position_x: tp ? tp.mesh.position.x : 0,
+                    position_y: tp ? tp.mesh.position.y : 0,
+                    position_z: tp ? tp.mesh.position.z : 0,
+                });
+            }
+
+            try {
+                const resp = await fetch('/api/tasks/save', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ tasks: tasksToSave, category: cat, session_id: 'default' })
+                });
+                const result = await resp.json();
+                console.log('[VZOR-Tasks] Saved to DB:', result);
+            } catch (e) {
+                console.error('[VZOR-Tasks] DB save error:', e);
+            }
+        }
+
+        // Load tasks from database when entering drill-down
+        window.loadTasksFromDB = async function(category) {
+            // Don't load if tasks already exist for this category
+            if (window.taskPoints && window.taskPoints.some(t => t.category === category)) {
+                console.log('[VZOR-Tasks] Tasks already loaded for', category);
+                return;
+            }
+
+            try {
+                const resp = await fetch('/api/tasks/load?category=' + encodeURIComponent(category) + '&session_id=default');
+                const data = await resp.json();
+
+                if (!data.tasks || data.tasks.length === 0) {
+                    console.log('[VZOR-Tasks] No saved tasks for', category);
+                    return;
+                }
+
+                console.log('[VZOR-Tasks] Loading', data.tasks.length, 'tasks from DB for', category);
+
+                // Calculate cloud positions directly
+                const _phases = {};
+                const _phaseOrder = [];
+                data.tasks.forEach(t => {
+                    const phase = t.phase || 'General';
+                    if (!_phases[phase]) { _phases[phase] = []; _phaseOrder.push(phase); }
+                    _phases[phase].push(t);
+                });
+
+                const taskIdMap = {};
+
+                // Galaxy layout for DB-loaded tasks
+                const _galaxyPos2 = calcGalaxyPositions(_phaseOrder, _phases, {});
+
+                _phaseOrder.forEach((phaseName) => {
+                    const pts = _phases[phaseName];
+                    pts.sort((a, b) => (a.level || 1) - (b.level || 1));
+
+                    pts.forEach(t => {
+                        const gp = _galaxyPos2[t.id] || _galaxyPos2[t.title] || { x: 0, y: 0, z: 0 };
+
+                        const taskData = window.addTaskPointStructured(
+                            { id: t.id, title: t.title, phase: t.phase, level: t.level,
+                              status: t.status, progress: t.progress, agent: t.agent,
+                              database: t.database, dependsOn: t.dependsOn || [] },
+                            gp.x, gp.y, gp.z
+                        );
+                        if (taskData) taskIdMap[t.id] = taskData;
+                    });
+                });
+
+                // Recreate connections from dependencies
+                if (data.dependencies && data.dependencies.length > 0) {
+                    data.dependencies.forEach(dep => {
+                        const fromTask = taskIdMap[dep.from];
+                        const toTask = taskIdMap[dep.to];
+                        if (fromTask && toTask) {
+                            window.connect3DTasks(fromTask.id, toTask.id);
+                        }
+                    });
+                }
+
+                console.log('[VZOR-Tasks] Restored', Object.keys(taskIdMap).length, 'tasks from DB');
+                window.showToast('VZOR Tasks', 'Восстановлено ' + Object.keys(taskIdMap).length + ' задач', 'info', 3000);
+
+                // Build phase navigation panel
+                if (window.buildPhaseNav) window.buildPhaseNav();
+                // Update dashboard
+                if (window.updateDashboard) window.updateDashboard();
+                // Update dashboard
+                if (window.updateDashboard) window.updateDashboard();
+
+            } catch (e) {
+                console.error('[VZOR-Tasks] DB load error:', e);
+            }
+        };
+
+                // 2. Update Task Status and Color (v3.12: with glow update)
+        window.updateTaskStatus = function(taskId, newStatus, progress) {
+            const task = window.taskPoints.find(t => t.id === taskId);
+            if (!task) return;
+
+            const oldStatus = task.status;
+            task.status = newStatus;
+            if (typeof progress === 'number') task.progress = progress;
+
+            // Bold status: brightness + completed gets whiter color
+            const phaseHex = getPhaseColor(task.phase || 'General');
+            if (newStatus === 'in_progress') {
+                task.mesh.userData.material.opacity = 1.0;
+                // Restore pure phase color
+                task.mesh.userData.material.color.setHex(phaseHex);
+            } else if (newStatus === 'completed') {
+                task.mesh.userData.material.opacity = 1.0;
+                // Shift phase color 50% toward white = "filled/done" look
+                const _r = (phaseHex >> 16) & 255, _g = (phaseHex >> 8) & 255, _b = phaseHex & 255;
+                const wr = Math.round(_r + (255 - _r) * 0.5);
+                const wg = Math.round(_g + (255 - _g) * 0.5);
+                const wb = Math.round(_b + (255 - _b) * 0.5);
+                task.mesh.userData.material.color.setHex((wr << 16) | (wg << 8) | wb);
+            } else {
+                task.mesh.userData.material.opacity = 0.30;
+                // Restore pure phase color
+                task.mesh.userData.material.color.setHex(phaseHex);
+            }
+
+            // Update phase progress + dashboard
+            updatePhaseProgress(task.phase);
+            if (window.updateDashboard) window.updateDashboard();
 
             // Update task list panel if visible
             if (window.updateTaskListContent) window.updateTaskListContent();
@@ -4939,15 +6301,16 @@
             // Re-show detail panel with updated status
             showDetailPanel(task);
 
-            // v3.12.1: Update corresponding node in Node Editor
-            updateNodeStatus(taskId, newStatus, progress);
+            // v3.12.1: Update corresponding node in Node Editor (safe call)
+            try { updateNodeStatus(taskId, newStatus, progress); } catch(e) {}
 
             console.log(`Task ${taskId} status: ${newStatus}, progress: ${task.progress}%`);
         };
 
         // v3.12.1: Update node in Node Editor when task status changes
         function updateNodeStatus(taskId, newStatus, progress) {
-            // Find node by taskId
+            // Find node by taskId (nodeEditorState is in another script block)
+            if (typeof nodeEditorState === 'undefined') return;
             for (const [nodeId, nodeData] of nodeEditorState.nodes) {
                 if (nodeData.taskId === taskId) {
                     nodeData.status = newStatus;
@@ -5012,8 +6375,15 @@
                 </div>
 
                 <!-- Progress Bar -->
-                <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px; margin-bottom:14px; overflow:hidden;">
+                <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px; margin-bottom:10px; overflow:hidden;">
                     <div style="width:${data.progress || 0}%; height:100%; background:linear-gradient(90deg, ${status.color}, ${status.color}aa); transition:width 0.3s; border-radius:2px;"></div>
+                </div>
+
+                <!-- Status Buttons -->
+                <div style="display:flex; gap:6px; margin-bottom:14px;" id="status-buttons-row">
+                    <button onclick="window.updateTaskStatus('${data.id}','pending')" style="flex:1; padding:6px; border:1px solid rgba(255,255,255,0.15); border-radius:8px; background:${data.status==='pending'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.03)'}; color:#ccc; font-size:10px; cursor:pointer;">⬜ Ожидает</button>
+                    <button onclick="window.updateTaskStatus('${data.id}','in_progress')" style="flex:1; padding:6px; border:1px solid rgba(255,179,71,0.3); border-radius:8px; background:${data.status==='in_progress'?'rgba(255,179,71,0.2)':'rgba(255,255,255,0.03)'}; color:#FFB347; font-size:10px; cursor:pointer;">🔄 В работе</button>
+                    <button onclick="window.updateTaskStatus('${data.id}','completed')" style="flex:1; padding:6px; border:1px solid rgba(119,221,119,0.3); border-radius:8px; background:${data.status==='completed'?'rgba(119,221,119,0.2)':'rgba(255,255,255,0.03)'}; color:#77DD77; font-size:10px; cursor:pointer;">✅ Готово</button>
                 </div>
 
                 <!-- Info Section -->
@@ -5105,15 +6475,15 @@
 
                 <!-- Action Buttons -->
                 <div style="display:flex; gap:6px; margin-top:auto;">
-                    <button onclick="updateTaskStatus(${data.id}, 'in_progress', 0)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,179,71,0.15); border:1px solid rgba(255,179,71,0.3); color:#FFB347; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                    <button onclick="window.updateTaskStatus('${data.id}','in_progress',0)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,179,71,0.15); border:1px solid rgba(255,179,71,0.3); color:#FFB347; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
                         Старт
                     </button>
-                    <button onclick="updateTaskStatus(${data.id}, 'blocked', 50)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3); color:#FF6B6B; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                    <button onclick="window.updateTaskStatus('${data.id}','blocked',50)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3); color:#FF6B6B; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/></svg>
                         Стоп
                     </button>
-                    <button onclick="updateTaskStatus(${data.id}, 'completed', 100)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(119,221,119,0.15); border:1px solid rgba(119,221,119,0.3); color:#77DD77; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                    <button onclick="window.updateTaskStatus('${data.id}','completed',100)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(119,221,119,0.15); border:1px solid rgba(119,221,119,0.3); color:#77DD77; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
                         <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
                         Готово
                     </button>
@@ -7544,9 +8914,10 @@ async function sendToAgentZero(message) {
             <div id="agent-chat-title">AGENT VZOR</div>
             <button id="agent-chat-close">×</button>
         </div>
-        <div id="agent-model-bar" title="Click to change model">
-            <span id="agent-model-icon">DS</span>
-            <span id="agent-model-name">DeepSeek V3</span>
+        <div id="agent-model-bar" title="LLM brain selector">
+            <span id="agent-model-icon">V0</span>
+            <span id="agent-model-name">AgentVzor.0</span>
+            <span id="agent-model-brain" style="font-size:9px;opacity:0.5;margin-left:4px">brain: DeepSeek</span>
             <span id="agent-model-arrow">&#9662;</span>
         </div>
         <div id="agent-model-dropdown">
@@ -7555,6 +8926,9 @@ async function sendToAgentZero(message) {
                 <button class="model-tab" data-tab="openrouter">OpenRouter</button>
             </div>
             <div class="model-list" id="model-list-direct">
+                <div class="model-item" data-id="agent-zero" data-label="AgentVzor.0" data-icon="V0" style="border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:4px;padding-bottom:8px">
+                    <span class="mi-icon" style="background:rgba(0,255,255,0.15);color:#0ff">V0</span><span class="mi-name" style="color:#0ff">AgentVzor.0</span><span class="mi-tag">agent</span>
+                </div>
                 <div class="model-item active" data-id="deepseek" data-label="DeepSeek V3" data-icon="DS">
                     <span class="mi-icon">DS</span><span class="mi-name">DeepSeek V3</span><span class="mi-tag">connected</span>
                 </div>
@@ -7564,6 +8938,7 @@ async function sendToAgentZero(message) {
                 <div class="model-item" data-id="gemini" data-label="Gemini Flash" data-icon="GM">
                     <span class="mi-icon">GM</span><span class="mi-name">Gemini 2.0 Flash</span><span class="mi-tag">key needed</span>
                 </div>
+
                 <div class="model-item" data-id="local" data-label="Local Model" data-icon="LC">
                     <span class="mi-icon">LC</span><span class="mi-name">Local (Ollama)</span><span class="mi-tag">not installed</span>
                 </div>
@@ -7934,16 +9309,20 @@ async function sendToAgentZero(message) {
         });
 
         // --- Chat messages ---
-        function addMessage(text, sender) {
+        function addMessage(text, sender, isHTML) {
             const msg = document.createElement('div');
             msg.className = 'agent-message ' + (sender === 'user' ? 'user' : 'assistant');
-            msg.textContent = text;
+            if (isHTML) {
+                msg.innerHTML = text;
+            } else {
+                msg.textContent = text;
+            }
             chatMessages.appendChild(msg);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         // --- Model dropdown selector ---
-        let selectedModel = 'deepseek';
+        let selectedModel = 'agent-zero';
         const modelBar = document.getElementById('agent-model-bar');
         const modelDropdown = document.getElementById('agent-model-dropdown');
         const modelIcon = document.getElementById('agent-model-icon');
@@ -7978,8 +9357,14 @@ async function sendToAgentZero(message) {
                     allModelItems.forEach(function(i) { i.classList.remove('active'); });
                     item.classList.add('active');
                     selectedModel = item.getAttribute('data-id');
-                    modelIcon.textContent = item.getAttribute('data-icon');
-                    modelNameEl.textContent = item.getAttribute('data-label');
+                    // Keep AgentVzor.0 as main name, show selected LLM as brain
+                    if (selectedModel !== 'agent-zero') {
+                        var brainEl = document.getElementById('agent-model-brain');
+                        if (brainEl) brainEl.textContent = 'brain: ' + item.getAttribute('data-label');
+                    } else {
+                        var brainEl = document.getElementById('agent-model-brain');
+                        if (brainEl) brainEl.textContent = 'brain: DeepSeek';
+                    }
                     modelDropdown.classList.remove('open');
                     modelArrow.style.transform = '';
                 });
@@ -8007,16 +9392,142 @@ async function sendToAgentZero(message) {
                 const response = await fetch('/api/task', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ message: text, model: selectedModel })
+                    body: JSON.stringify({ message: text, model: selectedModel, context: { category: (typeof currentCategory !== "undefined" ? currentCategory : "") } })
                 });
                 const data = await response.json();
                 loading.remove();
-                addMessage(data.response || 'Нет ответа', 'agent');
+
+                const fullResponse = data.response || 'Нет ответа';
+
+                // === VZOR-TASKS PARSER ===
+                const parsed = parseVzorTasks(fullResponse);
+
+                if (parsed.tasks && parsed.tasks.length > 0) {
+                    // Show text part in chat
+                    if (parsed.textBefore.trim()) {
+                        addMessage(parsed.textBefore.trim(), 'agent');
+                    }
+                    // Show task summary in chat
+                    const summary = '📋 Создано задач: ' + parsed.tasks.length +
+                        ' (фаз: ' + parsed.tasks.filter(t => t.level === 0).length +
+                        ', задач: ' + parsed.tasks.filter(t => t.level === 1).length +
+                        ', подзадач: ' + parsed.tasks.filter(t => t.level === 2).length + ')';
+                    addMessage(summary, 'agent');
+
+                    // Create 3D tasks on scene
+                    createStructuredTasks(parsed.tasks);
+
+                    // Show text after block (if any)
+                    if (parsed.textAfter.trim()) {
+                        addMessage(parsed.textAfter.trim(), 'agent');
+                    }
+                } else {
+                    // Normal text response
+                    addMessage(fullResponse, 'agent');
+                }
             } catch (err) {
                 loading.remove();
                 addMessage('Ошибка: ' + err.message, 'agent');
             }
         }
+
+        // === Parse vzor-tasks block from agent response ===
+        function parseVzorTasks(responseText) {
+            let result = { tasks: null, textBefore: '', textAfter: '' };
+
+            // Strategy 1: ```vzor-tasks ... ``` (complete block)
+            const vzorMatch = responseText.match(/([\s\S]*?)```vzor-tasks\s*\n([\s\S]*?)```([\s\S]*)/);
+            if (vzorMatch) {
+                result.textBefore = vzorMatch[1];
+                result.textAfter = vzorMatch[3];
+                try {
+                    const parsed = JSON.parse(vzorMatch[2]);
+                    result.tasks = parsed.tasks || parsed;
+                    return result;
+                } catch (e) {
+                    console.warn('[VZOR-Tasks] Failed to parse vzor-tasks JSON:', e);
+                }
+            }
+
+            // Strategy 1b: ```vzor-tasks with NO closing backticks (truncated response)
+            if (!vzorMatch) {
+                const truncMatch = responseText.match(/([\s\S]*?)```vzor-tasks\s*\n([\s\S]*)/);
+                if (truncMatch) {
+                    let jsonStr = truncMatch[2];
+                    result.textBefore = truncMatch[1];
+                    const repaired = _repairTruncatedTasksJSON(jsonStr);
+                    if (repaired) {
+                        try {
+                            const parsed = JSON.parse(repaired);
+                            result.tasks = parsed.tasks || parsed;
+                            console.log('[VZOR-Tasks] Recovered ' + result.tasks.length + ' tasks from truncated response');
+                            return result;
+                        } catch (e) {
+                            console.warn('[VZOR-Tasks] Repair failed:', e);
+                        }
+                    }
+                }
+            }
+
+            // Strategy 2: ```json ... ``` containing "tasks" key
+            const jsonMatch = responseText.match(/([\s\S]*?)```json\s*\n([\s\S]*?)```([\s\S]*)/);
+            if (jsonMatch) {
+                try {
+                    const parsed = JSON.parse(jsonMatch[2]);
+                    if (parsed.tasks && Array.isArray(parsed.tasks)) {
+                        result.textBefore = jsonMatch[1];
+                        result.textAfter = jsonMatch[3];
+                        result.tasks = parsed.tasks;
+                        return result;
+                    }
+                } catch (e) {}
+            }
+
+            // Strategy 3: Raw JSON object with "tasks" key
+            const rawJsonMatch = responseText.match(/([\s\S]*?)(\{\s*"tasks"\s*:\s*\[[\s\S]*\]\s*\})([\s\S]*)/);
+            if (rawJsonMatch) {
+                try {
+                    const parsed = JSON.parse(rawJsonMatch[2]);
+                    if (parsed.tasks && Array.isArray(parsed.tasks)) {
+                        result.textBefore = rawJsonMatch[1];
+                        result.textAfter = rawJsonMatch[3];
+                        result.tasks = parsed.tasks;
+                        return result;
+                    }
+                } catch (e) {}
+            }
+
+            // No tasks found
+            return result;
+        }
+
+        // Repair truncated vzor-tasks JSON by finding last complete task object
+        function _repairTruncatedTasksJSON(jsonStr) {
+            let lastGoodPos = -1;
+            let braceDepth = 0;
+            let inString = false;
+            let escape = false;
+            for (let i = 0; i < jsonStr.length; i++) {
+                const ch = jsonStr[i];
+                if (escape) { escape = false; continue; }
+                if (ch === '\\') { escape = true; continue; }
+                if (ch === '"') { inString = !inString; continue; }
+                if (inString) continue;
+                if (ch === '{') braceDepth++;
+                if (ch === '}') {
+                    braceDepth--;
+                    if (braceDepth === 1) {
+                        lastGoodPos = i;
+                    }
+                }
+            }
+            if (lastGoodPos === -1) return null;
+            let repaired = jsonStr.substring(0, lastGoodPos + 1);
+            repaired = repaired.replace(/,\s*$/, '');
+            repaired += '\n  ]\n}';
+            return repaired;
+        }
+
 
         // --- Input: Enter to send ---
         if (chatInput) {
