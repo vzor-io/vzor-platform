@@ -13,7 +13,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VZOR v3.22</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>VZOR v3.31</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
@@ -3538,6 +3541,16 @@
 
         scene.add(group);
 
+        // v3.22: Lighting for 3D sphere nodes
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+        scene.add(ambientLight);
+        const dirLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight1.position.set(100, 200, 150);
+        scene.add(dirLight1);
+        const dirLight2 = new THREE.DirectionalLight(0x4488ff, 0.3);
+        dirLight2.position.set(-100, -50, -100);
+        scene.add(dirLight2);
+
         // --- Labels ---
         const coreData = [
             { name: "Development", pos: new THREE.Vector3(-130, 0, 0), scale: 0.75 },
@@ -3672,12 +3685,8 @@
                 });
             }
 
-            // 8. Show 3D Connections
-            if (window.task3DConnections) {
-                window.task3DConnections.forEach(conn => {
-                    if (conn.line) conn.line.visible = true;
-                });
-            }
+            // 8. Show 3D Connections (bond system)
+            bondMesh.visible = true;
 
             // 9. Hide scroll/progress indicators
             const scrollHint = document.getElementById('scrollHint');
@@ -3774,12 +3783,8 @@
                         });
                     }
 
-                    // Show 3D connections
-                    if (window.task3DConnections) {
-                        window.task3DConnections.forEach(conn => {
-                            if (conn.line) conn.line.visible = true;
-                        });
-                    }
+                    // Show 3D connections (bond system)
+                    bondMesh.visible = true;
 
                     // Hide scroll indicators
                     document.getElementById('scrollHint').style.opacity = '0';
@@ -3804,8 +3809,8 @@
                     let taskClicked = false;
 
                     if (window.taskPoints && window.taskPoints.length > 0) {
-                        // Set raycaster threshold for Points (larger area for easier clicking)
-                        ray.params.Points = { threshold: 30 };  // Scaled for larger shell radii
+                        // Set raycaster threshold for Points
+                        // v3.22: Mesh raycasting — no threshold needed
 
                         // In focus mode: only raycast against focused block tasks
                         const taskMeshes = window.taskPoints
@@ -4095,12 +4100,8 @@
                 });
             }
 
-            // v3.12: Hide 3D connections when leaving drill-down
-            if (window.task3DConnections) {
-                window.task3DConnections.forEach(conn => {
-                    if (conn.line) conn.line.visible = false;
-                });
-            }
+            // Hide bonds when leaving drill-down
+            bondMesh.visible = false;
 
             // Restore Top Header
             const st = document.getElementById('slideTitle');
@@ -4213,7 +4214,7 @@
             );
             const dblRay = new THREE.Raycaster();
             dblRay.setFromCamera(dblMouse, camera);
-            dblRay.params.Points = { threshold: 20 };
+            // v3.22: Mesh raycasting — no threshold needed
             const taskMeshes2 = (window.taskPoints || [])
                 .filter(t => t.mesh && t.mesh.visible)
                 .map(t => t.mesh);
@@ -4442,7 +4443,7 @@
 
             // Also move camera for real 3D zoom effect (when drilled)
             if (isDrilled) {
-                const baseDistance = 400; // Default camera Z (v3.11: was 300, now 400)
+                const baseDistance = 550; // v3.22: larger scene with tetrahedral layout
                 const targetDistance = baseDistance / currentZoom;
                 const currentDistance = camera.position.length();
                 const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
@@ -4473,11 +4474,10 @@
                     window._nucleusGlow.scale.setScalar(1.0 + Math.sin(time * 0.5) * 0.15);
                 }
 
-                // Scale task points with zoom + gentle pulsation
+                // v3.22: Scale 3D mesh spheres + gentle pulsation
                 if (window.taskPoints) {
                     window.taskPoints.forEach(task => {
                         if (task.mesh && task.mesh.userData.material) {
-                            const baseSize = task.mesh.userData.baseSize || 15;
                             let pulse = 1.0;
 
                             const taskBlockColor = getPhaseColor(task.phase || 'General');
@@ -4486,13 +4486,13 @@
                                 // FOCUSED MODE: show statuses for entire focused block
                                 if (taskBlockColor === window._focusedBlock) {
                                     if (task.status === 'in_progress') {
-                                        pulse = 1.3 + Math.sin(time * 3.5) * 0.5;
+                                        pulse = 1.3 + Math.sin(time * 3.5) * 0.3;
                                         task.mesh.userData.material.opacity = 1.0;
                                     } else if (task.status === 'completed') {
-                                        pulse = 1.5;
+                                        pulse = 1.2;
                                         task.mesh.userData.material.opacity = 1.0;
                                     } else {
-                                        pulse = 0.7;
+                                        pulse = 0.8;
                                         task.mesh.userData.material.opacity = 0.5;
                                     }
                                 } else {
@@ -4506,14 +4506,22 @@
                                     const pTasks = window.taskPoints.filter(t => t.phase === task.phase && t.level !== 0);
                                     const pDone = pTasks.filter(t => t.status === 'completed').length;
                                     const progress = pTasks.length > 0 ? pDone / pTasks.length : 0;
-                                    pulse = 1.0 + progress * 0.6;
-                                    task.mesh.userData.material.opacity = 0.6 + progress * 0.4;
+                                    pulse = 1.0 + progress * 0.15;
+                                    task.mesh.userData.material.opacity = 0.8 + progress * 0.2;
+                                } else if (task.level === 1) {
+                                    pulse = 1.0;
+                                    task.mesh.userData.material.opacity = 0.9;
                                 } else {
-                                    pulse = 0.9;
-                                    task.mesh.userData.material.opacity = 0.7;
+                                    // L2: small and subdued
+                                    pulse = 1.0;
+                                    task.mesh.userData.material.opacity = 0.5;
                                 }
                             }
-                            task.mesh.userData.material.size = baseSize * pulse * currentZoom;
+                            task.mesh.scale.setScalar(pulse);
+                            // Also scale glow sprite opacity with pulse
+                            if (task.mesh.userData.glowSprite) {
+                                task.mesh.userData.glowSprite.material.opacity = Math.min(1.0, 0.5 + pulse * 0.3);
+                            }
                         }
 
                     });
@@ -4660,30 +4668,24 @@
                         // Show only if drilled AND category matches
                         task.mesh.visible = isDrilled && task.category === currentCategory;
 
-                        // v3.17: Scale-up animation for new task points
+                        // v3.22: Scale-up animation for new task points (3D Mesh)
                         if (task.mesh.userData.startTime) {
                             const age = now - task.mesh.userData.startTime;
                             if (age < 500) {
                                 // Ease-out bounce: 0 → 1 over 500ms
                                 const t = age / 500;
                                 const ease = 1 - Math.pow(1 - t, 3); // Cubic ease-out
-                                const bounce = ease > 0.8 ? 1 + (1 - ease) * 0.5 : ease * 1.25; // Slight overshoot
+                                const bounce = ease > 0.8 ? 1 + (1 - ease) * 0.5 : ease * 1.25;
                                 const scale = Math.min(1.1, bounce);
-                                task.mesh.material.size = task.mesh.userData.baseSize * scale;
+                                task.mesh.scale.setScalar(scale);
                             }
                         }
                     }
                 });
             }
 
-            // v3.12.7: Also control 3D connections visibility
-            if (window.task3DConnections && window.task3DConnections.length > 0) {
-                window.task3DConnections.forEach(conn => {
-                    if (conn.line) {
-                        conn.line.visible = isDrilled;
-                    }
-                });
-            }
+            // Bond system visibility (single LineSegments mesh)
+            bondMesh.visible = isDrilled;
 
             // v3.12.7: CRITICAL - Continuously enforce UI visibility during drill-down
             // This fixes the issue where UI disappears on second drill-down
@@ -4822,11 +4824,7 @@
                             if (task.mesh) task.mesh.visible = false;
                         });
                     }
-                    if (window.task3DConnections) {
-                        window.task3DConnections.forEach(conn => {
-                            if (conn.line) conn.line.visible = false;
-                        });
-                    }
+                    bondMesh.visible = false;
                 } else {
                     document.getElementById('home-btn').classList.remove('visible');
                     // Drill-down UI is handled by showDetail/onClick
@@ -4974,11 +4972,11 @@
 
         window.taskPoints = []; // Store task meshes (global for panel access)
         const raycasterTasks = new THREE.Raycaster();
-        raycasterTasks.params.Points = { threshold: 20 };  // v3.18 FIX: Enable clicking on Points objects
+        // v3.22: Mesh raycasting — no threshold needed
 
         // Hover tooltip for task identification
         const _hoverRay = new THREE.Raycaster();
-        _hoverRay.params.Points = { threshold: 15 };
+        // v3.22: Mesh raycasting — no threshold needed
         const _hoverMouse = new THREE.Vector2();
         let _hoveredTask = null;
         const _tooltip = document.getElementById('task-tooltip');
@@ -5016,8 +5014,8 @@
                     _tooltip.style.display = 'block';
                     _tooltip.style.left = (e.clientX + 14) + 'px';
                     _tooltip.style.top = (e.clientY - 10) + 'px';
-                    // Highlight hovered point
-                    hitMesh.userData.material.size = (task.mesh.userData.baseSize || 15) * 1.6 * currentZoom;
+                    // v3.22: Highlight hovered sphere (scale up 30%)
+                    hitMesh.scale.setScalar(1.3);
                 }
             } else {
                 if (_tooltip) _tooltip.style.display = 'none';
@@ -5042,45 +5040,27 @@
             const currentStatus = 'pending';
             const colors = statusColors[currentStatus];
 
-            // v3.12.5: Single gaseous point with pulsation (no cluster)
-            // Create glow texture with phase color
-            const _cr = (colors.core >> 16) & 255, _cg = (colors.core >> 8) & 255, _cb = colors.core & 255;
-            const glowCanvas = document.createElement('canvas');
-            glowCanvas.width = 64;
-            glowCanvas.height = 64;
-            const ctx = glowCanvas.getContext('2d');
-            const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-            gradient.addColorStop(0, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',1)');
-            gradient.addColorStop(0.12, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.9)');
-            gradient.addColorStop(0.25, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.4)');
-            gradient.addColorStop(0.4, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.08)');
-            gradient.addColorStop(1, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 64, 64);
-            const glowTexture = new THREE.CanvasTexture(glowCanvas);
-
-            // Single point geometry
-            const pointGeo = new THREE.BufferGeometry();
-            pointGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
-
-            // PointsMaterial with glow (v3.17: increased size for visibility)
-            const pointMat = new THREE.PointsMaterial({
+            // v3.22: 3D Mesh sphere for dynamic task (level 1 default)
+            const dynLevel = 1;
+            const sphereMat = new THREE.MeshStandardMaterial({
                 color: colors.core,
-                size: 22,  // Sized for shell layout at R=170
                 transparent: true,
-                opacity: 0.35,
-                map: glowTexture,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-                sizeAttenuation: true
+                opacity: 0.9,
+                roughness: 0.5,
+                metalness: 0.1,
+                emissive: colors.core,
+                emissiveIntensity: 0.3
             });
 
-            const sphere = new THREE.Points(pointGeo, pointMat);
+            const sphere = new THREE.Mesh(sharedGeo[dynLevel], sphereMat);
             sphere.userData.isTaskPoint = true;
-            sphere.userData.material = pointMat;
+            sphere.userData.material = sphereMat;
             sphere.userData.statusColors = statusColors;
-            sphere.userData.baseSize = 22;  // Sized for shell layout at R=170
+            sphere.userData.baseRadius = NODE_RADII[dynLevel];
+            sphere.userData.baseSize = LEVEL_SIZES[dynLevel]; // legacy compat
             sphere.userData.startTime = performance.now();
+
+            // Dynamic tasks are L1 — no glow (only L0 gets glow)
 
             // v3.11: Smarter positioning - spread tasks out more, avoid overlapping
             const minDistance = 30; // Minimum distance between tasks
@@ -5158,8 +5138,9 @@
             // AUTO-ACTION 2: Open Right Detail Panel
             showDetailPanel(taskData);
 
-            // AUTO-ACTION 3: Auto-connect to previous task (creates graph)
-            if (window.taskPoints.length > 1) {
+            // AUTO-ACTION 3: Auto-connect to previous task (only for manual single-task creation)
+            // Skip during batch molecular layout — bonds are handled by calcMolecularPositions
+            if (window.taskPoints.length > 1 && !window._batchCreating) {
                 const prevTask = window.taskPoints[window.taskPoints.length - 2];
                 connect3DTasks(prevTask.id, taskData.id);
             }
@@ -5174,46 +5155,48 @@
         // - Obsidian-style: click task → connected highlight, others dim
         // - Scalable for 100+ nodes
 
-        window.task3DConnections = [];
-        const connectionGroup = new THREE.Group();
-        group.add(connectionGroup);  // v3.18 FIX: Add to group so lines rotate with cloud
+        // ==========================================
+        // BOND SYSTEM — Single LineSegments (1 draw call)
+        // ==========================================
+        window.task3DConnections = [];  // { from, to, bondIndex }
+        const MAX_BONDS = 2000;
 
-        // Default connection style (neutral)
-        const CONNECTION_STYLES = {
-            normal: { color: 0xffffff, opacity: 0.12 },
-            highlighted: { color: 0xffffff, opacity: 0.5 },
-            dimmed: { color: 0xffffff, opacity: 0.03 }
-        };
+        // Pre-allocated buffers
+        const bondPositions = new Float32Array(MAX_BONDS * 6); // 2 vertices * 3 components per bond
+        const bondColors = new Float32Array(MAX_BONDS * 6);    // 2 vertices * 3 components per bond
+        let bondCount = 0;
 
-        // Create STRAIGHT line between two 3D points
-        function createStraightLine(startPos, endPos, style = 'normal') {
-            const points = [
-                new THREE.Vector3(startPos.x, startPos.y, startPos.z),
-                new THREE.Vector3(endPos.x, endPos.y, endPos.z)
-            ];
+        const bondGeometry = new THREE.BufferGeometry();
+        bondGeometry.setAttribute('position', new THREE.BufferAttribute(bondPositions, 3));
+        bondGeometry.setAttribute('color', new THREE.BufferAttribute(bondColors, 3));
+        bondGeometry.setDrawRange(0, 0);
 
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            const styleConfig = CONNECTION_STYLES[style];
+        const bondMaterial = new THREE.LineBasicMaterial({
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.5,  // v3.31: visible bonds — they ARE the structure
+            depthWrite: false
+        });
 
-            const material = new THREE.LineBasicMaterial({
-                color: styleConfig.color,
-                transparent: true,
-                opacity: styleConfig.opacity,
-                depthWrite: false
-            });
+        const bondMesh = new THREE.LineSegments(bondGeometry, bondMaterial);
+        bondMesh.visible = false;
+        group.add(bondMesh);
 
-            const line = new THREE.Line(geometry, material);
-            line.userData.style = style;
-
-            return line;
+        function initBondSystem() {
+            bondPositions.fill(0);
+            bondColors.fill(0);
+            bondCount = 0;
+            bondGeometry.setDrawRange(0, 0);
+            window.task3DConnections = [];
         }
 
-        // Connect two tasks in 3D space
-        window.connect3DTasks = function(fromTaskId, toTaskId) {
+        // Connect two tasks — add a bond segment
+        // bondType: 'backbone' (L0→L1, L1→L1 — bright) or 'molecular' (L1→L2 — dim)
+        window.connect3DTasks = function(fromTaskId, toTaskId, bondType) {
             const fromTask = window.taskPoints.find(t => t.id === fromTaskId);
             const toTask = window.taskPoints.find(t => t.id === toTaskId);
-
             if (!fromTask || !toTask) return;
+            if (bondCount >= MAX_BONDS) return;
 
             // Check if connection already exists
             const exists = window.task3DConnections.some(
@@ -5222,33 +5205,55 @@
             );
             if (exists) return;
 
-            // Color: same phase = phase color, cross-phase = gray
-            let lineColor = 0x444444;
-            let lineOpacity = 0.08;
-            if (fromTask.phase && toTask.phase && fromTask.phase === toTask.phase) {
-                lineColor = getPhaseColor(fromTask.phase);
-                lineOpacity = 0.2;
-            }
+            const idx = bondCount;
+            const base = idx * 6;
 
-            const points = [
-                new THREE.Vector3(fromTask.mesh.position.x, fromTask.mesh.position.y, fromTask.mesh.position.z),
-                new THREE.Vector3(toTask.mesh.position.x, toTask.mesh.position.y, toTask.mesh.position.z)
-            ];
-            const geometry = new THREE.BufferGeometry().setFromPoints(points);
-            const material = new THREE.LineBasicMaterial({
-                color: lineColor, transparent: true, opacity: lineOpacity, depthWrite: false
-            });
-            const line = new THREE.Line(geometry, material);
-            line.userData.style = 'normal';
+            // Positions
+            bondPositions[base]     = fromTask.mesh.position.x;
+            bondPositions[base + 1] = fromTask.mesh.position.y;
+            bondPositions[base + 2] = fromTask.mesh.position.z;
+            bondPositions[base + 3] = toTask.mesh.position.x;
+            bondPositions[base + 4] = toTask.mesh.position.y;
+            bondPositions[base + 5] = toTask.mesh.position.z;
 
-            connectionGroup.add(line);
+            // v3.31: Visible phase-colored bonds — they create the molecular graph structure
+            const hex = (fromTask.phase) ? getPhaseColor(fromTask.phase) : 0x444444;
+            const r = ((hex >> 16) & 255) / 255 * 0.6;
+            const g = ((hex >> 8) & 255) / 255 * 0.6;
+            const b = (hex & 255) / 255 * 0.6;
+            bondColors[base]     = r; bondColors[base + 1] = g; bondColors[base + 2] = b;
+            bondColors[base + 3] = r; bondColors[base + 4] = g; bondColors[base + 5] = b;
+
+            bondCount++;
+            bondGeometry.setDrawRange(0, bondCount * 2);
+            bondGeometry.attributes.position.needsUpdate = true;
+            bondGeometry.attributes.color.needsUpdate = true;
 
             window.task3DConnections.push({
                 from: fromTaskId,
                 to: toTaskId,
-                line: line
+                bondIndex: idx
             });
         };
+
+        // Update bond positions (when tasks move)
+        function updateBondPositions() {
+            window.task3DConnections.forEach(conn => {
+                const fromTask = window.taskPoints.find(t => t.id === conn.from);
+                const toTask = window.taskPoints.find(t => t.id === conn.to);
+                if (!fromTask || !toTask) return;
+                const base = conn.bondIndex * 6;
+                bondPositions[base]     = fromTask.mesh.position.x;
+                bondPositions[base + 1] = fromTask.mesh.position.y;
+                bondPositions[base + 2] = fromTask.mesh.position.z;
+                bondPositions[base + 3] = toTask.mesh.position.x;
+                bondPositions[base + 4] = toTask.mesh.position.y;
+                bondPositions[base + 5] = toTask.mesh.position.z;
+            });
+            if (bondCount > 0) {
+                bondGeometry.attributes.position.needsUpdate = true;
+            }
+        }
 
         // OBSIDIAN-STYLE: Highlight connections on task selection
         window.selectedTaskId = null;
@@ -5257,15 +5262,29 @@
             window.selectedTaskId = taskId;
 
             if (!taskId) {
-                // Reset all to normal
+                // Reset: restore all bond colors to original, reset task opacities
                 window.task3DConnections.forEach(conn => {
-                    updateLineStyle(conn.line, 'normal');
+                    const fromTask = window.taskPoints.find(t => t.id === conn.from);
+                    const toTask = window.taskPoints.find(t => t.id === conn.to);
+                    if (!fromTask || !toTask) return;
+                    const base = conn.bondIndex * 6;
+                    let r = 0.27, g = 0.27, b = 0.27;
+                    if (fromTask.phase && toTask.phase && fromTask.phase === toTask.phase) {
+                        const hex = getPhaseColor(fromTask.phase);
+                        r = ((hex >> 16) & 255) / 255;
+                        g = ((hex >> 8) & 255) / 255;
+                        b = (hex & 255) / 255;
+                    }
+                    bondColors[base] = r; bondColors[base+1] = g; bondColors[base+2] = b;
+                    bondColors[base+3] = r; bondColors[base+4] = g; bondColors[base+5] = b;
                 });
+                bondMaterial.opacity = 0.6; // v3.22: brighter default
+                if (bondCount > 0) bondGeometry.attributes.color.needsUpdate = true;
+
                 window.taskPoints.forEach(task => {
                     if (task.mesh && task.mesh.userData.material) {
-                        // v3.12.5: Reset single point opacity
-                        task.mesh.userData.material.opacity = 0.95;
-                        task.mesh.userData.baseSize = 15;  // Reset to default
+                        task.mesh.userData.material.opacity = 0.9;
+                        task.mesh.scale.setScalar(1.0); // v3.22: reset scale
                     }
                 });
                 return;
@@ -5278,55 +5297,40 @@
                 if (conn.to === taskId) connectedIds.add(conn.from);
             });
 
-            // Update connections
+            // Update bond colors: highlight connected, dim others
             window.task3DConnections.forEach(conn => {
                 const isConnected = conn.from === taskId || conn.to === taskId;
-                updateLineStyle(conn.line, isConnected ? 'highlighted' : 'dimmed');
+                const base = conn.bondIndex * 6;
+                if (isConnected) {
+                    // Bright white for highlighted bonds
+                    bondColors[base] = 1; bondColors[base+1] = 1; bondColors[base+2] = 1;
+                    bondColors[base+3] = 1; bondColors[base+4] = 1; bondColors[base+5] = 1;
+                } else {
+                    // Very dim for non-connected
+                    bondColors[base] = 0.1; bondColors[base+1] = 0.1; bondColors[base+2] = 0.1;
+                    bondColors[base+3] = 0.1; bondColors[base+4] = 0.1; bondColors[base+5] = 0.1;
+                }
             });
+            if (bondCount > 0) bondGeometry.attributes.color.needsUpdate = true;
 
-            // Update task points (v3.12.5: single point)
+            // v3.22: Update task points — use scale instead of baseSize
             window.taskPoints.forEach(task => {
                 if (!task.mesh || !task.mesh.userData.material) return;
                 const isConnected = connectedIds.has(task.id);
                 const isSelected = task.id === taskId;
-
-                // v3.18: Dim or highlight single point (fade, don't disappear)
                 if (isConnected) {
                     task.mesh.userData.material.opacity = isSelected ? 1.0 : 0.9;
-                    task.mesh.userData.baseSize = isSelected ? 22 : 18;  // Selected is larger
+                    task.mesh.scale.setScalar(isSelected ? 1.3 : 1.1);
                 } else {
-                    // v3.18: Other points fade to 50%, not disappear
-                    task.mesh.userData.material.opacity = 0.5;
-                    task.mesh.userData.baseSize = 14;  // Slightly smaller but still visible
+                    task.mesh.userData.material.opacity = 0.4;
+                    task.mesh.scale.setScalar(0.8);
                 }
             });
         };
 
-        function updateLineStyle(line, styleName) {
-            if (!line || !line.material) return;
-            const style = CONNECTION_STYLES[styleName];
-            line.material.opacity = style.opacity;
-            line.userData.style = styleName;
-        }
-
-        // Update connection positions (for moving tasks)
-        function update3DConnections() {
-            window.task3DConnections.forEach(conn => {
-                const fromTask = window.taskPoints.find(t => t.id === conn.from);
-                const toTask = window.taskPoints.find(t => t.id === conn.to);
-
-                if (fromTask && toTask && conn.line) {
-                    const positions = conn.line.geometry.attributes.position;
-                    positions.setXYZ(0, fromTask.mesh.position.x, fromTask.mesh.position.y, fromTask.mesh.position.z);
-                    positions.setXYZ(1, toTask.mesh.position.x, toTask.mesh.position.y, toTask.mesh.position.z);
-                    positions.needsUpdate = true;
-                }
-            });
-        }
-
-        // Animation loop hook (minimal - no particles for clean look)
+        // Animation loop hook
         window.animateConnections = function() {
-            // Subtle pulse for highlighted connections could go here
+            // Bond positions update handled via updateBondPositions()
         };
 
         // ==========================================
@@ -5337,19 +5341,40 @@
         const PHASE_SPACING_X = 80;   // legacy, not used in cloud layout
         const TASK_SPACING_Y = 35;    // legacy
         const SUBTASK_OFFSET_Z = 20;  // legacy
-        // === GALAXY LAYOUT CONSTANTS ===
-        const ARM_LENGTH = 130;       // how far each arm extends from nucleus
-        const PHASE_ORBIT = 25;       // spread between phases along arm
-        const TASK_ORBIT = 18;        // task distance from phase node
-        const SUBTASK_ORBIT = 8;      // subtask distance from parent task
-        const LEVEL_SIZES = { 0: 55, 1: 28, 2: 16 };
+        // === GOLDEN RATIO LAYOUT CONSTANTS ===
+        const PHI = 1.618033988749895;  // Golden ratio
+        const GOLDEN_ANGLE = 137.508 * Math.PI / 180;  // 2.3999 rad
+        const ARM_LENGTH = 180;       // block center distance (fills cloud R=220)
+        const CLUSTER_JITTER = 0.05;  // organic randomness
 
-        // Block directions: 4 arms in XZ plane
+        // v3.31: Solid molecules (no glow on L1!) + visible L2 atoms with own glow
+        // Reference: 21.jpg — solid dark sphere with small bright atoms on surface
+        const _BASE_R = 1.0;
+        const NODE_RADII = { 0: 5.0, 1: 6.0, 2: 3.0 }; // L0=nucleus, L1=solid molecule, L2=visible atom
+        const GLOW_SCALES = { 0: 3.0, 1: 0, 2: 1.2 }; // NO glow on L1! Atoms get small glow to pop
+        const LEVEL_SIZES = { 0: 55, 1: 28, 2: 16 }; // legacy fallback
+
+        // Shared geometries — one per level, reused by all nodes
+        const sharedGeo = {
+            0: new THREE.SphereGeometry(NODE_RADII[0], 24, 16),  // R=5.0 (phase nucleus)
+            1: new THREE.SphereGeometry(NODE_RADII[1], 24, 16),  // R=6.0 (solid molecule center)
+            2: new THREE.SphereGeometry(NODE_RADII[2], 14, 10)   // R=3.0 (visible atom on surface!)
+        };
+
+        // Tetrahedral block directions (3D, not flat) + jitter for organic feel
+        const _s = 1.0 / Math.sqrt(3);
+        const BLOCK_DIRS = {
+            0x4D96FF: new THREE.Vector3( _s,  _s,  _s),   // Analysis - top-right-front
+            0xC084FC: new THREE.Vector3(-_s,  _s, -_s),   // Design - top-left-back
+            0xFF8C42: new THREE.Vector3( _s, -_s, -_s),   // Construction - bottom-right-back
+            0x4ECDC4: new THREE.Vector3(-_s, -_s,  _s)    // Sales - bottom-left-front
+        };
+        // Legacy compat: BLOCK_ANGLES still used by getBlockAngle
         const BLOCK_ANGLES = {
-            0x4D96FF: Math.PI * 0.0,      // Analysis - right
-            0xC084FC: Math.PI * 0.5,      // Design - forward
-            0xFF8C42: Math.PI * 1.0,      // Construction - left
-            0x4ECDC4: Math.PI * 1.5       // Sales - back
+            0x4D96FF: Math.PI * 0.0,
+            0xC084FC: Math.PI * 0.5,
+            0xFF8C42: Math.PI * 1.0,
+            0x4ECDC4: Math.PI * 1.5
         };
         const BLOCK_NAMES = {
             0x4D96FF: 'Анализ',
@@ -5363,21 +5388,70 @@
             return BLOCK_ANGLES[color] !== undefined ? BLOCK_ANGLES[color] : 0;
         }
 
-        // Concentric shells layout: L0 outer, L1 middle, L2 inner, nucleus at center
-        function calcGalaxyPositions(phaseOrder, phases, existingTaskMap) {
+        // Fibonacci Sphere — 3D uniform distribution (used for L2 atoms around L1)
+        function fibonacciSphere(n, radius) {
+            const points = [];
+            for (let i = 0; i < n; i++) {
+                const theta = Math.acos(1 - 2 * (i + 0.5) / n);
+                const phi = i * GOLDEN_ANGLE;
+                points.push({
+                    x: radius * Math.sin(theta) * Math.cos(phi),
+                    y: radius * Math.cos(theta),
+                    z: radius * Math.sin(theta) * Math.sin(phi)
+                });
+            }
+            return points;
+        }
+
+        // Vogel Spiral (Sunflower pattern) — the classic golden ratio layout
+        // r = scale * sqrt(n), θ = n * 137.508° — visible spiral from camera
+        function vogelSpiral(n, maxRadius) {
+            const points = [];
+            const scale = n > 0 ? maxRadius / Math.sqrt(n) : maxRadius;
+            for (let i = 0; i < n; i++) {
+                const r = scale * Math.sqrt(i + 0.5);
+                const theta = i * GOLDEN_ANGLE;
+                points.push({
+                    x: r * Math.cos(theta),
+                    y: r * Math.sin(theta),
+                    z: (Math.random() - 0.5) * maxRadius * 0.12 // slight depth for organic feel
+                });
+            }
+            return points;
+        }
+
+        // Hexagonal rings — structured molecular layout (like 23.jpg reference)
+        // Ring 0: 1 center. Ring 1: 6 hexagon. Ring 2: 12. Ring 3: 18...
+        function hexRings(n, spacing) {
+            const points = [];
+            let ring = 0;
+            while (points.length < n) {
+                if (ring === 0) {
+                    points.push({ x: 0, y: 0, z: 0 });
+                } else {
+                    const r = ring * spacing;
+                    const count = 6 * ring;
+                    // Alternate rings rotated by half-step for hex close-pack
+                    const angleOffset = (ring % 2 === 0) ? 0 : Math.PI / (6 * ring);
+                    for (let i = 0; i < count && points.length < n; i++) {
+                        const angle = angleOffset + (i / count) * 2 * Math.PI;
+                        points.push({
+                            x: r * Math.cos(angle),
+                            y: r * Math.sin(angle),
+                            z: (Math.random() - 0.5) * 2 // tiny depth jitter
+                        });
+                    }
+                }
+                ring++;
+            }
+            return points;
+        }
+
+        // Molecular cluster layout: hex rings + Fibonacci sphere atoms
+        function calcMolecularPositions(phaseOrder, phases, existingTaskMap) {
             const positions = {};
-            const SHELL_R0 = 195;    // Phase nodes (L0) — outer shell (on cloud surface ~220)
-            const SHELL_R1 = 170;    // Tasks (L1) — middle shell
-            const SHELL_R2 = 145;    // Subtasks (L2) — inner shell
+            const structuralBonds = [];
 
-            // 4 sectors by azimuthal angle (theta in XZ plane)
-            const SECTORS = {};
-            SECTORS[0x4D96FF] = { tStart: 0,              tEnd: Math.PI * 0.5 };   // Analysis: 0-90°
-            SECTORS[0xC084FC] = { tStart: Math.PI * 0.5,  tEnd: Math.PI };         // Design: 90-180°
-            SECTORS[0xFF8C42] = { tStart: Math.PI,        tEnd: Math.PI * 1.5 };   // Construction: 180-270°
-            SECTORS[0x4ECDC4] = { tStart: Math.PI * 1.5,  tEnd: Math.PI * 2 };     // Sales: 270-360°
-
-            // Group phases by block color
             const blockPhases = {};
             phaseOrder.forEach(pn => {
                 const c = getPhaseColor(pn);
@@ -5385,20 +5459,35 @@
                 blockPhases[c].push(pn);
             });
 
+            function jitter(pos, refPos, strength) {
+                const dx = pos.x - refPos.x, dy = pos.y - refPos.y, dz = pos.z - refPos.z;
+                const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) || 1;
+                const s = dist * (strength || CLUSTER_JITTER);
+                return {
+                    x: pos.x + (Math.random() - 0.5) * s,
+                    y: pos.y + (Math.random() - 0.5) * s,
+                    z: pos.z + (Math.random() - 0.5) * s
+                };
+            }
+
             Object.keys(blockPhases).forEach(ck => {
                 const color = parseInt(ck);
-                const sec = SECTORS[color] || SECTORS[0x4D96FF];
                 const bpList = blockPhases[ck];
-                const thetaRange = sec.tEnd - sec.tStart;
+                const blockDir = BLOCK_DIRS[color] || new THREE.Vector3(1, 0, 0);
 
-                // Collect ALL tasks of this block for shell distribution
-                let allL1 = [], allL2 = [];
+                const blockCenter = {
+                    x: blockDir.x * ARM_LENGTH,
+                    y: blockDir.y * ARM_LENGTH,
+                    z: blockDir.z * ARM_LENGTH
+                };
+
                 const phaseL0 = [];
+                const allL1 = [];
+                const allL2 = [];
 
                 bpList.forEach((phaseName, pIdx) => {
                     const phaseTasks = phases[phaseName];
                     const sorted = [...phaseTasks].sort((a, b) => (a.level||1) - (b.level||1));
-
                     sorted.forEach(t => {
                         const level = t.level || 1;
                         const tid = t.id || t.title;
@@ -5412,84 +5501,174 @@
                     });
                 });
 
-                // --- SHELL 0 (outer): Phase nodes ---
-                phaseL0.forEach((item, i) => {
-                    const nP = phaseL0.length;
-                    const theta = sec.tStart + thetaRange * (i + 0.5) / Math.max(nP, 1);
-                    const phi = Math.PI * (0.3 + 0.4 * (i / Math.max(nP - 1, 1)));
-                    positions[item.tid] = {
-                        x: SHELL_R0 * Math.sin(phi) * Math.cos(theta),
-                        y: SHELL_R0 * Math.cos(phi),
-                        z: SHELL_R0 * Math.sin(phi) * Math.sin(theta)
-                    };
-                });
+                // --- L0: at block center (or small Fibonacci sphere if multiple) ---
+                if (phaseL0.length === 1) {
+                    positions[phaseL0[0].tid] = { x: blockCenter.x, y: blockCenter.y, z: blockCenter.z };
+                } else if (phaseL0.length > 1) {
+                    const l0Radius = NODE_RADII[0] * 2.5;
+                    const l0Points = fibonacciSphere(phaseL0.length, l0Radius);
+                    phaseL0.forEach((item, i) => {
+                        positions[item.tid] = {
+                            x: blockCenter.x + l0Points[i].x,
+                            y: blockCenter.y + l0Points[i].y,
+                            z: blockCenter.z + l0Points[i].z
+                        };
+                    });
+                }
 
-                // --- SHELL 1 (middle): Tasks ---
-                // Distribute evenly within sector, with slight radial jitter
-                allL1.forEach((item, i) => {
-                    const nT = allL1.length;
-                    // Find which phase this task belongs to, spread within sub-sector
-                    const pIdx = item.pIdx;
-                    const nPhases = bpList.length;
-                    const subStart = sec.tStart + thetaRange * pIdx / Math.max(nPhases, 1);
-                    const subEnd = sec.tStart + thetaRange * (pIdx + 1) / Math.max(nPhases, 1);
-                    const subRange = subEnd - subStart;
-
-                    // Count tasks in this phase's L1
+                // --- L1: Fibonacci sphere around parent L0 ---
+                // Adaptive radius: molecules must not overlap
+                // Each molecule has radius L1_TO_L2_GAP, so min inter-L1 distance = 2 * L1_TO_L2_GAP + gap
+                bpList.forEach((phaseName, pIdx) => {
+                    const l0Item = phaseL0.find(p => p.pIdx === pIdx);
+                    const l0Pos = l0Item ? positions[l0Item.tid] : blockCenter;
                     const phaseL1 = allL1.filter(x => x.pIdx === pIdx);
-                    const idxInPhase = phaseL1.indexOf(item);
-                    const nInPhase = phaseL1.length;
+                    if (phaseL1.length === 0) return;
 
-                    // Fibonacci-like distribution within sub-sector
-                    const golden = Math.PI * (3 - Math.sqrt(5));
-                    const theta = subStart + subRange * (idxInPhase + 0.5) / Math.max(nInPhase, 1);
-                    const phi = Math.acos(1 - 2 * (idxInPhase + 0.5) / Math.max(nInPhase * 2.5, 1));
-                    // Clamp phi to avoid poles (keep in 30-150 degree band)
-                    const clampedPhi = Math.PI * 0.15 + (phi % (Math.PI * 0.7));
+                    // Hexagonal rings for L1 — structured molecular geometry (like 23.jpg)
+                    const moleculeOuterR = NODE_RADII[1] + NODE_RADII[2]; // 6 + 3 = 9
+                    const N = Math.max(phaseL1.length, 1);
+                    // Spacing = molecule diameter + gap so they don't overlap
+                    const hexSpacing = 2 * moleculeOuterR + 6; // 24 units between hex centers
 
-                    const r = SHELL_R1 + (Math.random() - 0.5) * 8; // slight radial jitter
-                    positions[item.tid] = {
-                        x: r * Math.sin(clampedPhi) * Math.cos(theta),
-                        y: r * Math.cos(clampedPhi),
-                        z: r * Math.sin(clampedPhi) * Math.sin(theta)
-                    };
+                    const l1Points = hexRings(N, hexSpacing);
+
+                    phaseL1.forEach((item, j) => {
+                        const rawPos = {
+                            x: l0Pos.x + l1Points[j].x,
+                            y: l0Pos.y + l1Points[j].y,
+                            z: l0Pos.z + l1Points[j].z
+                        };
+                        positions[item.tid] = jitter(rawPos, l0Pos, CLUSTER_JITTER);
+                    });
+
+                    // L1↔L1 hex neighbor bonds — connect adjacent tasks in the hex grid
+                    // This creates the molecular backbone (like 23.jpg)
+                    for (let a = 0; a < phaseL1.length; a++) {
+                        const pa = l1Points[a];
+                        for (let b = a + 1; b < phaseL1.length; b++) {
+                            const pb = l1Points[b];
+                            const dx = pa.x - pb.x, dy = pa.y - pb.y, dz = pa.z - pb.z;
+                            const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                            // Connect if within ~1.2x hex spacing (direct neighbors)
+                            if (dist < hexSpacing * 1.2) {
+                                structuralBonds.push({
+                                    from: phaseL1[a].tid,
+                                    to: phaseL1[b].tid,
+                                    type: 'backbone'
+                                });
+                            }
+                        }
+                    }
                 });
 
-                // --- SHELL 2 (inner): Subtasks ---
-                // Near their parent task but on inner shell
-                const l1PosMap = {};
-                allL1.forEach(item => { l1PosMap[item.tid] = positions[item.tid]; });
+                // --- L2: atoms sit ON the L1 molecule surface (just touching) ---
+                const l2Radius = NODE_RADII[1] + NODE_RADII[2]; // 6.0 + 3.0 = 9.0 — atom sits on molecule surface
+
+                // Helper: find the L1 ancestor for an L2 task (walk up dependency chain)
+                function findL1Parent(task, allTasksMap) {
+                    const visited = new Set();
+                    let current = task;
+                    while (current) {
+                        if (visited.has(current.id || current.tid)) return null; // cycle
+                        visited.add(current.id || current.tid);
+                        const deps = current.dependsOn || [];
+                        if (deps.length === 0) return null;
+                        const parentId = deps[0];
+                        const parent = allTasksMap[parentId];
+                        if (!parent) return null;
+                        if ((parent.level || 1) <= 1) return parentId; // found L1
+                        current = parent; // L2 parent — keep walking up
+                    }
+                    return null;
+                }
+
+                // Build task map for ancestry lookup
+                const allTasksMap = {};
+                bpList.forEach(pn => {
+                    const pts = phases[pn];
+                    if (pts) pts.forEach(t => { allTasksMap[t.id || t.title] = t; });
+                });
 
                 allL2.forEach((item, i) => {
                     const t = item.task;
-                    const pid = (t.dependsOn && t.dependsOn.length > 0) ? t.dependsOn[0] : null;
-                    const parentPos = (pid && l1PosMap[pid]) || (pid && positions[pid]);
+                    // Find L1 parent: direct or through chain
+                    let pid = (t.dependsOn && t.dependsOn.length > 0) ? t.dependsOn[0] : null;
+                    let parentPos = (pid && positions[pid]);
+
+                    // If parent is L2 (no position yet or L2 level), walk up to L1
+                    if (!parentPos || (allTasksMap[pid] && (allTasksMap[pid].level || 1) === 2)) {
+                        const l1Pid = findL1Parent(t, allTasksMap);
+                        if (l1Pid && positions[l1Pid]) {
+                            pid = l1Pid;
+                            parentPos = positions[l1Pid];
+                        }
+                    }
 
                     if (parentPos) {
-                        // Project parent position to inner shell + small offset
-                        const len = Math.sqrt(parentPos.x**2 + parentPos.y**2 + parentPos.z**2) || 1;
-                        const nx = parentPos.x/len, ny = parentPos.y/len, nz = parentPos.z/len;
-                        const angle = (i / Math.max(allL2.length, 1)) * Math.PI * 2;
-                        const jitter = 10;
-                        positions[item.tid] = {
-                            x: nx * SHELL_R2 + Math.cos(angle) * jitter,
-                            y: ny * SHELL_R2 + (Math.random() - 0.5) * jitter,
-                            z: nz * SHELL_R2 + Math.sin(angle) * jitter
+                        // Group siblings by same L1 parent
+                        const siblings = allL2.filter(s => {
+                            const sp = s.task;
+                            let spid = (sp.dependsOn && sp.dependsOn.length > 0) ? sp.dependsOn[0] : null;
+                            if (spid && allTasksMap[spid] && (allTasksMap[spid].level || 1) === 2) {
+                                spid = findL1Parent(sp, allTasksMap);
+                            }
+                            return spid === pid;
+                        });
+                        const sibIdx = siblings.indexOf(item);
+                        const sibCount = siblings.length;
+
+                        const l2Points = fibonacciSphere(sibCount, l2Radius);
+                        const rawPos = {
+                            x: parentPos.x + l2Points[sibIdx].x,
+                            y: parentPos.y + l2Points[sibIdx].y,
+                            z: parentPos.z + l2Points[sibIdx].z
                         };
+                        positions[item.tid] = jitter(rawPos, parentPos, CLUSTER_JITTER);
+
+                        // Bond: L1 parent → this L2 (spoke of the molecule)
+                        structuralBonds.push({ from: pid, to: item.tid, type: 'molecular' });
+
+                        // Bond: L2 → nearest L2 siblings (cage/lattice like ref 21.jpg)
+                        // Connect to 2-3 nearest neighbors on the Fibonacci sphere
+                        if (sibCount > 1 && sibIdx === sibCount - 1) {
+                            // Only run once after all siblings are positioned
+                            // Find nearest neighbors for each sibling
+                            for (let a = 0; a < sibCount; a++) {
+                                const pa = l2Points[a];
+                                // Calculate distances to all other siblings
+                                const dists = [];
+                                for (let b = a + 1; b < sibCount; b++) {
+                                    const pb = l2Points[b];
+                                    const dx = pa.x - pb.x, dy = pa.y - pb.y, dz = pa.z - pb.z;
+                                    dists.push({ b, dist: Math.sqrt(dx*dx + dy*dy + dz*dz) });
+                                }
+                                dists.sort((x, y) => x.dist - y.dist);
+                                // Connect to 2 nearest (or 3 if many siblings)
+                                const maxNeighbors = sibCount > 6 ? 3 : 2;
+                                for (let k = 0; k < Math.min(maxNeighbors, dists.length); k++) {
+                                    structuralBonds.push({
+                                        from: siblings[a].tid,
+                                        to: siblings[dists[k].b].tid,
+                                        type: 'cage'
+                                    });
+                                }
+                            }
+                        }
                     } else {
-                        // No parent: distribute evenly on inner shell within sector
-                        const nS = allL2.length;
-                        const theta = sec.tStart + thetaRange * (i + 0.5) / Math.max(nS, 1);
-                        const phi = Math.PI * (0.25 + 0.5 * (i / Math.max(nS - 1, 1)));
+                        const fallbackR = l2Radius;
+                        const theta = Math.acos(1 - 2 * (i + 0.5) / Math.max(allL2.length, 1));
+                        const phi = i * GOLDEN_ANGLE;
                         positions[item.tid] = {
-                            x: SHELL_R2 * Math.sin(phi) * Math.cos(theta),
-                            y: SHELL_R2 * Math.cos(phi),
-                            z: SHELL_R2 * Math.sin(phi) * Math.sin(theta)
+                            x: blockCenter.x + fallbackR * Math.sin(theta) * Math.cos(phi),
+                            y: blockCenter.y + fallbackR * Math.cos(theta),
+                            z: blockCenter.z + fallbackR * Math.sin(theta) * Math.sin(phi)
                         };
                     }
                 });
             });
 
+            positions._structuralBonds = structuralBonds;
             return positions;
         }
 
@@ -5516,14 +5695,14 @@
             cy /= blockTasks.length;
             cz /= blockTasks.length;
 
-            // Camera: positioned outside the cluster, looking toward center(0,0,0)
-            // The block center is at ~R=170 from origin. We go further out.
+            // Camera: positioned outside the cluster, looking toward center
+            // v3.31: ARM_LENGTH=180, clusters fill more of cloud
             const dir = new THREE.Vector3(cx, cy, cz).normalize();
             const camTarget = new THREE.Vector3(cx, cy, cz);
             const camPos = new THREE.Vector3(
-                cx + dir.x * 120,
-                cy + dir.y * 80 + 30,
-                cz + dir.z * 120
+                cx + dir.x * 150,
+                cy + dir.y * 70 + 30,
+                cz + dir.z * 150
             );
 
             const startPos = camera.position.clone();
@@ -5699,46 +5878,59 @@
                 coreColor = phaseColor;  // subtask = same but will be smaller/dimmer
             }
 
-            // Create glow texture with phase color
-            const _cr = (coreColor >> 16) & 255, _cg = (coreColor >> 8) & 255, _cb = coreColor & 255;
-            const glowCanvas = document.createElement('canvas');
-            glowCanvas.width = 64;
-            glowCanvas.height = 64;
-            const ctx = glowCanvas.getContext('2d');
-            const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
-            gradient.addColorStop(0, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',1)');
-            gradient.addColorStop(0.12, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.9)');
-            gradient.addColorStop(0.25, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.4)');
-            gradient.addColorStop(0.4, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.08)');
-            gradient.addColorStop(1, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0)');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, 64, 64);
-            const glowTexture = new THREE.CanvasTexture(glowCanvas);
-
-            const pointGeo = new THREE.BufferGeometry();
-            pointGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
-
-            const _initOpacity = 0.7;  // Uniform default, status shown only in focused mode
-            const pointMat = new THREE.PointsMaterial({
+            // v3.22: Create 3D Mesh sphere — MeshStandardMaterial for real 3D look
+            // v3.23: L0=nucleus, L1=molecule center (bright), L2=atom (small but visible)
+            const _initOpacity = level === 0 ? 0.95 : level === 1 ? 0.95 : 0.85;
+            const sphereMat = new THREE.MeshStandardMaterial({
                 color: coreColor,
-                size: pointSize,
                 transparent: true,
                 opacity: _initOpacity,
-                map: glowTexture,
-                blending: THREE.AdditiveBlending,
-                depthWrite: false,
-                sizeAttenuation: true
+                roughness: level === 0 ? 0.25 : level === 1 ? 0.4 : 0.3,
+                metalness: level === 0 ? 0.3 : level === 1 ? 0.5 : 0.2,
+                emissive: coreColor,
+                emissiveIntensity: level === 0 ? 0.8 : level === 1 ? 0.5 : 0.8
             });
 
-            const sphere = new THREE.Points(pointGeo, pointMat);
+            const sphere = new THREE.Mesh(sharedGeo[level] || sharedGeo[1], sphereMat);
             sphere.userData.isTaskPoint = true;
-            sphere.userData.material = pointMat;
+            sphere.userData.material = sphereMat;  // compat with old code
             sphere.userData.statusColors = statusColors;
-            sphere.userData.baseSize = pointSize;
+            sphere.userData.baseRadius = NODE_RADII[level] || NODE_RADII[1];
+            sphere.userData.baseSize = LEVEL_SIZES[level] || 25; // legacy compat
             sphere.userData.startTime = performance.now();
 
             sphere.position.set(posX, posY, posZ);
             group.add(sphere);
+
+            // v3.22: Glow sprite for L0 and L1 (creates "mass" effect)
+            if (GLOW_SCALES[level] > 0) {
+                const _cr = (coreColor >> 16) & 255, _cg = (coreColor >> 8) & 255, _cb = coreColor & 255;
+                const glowCanvas = document.createElement('canvas');
+                glowCanvas.width = 128;
+                glowCanvas.height = 128;
+                const ctx = glowCanvas.getContext('2d');
+                const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64);
+                gradient.addColorStop(0, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.8)');
+                gradient.addColorStop(0.15, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.5)');
+                gradient.addColorStop(0.4, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.15)');
+                gradient.addColorStop(0.7, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0.03)');
+                gradient.addColorStop(1, 'rgba(' + _cr + ',' + _cg + ',' + _cb + ',0)');
+                ctx.fillStyle = gradient;
+                ctx.fillRect(0, 0, 128, 128);
+                const glowTexture = new THREE.CanvasTexture(glowCanvas);
+                const glowMat = new THREE.SpriteMaterial({
+                    map: glowTexture,
+                    transparent: true,
+                    blending: THREE.AdditiveBlending,
+                    depthWrite: false,
+                    opacity: 0.7
+                });
+                const glowSprite = new THREE.Sprite(glowMat);
+                const glowSize = NODE_RADII[level] * GLOW_SCALES[level] * 2;
+                glowSprite.scale.set(glowSize, glowSize, 1);
+                sphere.add(glowSprite); // child of mesh, moves with it
+                sphere.userData.glowSprite = glowSprite;
+            }
 
             // Billboard label for phase nodes (level 0)
             if (level === 0 && taskInfo.title) {
@@ -5759,7 +5951,7 @@
                     depthWrite: false
                 });
                 const labelSprite = new THREE.Sprite(labelMat);
-                labelSprite.position.set(posX, posY + 12, posZ);
+                labelSprite.position.set(posX, posY + (NODE_RADII[0] + 6), posZ);
                 labelSprite.scale.set(60, 8, 1);
                 labelSprite.userData.isLabel = true;
                 group.add(labelSprite);
@@ -5820,11 +6012,16 @@
                 phases[phase].push(t);
             });
 
-            // === GALAXY LAYOUT: 4 sector arms + nucleus ===
+            // === MOLECULAR LAYOUT: compact clusters ===
             const taskIdMap = {};
+            window._batchCreating = true; // Disable auto-connect during batch layout
 
-            // Calculate all positions
-            const galaxyPos = calcGalaxyPositions(phaseOrder, phases, {});
+            // Reset bond system for fresh layout
+            initBondSystem();
+
+            // Calculate all positions (molecular)
+            const molPos = calcMolecularPositions(phaseOrder, phases, {});
+            const structuralBonds = molPos._structuralBonds || [];
 
             // Create tasks at calculated positions
             phaseOrder.forEach((phaseName) => {
@@ -5832,7 +6029,7 @@
                 phaseTasks.sort((a, b) => (a.level || 1) - (b.level || 1));
 
                 phaseTasks.forEach(t => {
-                    const pos = galaxyPos[t.id] || galaxyPos[t.title] || { x: 0, y: 0, z: 0 };
+                    const pos = molPos[t.id] || molPos[t.title] || { x: 0, y: 0, z: 0 };
                     const taskData = window.addTaskPointStructured(t, pos.x, pos.y, pos.z);
                     if (taskData) {
                         taskIdMap[t.id] = taskData;
@@ -5840,22 +6037,42 @@
                 });
             });
 
-            // Create dependency connections
+            window._batchCreating = false; // Re-enable auto-connect for manual additions
+
+            // Create structural bonds (L0→L1 backbone) from molecular layout
             let connCount = 0;
+            structuralBonds.forEach(bond => {
+                const fromTask = taskIdMap[bond.from];
+                const toTask = taskIdMap[bond.to];
+                if (fromTask && toTask) {
+                    window.connect3DTasks(fromTask.id, toTask.id, bond.type || 'backbone');
+                    connCount++;
+                }
+            });
+
+            // v3.23: Only create dependency bonds between L1 tasks (inter-molecule connections)
+            // Skip L2→L1 dependencies — subtasks visually belong to their molecule without lines
             tasks.forEach(t => {
-                if (t.dependsOn && Array.isArray(t.dependsOn)) {
+                if (t.dependsOn && Array.isArray(t.dependsOn) && (t.level || 1) <= 1) {
                     t.dependsOn.forEach(depId => {
                         const fromTask = taskIdMap[depId];
                         const toTask = taskIdMap[t.id];
                         if (fromTask && toTask) {
-                            window.connect3DTasks(fromTask.id, toTask.id);
+                            window.connect3DTasks(fromTask.id, toTask.id, 'backbone');
                             connCount++;
                         }
                     });
                 }
             });
 
-            console.log('[VZOR-Tasks] Created', Object.keys(taskIdMap).length, 'tasks,', connCount, 'connections');
+            // Count task levels for diagnostics
+            const _l0c = tasks.filter(t => t.level === 0).length;
+            const _l1c = tasks.filter(t => (t.level||1) === 1).length;
+            const _l2c = tasks.filter(t => t.level === 2).length;
+            console.log('[VZOR v3.31] Created', Object.keys(taskIdMap).length, 'tasks (L0:' + _l0c + ' L1:' + _l1c + ' L2:' + _l2c + '),', connCount, 'bonds. NODE_RADII:', JSON.stringify(NODE_RADII));
+            // Update version badge with stats
+            const _vb = document.getElementById('version-badge');
+            if (_vb) _vb.textContent = 'v3.31 | ' + _l1c + ' mol + ' + _l2c + ' atoms | ' + connCount + ' bonds';
 
             // Show detail panel for first phase task
             const firstPhase = tasks.find(t => t.level === 0);
@@ -5872,7 +6089,7 @@
             saveTasksToDB(tasks);
         };
 
-        // Re-layout existing tasks into galaxy formation
+        // Re-layout existing tasks into molecular formation
         window.relayoutExistingTasks = function() {
             if (!window.taskPoints || window.taskPoints.length === 0) return;
 
@@ -5888,13 +6105,13 @@
                 phases[phase].push(tp);
             });
 
-            // Calculate galaxy positions
-            const galaxyPos = calcGalaxyPositions(phaseOrder, phases, {});
+            // Calculate molecular positions
+            const molPos = calcMolecularPositions(phaseOrder, phases, {});
 
             phaseOrder.forEach((phaseName) => {
                 const phaseTasks = phases[phaseName];
                 phaseTasks.forEach(tp => {
-                    const pos = galaxyPos[tp.id] || galaxyPos[tp.title] || null;
+                    const pos = molPos[tp.id] || molPos[tp.title] || null;
                     if (!pos) return;
 
                     // Animate position change
@@ -5908,12 +6125,11 @@
                         function animateMove() {
                             const elapsed = Date.now() - startTime;
                             const progress = Math.min(elapsed / duration, 1);
-                            // Ease out cubic
                             const ease = 1 - Math.pow(1 - progress, 3);
 
-                            tp.mesh.position.x = startX + (posX - startX) * ease;
-                            tp.mesh.position.y = startY + (posY - startY) * ease;
-                            tp.mesh.position.z = startZ + (posZ - startZ) * ease;
+                            tp.mesh.position.x = startX + (pos.x - startX) * ease;
+                            tp.mesh.position.y = startY + (pos.y - startY) * ease;
+                            tp.mesh.position.z = startZ + (pos.z - startZ) * ease;
 
                             if (progress < 1) {
                                 requestAnimationFrame(animateMove);
@@ -5924,11 +6140,9 @@
                 });
             });
 
-            // Update connections after a delay (wait for animation)
+            // Update bond positions after animation completes
             setTimeout(() => {
-                if (typeof updateAllConnections === 'function') {
-                    updateAllConnections();
-                }
+                updateBondPositions();
                 // Re-save with new positions
                 const tasksArray = window.taskPoints.map(tp => ({
                     id: tp.id,
@@ -5940,8 +6154,8 @@
                 saveTasksToDB(tasksArray);
             }, 1600);
 
-            console.log('[VZOR-Tasks] Relayout complete: ' + window.taskPoints.length + ' tasks repositioned to cloud');
-            window.showToast('VZOR', 'Граф перестроен в облако', 'success', 3000);
+            console.log('[VZOR-Tasks] Relayout complete: ' + window.taskPoints.length + ' tasks repositioned to molecular clusters');
+            window.showToast('VZOR', 'Граф перестроен в молекулярные кластеры', 'success', 3000);
         };
 
         // Calculate and display phase progress
@@ -6188,18 +6402,19 @@
 
         // Load tasks from database when entering drill-down
         window.loadTasksFromDB = async function(category) {
-            // Don't load if tasks already exist for this category
-            if (window.taskPoints && window.taskPoints.some(t => t.category === category)) {
-                console.log('[VZOR-Tasks] Tasks already loaded for', category);
+            // Don't load if tasks already exist
+            if (window.taskPoints && window.taskPoints.length > 0) {
+                console.log('[VZOR-Tasks] Tasks already loaded:', window.taskPoints.length);
                 return;
             }
 
             try {
-                const resp = await fetch('/api/tasks/load?category=' + encodeURIComponent(category) + '&session_id=default');
+                // v3.31: Load all tasks (empty category) — single project graph
+                const resp = await fetch('/api/tasks/load?category=&session_id=default');
                 const data = await resp.json();
 
                 if (!data.tasks || data.tasks.length === 0) {
-                    console.log('[VZOR-Tasks] No saved tasks for', category);
+                    console.log('[VZOR-Tasks] No saved tasks in DB');
                     return;
                 }
 
@@ -6215,16 +6430,54 @@
                 });
 
                 const taskIdMap = {};
+                window._batchCreating = true; // Disable auto-connect during batch layout
 
-                // Galaxy layout for DB-loaded tasks
-                const _galaxyPos2 = calcGalaxyPositions(_phaseOrder, _phases, {});
+                // CRITICAL: Restore dependsOn from DB dependencies BEFORE layout calc
+                // DB stores deps separately; calcMolecularPositions needs t.dependsOn
+                // to place L2 subtasks around their L1 parent molecule
+                if (data.dependencies && data.dependencies.length > 0) {
+                    const taskById = {};
+                    data.tasks.forEach(t => { taskById[t.id] = t; });
+                    // First pass: L1→L2 deps (priority — L1 parent goes first in dependsOn)
+                    data.dependencies.forEach(dep => {
+                        const fromTask = taskById[dep.from];
+                        const toTask = taskById[dep.to];
+                        if (toTask && fromTask) {
+                            if (!toTask.dependsOn) toTask.dependsOn = [];
+                            const fromLevel = fromTask.level || 1;
+                            if (fromLevel <= 1 && !toTask.dependsOn.includes(dep.from)) {
+                                toTask.dependsOn.unshift(dep.from); // L1 parent FIRST
+                            }
+                        }
+                    });
+                    // Second pass: L2→L2 deps (fallback parent for chained subtasks)
+                    data.dependencies.forEach(dep => {
+                        const fromTask = taskById[dep.from];
+                        const toTask = taskById[dep.to];
+                        if (toTask && fromTask) {
+                            if (!toTask.dependsOn) toTask.dependsOn = [];
+                            if (!toTask.dependsOn.includes(dep.from)) {
+                                toTask.dependsOn.push(dep.from);
+                            }
+                        }
+                    });
+                    const l2WithParent = data.tasks.filter(t => t.level === 2 && t.dependsOn && t.dependsOn.length > 0).length;
+                    console.log('[VZOR v3.31] Restored dependsOn: ' + l2WithParent + '/' + data.tasks.filter(t => t.level === 2).length + ' L2 have parents');
+                }
+
+                // Reset bond system
+                initBondSystem();
+
+                // Molecular layout for DB-loaded tasks
+                const _molPos2 = calcMolecularPositions(_phaseOrder, _phases, {});
+                const _structBonds2 = _molPos2._structuralBonds || [];
 
                 _phaseOrder.forEach((phaseName) => {
                     const pts = _phases[phaseName];
                     pts.sort((a, b) => (a.level || 1) - (b.level || 1));
 
                     pts.forEach(t => {
-                        const gp = _galaxyPos2[t.id] || _galaxyPos2[t.title] || { x: 0, y: 0, z: 0 };
+                        const gp = _molPos2[t.id] || _molPos2[t.title] || { x: 0, y: 0, z: 0 };
 
                         const taskData = window.addTaskPointStructured(
                             { id: t.id, title: t.title, phase: t.phase, level: t.level,
@@ -6236,18 +6489,37 @@
                     });
                 });
 
-                // Recreate connections from dependencies
+                window._batchCreating = false; // Re-enable auto-connect
+
+                // Create structural bonds from molecular layout
+                _structBonds2.forEach(bond => {
+                    const fromTask = taskIdMap[bond.from];
+                    const toTask = taskIdMap[bond.to];
+                    if (fromTask && toTask) {
+                        window.connect3DTasks(fromTask.id, toTask.id, bond.type || 'backbone');
+                    }
+                });
+
+                // Also recreate connections from dependencies (only L0/L1 — no L2 bonds)
                 if (data.dependencies && data.dependencies.length > 0) {
                     data.dependencies.forEach(dep => {
                         const fromTask = taskIdMap[dep.from];
                         const toTask = taskIdMap[dep.to];
                         if (fromTask && toTask) {
-                            window.connect3DTasks(fromTask.id, toTask.id);
+                            // Skip L2 dependencies — subtasks belong by proximity
+                            const fromLevel = fromTask.level || 1;
+                            const toLevel = toTask.level || 1;
+                            if (fromLevel <= 1 && toLevel <= 1) {
+                                window.connect3DTasks(fromTask.id, toTask.id, 'backbone');
+                            }
                         }
                     });
                 }
 
-                console.log('[VZOR-Tasks] Restored', Object.keys(taskIdMap).length, 'tasks from DB');
+                const _bc2 = window.task3DConnections ? window.task3DConnections.length : 0;
+                console.log('[VZOR v3.31] DB loaded', Object.keys(taskIdMap).length, 'tasks,', _bc2, 'bonds. NODE_RADII:', JSON.stringify(NODE_RADII));
+                const _vb2 = document.getElementById('version-badge');
+                if (_vb2) _vb2.textContent = 'v3.31 | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' bonds';
                 window.showToast('VZOR Tasks', 'Восстановлено ' + Object.keys(taskIdMap).length + ' задач', 'info', 3000);
 
                 // Build phase navigation panel
@@ -6273,22 +6545,24 @@
 
             // Bold status: brightness + completed gets whiter color
             const phaseHex = getPhaseColor(task.phase || 'General');
+            const mat = task.mesh.userData.material;
             if (newStatus === 'in_progress') {
-                task.mesh.userData.material.opacity = 1.0;
-                // Restore pure phase color
-                task.mesh.userData.material.color.setHex(phaseHex);
+                mat.opacity = 1.0;
+                mat.color.setHex(phaseHex);
+                if (mat.emissive) { mat.emissive.setHex(phaseHex); mat.emissiveIntensity = 0.5; }
             } else if (newStatus === 'completed') {
-                task.mesh.userData.material.opacity = 1.0;
-                // Shift phase color 50% toward white = "filled/done" look
+                mat.opacity = 1.0;
                 const _r = (phaseHex >> 16) & 255, _g = (phaseHex >> 8) & 255, _b = phaseHex & 255;
                 const wr = Math.round(_r + (255 - _r) * 0.5);
                 const wg = Math.round(_g + (255 - _g) * 0.5);
                 const wb = Math.round(_b + (255 - _b) * 0.5);
-                task.mesh.userData.material.color.setHex((wr << 16) | (wg << 8) | wb);
+                const whiteHex = (wr << 16) | (wg << 8) | wb;
+                mat.color.setHex(whiteHex);
+                if (mat.emissive) { mat.emissive.setHex(whiteHex); mat.emissiveIntensity = 0.4; }
             } else {
-                task.mesh.userData.material.opacity = 0.30;
-                // Restore pure phase color
-                task.mesh.userData.material.color.setHex(phaseHex);
+                mat.opacity = 0.30;
+                mat.color.setHex(phaseHex);
+                if (mat.emissive) { mat.emissive.setHex(phaseHex); mat.emissiveIntensity = 0.15; }
             }
 
             // Update phase progress + dashboard
@@ -6563,6 +6837,11 @@
                 if (task) {
                     console.log('[Task Click] Hit:', task.title);
                     showDetailPanel(task);
+                    // v3.31: Set orbit pivot to clicked task — rotation around selected object
+                    const tp = task.mesh.position;
+                    controls.target.set(tp.x, tp.y, tp.z);
+                    controls.update();
+                    lastInteractTime = Date.now();
                     // Obsidian-style highlight connected tasks
                     if (window.highlightTaskConnections) {
                         window.highlightTaskConnections(task.id);
@@ -8693,25 +8972,32 @@
                 if (task.mesh.parent) {
                     task.mesh.parent.remove(task.mesh);
                 }
-                // Dispose geometry and material
-                if (task.mesh.geometry) task.mesh.geometry.dispose();
+                // v3.22: Only dispose material, NOT geometry (shared between all nodes)
                 if (task.mesh.material) task.mesh.material.dispose();
+                // Glow sprite is a child of mesh, removed automatically
+                // But dispose its material too
+                if (task.mesh.userData.glowSprite) {
+                    task.mesh.userData.glowSprite.material.map.dispose();
+                    task.mesh.userData.glowSprite.material.dispose();
+                }
             }
 
-            // Remove any 3D connections involving this task
+            // Remove any bonds involving this task (mark as zero-length, rebuild draw range)
             if (window.task3DConnections) {
                 window.task3DConnections = window.task3DConnections.filter(conn => {
                     if (conn.from === task.id || conn.to === task.id) {
-                        // Remove the line from scene
-                        if (conn.line && conn.line.parent) {
-                            conn.line.parent.remove(conn.line);
-                            if (conn.line.geometry) conn.line.geometry.dispose();
-                            if (conn.line.material) conn.line.material.dispose();
+                        // Zero out this bond segment
+                        const base = conn.bondIndex * 6;
+                        for (let k = 0; k < 6; k++) {
+                            bondPositions[base + k] = 0;
+                            bondColors[base + k] = 0;
                         }
                         return false;
                     }
                     return true;
                 });
+                bondGeometry.attributes.position.needsUpdate = true;
+                bondGeometry.attributes.color.needsUpdate = true;
             }
 
             // Remove from taskPoints array
@@ -9580,7 +9866,7 @@ async function sendToAgentZero(message) {
 
 
 
-    
+    <div id="version-badge" style="position:fixed;bottom:8px;right:8px;color:rgba(255,255,255,0.6);font-size:11px;font-family:Outfit,sans-serif;pointer-events:none;z-index:9999;">v3.31</div>
 </body>
 
 </html>
