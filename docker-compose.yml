@@ -6,7 +6,6 @@ networks:
 volumes:
   postgres_data:
   redis_data:
-  n8n_data:
   grafana_data:
   prometheus_data:
   infisical_data:
@@ -52,35 +51,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # n8n (Автоматизация процессов)
-  n8n:
-    image: n8nio/n8n:latest
-    container_name: vzor-n8n
-    restart: unless-stopped
-    environment:
-      - DB_TYPE=postgresdb
-      - DB_POSTGRESDB_HOST=postgres
-      - DB_POSTGRESDB_PORT=5432
-      - DB_POSTGRESDB_DATABASE=vzor_db
-      - DB_POSTGRESDB_USER=vzor
-      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD:-changeme}
-      - N8N_BASIC_AUTH_ACTIVE=true
-      - N8N_BASIC_AUTH_USER=${N8N_USER:-admin}
-      - N8N_BASIC_AUTH_PASSWORD=${N8N_PASSWORD:-changeme}
-      - N8N_SECURE_COOKIE=false
-      - WEBHOOK_URL=https://agvzor.io/n8n/
-      - GENERIC_TIMEZONE=Europe/Moscow
-    volumes:
-      - ./data/n8n:/home/node/.n8n
-    ports:
-      - "5678:5678"
-    networks:
-      - vzor-network
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
 
   # Infisical (Менеджер секретов)
   infisical:
@@ -181,7 +151,6 @@ services:
     networks:
       - vzor-network
     depends_on:
-      - n8n
       - grafana
       - infisical
       - trilium
@@ -194,3 +163,39 @@ services:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+  # VZOR API (FastAPI backend)
+  vzor-api:
+    build: /home/vzor/vzor-api
+    container_name: vzor-api
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: "5432"
+      POSTGRES_DB: vzor_db
+      POSTGRES_USER: vzor
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+    ports:
+      - "8000:8000"
+    networks:
+      - vzor-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  # Agent Zero (AI Framework)
+  agent-zero:
+    image: agent0ai/agent-zero:latest
+    container_name: vzor-agent-zero
+    restart: unless-stopped
+    ports:
+      - "5000:80"
+    volumes:
+      - /home/vzor/agent-zero-data:/a0
+    networks:
+      - vzor-network
+    depends_on:
+      postgres:
+        condition: service_healthy

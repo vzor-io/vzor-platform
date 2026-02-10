@@ -148,7 +148,7 @@ services:
       - ./data/3x-ui:/etc/x-ui
     ports:
       - "2053:2053"
-      - "443:443"
+      # - "443:443"  # disabled - conflicts with nginx
     networks:
       - vzor-network
 

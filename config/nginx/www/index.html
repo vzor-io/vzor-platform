@@ -16,7 +16,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>VZOR v3.31</title>
+    <title>VZOR v4.0 — Fractal Tree</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
@@ -2532,6 +2532,11 @@
             height: 100%; border-radius: 2px; transition: width 0.5s ease;
         }
 
+        /* v4.0: Data Ring — now rendered in 3D (SVG overlay hidden) */
+        #data-ring {
+            display: none !important;
+        }
+
         /* Block progress dashboard */
         #block-dashboard {
             position: fixed;
@@ -2667,6 +2672,22 @@
         </div>
     </div>
     <div id="task-tooltip"><div class="tt-title"></div><div class="tt-phase"></div><div class="tt-status"></div></div>
+
+    <!-- v4.0: Data Ring HUD (SVG overlay around tree) -->
+    <div id="data-ring">
+        <svg viewBox="-260 -260 520 520" xmlns="http://www.w3.org/2000/svg">
+            <!-- Outer ring -->
+            <circle cx="0" cy="0" r="245" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+            <circle cx="0" cy="0" r="235" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.3"/>
+            <!-- Progress arcs (updated dynamically by JS) -->
+            <g id="ring-arcs"></g>
+            <!-- Labels (updated dynamically by JS) -->
+            <g id="ring-labels" font-family="Outfit, sans-serif" font-size="8" fill="rgba(255,255,255,0.5)" text-anchor="middle"></g>
+            <!-- Tick marks -->
+            <g id="ring-ticks"></g>
+        </svg>
+    </div>
+
     <!-- v3.14: Toast Notification Container -->
     <div id="toast-container" aria-live="polite" aria-label="Уведомления"></div>
 
@@ -3786,6 +3807,11 @@
                     // Show 3D connections (bond system)
                     bondMesh.visible = true;
 
+                    // v4.0: Show tree branches + spiral + 3D ring on drill-down
+                    if (window._treeBranchGroup) window._treeBranchGroup.visible = true;
+                    if (window._spiralMesh) window._spiralMesh.visible = true;
+                    if (window._dataRing3D) window._dataRing3D.visible = true;
+
                     // Hide scroll indicators
                     document.getElementById('scrollHint').style.opacity = '0';
                     document.getElementById('progressDots').style.opacity = '0';
@@ -3794,6 +3820,11 @@
                     // Lock scroll and enable controls
                     document.body.style.overflow = 'hidden';
                     controls.enabled = true;
+
+                    // v4.0: Set camera to overhead-angled view for tree on XZ plane
+                    camera.position.set(0, 320, 180);
+                    controls.target.set(0, 0, 0);
+                    controls.update();
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
@@ -4102,6 +4133,10 @@
 
             // Hide bonds when leaving drill-down
             bondMesh.visible = false;
+
+            // v4.0: Hide tree branches + spiral (ring stays visible always)
+            if (window._treeBranchGroup) window._treeBranchGroup.visible = false;
+            if (window._spiralMesh) window._spiralMesh.visible = false;
 
             // Restore Top Header
             const st = document.getElementById('slideTitle');
@@ -4443,7 +4478,7 @@
 
             // Also move camera for real 3D zoom effect (when drilled)
             if (isDrilled) {
-                const baseDistance = 550; // v3.22: larger scene with tetrahedral layout
+                const baseDistance = 420; // v4.0: tree on XZ plane, closer view from above
                 const targetDistance = baseDistance / currentZoom;
                 const currentDistance = camera.position.length();
                 const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
@@ -4464,14 +4499,22 @@
                 // OrbitControls handles camera
                 controls.update();
 
-                // Nucleus pulse
-                if (window._nucleus) {
-                    window._nucleus.material.opacity = 0.25 + Math.sin(time * 1.5) * 0.1;
-                    window._nucleus.scale.setScalar(1.0 + Math.sin(time * 0.8) * 0.05);
+                // v4.0: Nucleus removed
+
+                // v4.0: Tree branch growth animation — fade in by level
+                if (window._treeBranchGroup && window._treeBranchGroup.visible) {
+                    window._treeBranchGroup.children.forEach(mesh => {
+                        const level = mesh.userData.branchLevel || 0;
+                        // Staggered: L0 appears at drillProg=0.2, L1 at 0.4, L2 at 0.6
+                        const startAt = 0.15 + level * 0.2;
+                        const endAt = startAt + 0.3;
+                        const t = Math.max(0, Math.min(1, (drillProg - startAt) / (endAt - startAt)));
+                        mesh.material.opacity = t * 0.85;
+                    });
                 }
-                if (window._nucleusGlow) {
-                    window._nucleusGlow.material.opacity = 0.06 + Math.sin(time * 1.2) * 0.03;
-                    window._nucleusGlow.scale.setScalar(1.0 + Math.sin(time * 0.5) * 0.15);
+                // Spiral fade
+                if (window._spiralMesh && window._spiralMesh.visible) {
+                    window._spiralMesh.material.opacity = Math.max(0, Math.min(0.7, drillProg * 1.5));
                 }
 
                 // v3.22: Scale 3D mesh spheres + gentle pulsation
@@ -5139,7 +5182,7 @@
             showDetailPanel(taskData);
 
             // AUTO-ACTION 3: Auto-connect to previous task (only for manual single-task creation)
-            // Skip during batch molecular layout — bonds are handled by calcMolecularPositions
+            // Skip during batch tree layout — bonds are handled by calcTreeLayout
             if (window.taskPoints.length > 1 && !window._batchCreating) {
                 const prevTask = window.taskPoints[window.taskPoints.length - 2];
                 connect3DTasks(prevTask.id, taskData.id);
@@ -5337,39 +5380,34 @@
         // STRUCTURED TASKS — Create from Agent Response
         // ==========================================
 
-        // Layout constants
-        const PHASE_SPACING_X = 80;   // legacy, not used in cloud layout
-        const TASK_SPACING_Y = 35;    // legacy
-        const SUBTASK_OFFSET_Z = 20;  // legacy
-        // === GOLDEN RATIO LAYOUT CONSTANTS ===
-        const PHI = 1.618033988749895;  // Golden ratio
-        const GOLDEN_ANGLE = 137.508 * Math.PI / 180;  // 2.3999 rad
-        const ARM_LENGTH = 180;       // block center distance (fills cloud R=220)
-        const CLUSTER_JITTER = 0.05;  // organic randomness
+        // === FRACTAL TREE LAYOUT CONSTANTS (v4.0) ===
+        // Reference: 9.jpg — nautilus spiral center + fractal coral branches + data ring
+        // Cloud unfolds INTO the tree on drill-down. Thickness = descendant count.
 
-        // v3.31: Solid molecules (no glow on L1!) + visible L2 atoms with own glow
-        // Reference: 21.jpg — solid dark sphere with small bright atoms on surface
-        const _BASE_R = 1.0;
-        const NODE_RADII = { 0: 5.0, 1: 6.0, 2: 3.0 }; // L0=nucleus, L1=solid molecule, L2=visible atom
-        const GLOW_SCALES = { 0: 3.0, 1: 0, 2: 1.2 }; // NO glow on L1! Atoms get small glow to pop
-        const LEVEL_SIZES = { 0: 55, 1: 28, 2: 16 }; // legacy fallback
+        const GOLDEN_ANGLE = 137.508 * Math.PI / 180;
 
-        // Shared geometries — one per level, reused by all nodes
+        // Tree radial distances from center (per depth level)
+        const LEVEL_RADIUS = [0, 55, 125, 185];  // root=0, L0 trunks, L1 branches, L2 tips
+        const BASE_THICKNESS = 2.8;               // thickest trunk tube radius
+        const MIN_THICKNESS = 0.15;                // thinnest leaf branch radius
+        const ANGLE_JITTER = 0.05;                // ±3° angular randomness (radians)
+        const LENGTH_JITTER = 0.12;               // ±12% radial variation
+        const BEZIER_OFFSET_RANGE = 15;           // Bezier control point perpendicular offset
+        const TREE_Y_JITTER = 3.0;               // slight 3D depth on XZ plane
+
+        // Node sphere sizes at branch junctions/tips
+        const NODE_RADII = { 0: 4.0, 1: 2.5, 2: 1.5 };
+        const GLOW_SCALES = { 0: 2.5, 1: 1.5, 2: 0.8 };
+        const LEVEL_SIZES = { 0: 45, 1: 22, 2: 12 };
+
+        // Shared sphere geometries (reused by addTaskPointStructured)
         const sharedGeo = {
-            0: new THREE.SphereGeometry(NODE_RADII[0], 24, 16),  // R=5.0 (phase nucleus)
-            1: new THREE.SphereGeometry(NODE_RADII[1], 24, 16),  // R=6.0 (solid molecule center)
-            2: new THREE.SphereGeometry(NODE_RADII[2], 14, 10)   // R=3.0 (visible atom on surface!)
+            0: new THREE.SphereGeometry(NODE_RADII[0], 24, 16),
+            1: new THREE.SphereGeometry(NODE_RADII[1], 20, 12),
+            2: new THREE.SphereGeometry(NODE_RADII[2], 12, 8)
         };
 
-        // Tetrahedral block directions (3D, not flat) + jitter for organic feel
-        const _s = 1.0 / Math.sqrt(3);
-        const BLOCK_DIRS = {
-            0x4D96FF: new THREE.Vector3( _s,  _s,  _s),   // Analysis - top-right-front
-            0xC084FC: new THREE.Vector3(-_s,  _s, -_s),   // Design - top-left-back
-            0xFF8C42: new THREE.Vector3( _s, -_s, -_s),   // Construction - bottom-right-back
-            0x4ECDC4: new THREE.Vector3(-_s, -_s,  _s)    // Sales - bottom-left-front
-        };
-        // Legacy compat: BLOCK_ANGLES still used by getBlockAngle
+        // Block angular sectors & names
         const BLOCK_ANGLES = {
             0x4D96FF: Math.PI * 0.0,
             0xC084FC: Math.PI * 0.5,
@@ -5388,70 +5426,48 @@
             return BLOCK_ANGLES[color] !== undefined ? BLOCK_ANGLES[color] : 0;
         }
 
-        // Fibonacci Sphere — 3D uniform distribution (used for L2 atoms around L1)
-        function fibonacciSphere(n, radius) {
-            const points = [];
-            for (let i = 0; i < n; i++) {
-                const theta = Math.acos(1 - 2 * (i + 0.5) / n);
-                const phi = i * GOLDEN_ANGLE;
-                points.push({
-                    x: radius * Math.sin(theta) * Math.cos(phi),
-                    y: radius * Math.cos(theta),
-                    z: radius * Math.sin(theta) * Math.sin(phi)
-                });
-            }
-            return points;
+        // =====================================================
+        // FRACTAL TREE ALGORITHM (v4.0)
+        // Replaces molecular cluster layout.
+        // Cloud particles morph into tree shape on drill-down.
+        // Branch thickness ∝ weight^0.4 (da Vinci's rule)
+        // Angular sectors ∝ weight (proportional)
+        // =====================================================
+
+        // Gaussian random (Box-Muller) for organic particle spread
+        function gaussianRandom() {
+            let u = 0, v = 0;
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
+            return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         }
 
-        // Vogel Spiral (Sunflower pattern) — the classic golden ratio layout
-        // r = scale * sqrt(n), θ = n * 137.508° — visible spiral from camera
-        function vogelSpiral(n, maxRadius) {
-            const points = [];
-            const scale = n > 0 ? maxRadius / Math.sqrt(n) : maxRadius;
-            for (let i = 0; i < n; i++) {
-                const r = scale * Math.sqrt(i + 0.5);
-                const theta = i * GOLDEN_ANGLE;
-                points.push({
-                    x: r * Math.cos(theta),
-                    y: r * Math.sin(theta),
-                    z: (Math.random() - 0.5) * maxRadius * 0.12 // slight depth for organic feel
-                });
+        // Helper: find L1 ancestor for an L2 task (walk dependency chain)
+        function findL1Parent(task, allTasksMap) {
+            const visited = new Set();
+            let current = task;
+            while (current) {
+                if (visited.has(current.id || current.tid)) return null;
+                visited.add(current.id || current.tid);
+                const deps = current.dependsOn || [];
+                if (deps.length === 0) return null;
+                const parentId = deps[0];
+                const parent = allTasksMap[parentId];
+                if (!parent) return null;
+                if ((parent.level || 1) <= 1) return parentId;
+                current = parent;
             }
-            return points;
+            return null;
         }
 
-        // Hexagonal rings — structured molecular layout (like 23.jpg reference)
-        // Ring 0: 1 center. Ring 1: 6 hexagon. Ring 2: 12. Ring 3: 18...
-        function hexRings(n, spacing) {
-            const points = [];
-            let ring = 0;
-            while (points.length < n) {
-                if (ring === 0) {
-                    points.push({ x: 0, y: 0, z: 0 });
-                } else {
-                    const r = ring * spacing;
-                    const count = 6 * ring;
-                    // Alternate rings rotated by half-step for hex close-pack
-                    const angleOffset = (ring % 2 === 0) ? 0 : Math.PI / (6 * ring);
-                    for (let i = 0; i < count && points.length < n; i++) {
-                        const angle = angleOffset + (i / count) * 2 * Math.PI;
-                        points.push({
-                            x: r * Math.cos(angle),
-                            y: r * Math.sin(angle),
-                            z: (Math.random() - 0.5) * 2 // tiny depth jitter
-                        });
-                    }
-                }
-                ring++;
-            }
-            return points;
-        }
-
-        // Molecular cluster layout: hex rings + Fibonacci sphere atoms
-        function calcMolecularPositions(phaseOrder, phases, existingTaskMap) {
+        // Main fractal tree layout (replaces calcMolecularPositions)
+        // Returns: { [taskId]: {x,y,z}, _structuralBonds: [], _branches: [] }
+        function calcTreeLayout(phaseOrder, phases, existingTaskMap) {
             const positions = {};
-            const structuralBonds = [];
+            const branches = [];     // for TubeGeometry rendering
+            const structuralBonds = []; // backward compat
 
+            // 1. Group phases by color block
             const blockPhases = {};
             phaseOrder.forEach(pn => {
                 const c = getPhaseColor(pn);
@@ -5459,217 +5475,658 @@
                 blockPhases[c].push(pn);
             });
 
-            function jitter(pos, refPos, strength) {
-                const dx = pos.x - refPos.x, dy = pos.y - refPos.y, dz = pos.z - refPos.z;
-                const dist = Math.sqrt(dx*dx + dy*dy + dz*dz) || 1;
-                const s = dist * (strength || CLUSTER_JITTER);
-                return {
-                    x: pos.x + (Math.random() - 0.5) * s,
-                    y: pos.y + (Math.random() - 0.5) * s,
-                    z: pos.z + (Math.random() - 0.5) * s
-                };
-            }
-
+            // 2. Calculate block weights (total tasks per block)
+            const blockWeights = {};
+            let totalWeight = 0;
             Object.keys(blockPhases).forEach(ck => {
                 const color = parseInt(ck);
-                const bpList = blockPhases[ck];
-                const blockDir = BLOCK_DIRS[color] || new THREE.Vector3(1, 0, 0);
+                let w = 0;
+                blockPhases[ck].forEach(pn => {
+                    w += (phases[pn] || []).length;
+                });
+                blockWeights[color] = Math.max(w, 1);
+                totalWeight += blockWeights[color];
+            });
 
-                const blockCenter = {
-                    x: blockDir.x * ARM_LENGTH,
-                    y: blockDir.y * ARM_LENGTH,
-                    z: blockDir.z * ARM_LENGTH
+            // 3. Assign angular sectors proportional to weight
+            const blockColors = Object.keys(blockPhases).map(k => parseInt(k));
+            // Sort blocks by BLOCK_ANGLES for consistent order
+            blockColors.sort((a, b) => (BLOCK_ANGLES[a] || 0) - (BLOCK_ANGLES[b] || 0));
+
+            let currentAngle = -Math.PI / 2; // start from top (-90°)
+            const blockSectors = {};
+            blockColors.forEach(color => {
+                const sectorSize = (blockWeights[color] / totalWeight) * 2 * Math.PI;
+                const gap = 0.08; // small gap between sectors
+                blockSectors[color] = {
+                    start: currentAngle + gap / 2,
+                    end: currentAngle + sectorSize - gap / 2,
+                    center: currentAngle + sectorSize / 2,
+                    weight: blockWeights[color]
                 };
+                currentAngle += sectorSize;
+            });
 
+            // 4. Calculate thickness from weight (da Vinci's rule)
+            function thicknessFromWeight(weight) {
+                return Math.max(MIN_THICKNESS, BASE_THICKNESS * Math.pow(weight / totalWeight * blockColors.length, 0.4));
+            }
+
+            // 5. Bezier control point (perpendicular offset for curvature)
+            function bezierControl(start, end) {
+                const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+                // Perpendicular in XZ plane
+                const dx = end.x - start.x;
+                const dz = end.z - start.z;
+                const len = Math.sqrt(dx * dx + dz * dz) || 1;
+                const perpX = -dz / len;
+                const perpZ = dx / len;
+                const offset = (Math.random() - 0.5) * BEZIER_OFFSET_RANGE;
+                mid.x += perpX * offset;
+                mid.z += perpZ * offset;
+                mid.y += (Math.random() - 0.5) * TREE_Y_JITTER;
+                return mid;
+            }
+
+            // Root position
+            const rootPos = new THREE.Vector3(0, 0, 0);
+
+            // 6. For each block: position L0, L1, L2 as tree branches
+            blockColors.forEach(color => {
+                const sector = blockSectors[color];
+                const bpList = blockPhases[color];
+
+                // Collect tasks by level
                 const phaseL0 = [];
                 const allL1 = [];
                 const allL2 = [];
+                const allTasksMap = {};
 
                 bpList.forEach((phaseName, pIdx) => {
-                    const phaseTasks = phases[phaseName];
-                    const sorted = [...phaseTasks].sort((a, b) => (a.level||1) - (b.level||1));
-                    sorted.forEach(t => {
+                    const phaseTasks = phases[phaseName] || [];
+                    phaseTasks.forEach(t => {
                         const level = t.level || 1;
                         const tid = t.id || t.title;
-                        if (level === 0) {
-                            phaseL0.push({ tid, phaseName, pIdx });
-                        } else if (level === 1) {
-                            allL1.push({ tid, phaseName, pIdx, task: t });
-                        } else {
-                            allL2.push({ tid, phaseName, pIdx, task: t });
-                        }
+                        allTasksMap[tid] = t;
+                        if (level === 0) phaseL0.push({ tid, phaseName, pIdx });
+                        else if (level === 1) allL1.push({ tid, phaseName, pIdx, task: t });
+                        else allL2.push({ tid, phaseName, pIdx, task: t });
                     });
                 });
 
-                // --- L0: at block center (or small Fibonacci sphere if multiple) ---
-                if (phaseL0.length === 1) {
-                    positions[phaseL0[0].tid] = { x: blockCenter.x, y: blockCenter.y, z: blockCenter.z };
-                } else if (phaseL0.length > 1) {
-                    const l0Radius = NODE_RADII[0] * 2.5;
-                    const l0Points = fibonacciSphere(phaseL0.length, l0Radius);
-                    phaseL0.forEach((item, i) => {
-                        positions[item.tid] = {
-                            x: blockCenter.x + l0Points[i].x,
-                            y: blockCenter.y + l0Points[i].y,
-                            z: blockCenter.z + l0Points[i].z
-                        };
-                    });
+                // --- L0: trunk node at sector center, LEVEL_RADIUS[1] from origin ---
+                const l0Angle = sector.center + (Math.random() - 0.5) * ANGLE_JITTER * 0.5;
+                const l0Radius = LEVEL_RADIUS[1] * (1 + (Math.random() - 0.5) * LENGTH_JITTER * 0.5);
+                const l0Pos = new THREE.Vector3(
+                    l0Radius * Math.cos(l0Angle),
+                    (Math.random() - 0.5) * TREE_Y_JITTER * 0.5,
+                    l0Radius * Math.sin(l0Angle)
+                );
+
+                if (phaseL0.length > 0) {
+                    positions[phaseL0[0].tid] = { x: l0Pos.x, y: l0Pos.y, z: l0Pos.z };
                 }
 
-                // --- L1: Fibonacci sphere around parent L0 ---
-                // Adaptive radius: molecules must not overlap
-                // Each molecule has radius L1_TO_L2_GAP, so min inter-L1 distance = 2 * L1_TO_L2_GAP + gap
+                // Branch: root → L0 (thick trunk)
+                const trunkThickness = thicknessFromWeight(blockWeights[color]);
+                const trunkChildThickness = trunkThickness * 0.7;
+                const trunkControl = bezierControl(rootPos, l0Pos);
+                branches.push({
+                    start: rootPos.clone(),
+                    control: trunkControl,
+                    end: l0Pos.clone(),
+                    startRadius: trunkThickness,
+                    endRadius: trunkChildThickness,
+                    color: color,
+                    level: 0,
+                    weight: blockWeights[color]
+                });
+
+                // --- L1: branches within block's angular sector ---
+                // Group L1 by phase, distribute proportionally
+                const sectorSize = sector.end - sector.start;
+                let l1Angle = sector.start;
+
                 bpList.forEach((phaseName, pIdx) => {
-                    const l0Item = phaseL0.find(p => p.pIdx === pIdx);
-                    const l0Pos = l0Item ? positions[l0Item.tid] : blockCenter;
                     const phaseL1 = allL1.filter(x => x.pIdx === pIdx);
-                    if (phaseL1.length === 0) return;
-
-                    // Hexagonal rings for L1 — structured molecular geometry (like 23.jpg)
-                    const moleculeOuterR = NODE_RADII[1] + NODE_RADII[2]; // 6 + 3 = 9
-                    const N = Math.max(phaseL1.length, 1);
-                    // Spacing = molecule diameter + gap so they don't overlap
-                    const hexSpacing = 2 * moleculeOuterR + 6; // 24 units between hex centers
-
-                    const l1Points = hexRings(N, hexSpacing);
+                    const phaseL2ForPhase = allL2.filter(x => x.pIdx === pIdx);
+                    const phaseWeight = phaseL1.length + phaseL2ForPhase.length;
+                    if (phaseWeight === 0 && phaseL1.length === 0) return;
+                    const phaseSectorSize = sectorSize * (Math.max(phaseWeight, 1) / blockWeights[color]);
 
                     phaseL1.forEach((item, j) => {
-                        const rawPos = {
-                            x: l0Pos.x + l1Points[j].x,
-                            y: l0Pos.y + l1Points[j].y,
-                            z: l0Pos.z + l1Points[j].z
-                        };
-                        positions[item.tid] = jitter(rawPos, l0Pos, CLUSTER_JITTER);
+                        // Count L2 children for this L1
+                        const myL2 = allL2.filter(l2item => {
+                            const t = l2item.task;
+                            let pid = (t.dependsOn && t.dependsOn.length > 0) ? t.dependsOn[0] : null;
+                            if (pid && allTasksMap[pid] && (allTasksMap[pid].level || 1) === 2) {
+                                pid = findL1Parent(t, allTasksMap);
+                            }
+                            return pid === item.tid;
+                        });
+                        const l1Weight = myL2.length + 1;
+                        const l1SubSector = phaseSectorSize / Math.max(phaseL1.length, 1);
+
+                        const angle = l1Angle + j * l1SubSector + l1SubSector / 2;
+                        const jitteredAngle = angle + (Math.random() - 0.5) * ANGLE_JITTER;
+                        const radius = LEVEL_RADIUS[2] * (1 + (Math.random() - 0.5) * LENGTH_JITTER);
+
+                        const l1Pos = new THREE.Vector3(
+                            radius * Math.cos(jitteredAngle),
+                            (Math.random() - 0.5) * TREE_Y_JITTER,
+                            radius * Math.sin(jitteredAngle)
+                        );
+                        positions[item.tid] = { x: l1Pos.x, y: l1Pos.y, z: l1Pos.z };
+
+                        // Branch: L0 → L1
+                        const l1Thickness = thicknessFromWeight(l1Weight);
+                        const l1ChildThickness = l1Thickness * 0.5;
+                        branches.push({
+                            start: l0Pos.clone(),
+                            control: bezierControl(l0Pos, l1Pos),
+                            end: l1Pos.clone(),
+                            startRadius: trunkChildThickness * (l1Weight / blockWeights[color] * allL1.length) + MIN_THICKNESS,
+                            endRadius: l1Thickness,
+                            color: color,
+                            level: 1,
+                            weight: l1Weight
+                        });
+
+                        structuralBonds.push({ from: phaseL0[0]?.tid || item.tid, to: item.tid, type: 'backbone' });
+
+                        // --- L2: leaf tips branching from this L1 ---
+                        if (myL2.length > 0) {
+                            const l2SubSector = l1SubSector / myL2.length;
+                            const l2BaseAngle = angle - l1SubSector / 2;
+
+                            myL2.forEach((l2Item, k) => {
+                                const l2Angle = l2BaseAngle + k * l2SubSector + l2SubSector / 2;
+                                const jitteredL2 = l2Angle + (Math.random() - 0.5) * ANGLE_JITTER * 1.8;
+                                const l2Radius = LEVEL_RADIUS[3] * (1 + (Math.random() - 0.5) * LENGTH_JITTER * 1.5);
+
+                                const l2Pos = new THREE.Vector3(
+                                    l2Radius * Math.cos(jitteredL2),
+                                    (Math.random() - 0.5) * TREE_Y_JITTER * 1.5,
+                                    l2Radius * Math.sin(jitteredL2)
+                                );
+                                positions[l2Item.tid] = { x: l2Pos.x, y: l2Pos.y, z: l2Pos.z };
+
+                                // Branch: L1 → L2 (thin tip)
+                                branches.push({
+                                    start: l1Pos.clone(),
+                                    control: bezierControl(l1Pos, l2Pos),
+                                    end: l2Pos.clone(),
+                                    startRadius: l1Thickness * 0.4,
+                                    endRadius: MIN_THICKNESS,
+                                    color: color,
+                                    level: 2,
+                                    weight: 1
+                                });
+
+                                structuralBonds.push({ from: item.tid, to: l2Item.tid, type: 'molecular' });
+                            });
+                        }
                     });
 
-                    // L1↔L1 hex neighbor bonds — connect adjacent tasks in the hex grid
-                    // This creates the molecular backbone (like 23.jpg)
-                    for (let a = 0; a < phaseL1.length; a++) {
-                        const pa = l1Points[a];
-                        for (let b = a + 1; b < phaseL1.length; b++) {
-                            const pb = l1Points[b];
-                            const dx = pa.x - pb.x, dy = pa.y - pb.y, dz = pa.z - pb.z;
-                            const dist = Math.sqrt(dx*dx + dy*dy + dz*dz);
-                            // Connect if within ~1.2x hex spacing (direct neighbors)
-                            if (dist < hexSpacing * 1.2) {
-                                structuralBonds.push({
-                                    from: phaseL1[a].tid,
-                                    to: phaseL1[b].tid,
-                                    type: 'backbone'
-                                });
-                            }
-                        }
-                    }
+                    l1Angle += phaseSectorSize;
                 });
 
-                // --- L2: atoms sit ON the L1 molecule surface (just touching) ---
-                const l2Radius = NODE_RADII[1] + NODE_RADII[2]; // 6.0 + 3.0 = 9.0 — atom sits on molecule surface
-
-                // Helper: find the L1 ancestor for an L2 task (walk up dependency chain)
-                function findL1Parent(task, allTasksMap) {
-                    const visited = new Set();
-                    let current = task;
-                    while (current) {
-                        if (visited.has(current.id || current.tid)) return null; // cycle
-                        visited.add(current.id || current.tid);
-                        const deps = current.dependsOn || [];
-                        if (deps.length === 0) return null;
-                        const parentId = deps[0];
-                        const parent = allTasksMap[parentId];
-                        if (!parent) return null;
-                        if ((parent.level || 1) <= 1) return parentId; // found L1
-                        current = parent; // L2 parent — keep walking up
-                    }
-                    return null;
-                }
-
-                // Build task map for ancestry lookup
-                const allTasksMap = {};
-                bpList.forEach(pn => {
-                    const pts = phases[pn];
-                    if (pts) pts.forEach(t => { allTasksMap[t.id || t.title] = t; });
-                });
-
-                allL2.forEach((item, i) => {
-                    const t = item.task;
-                    // Find L1 parent: direct or through chain
-                    let pid = (t.dependsOn && t.dependsOn.length > 0) ? t.dependsOn[0] : null;
-                    let parentPos = (pid && positions[pid]);
-
-                    // If parent is L2 (no position yet or L2 level), walk up to L1
-                    if (!parentPos || (allTasksMap[pid] && (allTasksMap[pid].level || 1) === 2)) {
-                        const l1Pid = findL1Parent(t, allTasksMap);
-                        if (l1Pid && positions[l1Pid]) {
-                            pid = l1Pid;
-                            parentPos = positions[l1Pid];
-                        }
-                    }
-
-                    if (parentPos) {
-                        // Group siblings by same L1 parent
-                        const siblings = allL2.filter(s => {
-                            const sp = s.task;
-                            let spid = (sp.dependsOn && sp.dependsOn.length > 0) ? sp.dependsOn[0] : null;
-                            if (spid && allTasksMap[spid] && (allTasksMap[spid].level || 1) === 2) {
-                                spid = findL1Parent(sp, allTasksMap);
-                            }
-                            return spid === pid;
-                        });
-                        const sibIdx = siblings.indexOf(item);
-                        const sibCount = siblings.length;
-
-                        const l2Points = fibonacciSphere(sibCount, l2Radius);
-                        const rawPos = {
-                            x: parentPos.x + l2Points[sibIdx].x,
-                            y: parentPos.y + l2Points[sibIdx].y,
-                            z: parentPos.z + l2Points[sibIdx].z
-                        };
-                        positions[item.tid] = jitter(rawPos, parentPos, CLUSTER_JITTER);
-
-                        // Bond: L1 parent → this L2 (spoke of the molecule)
-                        structuralBonds.push({ from: pid, to: item.tid, type: 'molecular' });
-
-                        // Bond: L2 → nearest L2 siblings (cage/lattice like ref 21.jpg)
-                        // Connect to 2-3 nearest neighbors on the Fibonacci sphere
-                        if (sibCount > 1 && sibIdx === sibCount - 1) {
-                            // Only run once after all siblings are positioned
-                            // Find nearest neighbors for each sibling
-                            for (let a = 0; a < sibCount; a++) {
-                                const pa = l2Points[a];
-                                // Calculate distances to all other siblings
-                                const dists = [];
-                                for (let b = a + 1; b < sibCount; b++) {
-                                    const pb = l2Points[b];
-                                    const dx = pa.x - pb.x, dy = pa.y - pb.y, dz = pa.z - pb.z;
-                                    dists.push({ b, dist: Math.sqrt(dx*dx + dy*dy + dz*dz) });
-                                }
-                                dists.sort((x, y) => x.dist - y.dist);
-                                // Connect to 2 nearest (or 3 if many siblings)
-                                const maxNeighbors = sibCount > 6 ? 3 : 2;
-                                for (let k = 0; k < Math.min(maxNeighbors, dists.length); k++) {
-                                    structuralBonds.push({
-                                        from: siblings[a].tid,
-                                        to: siblings[dists[k].b].tid,
-                                        type: 'cage'
-                                    });
-                                }
-                            }
-                        }
-                    } else {
-                        const fallbackR = l2Radius;
-                        const theta = Math.acos(1 - 2 * (i + 0.5) / Math.max(allL2.length, 1));
-                        const phi = i * GOLDEN_ANGLE;
-                        positions[item.tid] = {
-                            x: blockCenter.x + fallbackR * Math.sin(theta) * Math.cos(phi),
-                            y: blockCenter.y + fallbackR * Math.cos(theta),
-                            z: blockCenter.z + fallbackR * Math.sin(theta) * Math.sin(phi)
-                        };
-                    }
+                // Handle orphan L2 (no L1 parent found) — attach to closest L1
+                allL2.forEach(l2Item => {
+                    if (positions[l2Item.tid]) return; // already placed
+                    const t = l2Item.task;
+                    // Fallback: place in remaining sector space
+                    const fallbackAngle = sector.start + Math.random() * sectorSize;
+                    const fallbackR = LEVEL_RADIUS[3] * (0.85 + Math.random() * 0.3);
+                    positions[l2Item.tid] = {
+                        x: fallbackR * Math.cos(fallbackAngle),
+                        y: (Math.random() - 0.5) * TREE_Y_JITTER * 2,
+                        z: fallbackR * Math.sin(fallbackAngle)
+                    };
                 });
             });
 
+            // === AUTO-SCALE: fit tree inside data ring ===
+            // Ring inner radius = 218. Keep margin of 15 so tips don't touch ring.
+            const MAX_TREE_RADIUS = 200;
+            let maxR = 0;
+            Object.keys(positions).forEach(k => {
+                if (k.startsWith('_')) return;
+                const p = positions[k];
+                const r = Math.sqrt(p.x * p.x + p.z * p.z);
+                if (r > maxR) maxR = r;
+            });
+
+            if (maxR > MAX_TREE_RADIUS) {
+                const scale = MAX_TREE_RADIUS / maxR;
+                console.log('[VZOR v4.0] Auto-scale tree:', (scale * 100).toFixed(1) + '% (maxR=' + maxR.toFixed(0) + ' → ' + MAX_TREE_RADIUS + ')');
+
+                // Scale all node positions
+                Object.keys(positions).forEach(k => {
+                    if (k.startsWith('_')) return;
+                    const p = positions[k];
+                    p.x *= scale;
+                    p.z *= scale;
+                    // y stays (vertical jitter is small)
+                });
+
+                // Scale all branch control points and endpoints
+                branches.forEach(b => {
+                    b.start.x *= scale; b.start.z *= scale;
+                    b.control.x *= scale; b.control.z *= scale;
+                    b.end.x *= scale; b.end.z *= scale;
+                });
+            }
+
             positions._structuralBonds = structuralBonds;
+            positions._branches = branches;
             return positions;
+        }
+
+        // === TAPERED TUBE GEOMETRY ===
+        // Creates a tube with varying radius along a Bezier curve
+        function createTaperedTube(curve, startRadius, endRadius, tubularSegs, radialSegs) {
+            tubularSegs = tubularSegs || 12;
+            radialSegs = radialSegs || 6;
+            const verts = [];
+            const norms = [];
+            const idxs = [];
+
+            for (let i = 0; i <= tubularSegs; i++) {
+                const t = i / tubularSegs;
+                const point = curve.getPointAt(t);
+                const tangent = curve.getTangentAt(t).normalize();
+                const radius = startRadius + (endRadius - startRadius) * t;
+
+                // Frenet frame
+                const helper = Math.abs(tangent.y) < 0.99
+                    ? new THREE.Vector3(0, 1, 0)
+                    : new THREE.Vector3(1, 0, 0);
+                const binormal = new THREE.Vector3().crossVectors(tangent, helper).normalize();
+                const normal = new THREE.Vector3().crossVectors(binormal, tangent).normalize();
+
+                for (let j = 0; j <= radialSegs; j++) {
+                    const angle = (j / radialSegs) * Math.PI * 2;
+                    const sin = Math.sin(angle), cos = Math.cos(angle);
+                    verts.push(
+                        point.x + radius * (cos * normal.x + sin * binormal.x),
+                        point.y + radius * (cos * normal.y + sin * binormal.y),
+                        point.z + radius * (cos * normal.z + sin * binormal.z)
+                    );
+                    norms.push(
+                        cos * normal.x + sin * binormal.x,
+                        cos * normal.y + sin * binormal.y,
+                        cos * normal.z + sin * binormal.z
+                    );
+                }
+            }
+
+            for (let i = 0; i < tubularSegs; i++) {
+                for (let j = 0; j < radialSegs; j++) {
+                    const a = i * (radialSegs + 1) + j;
+                    const b = a + 1;
+                    const c = (i + 1) * (radialSegs + 1) + j;
+                    const d = c + 1;
+                    idxs.push(a, c, b, b, c, d);
+                }
+            }
+
+            const geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+            geo.setAttribute('normal', new THREE.Float32BufferAttribute(norms, 3));
+            geo.setIndex(idxs);
+            return geo;
+        }
+
+        // === TREE BRANCH RENDERING ===
+        // Creates 3D tube meshes for all branches (called after tree layout)
+        window._treeBranchGroup = null;
+        function createTreeBranches(branchData) {
+            // Remove previous branches
+            if (window._treeBranchGroup) {
+                group.remove(window._treeBranchGroup);
+                window._treeBranchGroup.traverse(child => {
+                    if (child.geometry) child.geometry.dispose();
+                    if (child.material) child.material.dispose();
+                });
+            }
+
+            const branchGroup = new THREE.Group();
+            branchGroup.visible = false; // hidden until drill-down animation
+
+            branchData.forEach(b => {
+                const curve = new THREE.QuadraticBezierCurve3(b.start, b.control, b.end);
+                const segs = b.level === 0 ? 16 : b.level === 1 ? 12 : 8;
+                const radSegs = b.level === 0 ? 8 : 6;
+                const geo = createTaperedTube(curve, b.startRadius, b.endRadius, segs, radSegs);
+
+                const colorHex = b.color;
+                const mat = new THREE.MeshStandardMaterial({
+                    color: colorHex,
+                    emissive: colorHex,
+                    emissiveIntensity: 0.25,
+                    roughness: 0.55,
+                    metalness: 0.15,
+                    transparent: true,
+                    opacity: 0.85,
+                    depthWrite: true
+                });
+
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.userData.branchLevel = b.level;
+                mesh.userData.branchWeight = b.weight;
+                branchGroup.add(mesh);
+            });
+
+            group.add(branchGroup);
+            window._treeBranchGroup = branchGroup;
+            return branchGroup;
+        }
+
+        // === CENTRAL SPIRAL ===
+        // Fibonacci/nautilus spiral at tree center — branches emerge from it
+        window._spiralMesh = null;
+        function createCentralSpiral() {
+            if (window._spiralMesh) {
+                group.remove(window._spiralMesh);
+                if (window._spiralMesh.geometry) window._spiralMesh.geometry.dispose();
+                if (window._spiralMesh.material) window._spiralMesh.material.dispose();
+            }
+
+            const points = [];
+            const turns = 2.5;
+            const a = 3;
+            const b = 0.22;
+            const steps = 100;
+            for (let i = 0; i <= steps; i++) {
+                const t = (i / steps) * turns * Math.PI * 2;
+                const r = a * Math.exp(b * t);
+                if (r > LEVEL_RADIUS[1] * 0.9) break; // stop before L0 nodes
+                points.push(new THREE.Vector3(
+                    r * Math.cos(t),
+                    Math.sin(t * 0.8) * 2.0,
+                    r * Math.sin(t)
+                ));
+            }
+
+            if (points.length < 4) return;
+
+            const curve = new THREE.CatmullRomCurve3(points);
+            const spiralStartR = 3.5;
+            const spiralEndR = 0.3;
+            const geo = createTaperedTube(curve, spiralStartR, spiralEndR, 48, 8);
+
+            const mat = new THREE.MeshStandardMaterial({
+                color: 0xffffff,
+                emissive: 0x88ccff,
+                emissiveIntensity: 0.5,
+                roughness: 0.3,
+                metalness: 0.4,
+                transparent: true,
+                opacity: 0.7,
+                depthWrite: true
+            });
+
+            window._spiralMesh = new THREE.Mesh(geo, mat);
+            window._spiralMesh.visible = false; // shown during drill-down
+            group.add(window._spiralMesh);
+        }
+
+        // === 3D DATA RING ===
+        // Two concentric rings in the 3D scene (moves/zooms with cloud)
+        // + label sprites + progress arcs
+        window._dataRing3D = null;
+        function createDataRing3D() {
+            // Remove previous
+            if (window._dataRing3D) {
+                group.remove(window._dataRing3D);
+                window._dataRing3D.traverse(ch => {
+                    if (ch.geometry) ch.geometry.dispose();
+                    if (ch.material) {
+                        if (ch.material.map) ch.material.map.dispose();
+                        ch.material.dispose();
+                    }
+                });
+            }
+
+            const ringGroup = new THREE.Group();
+            const R_OUTER = 225;  // just outside the cloud (R=220)
+            const R_INNER = 218;
+            const segments = 128;
+
+            // Outer ring
+            const outerPts = [];
+            for (let i = 0; i <= segments; i++) {
+                const a = (i / segments) * Math.PI * 2;
+                outerPts.push(new THREE.Vector3(R_OUTER * Math.cos(a), 0, R_OUTER * Math.sin(a)));
+            }
+            const outerGeo = new THREE.BufferGeometry().setFromPoints(outerPts);
+            const outerLine = new THREE.Line(outerGeo, new THREE.LineBasicMaterial({
+                color: 0xffffff, transparent: true, opacity: 0.12
+            }));
+            ringGroup.add(outerLine);
+
+            // Inner ring
+            const innerPts = [];
+            for (let i = 0; i <= segments; i++) {
+                const a = (i / segments) * Math.PI * 2;
+                innerPts.push(new THREE.Vector3(R_INNER * Math.cos(a), 0, R_INNER * Math.sin(a)));
+            }
+            const innerGeo = new THREE.BufferGeometry().setFromPoints(innerPts);
+            const innerLine = new THREE.Line(innerGeo, new THREE.LineBasicMaterial({
+                color: 0xffffff, transparent: true, opacity: 0.06
+            }));
+            ringGroup.add(innerLine);
+
+            // Tick marks at block boundaries (small radial lines)
+            // Will be populated when tasks load (updateDataRing3D)
+
+            ringGroup.visible = true;
+            group.add(ringGroup);
+            window._dataRing3D = ringGroup;
+            return ringGroup;
+        }
+
+        // Update 3D ring with progress arcs and labels
+        function updateDataRing3D(blocks) {
+            if (!window._dataRing3D) return;
+            const ringGroup = window._dataRing3D;
+
+            // Remove old arcs/labels (keep first 2 children = the two circle lines)
+            while (ringGroup.children.length > 2) {
+                const child = ringGroup.children[ringGroup.children.length - 1];
+                if (child.geometry) child.geometry.dispose();
+                if (child.material) {
+                    if (child.material.map) child.material.map.dispose();
+                    child.material.dispose();
+                }
+                ringGroup.remove(child);
+            }
+
+            const R_ARC = 221;
+            const R_LABEL = 238;
+            const blockData = [
+                { key: 'analysis', name: 'Анализ', color: 0x4D96FF },
+                { key: 'design', name: 'Проектирование', color: 0xC084FC },
+                { key: 'build', name: 'Строительство', color: 0xFF8C42 },
+                { key: 'sales', name: 'Продажи', color: 0x4ECDC4 }
+            ];
+
+            const totalTasks = Object.values(blocks).reduce((s, b) => s + b.total, 0) || 1;
+            let currentAngle = -Math.PI / 2;
+
+            blockData.forEach(bd => {
+                const b = blocks[bd.key] || { done: 0, total: 0 };
+                const sectorSize = (b.total / totalTasks) * Math.PI * 2;
+                if (sectorSize < 0.01) return;
+
+                const pct = b.total > 0 ? b.done / b.total : 0;
+                const gap = 0.04;
+                const startA = currentAngle + gap;
+                const endA = currentAngle + sectorSize - gap;
+
+                // Background arc (dim)
+                const bgPts = [];
+                const arcSegs = Math.max(8, Math.floor(sectorSize * 40));
+                for (let i = 0; i <= arcSegs; i++) {
+                    const a = startA + (endA - startA) * (i / arcSegs);
+                    bgPts.push(new THREE.Vector3(R_ARC * Math.cos(a), 0, R_ARC * Math.sin(a)));
+                }
+                const bgGeo = new THREE.BufferGeometry().setFromPoints(bgPts);
+                const bgLine = new THREE.Line(bgGeo, new THREE.LineBasicMaterial({
+                    color: 0xffffff, transparent: true, opacity: 0.08
+                }));
+                ringGroup.add(bgLine);
+
+                // Progress arc (colored)
+                if (pct > 0.001) {
+                    const progressA = startA + (endA - startA) * pct;
+                    const pPts = [];
+                    const pSegs = Math.max(4, Math.floor(arcSegs * pct));
+                    for (let i = 0; i <= pSegs; i++) {
+                        const a = startA + (progressA - startA) * (i / pSegs);
+                        pPts.push(new THREE.Vector3(R_ARC * Math.cos(a), 0.2, R_ARC * Math.sin(a)));
+                    }
+                    const pGeo = new THREE.BufferGeometry().setFromPoints(pPts);
+                    const pLine = new THREE.Line(pGeo, new THREE.LineBasicMaterial({
+                        color: bd.color, transparent: true, opacity: 0.7
+                    }));
+                    ringGroup.add(pLine);
+                }
+
+                // Label sprite at sector center
+                const midA = (startA + endA) / 2;
+                const labelCanvas = document.createElement('canvas');
+                labelCanvas.width = 256;
+                labelCanvas.height = 48;
+                const ctx = labelCanvas.getContext('2d');
+                ctx.clearRect(0, 0, 256, 48);
+                ctx.font = '20px Outfit, sans-serif';
+                ctx.textAlign = 'center';
+                const cr = (bd.color >> 16) & 255, cg = (bd.color >> 8) & 255, cb = bd.color & 255;
+                ctx.fillStyle = 'rgba(' + cr + ',' + cg + ',' + cb + ',0.8)';
+                ctx.fillText(bd.name + '  ' + b.total, 128, 28);
+                const labelTex = new THREE.CanvasTexture(labelCanvas);
+                const labelMat = new THREE.SpriteMaterial({
+                    map: labelTex, transparent: true, opacity: 0.85, depthWrite: false
+                });
+                const labelSprite = new THREE.Sprite(labelMat);
+                labelSprite.position.set(R_LABEL * Math.cos(midA), 2, R_LABEL * Math.sin(midA));
+                labelSprite.scale.set(40, 8, 1);
+                ringGroup.add(labelSprite);
+
+                // Tick marks at boundaries
+                [startA - gap / 2, endA + gap / 2].forEach(a => {
+                    const tickPts = [
+                        new THREE.Vector3((R_ARC - 3) * Math.cos(a), 0, (R_ARC - 3) * Math.sin(a)),
+                        new THREE.Vector3((R_ARC + 5) * Math.cos(a), 0, (R_ARC + 5) * Math.sin(a))
+                    ];
+                    const tickGeo = new THREE.BufferGeometry().setFromPoints(tickPts);
+                    const tickLine = new THREE.Line(tickGeo, new THREE.LineBasicMaterial({
+                        color: 0xffffff, transparent: true, opacity: 0.2
+                    }));
+                    ringGroup.add(tickLine);
+                });
+
+                currentAngle += sectorSize;
+            });
+        }
+
+        // === PARTICLE DISTRIBUTION ALONG TREE ===
+        // Redistributes 20k particles from cloud → tree branches
+        // Heavy branches get more particles → visually thicker
+        function distributeParticlesAlongTree(branchData) {
+            if (!geometry || !branchData || branchData.length === 0) return;
+
+            const detailAttr = geometry.getAttribute('aDetail');
+            const colorAttr = geometry.getAttribute('aColor');
+            const staticAttr = geometry.getAttribute('aStatic');
+            if (!detailAttr) return;
+
+            const count = detailAttr.count;
+
+            // Calculate particle budget per branch (proportional to weight)
+            const totalBranchWeight = branchData.reduce((s, b) => s + b.weight, 0);
+            // Reserve 30% of particles for ambient cloud around tree
+            const treeParticles = Math.floor(count * 0.7);
+            const cloudParticles = count - treeParticles;
+
+            let particleIdx = 0;
+
+            // Distribute particles along branches
+            branchData.forEach(b => {
+                const budget = Math.max(2, Math.floor(treeParticles * (b.weight / totalBranchWeight)));
+                const curve = new THREE.QuadraticBezierCurve3(b.start, b.control, b.end);
+
+                // Color components (normalized)
+                const cr = ((b.color >> 16) & 255) / 255;
+                const cg = ((b.color >> 8) & 255) / 255;
+                const cb = (b.color & 255) / 255;
+
+                for (let i = 0; i < budget && particleIdx < treeParticles; i++) {
+                    const t = Math.random(); // position along curve
+                    const point = curve.getPointAt(t);
+                    const tangent = curve.getTangentAt(t).normalize();
+
+                    // Radius at this point (lerp start→end)
+                    const radiusAtT = b.startRadius + (b.endRadius - b.startRadius) * t;
+                    // Gaussian spread perpendicular to branch
+                    const spread = gaussianRandom() * radiusAtT * 0.7;
+
+                    // Random perpendicular direction
+                    const helper = Math.abs(tangent.y) < 0.99
+                        ? new THREE.Vector3(0, 1, 0)
+                        : new THREE.Vector3(1, 0, 0);
+                    const perp1 = new THREE.Vector3().crossVectors(tangent, helper).normalize();
+                    const perp2 = new THREE.Vector3().crossVectors(tangent, perp1).normalize();
+                    const angle = Math.random() * Math.PI * 2;
+
+                    const px = point.x + spread * (Math.cos(angle) * perp1.x + Math.sin(angle) * perp2.x);
+                    const py = point.y + spread * (Math.cos(angle) * perp1.y + Math.sin(angle) * perp2.y);
+                    const pz = point.z + spread * (Math.cos(angle) * perp1.z + Math.sin(angle) * perp2.z);
+
+                    detailAttr.setXYZ(particleIdx, px, py, pz);
+                    colorAttr.setXYZ(particleIdx, cr * 0.7 + 0.3, cg * 0.7 + 0.3, cb * 0.7 + 0.3);
+                    staticAttr.setX(particleIdx, 0.0);
+                    particleIdx++;
+                }
+            });
+
+            // Remaining tree budget particles — distribute around branch tips
+            while (particleIdx < treeParticles) {
+                const b = branchData[Math.floor(Math.random() * branchData.length)];
+                const point = b.end;
+                const spread = (Math.random() * 0.5 + 0.5) * 5;
+                detailAttr.setXYZ(particleIdx,
+                    point.x + gaussianRandom() * spread,
+                    point.y + gaussianRandom() * spread * 0.3,
+                    point.z + gaussianRandom() * spread
+                );
+                const cr = ((b.color >> 16) & 255) / 255;
+                const cg = ((b.color >> 8) & 255) / 255;
+                const cb = (b.color & 255) / 255;
+                colorAttr.setXYZ(particleIdx, cr * 0.5 + 0.5, cg * 0.5 + 0.5, cb * 0.5 + 0.5);
+                particleIdx++;
+            }
+
+            // Cloud particles (30%) — sphere around tree for atmosphere
+            for (let i = particleIdx; i < count; i++) {
+                const r = 180 + Math.random() * 60; // outer atmosphere
+                const th = Math.random() * Math.PI * 2;
+                const ph = Math.acos(2 * Math.random() - 1);
+                detailAttr.setXYZ(i,
+                    r * Math.sin(ph) * Math.cos(th),
+                    r * Math.sin(ph) * Math.sin(th) * 0.3, // flattened for 2.5D
+                    r * Math.cos(ph)
+                );
+                colorAttr.setXYZ(i, 0.5, 0.6, 0.8);
+                staticAttr.setX(i, 0.0);
+            }
+
+            detailAttr.needsUpdate = true;
+            colorAttr.needsUpdate = true;
+            staticAttr.needsUpdate = true;
+            console.log('[VZOR v4.0] Distributed', particleIdx, 'particles along', branchData.length, 'branches +', (count - particleIdx), 'cloud');
         }
 
         // Phase focus state
@@ -5695,14 +6152,14 @@
             cy /= blockTasks.length;
             cz /= blockTasks.length;
 
-            // Camera: positioned outside the cluster, looking toward center
-            // v3.31: ARM_LENGTH=180, clusters fill more of cloud
-            const dir = new THREE.Vector3(cx, cy, cz).normalize();
+            // Camera: positioned above and outside the sector, looking toward center
+            // v4.0: Tree is on XZ plane, camera looks from above-side
+            const dir = new THREE.Vector3(cx, 0, cz).normalize();
             const camTarget = new THREE.Vector3(cx, cy, cz);
             const camPos = new THREE.Vector3(
-                cx + dir.x * 150,
-                cy + dir.y * 70 + 30,
-                cz + dir.z * 150
+                cx + dir.x * 100,
+                120 + Math.abs(cy),  // elevated view for tree
+                cz + dir.z * 100
             );
 
             const startPos = camera.position.clone();
@@ -5731,34 +6188,7 @@
             animateFly();
         }
 
-        // === GALAXY NUCLEUS ===
-        (function createNucleus() {
-            const nucGeo = new THREE.SphereGeometry(12, 32, 32);
-            const nucMat = new THREE.MeshBasicMaterial({
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.35
-            });
-            const nucleus = new THREE.Mesh(nucGeo, nucMat);
-            nucleus.position.set(0, 0, 0);
-            nucleus.userData.isNucleus = true;
-            group.add(nucleus);
-            window._nucleus = nucleus;
-
-            // Glow around nucleus
-            const glowGeo = new THREE.SphereGeometry(25, 24, 24);
-            const glowMat = new THREE.MeshBasicMaterial({
-                color: 0x4488ff,
-                transparent: true,
-                opacity: 0.08,
-                side: THREE.BackSide
-            });
-            const glow = new THREE.Mesh(glowGeo, glowMat);
-            glow.position.set(0, 0, 0);
-            glow.userData.isNucleusGlow = true;
-            group.add(glow);
-            window._nucleusGlow = glow;
-        })();
+        // v4.0: Nucleus removed — tree spiral replaces it
 
         // Create status ring around a task node
         function createStatusRing(position, color, radius, rotating) {
@@ -6012,24 +6442,25 @@
                 phases[phase].push(t);
             });
 
-            // === MOLECULAR LAYOUT: compact clusters ===
+            // === FRACTAL TREE LAYOUT (v4.0) ===
             const taskIdMap = {};
-            window._batchCreating = true; // Disable auto-connect during batch layout
+            window._batchCreating = true;
 
-            // Reset bond system for fresh layout
+            // Reset bond system
             initBondSystem();
 
-            // Calculate all positions (molecular)
-            const molPos = calcMolecularPositions(phaseOrder, phases, {});
-            const structuralBonds = molPos._structuralBonds || [];
+            // Calculate tree layout (replaces molecular)
+            const treePos = calcTreeLayout(phaseOrder, phases, {});
+            const structuralBonds = treePos._structuralBonds || [];
+            const branchData = treePos._branches || [];
 
-            // Create tasks at calculated positions
+            // Create tasks at tree positions
             phaseOrder.forEach((phaseName) => {
                 const phaseTasks = phases[phaseName];
                 phaseTasks.sort((a, b) => (a.level || 1) - (b.level || 1));
 
                 phaseTasks.forEach(t => {
-                    const pos = molPos[t.id] || molPos[t.title] || { x: 0, y: 0, z: 0 };
+                    const pos = treePos[t.id] || treePos[t.title] || { x: 0, y: 0, z: 0 };
                     const taskData = window.addTaskPointStructured(t, pos.x, pos.y, pos.z);
                     if (taskData) {
                         taskIdMap[t.id] = taskData;
@@ -6037,9 +6468,9 @@
                 });
             });
 
-            window._batchCreating = false; // Re-enable auto-connect for manual additions
+            window._batchCreating = false;
 
-            // Create structural bonds (L0→L1 backbone) from molecular layout
+            // Create structural bonds (backward compat line segments)
             let connCount = 0;
             structuralBonds.forEach(bond => {
                 const fromTask = taskIdMap[bond.from];
@@ -6050,29 +6481,19 @@
                 }
             });
 
-            // v3.23: Only create dependency bonds between L1 tasks (inter-molecule connections)
-            // Skip L2→L1 dependencies — subtasks visually belong to their molecule without lines
-            tasks.forEach(t => {
-                if (t.dependsOn && Array.isArray(t.dependsOn) && (t.level || 1) <= 1) {
-                    t.dependsOn.forEach(depId => {
-                        const fromTask = taskIdMap[depId];
-                        const toTask = taskIdMap[t.id];
-                        if (fromTask && toTask) {
-                            window.connect3DTasks(fromTask.id, toTask.id, 'backbone');
-                            connCount++;
-                        }
-                    });
-                }
-            });
+            // Create tree branches (TubeGeometry) + spiral + ring + particle distribution
+            createTreeBranches(branchData);
+            createCentralSpiral();
+            createDataRing3D();
+            distributeParticlesAlongTree(branchData);
 
-            // Count task levels for diagnostics
+            // Count task levels
             const _l0c = tasks.filter(t => t.level === 0).length;
             const _l1c = tasks.filter(t => (t.level||1) === 1).length;
             const _l2c = tasks.filter(t => t.level === 2).length;
-            console.log('[VZOR v3.31] Created', Object.keys(taskIdMap).length, 'tasks (L0:' + _l0c + ' L1:' + _l1c + ' L2:' + _l2c + '),', connCount, 'bonds. NODE_RADII:', JSON.stringify(NODE_RADII));
-            // Update version badge with stats
+            console.log('[VZOR v4.0] Tree:', Object.keys(taskIdMap).length, 'tasks (L0:' + _l0c + ' L1:' + _l1c + ' L2:' + _l2c + '),', branchData.length, 'branches');
             const _vb = document.getElementById('version-badge');
-            if (_vb) _vb.textContent = 'v3.31 | ' + _l1c + ' mol + ' + _l2c + ' atoms | ' + connCount + ' bonds';
+            if (_vb) _vb.textContent = 'v4.0 tree | ' + Object.keys(taskIdMap).length + ' tasks | ' + branchData.length + ' branches';
 
             // Show detail panel for first phase task
             const firstPhase = tasks.find(t => t.level === 0);
@@ -6080,7 +6501,7 @@
                 if (typeof showDetailPanel === 'function') showDetailPanel(taskIdMap[firstPhase.id]);
             }
 
-            window.showToast('VZOR Tasks', 'Создано ' + Object.keys(taskIdMap).length + ' задач на графе', 'success', 4000);
+            window.showToast('VZOR Tree', 'Создано ' + Object.keys(taskIdMap).length + ' задач · ' + branchData.length + ' ветвей', 'success', 4000);
 
             // Build phase navigation
             if (window.buildPhaseNav) window.buildPhaseNav();
@@ -6105,16 +6526,16 @@
                 phases[phase].push(tp);
             });
 
-            // Calculate molecular positions
-            const molPos = calcMolecularPositions(phaseOrder, phases, {});
+            // Calculate tree positions
+            const treePos = calcTreeLayout(phaseOrder, phases, {});
+            const branchData = treePos._branches || [];
 
             phaseOrder.forEach((phaseName) => {
                 const phaseTasks = phases[phaseName];
                 phaseTasks.forEach(tp => {
-                    const pos = molPos[tp.id] || molPos[tp.title] || null;
+                    const pos = treePos[tp.id] || treePos[tp.title] || null;
                     if (!pos) return;
 
-                    // Animate position change
                     if (tp.mesh) {
                         const startX = tp.mesh.position.x;
                         const startY = tp.mesh.position.y;
@@ -6140,22 +6561,20 @@
                 });
             });
 
-            // Update bond positions after animation completes
+            // Rebuild branches + particles after animation
             setTimeout(() => {
                 updateBondPositions();
-                // Re-save with new positions
+                createTreeBranches(branchData);
+                distributeParticlesAlongTree(branchData);
                 const tasksArray = window.taskPoints.map(tp => ({
-                    id: tp.id,
-                    title: tp.title,
-                    phase: tp.phase,
-                    level: tp.level,
-                    dependsOn: tp.dependsOn || []
+                    id: tp.id, title: tp.title, phase: tp.phase,
+                    level: tp.level, dependsOn: tp.dependsOn || []
                 }));
                 saveTasksToDB(tasksArray);
             }, 1600);
 
-            console.log('[VZOR-Tasks] Relayout complete: ' + window.taskPoints.length + ' tasks repositioned to molecular clusters');
-            window.showToast('VZOR', 'Граф перестроен в молекулярные кластеры', 'success', 3000);
+            console.log('[VZOR v4.0] Relayout: ' + window.taskPoints.length + ' tasks → tree');
+            window.showToast('VZOR', 'Граф перестроен в фрактальное дерево', 'success', 3000);
         };
 
         // Calculate and display phase progress
@@ -6193,7 +6612,110 @@
                 row.querySelector('.dash-pct').textContent = pct + '%';
                 row.querySelector('.dash-bar-fill').style.width = pct + '%';
             });
+
+            // v4.0: Also update 3D data ring
+            updateDataRing3D(blocks);
         };
+
+        // v4.0: Data Ring HUD — SVG arcs + labels around tree
+        function updateDataRing(blocks) {
+            const ring = document.getElementById('data-ring');
+            if (!ring) return;
+
+            const arcsG = document.getElementById('ring-arcs');
+            const labelsG = document.getElementById('ring-labels');
+            const ticksG = document.getElementById('ring-ticks');
+            if (!arcsG || !labelsG || !ticksG) return;
+
+            arcsG.innerHTML = '';
+            labelsG.innerHTML = '';
+            ticksG.innerHTML = '';
+
+            const R = 240;
+            const blockData = [
+                { key: 'analysis', name: 'Анализ', color: '#4D96FF' },
+                { key: 'design', name: 'Проектирование', color: '#C084FC' },
+                { key: 'build', name: 'Строительство', color: '#FF8C42' },
+                { key: 'sales', name: 'Продажи', color: '#4ECDC4' }
+            ];
+
+            const totalTasks = Object.values(blocks).reduce((s, b) => s + b.total, 0) || 1;
+            let currentAngle = -Math.PI / 2; // start from top
+
+            blockData.forEach(bd => {
+                const b = blocks[bd.key] || { done: 0, total: 0 };
+                const sectorSize = (b.total / totalTasks) * Math.PI * 2;
+                if (sectorSize < 0.01) return;
+
+                const pct = b.total > 0 ? b.done / b.total : 0;
+                const gap = 0.03;
+                const startA = currentAngle + gap;
+                const endA = currentAngle + sectorSize - gap;
+                const progressA = startA + (endA - startA) * pct;
+
+                // Background arc
+                const bgPath = describeArc(0, 0, R, startA, endA);
+                const bgArc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                bgArc.setAttribute('d', bgPath);
+                bgArc.setAttribute('fill', 'none');
+                bgArc.setAttribute('stroke', 'rgba(255,255,255,0.06)');
+                bgArc.setAttribute('stroke-width', '3');
+                arcsG.appendChild(bgArc);
+
+                // Progress arc
+                if (pct > 0) {
+                    const pPath = describeArc(0, 0, R, startA, progressA);
+                    const pArc = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    pArc.setAttribute('d', pPath);
+                    pArc.setAttribute('fill', 'none');
+                    pArc.setAttribute('stroke', bd.color);
+                    pArc.setAttribute('stroke-width', '3');
+                    pArc.setAttribute('opacity', '0.7');
+                    arcsG.appendChild(pArc);
+                }
+
+                // Label at sector center
+                const midA = (startA + endA) / 2;
+                const lx = (R + 14) * Math.cos(midA);
+                const ly = (R + 14) * Math.sin(midA);
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', lx);
+                label.setAttribute('y', ly);
+                label.setAttribute('fill', bd.color);
+                label.setAttribute('font-size', '7');
+                label.setAttribute('opacity', '0.8');
+                // Rotate text to align with sector
+                const deg = midA * 180 / Math.PI;
+                const flipDeg = (deg > 90 && deg < 270) ? deg + 180 : deg;
+                label.setAttribute('transform', 'rotate(' + flipDeg + ',' + lx + ',' + ly + ')');
+                label.textContent = bd.name + ' ' + b.total;
+                labelsG.appendChild(label);
+
+                // Tick marks at sector boundaries
+                [startA, endA].forEach(a => {
+                    const x1 = (R - 4) * Math.cos(a), y1 = (R - 4) * Math.sin(a);
+                    const x2 = (R + 4) * Math.cos(a), y2 = (R + 4) * Math.sin(a);
+                    const tick = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    tick.setAttribute('x1', x1); tick.setAttribute('y1', y1);
+                    tick.setAttribute('x2', x2); tick.setAttribute('y2', y2);
+                    tick.setAttribute('stroke', 'rgba(255,255,255,0.15)');
+                    tick.setAttribute('stroke-width', '0.5');
+                    ticksG.appendChild(tick);
+                });
+
+                currentAngle += sectorSize;
+            });
+        }
+
+        // SVG arc path helper
+        function describeArc(cx, cy, r, startAngle, endAngle) {
+            const x1 = cx + r * Math.cos(startAngle);
+            const y1 = cy + r * Math.sin(startAngle);
+            const x2 = cx + r * Math.cos(endAngle);
+            const y2 = cy + r * Math.sin(endAngle);
+            const largeArc = (endAngle - startAngle > Math.PI) ? 1 : 0;
+            return 'M ' + x1 + ' ' + y1 + ' A ' + r + ' ' + r + ' 0 ' + largeArc + ' 1 ' + x2 + ' ' + y2;
+        }
 
                 // Dashboard: update block progress bars
         window.updateDashboard = function() {
@@ -6433,7 +6955,7 @@
                 window._batchCreating = true; // Disable auto-connect during batch layout
 
                 // CRITICAL: Restore dependsOn from DB dependencies BEFORE layout calc
-                // DB stores deps separately; calcMolecularPositions needs t.dependsOn
+                // DB stores deps separately; calcTreeLayout needs t.dependsOn
                 // to place L2 subtasks around their L1 parent molecule
                 if (data.dependencies && data.dependencies.length > 0) {
                     const taskById = {};
@@ -6468,16 +6990,17 @@
                 // Reset bond system
                 initBondSystem();
 
-                // Molecular layout for DB-loaded tasks
-                const _molPos2 = calcMolecularPositions(_phaseOrder, _phases, {});
-                const _structBonds2 = _molPos2._structuralBonds || [];
+                // Tree layout for DB-loaded tasks (v4.0)
+                const _treePos2 = calcTreeLayout(_phaseOrder, _phases, {});
+                const _structBonds2 = _treePos2._structuralBonds || [];
+                const _branchData2 = _treePos2._branches || [];
 
                 _phaseOrder.forEach((phaseName) => {
                     const pts = _phases[phaseName];
                     pts.sort((a, b) => (a.level || 1) - (b.level || 1));
 
                     pts.forEach(t => {
-                        const gp = _molPos2[t.id] || _molPos2[t.title] || { x: 0, y: 0, z: 0 };
+                        const gp = _treePos2[t.id] || _treePos2[t.title] || { x: 0, y: 0, z: 0 };
 
                         const taskData = window.addTaskPointStructured(
                             { id: t.id, title: t.title, phase: t.phase, level: t.level,
@@ -6489,9 +7012,9 @@
                     });
                 });
 
-                window._batchCreating = false; // Re-enable auto-connect
+                window._batchCreating = false;
 
-                // Create structural bonds from molecular layout
+                // Create structural bonds (backward compat)
                 _structBonds2.forEach(bond => {
                     const fromTask = taskIdMap[bond.from];
                     const toTask = taskIdMap[bond.to];
@@ -6500,27 +7023,17 @@
                     }
                 });
 
-                // Also recreate connections from dependencies (only L0/L1 — no L2 bonds)
-                if (data.dependencies && data.dependencies.length > 0) {
-                    data.dependencies.forEach(dep => {
-                        const fromTask = taskIdMap[dep.from];
-                        const toTask = taskIdMap[dep.to];
-                        if (fromTask && toTask) {
-                            // Skip L2 dependencies — subtasks belong by proximity
-                            const fromLevel = fromTask.level || 1;
-                            const toLevel = toTask.level || 1;
-                            if (fromLevel <= 1 && toLevel <= 1) {
-                                window.connect3DTasks(fromTask.id, toTask.id, 'backbone');
-                            }
-                        }
-                    });
-                }
+                // Create tree branches + spiral + ring + distribute particles
+                createTreeBranches(_branchData2);
+                createCentralSpiral();
+                createDataRing3D();
+                distributeParticlesAlongTree(_branchData2);
 
-                const _bc2 = window.task3DConnections ? window.task3DConnections.length : 0;
-                console.log('[VZOR v3.31] DB loaded', Object.keys(taskIdMap).length, 'tasks,', _bc2, 'bonds. NODE_RADII:', JSON.stringify(NODE_RADII));
+                const _bc2 = _branchData2.length;
+                console.log('[VZOR v4.0] DB loaded', Object.keys(taskIdMap).length, 'tasks,', _bc2, 'branches');
                 const _vb2 = document.getElementById('version-badge');
-                if (_vb2) _vb2.textContent = 'v3.31 | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' bonds';
-                window.showToast('VZOR Tasks', 'Восстановлено ' + Object.keys(taskIdMap).length + ' задач', 'info', 3000);
+                if (_vb2) _vb2.textContent = 'v4.0 tree | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' branches';
+                window.showToast('VZOR Tree', 'Восстановлено ' + Object.keys(taskIdMap).length + ' задач · ' + _bc2 + ' ветвей', 'info', 3000);
 
                 // Build phase navigation panel
                 if (window.buildPhaseNav) window.buildPhaseNav();
@@ -6940,6 +7453,9 @@
 
         // Update when panels might change layout
         // (Called in showDetailPanel and hide logic)
+
+        // v4.0: Create data ring at startup (visible around the cloud)
+        createDataRing3D();
 
         animate();
     </script>
@@ -9866,7 +10382,7 @@ async function sendToAgentZero(message) {
 
 
 
-    <div id="version-badge" style="position:fixed;bottom:8px;right:8px;color:rgba(255,255,255,0.6);font-size:11px;font-family:Outfit,sans-serif;pointer-events:none;z-index:9999;">v3.31</div>
+    <div id="version-badge" style="position:fixed;bottom:8px;right:8px;color:rgba(255,255,255,0.6);font-size:11px;font-family:Outfit,sans-serif;pointer-events:none;z-index:9999;">v4.0 tree</div>
 </body>
 
 </html>
