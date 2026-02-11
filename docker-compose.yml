@@ -187,13 +187,13 @@ services:
 
   # Agent Zero (AI Framework)
   agent-zero:
-    image: agent0ai/agent-zero:latest
+    image: agent-zero-local:v0.9.8
     container_name: vzor-agent-zero
     restart: unless-stopped
     ports:
       - "5000:80"
     volumes:
-      - /home/vzor/agent-zero-data:/a0
+      - /home/vzor/agent-zero-data:/a0/usr
     networks:
       - vzor-network
     depends_on:

@@ -1,0 +1,57 @@
+services:
+  openclaw-gateway:
+    image: ${OPENCLAW_IMAGE:-openclaw:local}
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN:
+      CLAWDBOT_GATEWAY_TOKEN:
+      MOLTBOT_GATEWAY_TOKEN:
+      GOOGLE_API_KEY: AIzaSyBeE6Qnpi4_KjvBJkQoOUCZ0nAh1CEpGMU
+      GEMINI_API_KEY: AIzaSyBeE6Qnpi4_KjvBJkQoOUCZ0nAh1CEpGMU
+      GEMINI_BASE_URL: https://api-proxy.agvzor.workers.dev
+      GOOGLE_API_BASE_URL: https://api-proxy.agvzor.workers.dev
+      GOOGLE_AI_STUDIO_API_ENDPOINT: https://api-proxy.agvzor.workers.dev
+      BRAVE_API_KEY: BSAM44xzzTH1exSCnWSHZT2og2D1FEM
+    volumes:
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+      - /home/vzor/openclaw/genai-patched.mjs:/app/node_modules/.pnpm/@google+genai@1.40.0/node_modules/@google/genai/dist/node/index.mjs:ro
+      - /home/vzor/openclaw/genai-patched.cjs:/app/node_modules/.pnpm/@google+genai@1.40.0/node_modules/@google/genai/dist/node/index.cjs:ro
+      - /home/vzor/openclaw/genai-root.mjs:/app/node_modules/.pnpm/@google+genai@1.40.0/node_modules/@google/genai/dist/index.mjs:ro
+      - /home/vzor/openclaw/genai-root.cjs:/app/node_modules/.pnpm/@google+genai@1.40.0/node_modules/@google/genai/dist/index.cjs:ro
+      - /home/vzor/openclaw/entrypoint-patch.sh:/app/entrypoint-patch.sh:ro
+    ports:
+      - "${OPENCLAW_GATEWAY_PORT:-18789}:18789"
+      - "${OPENCLAW_BRIDGE_PORT:-18790}:18790"
+    init: true
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/app/entrypoint-patch.sh"]
+    command:
+      [
+        "node",
+        "openclaw.mjs",
+        "gateway",
+        "--bind",
+        "lan",
+        "--port",
+        "18789",
+        "--allow-unconfigured",
+        "--token",
+        "",
+      ]
+
+  openclaw-cli:
+    image: ${OPENCLAW_IMAGE:-openclaw:local}
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      OPENCLAW_GATEWAY_TOKEN: ${OPENCLAW_GATEWAY_TOKEN}
+      BROWSER: echo
+    volumes:
+      - ${OPENCLAW_CONFIG_DIR}:/home/node/.openclaw
+      - ${OPENCLAW_WORKSPACE_DIR}:/home/node/.openclaw/workspace
+    stdin_open: true
+    tty: true
+    init: true
+    entrypoint: ["node", "openclaw.mjs"]
