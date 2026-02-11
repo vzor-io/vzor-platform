@@ -56,6 +56,38 @@
 | Gemini 2.5 Flash | Рабочая, через прокси | `/model gemini` |
 | Claude Sonnet 4 | Не подключена (нет кредитов API) | — |
 
+### 5. Agent Zero обновлён до v0.9.8 (с GitHub)
+- **Репо:** `/home/vzor/agent-zero/` (git clone с `github.com/agent0ai/agent-zero`, тег v0.9.8)
+- **Старая версия:** agent0ai/agent-zero:latest (образ с Docker Hub от 19.11.2025) — больше не используется
+- **Новый образ:** `agent-zero-local:v0.9.8` — собран локально из исходников GitHub (`docker build -f DockerfileLocal`)
+- **Docker-compose:** В `/home/vzor/vzor/docker-compose.yml` образ заменён на `agent-zero-local:v0.9.8`
+- **Volume:** `/home/vzor/agent-zero-data:/a0/usr` (по документации v0.9.8 маппить только `/a0/usr`, не весь `/a0`)
+- **Порт:** 5000 → 80 (http://95.174.95.209:5000)
+- **Бэкап старого репо:** `/home/vzor/agent-zero-old/`
+- **Что нового в v0.9.8:**
+  - Skills System (SKILL.md стандарт, совместим с Claude Code, Cursor, Codex)
+  - WebSocket вместо polling
+  - Полный редизайн UI (Projects, Scheduler, File browser, Welcome screen)
+  - Git Projects (клонирование публичных и приватных репо)
+  - 4 новых LLM-провайдера: CometAPI, Z.AI, Moonshot AI, AWS Bedrock
+  - Microsoft Dev Tunnels
+  - Subagents system
+- **Обновление:** `cd /home/vzor/agent-zero && git pull && docker build -f DockerfileLocal -t agent-zero-local:v0.9.8 . && cd /home/vzor/vzor && docker compose up -d agent-zero`
+- **Настройка:** Нужно добавить API ключи в Settings → External Services → API Keys (DeepSeek и др.)
+
+### 6. Порты открыты в группе безопасности Cloud.ru
+- **5000** — Agent Zero (TCP, 0.0.0.0/0)
+- **8088** — RAGFlow (TCP, 0.0.0.0/0)
+- **18789** — OpenClaw (TCP, 0.0.0.0/0)
+- Все три проверены и работают
+
+### 7. Watchdog для сетевого интерфейса enp4s0
+- **Проблема:** Интерфейс enp4s0 (публичный IP) периодически отваливался, SSH переставал работать
+- **Решение:** systemd-сервис `enp4s0-watchdog` — каждые 10 секунд проверяет интерфейс, поднимает если упал
+- **Файл:** `/etc/systemd/system/enp4s0-watchdog.service`
+- **Статус:** Включён, автозапуск (`systemctl enable enp4s0-watchdog`)
+- **Проверка:** `systemctl status enp4s0-watchdog`
+
 ---
 
 ## ✅ ЧТО СДЕЛАНО 10.02.2026
