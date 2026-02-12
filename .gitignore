@@ -41,3 +41,8 @@ backups/
 *.local
 .DS_Store
 Thumbs.db
+
+# Old HTML backups
+config/nginx/www/index.html.bak.*
+config/nginx/www/index_backup_*.html
+config/nginx/www/index_mol_backup.html
