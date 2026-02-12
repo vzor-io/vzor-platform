@@ -3173,8 +3173,8 @@
 
         controls.enableZoom = false; // Zoom handled manually for independent scaling
         controls.enabled = false; // Disabled initially (State 1/2 use scroll)
-        controls.minDistance = 30;  // v3.34: Allow getting very close to focused task
-        controls.maxDistance = 800; // v3.34: Allow zooming out far
+        controls.minDistance = 50;  // Allow getting close
+        controls.maxDistance = 600;
 
         // INTERACTION LISTENER (OrbitControls)
         controls.addEventListener('change', () => {
@@ -3839,19 +3839,14 @@
                                         const clickedColor = getPhaseColor(taskPayload.phase || 'General');
                                         const currentColor = window._focusedBlock || null;
 
-                                        // v3.34: ALWAYS fly to clicked task (Blender-style orbit pivot)
-                                        // No flyToBlock — only change the orbit pivot point
-                                        if (window.flyToTask) window.flyToTask(taskPayload);
-
-                                        // Highlight connected tasks
-                                        if (window.highlightTaskConnections) {
-                                            window.highlightTaskConnections(taskPayload.id);
-                                        }
-
-                                        // Update focused block for label visibility
-                                        if (currentColor !== clickedColor) {
+                                        if (currentColor === clickedColor) {
+                                            // Same block: keep focus, just show detail panel
+                                            // (no unfocus, no camera fly)
+                                        } else {
+                                            // Different block (or no focus): focus this block + fly
                                             window._focusedBlock = clickedColor;
-                                            window._focusedPhase = taskPayload.phase;
+                                            window._focusedPhase = taskPayload.phase; // for flyToPhase
+                                            if (typeof flyToBlock === 'function') flyToBlock(clickedColor);
                                             group.children.forEach(ch => {
                                                 if (ch.userData && ch.userData.isLabel) {
                                                     const owner = window.taskPoints.find(tp =>
@@ -4125,9 +4120,6 @@
             // targetZoom = 1.0; currentZoom = 1.0; // Already set above
             material.uniforms.uGraphZoom.value = 1.0;
             if (typeof highlightMat !== 'undefined') highlightMat.opacity = 0;
-
-            // v3.34: Reset orbit pivot on back
-            window._orbitPivotTask = null;
 
             // Disable Orbit Controls & Reset Camera
             // controls.enabled = false; // Already set above
@@ -4450,13 +4442,13 @@
             material.uniforms.uGraphZoom.value = currentZoom;
 
             // Also move camera for real 3D zoom effect (when drilled)
-            // v3.33: SKIP when task is focused — OrbitControls handles zoom
-            if (isDrilled && !window._orbitPivotTask) {
-                const baseDistance = 550;
+            if (isDrilled) {
+                const baseDistance = 550; // v3.22: larger scene with tetrahedral layout
                 const targetDistance = baseDistance / currentZoom;
                 const currentDistance = camera.position.length();
                 const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
 
+                // Move camera along its viewing direction
                 const direction = camera.position.clone().normalize();
                 camera.position.copy(direction.multiplyScalar(newDistance));
             }
@@ -4608,12 +4600,6 @@
 
                     // Update bond lines
                     updateBondPositions();
-
-                    // v3.33: Keep orbit pivot on focused task as it moves
-                    if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                        const fp = window._orbitPivotTask.mesh.position;
-                        controls.target.set(fp.x, fp.y, fp.z);
-                    }
                 }
 
                 // v3.22: Scale 3D mesh spheres + gentle pulsation
@@ -6482,63 +6468,6 @@
             // Opacity handled by animate loop via _focusedPhase
         }
 
-        // v3.33: Blender/Rhino-style orbit pivot
-        // Click task → orbit around it. Click empty → reset to origin.
-        // Camera STAYS where it is. Only the pivot point changes.
-        window._orbitPivotTask = null; // currently focused task (or null)
-
-        window.flyToTask = function(task) {
-            if (!task || !task.mesh) return;
-            window._orbitPivotTask = task;
-
-            const tp = task.mesh.position;
-            const targetPos = new THREE.Vector3(tp.x, tp.y, tp.z);
-            const startTarget = controls.target.clone();
-            const duration = 400; // fast pivot change
-            const startTime = Date.now();
-
-            // Enable OrbitControls zoom when focused on a task
-            controls.enableZoom = true;
-
-            lastInteractTime = Date.now() + 10000;
-
-            function animatePivot() {
-                const elapsed = Date.now() - startTime;
-                const t = Math.min(elapsed / duration, 1);
-                const ease = 1 - Math.pow(1 - t, 3);
-
-                controls.target.lerpVectors(startTarget, targetPos, ease);
-                controls.update();
-
-                if (t < 1) requestAnimationFrame(animatePivot);
-                else lastInteractTime = Date.now();
-            }
-            animatePivot();
-        };
-
-        window.resetOrbitPivot = function() {
-            window._orbitPivotTask = null;
-
-            const startTarget = controls.target.clone();
-            const originTarget = new THREE.Vector3(0, 0, 0);
-            const duration = 400;
-            const startTime = Date.now();
-
-            controls.enableZoom = false; // back to manual zoom
-
-            function animateReset() {
-                const elapsed = Date.now() - startTime;
-                const t = Math.min(elapsed / duration, 1);
-                const ease = 1 - Math.pow(1 - t, 3);
-
-                controls.target.lerpVectors(startTarget, originTarget, ease);
-                controls.update();
-
-                if (t < 1) requestAnimationFrame(animateReset);
-            }
-            animateReset();
-        };
-
         // Save tasks to database
         async function saveTasksToDB(tasksArray) {
             const cat = typeof currentCategory !== 'undefined' ? currentCategory : '';
@@ -6972,9 +6901,7 @@
             setTimeout(() => notification.remove(), 2000);
         };
 
-        // 4. Click Handler for Empty Space (reset orbit pivot + highlights)
-        // v3.34: Task clicks handled by primary onClick handler only.
-        // This handler only resets pivot when clicking empty canvas space.
+        // 4. Click Handler for Tasks (Raycasting)
         document.addEventListener('click', (e) => {
             if (!isDrilled) return;
 
@@ -6983,7 +6910,7 @@
             const isUIElement = e.target.closest('#icon-bar, #side-panel, #task-interface, #detail-panel, #node-editor-panel, #task-list-panel, button, input');
             if (!isCanvas || isUIElement) return;
 
-            // Only act on empty-space clicks (no task hit)
+            // Normalize mouse coordinates relative to canvas
             const rect = renderer.domElement.getBoundingClientRect();
             const mouse = new THREE.Vector2();
             mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -6991,12 +6918,28 @@
 
             raycasterTasks.setFromCamera(mouse, camera);
 
+            // Check intersections with task points (v3.12.5: single Points objects)
             const meshes = window.taskPoints.map(t => t.mesh).filter(m => m && m.visible);
             const intersects = raycasterTasks.intersectObjects(meshes);
 
-            if (intersects.length === 0) {
-                // Clicked empty space — reset orbit pivot + highlights
-                if (window.resetOrbitPivot) window.resetOrbitPivot();
+            if (intersects.length > 0) {
+                const hitMesh = intersects[0].object;
+                const task = window.taskPoints.find(t => t.mesh === hitMesh);
+                if (task) {
+                    console.log('[Task Click] Hit:', task.title);
+                    showDetailPanel(task);
+                    // v3.31: Set orbit pivot to clicked task — rotation around selected object
+                    const tp = task.mesh.position;
+                    controls.target.set(tp.x, tp.y, tp.z);
+                    controls.update();
+                    lastInteractTime = Date.now();
+                    // Obsidian-style highlight connected tasks
+                    if (window.highlightTaskConnections) {
+                        window.highlightTaskConnections(task.id);
+                    }
+                }
+            } else {
+                // Clicked empty space - reset highlights
                 if (window.highlightTaskConnections) {
                     window.highlightTaskConnections(null);
                 }

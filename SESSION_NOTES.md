@@ -1,5 +1,5 @@
 # VZOR Platform - Session Notes
-**Last Updated:** 2026-02-11
+**Last Updated:** 2026-02-12
 **Server:** 95.174.95.209 (Cloud.ru)
 **Current Branch:** development (main = эталон)
 
@@ -477,3 +477,64 @@ claude
 ---
 
 **ВАЖНО:** Обязательно скажи мне прочитать этот файл в начале следующей сессии!
+
+---
+
+## ✅ ЧТО СДЕЛАНО 12.02.2026
+
+### v3.33: Органический граф (Gource-стиль)
+
+**Главное достижение**: Молекулярные кластеры (ежики на fibonacci sphere) превращены в органический force-directed граф, визуально похожий на Gource.
+
+**Проблемы и решения (итерации):**
+
+1. **Bezier curves** — заменили прямые линии кривыми Безье (8 сегментов). Результат: немного сгладил, но топология была геометрической (треугольники, квадраты). **Вывод:** форма линии не важна, важна топология.
+
+2. **Tree topology** — удалены L1↔L1 hex-соседи и L2↔L2 cage-бонды. Оставлены только L0→L1 и L1→L2 parent-child. Убраны Bezier обратно на прямые линии. Результат: стало чище, но L2 всё ещё на perfect fibonacci sphere → «ёжики».
+
+3. **Размерная иерархия** — NODE_RADII: L0=10, L1=4, L2=1.3. GLOW_SCALES: L0=6, L1=3.5, L2=0. Massive glow на хабах. Результат: красивые хабы, но L2 всё ещё симметричные звёзды.
+
+4. **Random cloud L2** — **ROOT CAUSE FIX**. Заменили fibonacci sphere на Gaussian random cloud (Box-Muller). l2Radius=5.0. CLUSTER_JITTER=0.15. L2↔L2 weak repulsion (40). L1→L2 strong spring (K=0.08). L1 scale by child count. Результат: органические кластеры!
+
+5. **Invisible L1→L2 bonds** — сотни видимых L1→L2 спиц создавали «паутину». Решение: brightness=0 для L1→L2 бондов, видны только L0→L1 trunk.
+
+6. **Removed dependency bonds** — L1↔L1 dependency бонды создавали треугольники. Удалены ВСЕ dependency бонды из createStructuredTasks() и loadTasksFromDB().
+
+**Сохранено как:** `index_v3.33.html` на сервере, `index_mol_v3.33.html` локально.
+
+### v3.34: Blender-стиль orbit pivot
+
+**Проблема:** Клик на задачу — камера летит не туда и отскакивает назад. Два обработчика кликов конфликтуют. flyToBlock() перебивает pivot.
+
+**Root causes:**
+1. Primary onClick handler вызывал `flyToBlock()` для кликов по задачам из другого блока — это двигало камеру к центру блока, а не к задаче
+2. Secondary click handler (line ~6968) дублировал `flyToTask()` — два handler'а боролись
+3. `animate()` (line 4446) принудительно менял дистанцию камеры каждый кадр
+
+**Решение (6 шагов):**
+1. **Primary handler** — ВСЕГДА вызывает `flyToTask()` при клике на любую задачу (убран flyToBlock)
+2. **Secondary handler** — оставлен ТОЛЬКО для empty-space click → resetOrbitPivot()
+3. **flyToTask()** — только меняет controls.target (pivot), камера НЕ двигается
+4. **animate()** — пропускает camera distance forcing когда `_orbitPivotTask` установлен
+5. **Pivot follows node** — в force sim pivot следует за двигающейся задачей
+6. **Zoom** — enableZoom=true когда focused, minDistance=30, maxDistance=800
+7. **Back button** — сбрасывает `_orbitPivotTask = null`
+8. **highlightTaskConnections** — перенесён в primary handler
+
+### Текущее состояние кода (v3.34)
+- **Размер:** ~9900 строк
+- **Топология:** Pure tree (L0→L1→L2), без cross-connections
+- **Layout:** Random cloud L2 (Gaussian), force-directed sim
+- **Bonds:** Только L0→L1 trunk видимые (brightness=0.5), L1→L2 invisible
+- **Nodes:** L0=10r/glow6, L1=4r/glow3.5, L2=1.3r/no glow
+- **Orbit:** Blender-style — click task → pivot changes, camera stays, scroll zooms
+- **Force sim:** Repulsion 200 (L2↔L2: 40), Spring K=0.02 (L1→L2: 0.08), Damping 0.82
+
+### Файлы
+- `/home/vzor/vzor/config/nginx/www/index.html` — v3.34 (текущий)
+- `/home/vzor/vzor/config/nginx/www/index_v3.33.html` — бэкап v3.33
+- `C:\Users\vzor\index_mol.html` — локальная копия v3.34
+- `C:\Users\vzor\index_mol_v3.33.html` — локальный бэкап v3.33
+
+---
+
