@@ -1107,7 +1107,46 @@
             font-size: 12px;
         }
 
-        /* task-list-btn uses nav-btn class, no overrides needed */
+        
+        /* v3.35: ГРАФ BUTTON */
+        #graph-toggle-btn {
+            position: fixed; top: 130px; right: 40px;
+            width: 85px; height: 40px;
+            background: rgba(10,10,10,0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 20px;
+            color: rgba(255,255,255,0.7);
+            font: 500 11px/1 'Outfit',sans-serif;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.4s;
+            z-index: 100;
+            user-select: none;
+        }
+        #graph-toggle-btn.visible { opacity: 1; pointer-events: auto; }
+        #graph-toggle-btn:hover {
+            background: rgba(20,20,22,0.75);
+            border-color: rgba(0,255,255,0.3);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(0,255,255,0.2);
+        }
+        #graph-toggle-btn.active {
+            background: rgba(0,255,255,0.12);
+            border-color: #4ECDC4;
+            color: #4ECDC4;
+            box-shadow: 0 0 25px rgba(78,205,196,0.3);
+        }
+        #graph-toggle-btn.dragging { cursor: grabbing !important; transition: none; }
+
+/* task-list-btn uses nav-btn class, no overrides needed */
 
         /* Legacy modal — HIDDEN */
         #node-editor-modal {
@@ -2827,6 +2866,15 @@
         </span>
         NODES
     </button>
+    <!-- v3.35: ГРАФ BUTTON -->
+    <button id="graph-toggle-btn" onclick="toggleGraph()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/>
+            <line x1="6" y1="6" x2="12" y2="18"/><line x1="18" y1="6" x2="12" y2="18"/>
+        </svg>
+        ГРАФ
+    </button>
+
     
 
 
@@ -3661,7 +3709,9 @@
             // 4. Show Nodes Toggle Button - for ALL categories
             {
                 const nodesBtn = document.getElementById('nodes-toggle-btn');
+                var graphBtn = document.getElementById('graph-toggle-btn');
                 if (nodesBtn) nodesBtn.classList.add('visible');
+                if (graphBtn) graphBtn.classList.add('visible');
             }
 
             // 5. Show Task List Button
@@ -3767,7 +3817,9 @@
                     // Show nodes toggle - for ALL categories
                     {
                         const nodesBtn = document.getElementById('nodes-toggle-btn');
+                var graphBtn = document.getElementById('graph-toggle-btn');
                         if (nodesBtn) nodesBtn.classList.add('visible');
+                if (graphBtn) graphBtn.classList.add('visible');
                     }
 
                     // v3.12.8: Show task list button using class
@@ -4851,6 +4903,7 @@
                 // Show nodes toggle for all categories
                 {
                     const nodesBtn = document.getElementById('nodes-toggle-btn');
+                var graphBtn = document.getElementById('graph-toggle-btn');
                     if (nodesBtn && !nodesBtn.classList.contains('visible')) {
                         nodesBtn.classList.add('visible');
                     }
@@ -4945,6 +4998,7 @@
 
                     // Hide nodes toggle button - RESET INLINE STYLES TOO (v3.20 fix)
                     const nodesBtn = document.getElementById('nodes-toggle-btn');
+                var graphBtn = document.getElementById('graph-toggle-btn');
                     if (nodesBtn) {
                         nodesBtn.classList.remove('visible');
                         nodesBtn.style.cssText = '';  // Clear inline styles that override CSS
@@ -5324,8 +5378,61 @@
         });
 
         const bondMesh = new THREE.LineSegments(bondGeometry, bondMaterial);
+        window.bondMesh = bondMesh;
         bondMesh.visible = false;
         group.add(bondMesh);
+
+        
+        // v3.35: CREATE MATRIX DEPENDENCIES
+        window.createMatrixDeps = function(taskMap) {
+            var deps = [];
+            var add = function(from, to) {
+                if (taskMap[from] && taskMap[to]) deps.push({from:from, to:to});
+            };
+
+            // CROSS-PHASE
+            add(368,376); add(350,376); add(443,453); add(457,486); add(443,494); add(475,504);
+
+            // ИНВЕСТАНАЛИЗ
+            add(313,341); add(324,341); add(331,341); add(341,350); add(350,361); add(361,368);
+
+            // ПРОЕКТИРОВАНИЕ
+            add(376,382); add(382,390); add(390,399); add(399,405); add(405,417); add(399,417);
+            add(417,424); add(424,435); add(435,443);
+
+            // СТРОИТЕЛЬСТВО
+            add(453,457); add(457,463); add(463,468); add(468,475);
+
+            // ПРОДАЖИ
+            add(486,494); add(494,504);
+
+            // MATRIX
+            add(324,405); add(331,390); add(341,382); add(417,361); add(424,341);
+
+            return deps;
+        };
+
+        // CREATE MATRIX BONDS AFTER TASKS LOADED
+        window.createMatrixBonds = function() {
+            if (!window.taskPoints || window.taskPoints.length === 0) return;
+
+            var taskMap = {};
+            for (var i = 0; i < window.taskPoints.length; i++) {
+                var t = window.taskPoints[i];
+                if (t && t.id) taskMap[t.id] = t;
+            }
+
+            var deps = window.createMatrixDeps(taskMap);
+            var count = 0;
+            for (var j = 0; j < deps.length; j++) {
+                var d = deps[j];
+                if (taskMap[d.from] && taskMap[d.to]) {
+                    window.connect3DTasks(d.from, d.to, 'matrix');
+                    count++;
+                }
+            }
+            console.log('[VZOR v3.35] Matrix bonds:', count);
+        };
 
         function initBondSystem() {
             bondPositions.fill(0);
@@ -5362,7 +5469,7 @@
 
             // v3.33: ONLY trunk bonds visible. L1→L2 = invisible (proximity = connection)
             const isTrunk = bondType === 'tree' || bondType === 'backbone';
-            const brightness = isTrunk ? 0.5 : 0.0; // molecular bonds invisible
+            const brightness = 0.38; // molecular bonds invisible
             bondColors[base]     = brightness;
             bondColors[base + 1] = brightness;
             bondColors[base + 2] = brightness;
@@ -5413,7 +5520,7 @@
                 window.task3DConnections.forEach(conn => {
                     const base = conn.bondIndex * 6;
                     const isTrunk = conn.bondType === 'tree' || conn.bondType === 'backbone';
-                    const brightness = isTrunk ? 0.5 : 0.0;
+                    const brightness = 0.38;
                     bondColors[base] = brightness; bondColors[base+1] = brightness; bondColors[base+2] = brightness;
                     bondColors[base+3] = brightness; bondColors[base+4] = brightness; bondColors[base+5] = brightness;
                 });
@@ -6192,6 +6299,9 @@
             console.log('[VZOR v3.33] Created', Object.keys(taskIdMap).length, 'tasks (L0:' + _l0c + ' L1:' + _l1c + ' L2:' + _l2c + '),', connCount, 'bonds');
             const _vb = document.getElementById('version-badge');
             if (_vb) _vb.textContent = 'v3.33 | ' + _l1c + ' tasks + ' + _l2c + ' subtasks | ' + connCount + ' bonds';
+
+            
+            setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 100);
 
             // Show detail panel for first phase task
             const firstPhase = tasks.find(t => t.level === 0);
@@ -8773,7 +8883,67 @@
             const panel = document.getElementById('node-editor-panel');
             if (panel && panel.classList.contains('active')) {
                 closeNodeEditor();
-            } else {
+            }
+
+        // v3.35: TOGGLE GRAPH
+        window.graphVisible = false;
+        function toggleGraph() {
+            var btn = document.getElementById('graph-toggle-btn');
+            if (!btn || btn.classList.contains('dragging')) return;
+            if (!window.bondMesh) { console.warn('[VZOR] No bondMesh'); return; }
+
+            window.graphVisible = !window.graphVisible;
+            window.bondMesh.visible = window.graphVisible;
+
+            if (window.graphVisible) btn.classList.add('active');
+            else btn.classList.remove('active');
+
+            console.log('[VZOR] Graph ' + (window.graphVisible ? 'ON' : 'OFF'));
+        }
+
+        // v3.35: GRAPH DRAG
+        setTimeout(function() {
+            var btn = document.getElementById('graph-toggle-btn');
+            if (!btn) return;
+
+            var dragging = false, startX, startY, startLeft, startTop;
+
+            btn.onmousedown = function(e) {
+                if (e.button !== 0) return;
+                var rect = btn.getBoundingClientRect();
+                startX = e.clientX; startY = e.clientY;
+                startLeft = rect.left; startTop = rect.top;
+                document.addEventListener('mousemove', onMove);
+                document.addEventListener('mouseup', onUp);
+                e.preventDefault();
+            };
+
+            function onMove(e) {
+                var dx = e.clientX - startX, dy = e.clientY - startY;
+                if (!dragging && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+                    dragging = true;
+                    btn.classList.add('dragging');
+                    btn.style.cursor = 'grabbing';
+                }
+                if (dragging) {
+                    btn.style.left = (startLeft + dx) + 'px';
+                    btn.style.top = (startTop + dy) + 'px';
+                    btn.style.right = 'auto';
+                }
+            }
+
+            function onUp(e) {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                if (dragging) {
+                    setTimeout(function() {
+                        dragging = false;
+                        btn.classList.remove('dragging');
+                        btn.style.cursor = 'grab';
+                    }, 50);
+                }
+            }
+        }, 500); else {
                 openNodeEditor();
             }
         }
