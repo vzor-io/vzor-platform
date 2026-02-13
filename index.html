@@ -6,7 +6,11 @@
     Дата начала: 2026-02-05
 
     Изменения v3.22:
-    - (добавлять сюда)
+    - Finance section: Category-aware icon bar (6 Finance buttons: Portfolio/Markets/DeFi/Analytics/Wallets/Settings)
+    - Finance side panels with mock data (portfolio, markets, DeFi positions, analytics, wallets, settings)
+    - 3D Portfolio Universe graph (colored asset nodes, breathing animation, correlation bonds)
+    - Finance CSS design tokens (--fin-green, --fin-red, --fin-btc, etc.)
+    - Finance widget CSS classes (.fin-value, .fin-card, .fin-bar-row, .fin-watchlist-item, etc.)
 -->
 <html lang="ru">
 
@@ -58,6 +62,16 @@
             --spacing-md: 16px;
             --spacing-lg: 24px;
             --spacing-xl: 32px;
+
+            /* Finance-specific colors (v3.22) */
+            --fin-green: #4ADE80;
+            --fin-red: #F87171;
+            --fin-amber: #FBBF24;
+            --fin-btc: #F7931A;
+            --fin-eth: #627EEA;
+            --fin-sol: #9945FF;
+            --fin-defi: #8B5CF6;
+            --fin-stable: #2DD4BF;
         }
 
         body {
@@ -851,6 +865,321 @@
             background: rgba(255, 255, 255, 0.2);
             margin: 5px 0;
         }
+
+        /* ===== v3.22: FINANCE WIDGET STYLES ===== */
+        .fin-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+        .fin-change {
+            font-size: 14px;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+        .fin-change.positive { color: var(--fin-green); }
+        .fin-change.negative { color: var(--fin-red); }
+        .fin-change.neutral { color: var(--text-tertiary); }
+
+        .fin-section-title {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            margin: 16px 0 8px;
+            padding-bottom: 4px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .fin-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+            font-size: 12px;
+        }
+        .fin-bar-label {
+            width: 48px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .fin-bar-track {
+            flex: 1;
+            height: 6px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .fin-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+        }
+        .fin-bar-pct {
+            width: 40px;
+            text-align: right;
+            color: var(--text-tertiary);
+            font-size: 11px;
+            flex-shrink: 0;
+        }
+
+        .fin-mover {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            padding: 3px 0;
+        }
+        .fin-mover .arrow { font-size: 10px; }
+        .fin-mover .arrow.up { color: var(--fin-green); }
+        .fin-mover .arrow.down { color: var(--fin-red); }
+        .fin-mover .symbol { color: var(--text-secondary); font-weight: 500; width: 48px; }
+        .fin-mover .pct { margin-left: auto; font-weight: 500; }
+
+        .fin-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            transition: border-color var(--transition-fast);
+        }
+        .fin-card:hover {
+            border-color: var(--border-medium);
+        }
+        .fin-card-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+        .fin-card-subtitle {
+            font-size: 11px;
+            color: var(--text-tertiary);
+        }
+        .fin-card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .fin-stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-size: 12px;
+        }
+        .fin-stat-label { color: var(--text-tertiary); }
+        .fin-stat-value { color: var(--text-secondary); font-weight: 500; }
+
+        .fin-watchlist-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            cursor: pointer;
+            transition: background var(--transition-fast);
+        }
+        .fin-watchlist-item:hover {
+            background: var(--surface-hover);
+            margin: 0 -15px;
+            padding: 6px 15px;
+        }
+        .fin-watchlist-item .symbol { font-weight: 600; color: var(--text-primary); width: 48px; font-size: 12px; }
+        .fin-watchlist-item .price { color: var(--text-secondary); font-size: 12px; margin-left: auto; }
+        .fin-watchlist-item .change { width: 55px; text-align: right; font-size: 11px; font-weight: 500; }
+        .fin-watchlist-item .sparkline-wrap { width: 60px; height: 20px; flex-shrink: 0; }
+
+        .fin-health-bar {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+        }
+        .fin-health-bar .bar-track {
+            flex: 1;
+            height: 4px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .fin-health-bar .bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--fin-green);
+        }
+        .fin-health-bar .bar-label {
+            font-size: 10px;
+            color: var(--text-tertiary);
+        }
+
+        .fin-gauge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 8px 0;
+        }
+        .fin-gauge-track {
+            flex: 1;
+            height: 8px;
+            background: linear-gradient(to right, var(--fin-red), var(--fin-amber), var(--fin-green));
+            border-radius: 4px;
+            position: relative;
+        }
+        .fin-gauge-needle {
+            position: absolute;
+            top: -3px;
+            width: 3px;
+            height: 14px;
+            background: #fff;
+            border-radius: 2px;
+            transform: translateX(-50%);
+        }
+        .fin-gauge-label {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .fin-wallet-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+        .fin-wallet-card .wallet-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        .fin-wallet-card .wallet-address {
+            font-size: 11px;
+            color: var(--text-tertiary);
+            font-family: monospace;
+            margin-top: 2px;
+        }
+        .fin-wallet-card .wallet-balance {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .fin-tx-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            padding: 4px 0;
+            color: var(--text-secondary);
+        }
+        .fin-tx-item .tx-icon { font-size: 12px; flex-shrink: 0; }
+
+        .fin-api-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 12px;
+        }
+        .fin-api-row .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+        .fin-api-row .dot.connected { background: var(--fin-green); }
+        .fin-api-row .dot.disconnected { background: var(--text-tertiary); }
+
+        .fin-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 14px;
+            font-size: 11px;
+            font-weight: 500;
+            border-radius: 6px;
+            border: 1px solid var(--border-medium);
+            background: rgba(255,255,255,0.04);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+        .fin-btn:hover {
+            background: var(--surface-hover);
+            border-color: var(--color-accent);
+            color: var(--text-primary);
+        }
+        .fin-btn.primary {
+            background: rgba(78, 205, 196, 0.12);
+            border-color: rgba(78, 205, 196, 0.3);
+            color: #4ECDC4;
+        }
+
+        .fin-search {
+            width: 100%;
+            padding: 7px 10px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border-subtle);
+            border-radius: 6px;
+            color: var(--text-primary);
+            outline: none;
+            font-family: inherit;
+            transition: border-color var(--transition-fast);
+        }
+        .fin-search::placeholder { color: var(--text-hint); }
+        .fin-search:focus { border-color: var(--color-accent-dim); }
+
+        .fin-trending-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            padding: 3px 0;
+        }
+        .fin-trending-item .rank { color: var(--text-hint); width: 18px; }
+        .fin-trending-item .symbol { color: var(--text-primary); font-weight: 600; width: 48px; }
+        .fin-trending-item .change { color: var(--fin-green); font-weight: 500; }
+        .fin-trending-item .vol { color: var(--text-tertiary); margin-left: auto; }
+
+        .fin-signal-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            padding: 3px 0;
+        }
+        .fin-signal-row .asset { color: var(--text-secondary); width: 36px; font-weight: 500; }
+        .fin-signal-row .indicator { color: var(--text-tertiary); flex: 1; }
+        .fin-signal-row .value { font-weight: 500; }
+        .fin-signal-row .value.bullish { color: var(--fin-green); }
+        .fin-signal-row .value.bearish { color: var(--fin-red); }
+        .fin-signal-row .value.neutral { color: var(--text-secondary); }
+        .fin-signal-row .value.anomaly { color: var(--fin-amber); }
+
+        .fin-whale-item {
+            font-size: 11px;
+            padding: 3px 0;
+            color: var(--text-secondary);
+        }
+
+        .fin-calendar-item {
+            display: flex;
+            gap: 8px;
+            font-size: 11px;
+            padding: 3px 0;
+        }
+        .fin-calendar-item .date { color: var(--text-tertiary); width: 48px; flex-shrink: 0; }
+        .fin-calendar-item .event { color: var(--text-secondary); }
 
         /* 2. Unified Panel Colors */
         #detail-panel,
@@ -3307,6 +3636,9 @@
             document.getElementById('back-button').classList.add('visible');
             document.getElementById('back-button').style.opacity = '1';
             document.getElementById('back-button').style.pointerEvents = 'auto';
+            // v3.22: Category-aware icon bar
+            if (window.renderIconBar) window.renderIconBar(name);
+
             // Icon Bar - show when drilled in
             document.getElementById('icon-bar').classList.add('visible');
             document.getElementById('icon-bar-toggle').style.display = 'flex';
@@ -3329,6 +3661,16 @@
                 setTimeout(() => {
                     document.getElementById('task-interface').classList.add('active');
                 }, 800); // Slight delay for effect
+            }
+
+            // v3.22: Create Finance 3D graph when entering Finance
+            if (name === "Finance") {
+                destroyFinanceGraph();
+                setTimeout(() => {
+                    createFinanceGraph(window.FINANCE_MOCK);
+                }, 300);
+            } else {
+                destroyFinanceGraph();
             }
         }
 
@@ -3454,6 +3796,12 @@
 
             // Close Side Panel
             if (typeof closeSidePanel === 'function') closeSidePanel();
+
+            // v3.22: Destroy finance graph on exit
+            destroyFinanceGraph();
+
+            // v3.22: Reset icon bar to Development (default)
+            if (window.renderIconBar) window.renderIconBar('Development');
 
             // v3.11: Hide icon bar toggle
             document.getElementById('icon-bar-toggle').style.display = 'none';
@@ -3965,6 +4313,11 @@
                 });
             }
 
+            // v3.22: Control Finance graph visibility
+            if (window.financeGraphGroup) {
+                window.financeGraphGroup.visible = isDrilled && currentCategory === 'Finance';
+            }
+
             // v3.12.7: CRITICAL - Continuously enforce UI visibility during drill-down
             // This fixes the issue where UI disappears on second drill-down
             if (isDrilled) {
@@ -4022,6 +4375,11 @@
 
             // v3.12.1: Animate 3D connection flow particles
             if (window.animateConnections) window.animateConnections();
+
+            // v3.22: Animate Finance graph breathing
+            if (isDrilled && currentCategory === 'Finance') {
+                animateFinanceGraph(time);
+            }
 
             // v3.20: Сначала градиент, потом основная сцена
             renderer.autoClear = false;
@@ -4928,6 +5286,185 @@
 
         // Update when panels might change layout
         // (Called in showDetailPanel and hide logic)
+
+        // ===== v3.22: 3D FINANCE PORTFOLIO GRAPH =====
+        window.financeGraphObjects = [];
+        window.financeGraphConnections = [];
+        window.financeGraphGroup = null;
+
+        function lerpFinColor(r1, g1, b1, r2, g2, b2, t) {
+            return [r1 + (r2 - r1) * t, g1 + (g2 - g1) * t, b1 + (b2 - b1) * t];
+        }
+
+        function getChangeColor(change24h) {
+            const t = Math.max(-10, Math.min(10, change24h)) / 10;
+            if (t >= 0) {
+                const [r, g, b] = lerpFinColor(1, 1, 1, 0.29, 0.87, 0.5, t);
+                return new THREE.Color(r, g, b);
+            } else {
+                const [r, g, b] = lerpFinColor(1, 1, 1, 0.97, 0.44, 0.44, -t);
+                return new THREE.Color(r, g, b);
+            }
+        }
+
+        function createFinanceGlowTexture(r, g, b) {
+            const c = document.createElement('canvas');
+            c.width = 64; c.height = 64;
+            const ctx = c.getContext('2d');
+            const grad = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+            const rs = Math.round(r*255), gs = Math.round(g*255), bs = Math.round(b*255);
+            grad.addColorStop(0, `rgba(${rs},${gs},${bs},1)`);
+            grad.addColorStop(0.2, `rgba(${rs},${gs},${bs},0.7)`);
+            grad.addColorStop(0.5, `rgba(${rs},${gs},${bs},0.25)`);
+            grad.addColorStop(0.8, `rgba(${rs},${gs},${bs},0.05)`);
+            grad.addColorStop(1, `rgba(0,0,0,0)`);
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 64, 64);
+            return new THREE.CanvasTexture(c);
+        }
+
+        function createFinanceBond(start, end, color, opacity) {
+            const pts = [start.clone(), end.clone()];
+            const geo = new THREE.BufferGeometry().setFromPoints(pts);
+            const mat = new THREE.LineBasicMaterial({ color, transparent: true, opacity, depthWrite: false });
+            return new THREE.Line(geo, mat);
+        }
+
+        function createFinanceGraph(mockData) {
+            destroyFinanceGraph();
+            const finGroup = new THREE.Group();
+            window.financeGraphGroup = finGroup;
+            group.add(finGroup);
+
+            const assets = mockData.portfolio.assets;
+            const baseRadius = 35;
+
+            // CORE node
+            const coreGlow = createFinanceGlowTexture(0, 1, 1);
+            const coreGeo = new THREE.BufferGeometry();
+            coreGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
+            const coreMat = new THREE.PointsMaterial({
+                color: 0x00ffff, size: 45, transparent: true, opacity: 0.9,
+                map: coreGlow, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+            });
+            const corePt = new THREE.Points(coreGeo, coreMat);
+            corePt.userData.finType = 'core';
+            corePt.userData.baseSize = 45;
+            corePt.userData.startTime = performance.now();
+            finGroup.add(corePt);
+            window.financeGraphObjects.push({ mesh: corePt, type: 'core', data: { symbol: 'PORTFOLIO', value: mockData.portfolio.totalValue } });
+
+            // Group by category
+            const cats = {};
+            assets.forEach(a => { if (!cats[a.category]) cats[a.category] = []; cats[a.category].push(a); });
+
+            const catMeta = {
+                crypto:      { color: 0xF7931A, angle: 0 },
+                defi:        { color: 0x8B5CF6, angle: Math.PI * 0.5 },
+                stable:      { color: 0x2DD4BF, angle: Math.PI },
+                traditional: { color: 0x60A5FA, angle: Math.PI * 1.5 }
+            };
+
+            const clusterR = 60, assetSpread = 30;
+
+            Object.keys(cats).forEach(catKey => {
+                const meta = catMeta[catKey] || catMeta.crypto;
+                const catAssets = cats[catKey];
+                const cx = Math.cos(meta.angle) * clusterR;
+                const cy = Math.sin(meta.angle) * clusterR * 0.6;
+                const cz = Math.sin(meta.angle * 0.7) * 20;
+
+                // Cluster node (L0)
+                const clCol = new THREE.Color(meta.color);
+                const clGlow = createFinanceGlowTexture(clCol.r, clCol.g, clCol.b);
+                const clGeo = new THREE.BufferGeometry();
+                clGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
+                const clMat = new THREE.PointsMaterial({
+                    color: meta.color, size: 30, transparent: true, opacity: 0.8,
+                    map: clGlow, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+                });
+                const clPt = new THREE.Points(clGeo, clMat);
+                clPt.position.set(cx, cy, cz);
+                clPt.userData.finType = 'cluster';
+                clPt.userData.baseSize = 30;
+                clPt.userData.startTime = performance.now();
+                finGroup.add(clPt);
+                window.financeGraphObjects.push({ mesh: clPt, type: 'cluster', data: { category: catKey } });
+
+                // Core → cluster bond
+                finGroup.add(createFinanceBond(new THREE.Vector3(0,0,0), new THREE.Vector3(cx,cy,cz), meta.color, 0.15));
+
+                // Asset nodes (L1)
+                catAssets.forEach((asset, ai) => {
+                    const aAngle = meta.angle + ((ai - (catAssets.length - 1) / 2) * 0.5);
+                    const ax = cx + Math.cos(aAngle) * assetSpread;
+                    const ay = cy + Math.sin(aAngle * 1.3) * assetSpread * 0.7;
+                    const az = cz + (Math.random() - 0.5) * 15;
+
+                    const nodeSize = Math.max(12, baseRadius * Math.sqrt(asset.allocation));
+                    const nodeColor = getChangeColor(asset.change24h);
+                    const aGlow = createFinanceGlowTexture(nodeColor.r, nodeColor.g, nodeColor.b);
+                    const aGeo = new THREE.BufferGeometry();
+                    aGeo.setAttribute('position', new THREE.BufferAttribute(new Float32Array([0, 0, 0]), 3));
+                    const aMat = new THREE.PointsMaterial({
+                        color: nodeColor, size: nodeSize, transparent: true, opacity: 0.9,
+                        map: aGlow, blending: THREE.AdditiveBlending, depthWrite: false, sizeAttenuation: true
+                    });
+                    const aPt = new THREE.Points(aGeo, aMat);
+                    aPt.position.set(ax, ay, az);
+                    aPt.userData.finType = 'asset';
+                    aPt.userData.baseSize = nodeSize;
+                    aPt.userData.startTime = performance.now();
+                    aPt.userData.volatility = Math.abs(asset.change24h) / 10;
+                    finGroup.add(aPt);
+                    window.financeGraphObjects.push({ mesh: aPt, type: 'asset', data: asset });
+
+                    // Cluster → asset bond
+                    finGroup.add(createFinanceBond(new THREE.Vector3(cx,cy,cz), new THREE.Vector3(ax,ay,az), meta.color, 0.1));
+                });
+            });
+
+            // Correlation bonds between crypto assets
+            const cryptoNodes = window.financeGraphObjects.filter(o => o.type === 'asset' && o.data.category === 'crypto');
+            for (let i = 0; i < cryptoNodes.length; i++) {
+                for (let j = i + 1; j < cryptoNodes.length; j++) {
+                    finGroup.add(createFinanceBond(cryptoNodes[i].mesh.position, cryptoNodes[j].mesh.position, 0xffffff, 0.04));
+                }
+            }
+        }
+
+        function destroyFinanceGraph() {
+            if (window.financeGraphGroup) {
+                group.remove(window.financeGraphGroup);
+                window.financeGraphGroup.traverse(obj => {
+                    if (obj.geometry) obj.geometry.dispose();
+                    if (obj.material) { if (obj.material.map) obj.material.map.dispose(); obj.material.dispose(); }
+                });
+                window.financeGraphGroup = null;
+            }
+            window.financeGraphObjects = [];
+            window.financeGraphConnections = [];
+        }
+
+        function animateFinanceGraph(time) {
+            if (!window.financeGraphObjects || window.financeGraphObjects.length === 0) return;
+            window.financeGraphObjects.forEach(obj => {
+                if (!obj.mesh || !obj.mesh.material) return;
+                const m = obj.mesh;
+                const vol = m.userData.volatility || 0.1;
+                const breathe = 1.0 + Math.sin(time * (2 + vol * 3)) * vol * 0.15;
+                m.material.size = (m.userData.baseSize || 20) * breathe;
+                if (m.userData.startTime) {
+                    const age = performance.now() - m.userData.startTime;
+                    if (age < 800) {
+                        const t = age / 800;
+                        const ease = 1 - Math.pow(1 - t, 3);
+                        m.material.size *= ease;
+                        m.material.opacity = 0.9 * ease;
+                    }
+                }
+            });
+        }
 
         animate();
     </script>
@@ -6668,6 +7205,442 @@
             });
         })();
 
+        // ===== v3.22: FINANCE MOCK DATA =====
+        window.FINANCE_MOCK = {
+            portfolio: {
+                totalValue: 47832.15,
+                change24h: { value: 1247.30, percent: 2.68 },
+                assets: [
+                    { symbol: "BTC", name: "Bitcoin", amount: 0.2, price: 97240, allocation: 0.412, change24h: 1.2, color: "#F7931A", category: "crypto" },
+                    { symbol: "ETH", name: "Ethereum", amount: 3.0, price: 3784, allocation: 0.238, change24h: 3.1, color: "#627EEA", category: "crypto" },
+                    { symbol: "SOL", name: "Solana", amount: 40, price: 145.20, allocation: 0.121, change24h: 8.3, color: "#9945FF", category: "crypto" },
+                    { symbol: "USDT", name: "Tether", amount: 4500, price: 1.0, allocation: 0.095, change24h: 0.01, color: "#2DD4BF", category: "stable" },
+                    { symbol: "AAVE", name: "Aave", amount: 15, price: 284.50, allocation: 0.089, change24h: -1.8, color: "#8B5CF6", category: "defi" },
+                    { symbol: "LINK", name: "Chainlink", amount: 120, price: 18.40, allocation: 0.046, change24h: 2.5, color: "#2A5ADA", category: "crypto" }
+                ],
+                recentOps: [
+                    { type: "Buy", desc: "0.5 ETH", value: "$1,892" },
+                    { type: "Stake", desc: "10 SOL", value: "$1,450" },
+                    { type: "Sell", desc: "100 USDT", value: "$100" }
+                ]
+            },
+            defiPositions: [
+                { protocol: "Uniswap V3", pair: "ETH/USDC", fee: "0.3%", tvl: 4200, apr: 18.0, rewards: 12.40, chain: "ethereum" },
+                { protocol: "Aave V3", type: "supply", asset: "ETH", amount: 2.0, tvl: 7568, apy: 3.2, healthFactor: 2.41, chain: "ethereum" },
+                { protocol: "Lido", type: "stake", asset: "ETH", amount: 0.5, apy: 3.8, rewards: 2.10, chain: "ethereum" }
+            ],
+            wallets: [
+                { name: "MetaMask", address: "0x7a2F...3e91", chain: "Ethereum", balance: 23450, icon: "\uD83E\uDD8A" },
+                { name: "Phantom", address: "7xKX...9mPq", chain: "Solana", balance: 8200, icon: "\uD83D\uDC7B" },
+                { name: "Binance", type: "exchange", balance: 16182, icon: "\uD83C\uDFE6" }
+            ],
+            market: {
+                watchlist: [
+                    { symbol: "BTC", price: 97240, change: 1.2 },
+                    { symbol: "ETH", price: 3784, change: 3.1 },
+                    { symbol: "SOL", price: 145.20, change: 8.3 },
+                    { symbol: "BNB", price: 612.50, change: -0.8 },
+                    { symbol: "AVAX", price: 34.20, change: -2.4 },
+                    { symbol: "LINK", price: 18.40, change: 2.5 },
+                    { symbol: "DOT", price: 7.80, change: -0.3 },
+                    { symbol: "MATIC", price: 0.92, change: 1.1 }
+                ],
+                trending: [
+                    { symbol: "PEPE", change: 42, volume: 2e9 },
+                    { symbol: "WIF", change: 18, volume: 8e8 },
+                    { symbol: "JUP", change: 12, volume: 4e8 }
+                ],
+                stats: { totalMcap: 3.24e12, volume24h: 1.42e11, btcDominance: 54.2, ethBtc: 0.0389 }
+            },
+            analytics: {
+                fearGreed: { value: 72, label: "Greed" },
+                onChain: { btcNetFlow: -12000, ethStaked: 28.3e6, gasGwei: 12, activeAddresses: 1.2e6 },
+                signals: [
+                    { asset: "BTC", indicator: "RSI(14)", value: "62.4", signal: "neutral" },
+                    { asset: "ETH", indicator: "MA Cross", value: "Bullish", signal: "bullish" },
+                    { asset: "SOL", indicator: "Volume", value: "+340%", signal: "anomaly" }
+                ],
+                whales: [
+                    "1000 BTC \u2192 Coinbase",
+                    "5000 ETH \u2192 Unknown",
+                    "$2M USDT \u2192 Binance"
+                ],
+                calendar: [
+                    { date: "Feb 14", event: "CPI Data" },
+                    { date: "Feb 15", event: "ETH Dencun anniv" },
+                    { date: "Feb 18", event: "FOMC Minutes" }
+                ]
+            }
+        };
+
+        // ===== v3.22: CATEGORY-AWARE ICON BAR =====
+        const FINANCE_ICONS = {
+            'fin-portfolio': {
+                title: 'Portfolio',
+                svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18"/><path d="M12 3v9h9"/></svg>'
+            },
+            'fin-markets': {
+                title: 'Markets',
+                svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20h18"/><path d="M5 16v-2l3-3 2 2 4-5 3 3V8"/><rect x="4" y="16" width="2" height="2" rx="0.5" fill="currentColor" opacity="0.3"/><rect x="9" y="14" width="2" height="4" rx="0.5" fill="currentColor" opacity="0.3"/><rect x="14" y="12" width="2" height="6" rx="0.5" fill="currentColor" opacity="0.3"/></svg>'
+            },
+            'fin-defi': {
+                title: 'DeFi',
+                svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="5" rx="2"/><rect x="4" y="10" width="16" height="5" rx="2"/><rect x="4" y="16" width="16" height="5" rx="2" opacity="0.5"/></svg>'
+            },
+            'fin-analytics': {
+                title: 'Analytics',
+                svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="4 18 8 12 12 15 16 8 20 11"/><circle cx="8" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="15" r="1.5" fill="currentColor"/><circle cx="16" cy="8" r="1.5" fill="currentColor"/></svg>'
+            },
+            'fin-wallets': {
+                title: 'Wallets',
+                svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="14" rx="3"/><path d="M2 10h20"/><circle cx="17" cy="14" r="1.5" fill="currentColor"/><path d="M6 6V5a2 2 0 012-2h8a2 2 0 012 2v1"/></svg>'
+            },
+            'fin-settings': {
+                title: 'Settings',
+                svg: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>'
+            }
+        };
+
+        const DEV_ICON_BAR_HTML = `
+            <div class="icon-btn" data-panel="invest" title="Invest">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/><circle cx="20" cy="9" r="2"/>
+                </svg>
+            </div>
+            <div class="icon-btn" data-panel="design" title="Design">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h7v7"/>
+                </svg>
+            </div>
+            <div class="icon-btn" data-panel="build" title="Build">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M2 20h20"/><path d="M5 20v-8l7-5 7 5v8"/><path d="M10 20v-4h4v4"/>
+                </svg>
+            </div>
+            <div class="icon-btn" data-panel="sales" title="Sales">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/>
+                </svg>
+            </div>
+            <div class="icon-separator"></div>
+            <div class="icon-btn" data-panel="files" title="Files">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 7v13a2 2 0 002 2h14a2 2 0 002-2V7"/>
+                    <path d="M3 7l3-5h12l3 5"/><path d="M12 11v6"/><path d="M9 14h6"/>
+                </svg>
+            </div>
+            <div style="flex:1"></div>
+            <div class="icon-btn" data-panel="settings" title="Settings">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/>
+                </svg>
+            </div>`;
+
+        window.renderIconBar = function(category) {
+            const iconBar = document.getElementById('icon-bar');
+            if (!iconBar) return;
+
+            if (category === 'Finance') {
+                let html = '';
+                const keys = Object.keys(FINANCE_ICONS);
+                keys.forEach((key, i) => {
+                    const icon = FINANCE_ICONS[key];
+                    if (i === 4) html += '<div class="icon-separator"></div>';
+                    html += `<div class="icon-btn" data-panel="${key}" title="${icon.title}">${icon.svg}</div>`;
+                });
+                iconBar.innerHTML = html;
+            } else {
+                iconBar.innerHTML = DEV_ICON_BAR_HTML;
+            }
+
+            // Re-attach click handlers
+            iconBar.querySelectorAll('.icon-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const panelType = btn.dataset.panel;
+                    if (!panelType) return;
+                    const sidePanel = document.getElementById('side-panel');
+                    const isCurrentlyOpen = sidePanel && sidePanel.classList.contains('active');
+                    const isCurrentPanel = btn.classList.contains('active');
+                    if (isCurrentlyOpen && isCurrentPanel) {
+                        closeSidePanel();
+                    } else {
+                        openSidePanel(panelType);
+                    }
+                });
+            });
+        };
+
+        // ===== v3.22: FINANCE PANEL RENDERERS =====
+        function fmtUsd(v) { return '$' + v.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+        function fmtPct(v) { return (v >= 0 ? '+' : '') + v.toFixed(2) + '%'; }
+        function fmtCompact(v) {
+            if (v >= 1e12) return '$' + (v/1e12).toFixed(2) + 'T';
+            if (v >= 1e9) return '$' + (v/1e9).toFixed(1) + 'B';
+            if (v >= 1e6) return '$' + (v/1e6).toFixed(1) + 'M';
+            if (v >= 1e3) return '$' + (v/1e3).toFixed(1) + 'K';
+            return '$' + v.toFixed(0);
+        }
+        function fmtNum(v) {
+            if (v >= 1e6) return (v/1e6).toFixed(1) + 'M';
+            if (v >= 1e3) return (v/1e3).toFixed(1) + 'K';
+            return v.toFixed(0);
+        }
+
+        function drawSparkline(canvas, positive) {
+            if (!canvas || !canvas.getContext) return;
+            const ctx = canvas.getContext('2d');
+            const w = canvas.width = 60;
+            const h = canvas.height = 20;
+            ctx.clearRect(0, 0, w, h);
+            const pts = [];
+            let val = 50;
+            for (let i = 0; i < 12; i++) {
+                val += (Math.random() - (positive ? 0.35 : 0.65)) * 10;
+                val = Math.max(5, Math.min(95, val));
+                pts.push(val);
+            }
+            const mn = Math.min(...pts), mx = Math.max(...pts);
+            const range = mx - mn || 1;
+            ctx.beginPath();
+            ctx.strokeStyle = positive ? 'rgba(74,222,128,0.8)' : 'rgba(248,113,113,0.8)';
+            ctx.lineWidth = 1.5;
+            pts.forEach((p, i) => {
+                const x = (i / (pts.length - 1)) * w;
+                const y = h - ((p - mn) / range) * (h - 4) - 2;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+        }
+
+        function renderPortfolioPanel() {
+            const d = window.FINANCE_MOCK.portfolio;
+            const chgClass = d.change24h.percent >= 0 ? 'positive' : 'negative';
+            const chgSign = d.change24h.percent >= 0 ? '+' : '';
+
+            let html = `<div class="fin-value">${fmtUsd(d.totalValue)}</div>
+                <div class="fin-change ${chgClass}">${chgSign}${fmtUsd(d.change24h.value)} (${chgSign}${d.change24h.percent.toFixed(2)}%) 24h</div>`;
+
+            html += '<div class="fin-section-title">Allocation</div>';
+            d.assets.forEach(a => {
+                html += `<div class="fin-bar-row">
+                    <span class="fin-bar-label">${a.symbol}</span>
+                    <div class="fin-bar-track"><div class="fin-bar-fill" style="width:${(a.allocation*100).toFixed(1)}%;background:${a.color}"></div></div>
+                    <span class="fin-bar-pct">${(a.allocation*100).toFixed(1)}%</span>
+                </div>`;
+            });
+
+            html += '<div class="fin-section-title">Top Movers</div>';
+            const sorted = [...d.assets].sort((a, b) => Math.abs(b.change24h) - Math.abs(a.change24h));
+            sorted.slice(0, 4).forEach(a => {
+                const up = a.change24h >= 0;
+                html += `<div class="fin-mover">
+                    <span class="arrow ${up ? 'up' : 'down'}">${up ? '\u25B2' : '\u25BC'}</span>
+                    <span class="symbol">${a.symbol}</span>
+                    <span class="pct" style="color:${up ? 'var(--fin-green)' : 'var(--fin-red)'}">${fmtPct(a.change24h)}</span>
+                </div>`;
+            });
+
+            html += '<div class="fin-section-title">Recent Operations</div>';
+            d.recentOps.forEach(op => {
+                html += `<div class="fin-tx-item">
+                    <span class="tx-icon">${op.type === 'Buy' ? '\u2197' : op.type === 'Sell' ? '\u2199' : '\u26A1'}</span>
+                    <span>${op.type} ${op.desc}</span>
+                    <span style="margin-left:auto;color:var(--text-tertiary)">${op.value}</span>
+                </div>`;
+            });
+
+            return { title: 'Portfolio', html: html };
+        }
+
+        function renderMarketsPanel() {
+            const d = window.FINANCE_MOCK.market;
+            let html = '<input class="fin-search" placeholder="Search ticker..." />';
+
+            html += '<div class="fin-section-title">Watchlist</div>';
+            d.watchlist.forEach(a => {
+                const up = a.change >= 0;
+                html += `<div class="fin-watchlist-item" data-symbol="${a.symbol}">
+                    <span class="symbol">${a.symbol}</span>
+                    <span class="sparkline-wrap"><canvas class="sparkline-canvas" data-positive="${up}"></canvas></span>
+                    <span class="price">${fmtUsd(a.price)}</span>
+                    <span class="change" style="color:${up ? 'var(--fin-green)' : 'var(--fin-red)'}">${up ? '\u25B2' : '\u25BC'} ${fmtPct(a.change)}</span>
+                </div>`;
+            });
+
+            html += '<div class="fin-section-title">Trending</div>';
+            d.trending.forEach((t, i) => {
+                html += `<div class="fin-trending-item">
+                    <span class="rank">#${i + 1}</span>
+                    <span class="symbol">${t.symbol}</span>
+                    <span class="change">+${t.change}%</span>
+                    <span class="vol">Vol: ${fmtCompact(t.volume)}</span>
+                </div>`;
+            });
+
+            html += '<div class="fin-section-title">Market Stats</div>';
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">Total MCap</span><span class="fin-stat-value">${fmtCompact(d.stats.totalMcap)}</span></div>`;
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">24h Volume</span><span class="fin-stat-value">${fmtCompact(d.stats.volume24h)}</span></div>`;
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">BTC Dom</span><span class="fin-stat-value">${d.stats.btcDominance}%</span></div>`;
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">ETH/BTC</span><span class="fin-stat-value">${d.stats.ethBtc}</span></div>`;
+
+            return { title: 'Markets', html: html };
+        }
+
+        function renderDeFiPanel() {
+            const positions = window.FINANCE_MOCK.defiPositions;
+            const totalTvl = positions.reduce((s, p) => s + (p.tvl || 0), 0);
+            const totalRewards = positions.reduce((s, p) => s + (p.rewards || 0), 0);
+
+            let html = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                <div><div class="fin-stat-label">Total TVL</div><div style="font-size:18px;font-weight:600;color:var(--text-primary)">${fmtUsd(totalTvl)}</div></div>
+                <div style="text-align:right"><div class="fin-stat-label">Pending Rewards</div><div style="font-size:14px;font-weight:500;color:var(--fin-green)">${fmtUsd(totalRewards)}</div></div>
+            </div>`;
+            html += '<div style="margin-bottom:12px"><button class="fin-btn primary" style="width:100%">Claim All Rewards</button></div>';
+
+            html += '<div class="fin-section-title">Active Positions</div>';
+            positions.forEach(p => {
+                html += '<div class="fin-card">';
+                html += `<div class="fin-card-title">${p.protocol}</div>`;
+                if (p.pair) {
+                    html += `<div class="fin-card-subtitle">${p.pair} &middot; ${p.fee}</div>`;
+                    html += `<div class="fin-card-row"><span>TVL: ${fmtUsd(p.tvl)}</span><span>APR: ${p.apr}%</span></div>`;
+                    html += `<div class="fin-card-row"><span>Rewards: ${fmtUsd(p.rewards)}</span></div>`;
+                } else if (p.type === 'supply') {
+                    html += `<div class="fin-card-subtitle">Supply: ${p.amount} ${p.asset}</div>`;
+                    html += `<div class="fin-card-row"><span>TVL: ${fmtUsd(p.tvl)}</span><span>APY: ${p.apy}%</span></div>`;
+                    if (p.healthFactor) {
+                        const hPct = Math.min(100, (p.healthFactor / 3) * 100);
+                        const hColor = p.healthFactor > 2 ? 'var(--fin-green)' : p.healthFactor > 1.5 ? 'var(--fin-amber)' : 'var(--fin-red)';
+                        html += `<div class="fin-health-bar"><span class="bar-label">Health: ${p.healthFactor.toFixed(2)}</span><div class="bar-track"><div class="bar-fill" style="width:${hPct}%;background:${hColor}"></div></div></div>`;
+                    }
+                } else if (p.type === 'stake') {
+                    html += `<div class="fin-card-subtitle">Staked: ${p.amount} ${p.asset}</div>`;
+                    html += `<div class="fin-card-row"><span>APY: ${p.apy}%</span><span>Rewards: ${fmtUsd(p.rewards)}</span></div>`;
+                }
+                html += '</div>';
+            });
+
+            html += '<div class="fin-section-title">Protocol Breakdown</div>';
+            positions.forEach(p => {
+                const pct = totalTvl > 0 ? ((p.tvl || 0) / totalTvl * 100) : 0;
+                html += `<div class="fin-bar-row">
+                    <span class="fin-bar-label" style="width:70px">${p.protocol.split(' ')[0]}</span>
+                    <div class="fin-bar-track"><div class="fin-bar-fill" style="width:${pct.toFixed(1)}%;background:var(--fin-defi)"></div></div>
+                    <span class="fin-bar-pct">${pct.toFixed(1)}%</span>
+                </div>`;
+            });
+
+            return { title: 'DeFi Positions', html: html };
+        }
+
+        function renderAnalyticsPanel() {
+            const d = window.FINANCE_MOCK.analytics;
+
+            let html = '<div class="fin-section-title">Market Sentiment</div>';
+            const fgPct = d.fearGreed.value;
+            const fgColor = fgPct > 60 ? 'var(--fin-green)' : fgPct > 40 ? 'var(--fin-amber)' : 'var(--fin-red)';
+            html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+                <span class="fin-gauge-label" style="color:${fgColor}">${d.fearGreed.value} (${d.fearGreed.label})</span>
+            </div>`;
+            html += `<div class="fin-gauge"><div class="fin-gauge-track"><div class="fin-gauge-needle" style="left:${fgPct}%"></div></div></div>`;
+
+            html += '<div class="fin-section-title">On-Chain</div>';
+            const flowColor = d.onChain.btcNetFlow < 0 ? 'var(--fin-green)' : 'var(--fin-red)';
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">BTC Net Flow</span><span class="fin-stat-value" style="color:${flowColor}">${fmtNum(d.onChain.btcNetFlow)} BTC</span></div>`;
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">ETH Staked</span><span class="fin-stat-value">${fmtNum(d.onChain.ethStaked)}</span></div>`;
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">Gas (Gwei)</span><span class="fin-stat-value">${d.onChain.gasGwei}</span></div>`;
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">Active Addrs</span><span class="fin-stat-value">${fmtNum(d.onChain.activeAddresses)}</span></div>`;
+
+            html += '<div class="fin-section-title">Signals</div>';
+            d.signals.forEach(s => {
+                html += `<div class="fin-signal-row">
+                    <span class="asset">${s.asset}</span>
+                    <span class="indicator">${s.indicator}</span>
+                    <span class="value ${s.signal}">${s.value}</span>
+                </div>`;
+            });
+
+            html += '<div class="fin-section-title">Whale Activity</div>';
+            d.whales.forEach(w => {
+                html += `<div class="fin-whale-item">\uD83D\uDC33 ${w}</div>`;
+            });
+
+            html += '<div class="fin-section-title">Calendar</div>';
+            d.calendar.forEach(c => {
+                html += `<div class="fin-calendar-item">
+                    <span class="date">${c.date}</span>
+                    <span class="event">${c.event}</span>
+                </div>`;
+            });
+
+            return { title: 'Analytics', html: html };
+        }
+
+        function renderWalletsPanel() {
+            const wallets = window.FINANCE_MOCK.wallets;
+            let html = '<div class="fin-section-title">Connected</div>';
+
+            wallets.forEach(w => {
+                html += `<div class="fin-wallet-card">
+                    <div class="wallet-name">${w.icon} ${w.name}</div>
+                    ${w.address ? `<div class="wallet-address">${w.address}</div>` : ''}
+                    <div class="wallet-balance">${fmtUsd(w.balance)}${w.chain ? '  (' + w.chain + ')' : w.type === 'exchange' ? '  (Spot)' : ''}</div>
+                </div>`;
+            });
+
+            html += '<div style="margin:12px 0"><button class="fin-btn" style="width:100%">+ Add Wallet</button></div>';
+
+            html += '<div class="fin-section-title">Recent Transactions</div>';
+            const txs = [
+                { icon: '\u2197', text: '0.5 ETH \u2192 Uniswap' },
+                { icon: '\u2199', text: '1,892 USDC received' },
+                { icon: '\u2197', text: 'Approve USDC (Aave)' }
+            ];
+            txs.forEach(tx => {
+                html += `<div class="fin-tx-item"><span class="tx-icon">${tx.icon}</span><span>${tx.text}</span></div>`;
+            });
+
+            return { title: 'Wallets', html: html };
+        }
+
+        function renderFinSettingsPanel() {
+            let html = '<div class="fin-section-title">API Keys</div>';
+            const apis = [
+                { name: 'Binance', connected: true, status: 'Connected' },
+                { name: 'CoinGecko', connected: false, status: 'Not set' },
+                { name: 'DeFiLlama', connected: true, status: 'Free tier' },
+                { name: 'Etherscan', connected: false, status: 'Not set' }
+            ];
+            apis.forEach(api => {
+                html += `<div class="fin-api-row">
+                    <span><span class="dot ${api.connected ? 'connected' : 'disconnected'}"></span>${api.name}</span>
+                    <span style="color:var(--text-tertiary)">${api.status}</span>
+                </div>`;
+            });
+
+            html += '<div class="fin-section-title">Preferences</div>';
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">Currency</span><span class="fin-stat-value">USD</span></div>`;
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">Theme</span><span class="fin-stat-value">Dark</span></div>`;
+            html += `<div class="fin-stat-row"><span class="fin-stat-label">Refresh</span><span class="fin-stat-value">30s</span></div>`;
+
+            html += '<div class="fin-section-title">Export</div>';
+            html += '<div style="display:flex;gap:8px"><button class="fin-btn">Export CSV</button><button class="fin-btn">Export JSON</button></div>';
+
+            return { title: 'Settings', html: html };
+        }
+
+        const FINANCE_PANEL_RENDERERS = {
+            'fin-portfolio': renderPortfolioPanel,
+            'fin-markets': renderMarketsPanel,
+            'fin-defi': renderDeFiPanel,
+            'fin-analytics': renderAnalyticsPanel,
+            'fin-wallets': renderWalletsPanel,
+            'fin-settings': renderFinSettingsPanel
+        };
+
         // ===== SIDE PANEL CONTROLS =====
         const sidePanelContent = {
             invest: {
@@ -6725,7 +7698,23 @@
                 btn.classList.toggle('active', btn.dataset.panel === panelType);
             });
 
-            // Get content for this panel
+            // v3.22: Finance panel renderers
+            if (FINANCE_PANEL_RENDERERS[panelType]) {
+                const result = FINANCE_PANEL_RENDERERS[panelType]();
+                title.textContent = result.title;
+                content.innerHTML = result.html;
+                panel.classList.add('active');
+
+                // Draw sparklines after DOM update
+                setTimeout(() => {
+                    content.querySelectorAll('.sparkline-canvas').forEach(c => {
+                        drawSparkline(c, c.dataset.positive === 'true');
+                    });
+                }, 50);
+                return;
+            }
+
+            // Default: Development panels
             const data = sidePanelContent[panelType];
             if (!data) return;
 
