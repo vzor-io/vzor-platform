@@ -175,6 +175,10 @@ services:
       POSTGRES_DB: vzor_db
       POSTGRES_USER: vzor
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
     ports:
       - "8000:8000"
     networks:
@@ -190,6 +194,11 @@ services:
     image: agent-zero-local:v0.9.8
     container_name: vzor-agent-zero
     restart: unless-stopped
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - PASSWORD=7U3236DNVazwx8TNhgibO3Ypmo7eek8S
     ports:
       - "5000:80"
     volumes:
