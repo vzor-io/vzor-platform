@@ -3736,7 +3736,7 @@
             }
 
             // 8. Show 3D Connections (bond system)
-            bondMesh.visible = true;
+            bondMesh.visible = !!window.graphVisible;
 
             // 9. Hide scroll/progress indicators
             const scrollHint = document.getElementById('scrollHint');
@@ -3836,7 +3836,7 @@
                     }
 
                     // Show 3D connections (bond system)
-                    bondMesh.visible = true;
+                    bondMesh.visible = !!window.graphVisible;
 
                     // Hide scroll indicators
                     document.getElementById('scrollHint').style.opacity = '0';
@@ -4879,7 +4879,7 @@
             }
 
             // Bond system visibility (single LineSegments mesh)
-            bondMesh.visible = isDrilled;
+            bondMesh.visible = isDrilled && !!window.graphVisible;
 
             // v3.12.7: CRITICAL - Continuously enforce UI visibility during drill-down
             // This fixes the issue where UI disappears on second drill-down
@@ -6798,8 +6798,12 @@
                 if (window.buildPhaseNav) window.buildPhaseNav();
                 // Update dashboard
                 if (window.updateDashboard) window.updateDashboard();
+n                // v3.35: Create matrix bonds after DB load
+                setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
                 // Update dashboard
                 if (window.updateDashboard) window.updateDashboard();
+n                // v3.35: Create matrix bonds after DB load
+                setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
 
             } catch (e) {
                 console.error('[VZOR-Tasks] DB load error:', e);
@@ -6840,6 +6844,8 @@
             // Update phase progress + dashboard
             updatePhaseProgress(task.phase);
             if (window.updateDashboard) window.updateDashboard();
+n                // v3.35: Create matrix bonds after DB load
+                setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
 
             // Update task list panel if visible
             if (window.updateTaskListContent) window.updateTaskListContent();
