@@ -2867,7 +2867,7 @@
         NODES
     </button>
     <!-- v3.35: ГРАФ BUTTON -->
-    <button id="graph-toggle-btn" onclick="toggleGraph()">
+    <button id="graph-toggle-btn">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/>
             <line x1="6" y1="6" x2="12" y2="18"/><line x1="18" y1="6" x2="12" y2="18"/>
@@ -9544,10 +9544,10 @@ async function sendToAgentZero(message) {
                     <span class="mi-icon">DS</span><span class="mi-name">DeepSeek V3</span><span class="mi-tag">connected</span>
                 </div>
                 <div class="model-item" data-id="claude" data-label="Claude Sonnet" data-icon="CL">
-                    <span class="mi-icon">CL</span><span class="mi-name">Claude 4.5 Sonnet</span><span class="mi-tag">key needed</span>
+                    <span class="mi-icon">CL</span><span class="mi-name">Claude 4.5 Sonnet</span><span class="mi-tag">connected</span>
                 </div>
                 <div class="model-item" data-id="gemini" data-label="Gemini Flash" data-icon="GM">
-                    <span class="mi-icon">GM</span><span class="mi-name">Gemini 2.0 Flash</span><span class="mi-tag">key needed</span>
+                    <span class="mi-icon">GM</span><span class="mi-name">Gemini 2.0 Flash</span><span class="mi-tag">connected</span>
                 </div>
 
                 <div class="model-item" data-id="local" data-label="Local Model" data-icon="LC">
@@ -9555,7 +9555,7 @@ async function sendToAgentZero(message) {
                 </div>
             </div>
             <div class="model-list" id="model-list-openrouter" style="display:none">
-                <div class="model-item" data-id="or/anthropic/claude-sonnet-4-5-20250929" data-label="Claude Sonnet" data-icon="CL">
+                <div class="model-item" data-id="or/anthropic/claude-sonnet-4.5" data-label="Claude Sonnet" data-icon="CL">
                     <span class="mi-icon">CL</span><span class="mi-name">Claude 4.5 Sonnet</span><span class="mi-tag">$3/M</span>
                 </div>
                 <div class="model-item" data-id="or/openai/gpt-4o" data-label="GPT-4o" data-icon="4o">
