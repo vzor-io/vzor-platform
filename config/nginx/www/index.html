@@ -4148,9 +4148,8 @@
         function onClick(e) {
             if (!isClickValid) return; // Ignore drag-clicks
 
-            // --- Click on Slide 1 — instant jump to Slide 2 (no zoom animation) ---
+            // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
             if (smoothP < 0.1) {
-                smoothP = 1.0;
                 targetP = 1.0;
                 return;
             }
@@ -4627,6 +4626,7 @@
                                target.closest('#detail-panel') ||
                                target.closest('#node-editor-panel') ||
                                target.closest('#icon-bar') ||
+                               target.closest('#side-panel') ||
                                target.closest('#back-button') ||
                                target.closest('.nav-btn') ||
                                target.tagName === 'INPUT' ||
@@ -6758,7 +6758,7 @@
             const _l2c = tasks.filter(t => t.level === 2).length;
             console.log('[VZOR v3.33] Created', Object.keys(taskIdMap).length, 'tasks (L0:' + _l0c + ' L1:' + _l1c + ' L2:' + _l2c + '),', connCount, 'bonds');
             const _vb = document.getElementById('version-badge');
-            if (_vb) _vb.textContent = 'v3.33 | ' + _l1c + ' tasks + ' + _l2c + ' subtasks | ' + connCount + ' bonds';
+            if (_vb) _vb.textContent = 'v3.38 | ' + _l1c + ' tasks + ' + _l2c + ' subtasks | ' + connCount + ' bonds';
 
             
             setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 100);
@@ -7287,7 +7287,7 @@
                 const _bc2 = window.task3DConnections ? window.task3DConnections.length : 0;
                 console.log('[VZOR v3.31] DB loaded', Object.keys(taskIdMap).length, 'tasks,', _bc2, 'bonds. NODE_RADII:', JSON.stringify(NODE_RADII));
                 const _vb2 = document.getElementById('version-badge');
-                if (_vb2) _vb2.textContent = 'v3.31 | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' bonds';
+                if (_vb2) _vb2.textContent = 'v3.38 | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' bonds';
                 window.showToast('VZOR Tasks', Object.keys(taskIdMap).length + ' задач загружено', 'info', 3000);
 
                 // Ensure all task meshes visible after reload
