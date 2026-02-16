@@ -1,0 +1,10 @@
+--- a/python/helpers/settings.py
++++ b/python/helpers/settings.py
+@@ -423,7 +423,7 @@
+             except (ValueError, TypeError):
+                 copy[key] = value
+ 
+-    copy["mcp_server_token"] = create_auth_token()
++    copy["mcp_server_token"] = os.environ.get("MCP_SERVER_TOKEN") or create_auth_token()
+ 
+     return copy

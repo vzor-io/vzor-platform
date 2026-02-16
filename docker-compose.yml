@@ -198,9 +198,10 @@ services:
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - MCP_SERVER_TOKEN=vzor-agent-key-2026
       - PASSWORD=7U3236DNVazwx8TNhgibO3Ypmo7eek8S
     ports:
-      - "5000:80"
+      - "50080:80"
     volumes:
       - /home/vzor/agent-zero-data:/a0/usr
     networks:
