@@ -9824,9 +9824,9 @@
             });
             closeSidePanel();
             window.clearAllTasks();
-            console.log('[switchProject] cleared, isDrilled=' + isDrilled + ', forceReload=' + window._forceReloadTasks);
-            if (!isDrilled) window.enterDrillDown("Development");
-            bondMesh.visible = true;
+            console.log('[switchProject] cleared, isDrilled=' + window.isDrilled + ', forceReload=' + window._forceReloadTasks);
+            if (!window.isDrilled) window.enterDrillDown("Development");
+            if (window._bondMesh) window._bondMesh.visible = true;
             window.graphVisible = true;
             setTimeout(function() {
                 console.log('[switchProject] loading tasks for project_id=' + window.currentProjectId);
