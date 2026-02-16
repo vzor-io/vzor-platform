@@ -4302,7 +4302,7 @@
 
                     // Lock scroll and enable controls
                     document.body.style.overflow = 'hidden';
-                    controls.enabled = true;
+                    controls.enabled = false;
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
@@ -4791,9 +4791,9 @@
                         controls.enablePan = true;
                         controls.minDistance = 30;
                         controls.maxDistance = 800;
-                        controls.enabled = true;
+                        controls.enabled = false;
                         controls.enableRotate = false;
-                        controls.update();
+                        // controls.update(); // disabled — no OrbitControls in overview
                         window._isFlyAnimating = false;
                     }
                 }
@@ -4997,16 +4997,10 @@
             currentZoom += (targetZoom - currentZoom) * 0.12;
             material.uniforms.uGraphZoom.value = currentZoom;
 
-            // Also move camera for real 3D zoom effect (when drilled)
-            // v3.33: SKIP when task is focused — OrbitControls handles zoom
+            // Hard-fix camera in drill-down (no drift)
             if (isDrilled && !window._orbitPivotTask) {
-                const baseDistance = 550;
-                const targetDistance = baseDistance / currentZoom;
-                const currentDistance = camera.position.length();
-                const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
-
-                const direction = camera.position.clone().normalize();
-                camera.position.copy(direction.multiplyScalar(newDistance));
+                camera.position.set(0, 0, 550 / currentZoom);
+                camera.lookAt(0, 0, 0);
             }
 
             // Update Progress Uniforms
@@ -5014,12 +5008,13 @@
             material.uniforms.uProgress2.value = 0; // Legacy if needed
             material.uniforms.uProgress3.value = drillProg;
 
+
             // material.uniforms.uTime.value = time; // already set at top
 
             // Update sub-lines and targets (Only if drilled)
             if (isDrilled) {
                 // OrbitControls handles camera (skip during fly animations)
-                if (!window._isFlyAnimating) controls.update();
+                if (!window._isFlyAnimating && (!isDrilled || window._orbitPivotTask)) controls.update();
 
                 // Nucleus pulse
                 if (window._nucleus) {
@@ -9790,7 +9785,7 @@
             var progressDots = document.getElementById('progressDots');
             if (scrollHint) scrollHint.style.opacity = '0';
             if (progressDots) progressDots.style.opacity = '0';
-            controls.enabled = true;
+            controls.enabled = false;
             controls.enableRotate = false;
             controls.target.set(0, 0, 0);
             window._orbitPivotTask = null;
