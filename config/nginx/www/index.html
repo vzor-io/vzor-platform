@@ -4086,8 +4086,9 @@
             // 11. Lock scroll
             document.body.style.overflow = 'hidden';
 
-            // 12. Controls off until task orbit
-            controls.enabled = false;
+            // 12. Controls on but rotation locked until orbit
+            controls.enabled = true;
+            controls.enableRotate = false;
             controls.target.set(0, 0, 0);
             window._orbitPivotTask = null;
 
@@ -4350,8 +4351,9 @@
             // LOCK SCROLL (CSS Method)
             document.body.style.overflow = 'hidden';
 
-            // Controls off until task orbit
-            controls.enabled = false;
+            // Controls on but rotation locked until orbit
+            controls.enabled = true;
+            controls.enableRotate = false;
             controls.target.set(0, 0, 0);
             window._orbitPivotTask = null;
 
@@ -4676,7 +4678,8 @@
                         controls.enablePan = true;
                         controls.minDistance = 30;
                         controls.maxDistance = 800;
-                        controls.enabled = false;
+                        controls.enabled = true;
+                        controls.enableRotate = false;
                         controls.update();
                         window._isFlyAnimating = false;
                     }
@@ -4903,8 +4906,8 @@
 
             // Update sub-lines and targets (Only if drilled)
             if (isDrilled) {
-                // OrbitControls handles camera (only in orbit mode)
-                if (window._orbitPivotTask && !window._isFlyAnimating) controls.update();
+                // OrbitControls handles camera (skip during fly animations)
+                if (!window._isFlyAnimating) controls.update();
 
                 // Nucleus pulse
                 if (window._nucleus) {
@@ -7001,6 +7004,7 @@
                     requestAnimationFrame(animatePivot);
                 } else {
                     controls.enableDamping = false;
+                    controls.enableRotate = true;
                     controls.enableZoom = true;
                     controls.enablePan = false;
                     controls.minDistance = 20;
@@ -7052,7 +7056,8 @@
                     controls.enablePan = true;
                     controls.minDistance = 30;
                     controls.maxDistance = 800;
-                    controls.enabled = false;
+                    controls.enabled = true;
+                    controls.enableRotate = false;
                     controls.update();
                     window._isFlyAnimating = false;
                 }
