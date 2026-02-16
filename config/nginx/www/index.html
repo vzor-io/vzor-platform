@@ -5217,7 +5217,7 @@
 
             // Bond system visibility (single LineSegments mesh)
             var isFinanceMode = (typeof currentCategory !== 'undefined' && currentCategory === 'Finance');
-            bondMesh.visible = isDrilled && !!window.graphVisible && !isFinanceMode;
+            bondMesh.visible = !!window.graphVisible && !isFinanceMode;
 
             // v3.12.7: CRITICAL - Continuously enforce UI visibility during drill-down
             // This fixes the issue where UI disappears on second drill-down
