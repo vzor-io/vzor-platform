@@ -4145,6 +4145,14 @@
         function onClick(e) {
             if (!isClickValid) return; // Ignore drag-clicks
 
+            // v3.38: Skip click processing on UI elements
+            var _ct = e.target;
+            if (_ct.closest('#icon-bar') || _ct.closest('#side-panel') ||
+                _ct.closest('#task-interface') || _ct.closest('#detail-panel') ||
+                _ct.closest('#node-editor-panel') || _ct.closest('#back-button') ||
+                _ct.closest('#block-dashboard') || _ct.closest('.nav-btn') ||
+                _ct.tagName === 'INPUT' || _ct.tagName === 'BUTTON') return;
+
             // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
             if (smoothP < 0.1) {
                 targetP = 1.0;
@@ -4615,6 +4623,7 @@
                                target.closest('#detail-panel') ||
                                target.closest('#node-editor-panel') ||
                                target.closest('#icon-bar') ||
+                               target.closest('#side-panel') ||
                                target.closest('#back-button') ||
                                target.closest('.nav-btn') ||
                                target.tagName === 'INPUT' ||
@@ -4623,6 +4632,7 @@
 
             if (isUIElement) {
                 isDrag = false;
+                isClickValid = false; // v3.38: Prevent onClick from firing on UI
                 return; // Don't interfere with UI interactions
             }
 
@@ -4638,7 +4648,8 @@
             const target = e.target;
             const isOverUI = target.closest('#task-interface') ||
                             target.closest('#detail-panel') ||
-                            target.closest('#node-editor-panel');
+                            target.closest('#node-editor-panel') ||
+                            target.closest('#side-panel');
 
             if (!isOverUI) {
                 move(e.clientX, e.clientY, e.clientX, e.clientY);
@@ -9536,11 +9547,12 @@
         async function loadProjectsPanel(container) {
             try {
                 const resp = await fetch("/api/projects");
-                const projects = await resp.json();
+                const _data = await resp.json();
+                const projects = _data.projects || _data;
 
                 // Separate templates from user projects
-                const templates = projects.filter(p => p.is_template);
-                const userProjects = projects.filter(p => !p.is_template);
+                const templates = projects.filter(p => p.is_template || p.type === 'template');
+                const userProjects = projects.filter(p => !p.is_template && p.type !== 'template');
 
                 // Determine active project
                 const activeId = window.currentProjectId || (templates.length > 0 ? templates[0].id : null);
@@ -9556,7 +9568,7 @@
                     html += '<div class="side-panel-item ps-active" data-project-id="' + active.id + '">'
                          + '<div><div>' + active.name + '</div>'
                          + '<div class="ps-item-meta">' + (active.task_count || 0) + ' tasks'
-                         + (active.is_template ? ' &middot; template' : '') + '</div>'
+                         + (active.is_template || active.type === 'template' ? ' &middot; template' : '') + '</div>'
                          + '</div></div>';
                     html += '</div>';
                 }
