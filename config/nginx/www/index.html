@@ -333,6 +333,94 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
+        /* Auth Modal */
+        #auth-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            z-index: 100000;
+            justify-content: center;
+            align-items: center;
+        }
+        #auth-overlay.visible {
+            display: flex;
+        }
+        #auth-modal {
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 40px 36px;
+            text-align: center;
+            min-width: 320px;
+            max-width: 400px;
+        }
+        #auth-modal h2 {
+            font-family: inherit;
+            font-size: 28px;
+            letter-spacing: 8px;
+            color: #fff;
+            margin: 0 0 8px 0;
+        }
+        .auth-subtitle {
+            font-size: 12px;
+            letter-spacing: 3px;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+            margin: 0 0 28px 0;
+        }
+        #auth-code-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 14px 16px;
+            font-family: monospace;
+            font-size: 18px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            text-align: center;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            margin-bottom: 16px;
+            transition: border-color 0.3s;
+        }
+        #auth-code-input:focus {
+            border-color: rgba(255,255,255,0.3);
+        }
+        #auth-code-input::placeholder {
+            color: rgba(255,255,255,0.2);
+        }
+        #auth-submit-btn {
+            width: 100%;
+            padding: 13px 0;
+            font-size: 13px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.75);
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        #auth-submit-btn:hover {
+            background: rgba(255,255,255,0.08);
+            border-color: white;
+            color: #fff;
+        }
+        #auth-error {
+            color: #FF6B6B;
+            font-size: 13px;
+            margin-top: 12px;
+            min-height: 18px;
+        }
+
         /* Detail View Overlay (Side Panel) - v3.12.1: airy, transparent */
         #detail-panel {
             position: fixed;
@@ -3363,6 +3451,17 @@
     <div class="scroll-hint" id="scrollHint">Scroll Down</div>
     <button class="cta-button" id="ctaButton">Access VZOR Standard</button>
 
+    <!-- AUTH MODAL -->
+    <div id="auth-overlay">
+      <div id="auth-modal">
+        <h2>VZOR</h2>
+        <p class="auth-subtitle">enter access code</p>
+        <input id="auth-code-input" placeholder="VZOR-XXXX-XXXX" maxlength="14" autocomplete="off" spellcheck="false">
+        <button id="auth-submit-btn">ВОЙТИ</button>
+        <div id="auth-error"></div>
+      </div>
+    </div>
+
     <!-- BACK BUTTON (Drill Down) -->
     <div id="back-button" class="nav-btn"
         role="button"
@@ -4177,6 +4276,7 @@
                     const data = coreData[labelIndex];
 
                     // Set drill-down state
+                    if (!window._vzorAuth) { showAuthModal(); return; }
                     isDrilled = true;
                     hasEverDrilled = true; // v3.18: Stop pulsation hint after first click
                     currentCategory = data.name;
@@ -4232,9 +4332,7 @@
 
                     // Lock scroll and enable controls
                     document.body.style.overflow = 'hidden';
-                    controls.enabled = false;
-                    camera.position.set(0, 0, 550);
-                    camera.lookAt(0, 0, 0);
+                    controls.enabled = true;
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
@@ -4596,11 +4694,13 @@
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
         function move(x, y, cx, cy) {
             lastInteractTime = Date.now(); // Track interaction
-            // v3.38: Mouse repulsion always active (camera is fixed, no drift)
-            mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
-            ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
-            material.uniforms.uMouse.value.set(pt.x, pt.y);
-            material.uniforms.uMouseActive.value = 1.0;
+            // v3.35: Skip shader mouse effects during drill-down
+            if (!isDrilled) {
+                mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
+                ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
+                material.uniforms.uMouse.value.set(pt.x, pt.y);
+                material.uniforms.uMouseActive.value = 1.0;
+            }
 
             clearTimeout(mouseTimer);
             mouseTimer = setTimeout(() => {
@@ -4643,7 +4743,7 @@
             downPos = { x: e.clientX, y: e.clientY };
             prevM = { x: e.clientX, y: e.clientY };
             mom = { x: 0, y: 0 };
-            material.uniforms.uMouseActive.value = 1;
+            if (!isDrilled) material.uniforms.uMouseActive.value = 1;
         });
         document.addEventListener('mousemove', e => {
             // v3.12.7: Skip heavy processing when over UI elements
@@ -4709,7 +4809,7 @@
                 });
                 const startPos = camera.position.clone();
                 const startTarget = controls.target.clone();
-                const overviewPos = new THREE.Vector3(0, 0, 550);
+                const overviewPos = new THREE.Vector3(0, 0, 450);
                 const overviewTarget = new THREE.Vector3(0, 0, 0);
                 const duration = 1000;
                 const startTime = Date.now();
@@ -4899,8 +4999,10 @@
                 if (hint) hint.style.display = 'none';
             }
 
-            // Smoother MouseActive fade
-            if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
+            // Smoother MouseActive fade (force 0 in drill-down)
+            if (isDrilled) {
+                material.uniforms.uMouseActive.value = 0;
+            } else if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
                 material.uniforms.uMouseActive.value *= 0.92;
             }
 
@@ -4935,12 +5037,16 @@
             currentZoom += (targetZoom - currentZoom) * 0.12;
             material.uniforms.uGraphZoom.value = currentZoom;
 
-            // v3.38: Fixed camera in drill-down (no drift, no OrbitControls interference)
+            // Also move camera for real 3D zoom effect (when drilled)
+            // v3.33: SKIP when task is focused — OrbitControls handles zoom
             if (isDrilled && !window._orbitPivotTask) {
-                controls.enabled = false;
-                var _camDist = 550 / currentZoom;
-                camera.position.set(0, 0, _camDist);
-                camera.lookAt(0, 0, 0);
+                const baseDistance = 550;
+                const targetDistance = baseDistance / currentZoom;
+                const currentDistance = camera.position.length();
+                const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
+
+                const direction = camera.position.clone().normalize();
+                camera.position.copy(direction.multiplyScalar(newDistance));
             }
 
             // Update Progress Uniforms
@@ -4948,11 +5054,6 @@
             material.uniforms.uProgress2.value = 0; // Legacy if needed
             material.uniforms.uProgress3.value = drillProg;
 
-            // DEBUG: Show key values (toggle with D key)
-            var _dbg = document.getElementById('debug-overlay');
-            if (_dbg && _dbg.style.display !== 'none') {
-                _dbg.textContent = 'drilled=' + isDrilled + ' zoom=' + currentZoom.toFixed(2) + ' tgtZ=' + targetZoom.toFixed(2) + ' mouseA=' + material.uniforms.uMouseActive.value.toFixed(2) + ' camZ=' + camera.position.z.toFixed(0) + ' smoothP=' + smoothP.toFixed(2);
-            }
             // material.uniforms.uTime.value = time; // already set at top
 
             // Update sub-lines and targets (Only if drilled)
@@ -9711,6 +9812,7 @@
         };
 
         window.enterDrillDown = function(categoryName) {
+            if (!window._vzorAuth) { showAuthModal(); return; }
             isDrilled = true;
             hasEverDrilled = true;
             currentCategory = categoryName || "Development";
@@ -9728,12 +9830,10 @@
             var progressDots = document.getElementById('progressDots');
             if (scrollHint) scrollHint.style.opacity = '0';
             if (progressDots) progressDots.style.opacity = '0';
-            controls.enabled = false;
+            controls.enabled = true;
             controls.enableRotate = false;
             controls.target.set(0, 0, 0);
             window._orbitPivotTask = null;
-            camera.position.set(0, 0, 550);
-            camera.lookAt(0, 0, 0);
             bondMesh.visible = true;
             window.graphVisible = true;
             document.body.style.overflow = 'hidden';
@@ -11840,17 +11940,103 @@ async function sendToAgentZero(message) {
             });
         }
     })();
-    document.addEventListener('keydown', function(e) {
-        if (e.key === 'd' || e.key === 'D') {
-            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
-            var _d = document.getElementById('debug-overlay');
-            if (_d) _d.style.display = _d.style.display === 'none' ? 'block' : 'none';
-        }
-    });
     </script>
 
-    <div id="debug-overlay" style="position:fixed;top:8px;left:8px;color:rgba(0,255,255,0.8);font-size:10px;font-family:monospace;pointer-events:none;z-index:99999;background:rgba(0,0,0,0.5);padding:4px 8px;border-radius:4px;display:none"></div>
     <div id="version-badge" style="position:fixed;bottom:8px;right:8px;color:rgba(255,255,255,0.6);font-size:11px;font-family:Outfit,sans-serif;pointer-events:none;z-index:9999;">v3.38-PS</div>
+
+    <script>
+    /* === VZOR Auth System === */
+    window._vzorAuth = false;
+
+    async function checkAuth() {
+        try {
+            const r = await fetch("/api/auth/verify", {credentials: "include"});
+            const d = await r.json();
+            if (d.authenticated) {
+                window._vzorAuth = true;
+                hideAuthModal();
+            }
+        } catch(e) { console.warn("Auth check failed:", e); }
+    }
+
+    function showAuthModal() {
+        var ov = document.getElementById("auth-overlay");
+        if (ov) { ov.classList.add("visible"); }
+        var inp = document.getElementById("auth-code-input");
+        if (inp) { inp.value = ""; inp.focus(); }
+        var err = document.getElementById("auth-error");
+        if (err) err.textContent = "";
+    }
+
+    function hideAuthModal() {
+        var ov = document.getElementById("auth-overlay");
+        if (ov) ov.classList.remove("visible");
+    }
+
+    async function submitAuthCode() {
+        var inp = document.getElementById("auth-code-input");
+        var err = document.getElementById("auth-error");
+        var code = (inp ? inp.value : "").trim().toUpperCase();
+        if (!code || code.length < 14) {
+            if (err) err.textContent = "Enter full code: VZOR-XXXX-XXXX";
+            return;
+        }
+        try {
+            var r = await fetch("/api/auth/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                credentials: "include",
+                body: JSON.stringify({code: code})
+            });
+            if (r.ok) {
+                window._vzorAuth = true;
+                hideAuthModal();
+            } else {
+                var d = await r.json();
+                if (err) err.textContent = d.detail || "Invalid code";
+            }
+        } catch(e) {
+            if (err) err.textContent = "Connection error";
+        }
+    }
+
+    // Auto-format input: add VZOR- prefix and dash
+    document.addEventListener("DOMContentLoaded", function() {
+        var inp = document.getElementById("auth-code-input");
+        if (inp) {
+            inp.addEventListener("input", function() {
+                var v = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                // Remove VZOR prefix if typed
+                if (v.startsWith("VZOR")) v = v.slice(4);
+                // Limit to 8 chars (two groups of 4)
+                v = v.slice(0, 8);
+                // Format
+                if (v.length > 4) {
+                    this.value = "VZOR-" + v.slice(0, 4) + "-" + v.slice(4);
+                } else if (v.length > 0) {
+                    this.value = "VZOR-" + v;
+                } else {
+                    this.value = "";
+                }
+            });
+            inp.addEventListener("keydown", function(e) {
+                if (e.key === "Enter") submitAuthCode();
+            });
+        }
+        var btn = document.getElementById("auth-submit-btn");
+        if (btn) btn.addEventListener("click", submitAuthCode);
+
+        // Check for QR redirect param
+        if (window.location.search.includes("authenticated=1")) {
+            window._vzorAuth = true;
+            // Clean URL
+            history.replaceState({}, "", window.location.pathname);
+        }
+
+        // Check auth on load
+        checkAuth();
+    });
+    </script>
 </body>
 
 </html>
