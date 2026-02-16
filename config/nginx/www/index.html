@@ -16,7 +16,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>VZOR v3.31</title>
+    <title>VZOR v3.37</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
@@ -61,16 +61,6 @@
             --spacing-md: 16px;
             --spacing-lg: 24px;
             --spacing-xl: 32px;
-
-            /* Finance-specific colors (v3.22) */
-            --fin-green: #4ADE80;
-            --fin-red: #F87171;
-            --fin-amber: #FBBF24;
-            --fin-btc: #F7931A;
-            --fin-eth: #627EEA;
-            --fin-sol: #9945FF;
-            --fin-defi: #8B5CF6;
-            --fin-stable: #2DD4BF;
         }
 
         body {
@@ -385,7 +375,7 @@
             background: rgba(8, 8, 8, 0.9);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(78, 205, 196, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.2);
             padding: 5px 12px;
             z-index: 100;
             transition: bottom 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
@@ -393,7 +383,7 @@
             align-items: center;
             gap: 8px;
             border-radius: 25px;
-            box-shadow: 0 0 20px rgba(78, 205, 196, 0.1), 0 8px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1), 0 8px 25px rgba(0, 0, 0, 0.4);
             opacity: 0;
             pointer-events: none;
         }
@@ -441,6 +431,66 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
             50% { box-shadow: 0 0 0 6px rgba(255, 107, 107, 0); }
         }
+        #agent-chat-send {
+            width: 32px; height: 32px; border-radius: 50%;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 14px;
+        }
+        #agent-chat-send:hover {
+            background: rgba(255, 255, 255, 0.1); color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            transform: scale(1.15);
+        }
+
+        #agent-chat-send {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 14px;
+        }
+        #agent-chat-send:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            transform: scale(1.15);
+        }
+
+        #agent-chat-send {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            font-size: 14px;
+        }
+        #agent-chat-send:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            transform: scale(1.15);
+        }
+
 
         @keyframes mic-ring {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
@@ -512,7 +562,7 @@
             content: "•";
             position: absolute;
             left: 0;
-            color: #00ffff;
+            color: #fff;
             font-weight: bold;
         }
 
@@ -926,15 +976,15 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
             transform: scale(1.15);
         }
 
         .icon-btn.active {
-            background: rgba(78, 205, 196, 0.15);
-            border-color: rgba(78, 205, 196, 0.5);
-            color: #4ECDC4;
-            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
         .icon-btn svg {
@@ -948,79 +998,6 @@
             background: rgba(255, 255, 255, 0.2);
             margin: 5px 0;
         }
-
-        /* ===== v3.22: FINANCE WIDGET STYLES ===== */
-        .fin-value { font-size: 28px; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
-        .fin-change { font-size: 14px; font-weight: 400; margin-top: 2px; }
-        .fin-change.positive { color: var(--fin-green); }
-        .fin-change.negative { color: var(--fin-red); }
-        .fin-section-title { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: var(--text-tertiary); text-transform: uppercase; margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 1px solid var(--border-subtle); }
-        .fin-bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
-        .fin-bar-label { width: 48px; color: var(--text-secondary); font-weight: 500; flex-shrink: 0; }
-        .fin-bar-track { flex: 1; height: 6px; background: rgba(255,255,255,0.06); border-radius: 3px; overflow: hidden; }
-        .fin-bar-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-        .fin-bar-pct { width: 40px; text-align: right; color: var(--text-tertiary); font-size: 11px; flex-shrink: 0; }
-        .fin-mover { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 3px 0; }
-        .fin-mover .arrow { font-size: 10px; }
-        .fin-mover .arrow.up { color: var(--fin-green); }
-        .fin-mover .arrow.down { color: var(--fin-red); }
-        .fin-mover .symbol { color: var(--text-secondary); font-weight: 500; width: 48px; }
-        .fin-mover .pct { margin-left: auto; font-weight: 500; }
-        .fin-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; transition: border-color var(--transition-fast); }
-        .fin-card:hover { border-color: var(--border-medium); }
-        .fin-card-title { font-size: 12px; font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
-        .fin-card-subtitle { font-size: 11px; color: var(--text-tertiary); }
-        .fin-card-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-secondary); margin-top: 4px; }
-        .fin-stat-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 12px; }
-        .fin-stat-label { color: var(--text-tertiary); }
-        .fin-stat-value { color: var(--text-secondary); font-weight: 500; }
-        .fin-watchlist-item { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04); cursor: pointer; transition: background var(--transition-fast); }
-        .fin-watchlist-item:hover { background: var(--surface-hover); margin: 0 -15px; padding: 6px 15px; }
-        .fin-watchlist-item .symbol { font-weight: 600; color: var(--text-primary); width: 48px; font-size: 12px; }
-        .fin-watchlist-item .price { color: var(--text-secondary); font-size: 12px; margin-left: auto; }
-        .fin-watchlist-item .change { width: 55px; text-align: right; font-size: 11px; font-weight: 500; }
-        .fin-watchlist-item .sparkline-wrap { width: 60px; height: 20px; flex-shrink: 0; }
-        .fin-health-bar { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
-        .fin-health-bar .bar-track { flex: 1; height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
-        .fin-health-bar .bar-fill { height: 100%; border-radius: 2px; background: var(--fin-green); }
-        .fin-health-bar .bar-label { font-size: 10px; color: var(--text-tertiary); }
-        .fin-gauge { display: flex; align-items: center; gap: 10px; margin: 8px 0; }
-        .fin-gauge-track { flex: 1; height: 8px; background: linear-gradient(to right, var(--fin-red), var(--fin-amber), var(--fin-green)); border-radius: 4px; position: relative; }
-        .fin-gauge-needle { position: absolute; top: -3px; width: 3px; height: 14px; background: #fff; border-radius: 2px; transform: translateX(-50%); }
-        .fin-gauge-label { font-size: 12px; font-weight: 600; }
-        .fin-wallet-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; }
-        .fin-wallet-card .wallet-name { font-size: 13px; font-weight: 600; color: var(--text-primary); }
-        .fin-wallet-card .wallet-address { font-size: 11px; color: var(--text-tertiary); font-family: monospace; margin-top: 2px; }
-        .fin-wallet-card .wallet-balance { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-        .fin-tx-item { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 4px 0; color: var(--text-secondary); }
-        .fin-tx-item .tx-icon { font-size: 12px; flex-shrink: 0; }
-        .fin-api-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; font-size: 12px; }
-        .fin-api-row .dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 8px; }
-        .fin-api-row .dot.connected { background: var(--fin-green); }
-        .fin-api-row .dot.disconnected { background: var(--text-tertiary); }
-        .fin-btn { display: inline-flex; align-items: center; justify-content: center; padding: 6px 14px; font-size: 11px; font-weight: 500; border-radius: 6px; border: 1px solid var(--border-medium); background: rgba(255,255,255,0.04); color: var(--text-secondary); cursor: pointer; transition: all var(--transition-fast); }
-        .fin-btn:hover { background: var(--surface-hover); border-color: var(--color-accent); color: var(--text-primary); }
-        .fin-btn.primary { background: rgba(78, 205, 196, 0.12); border-color: rgba(78, 205, 196, 0.3); color: #4ECDC4; }
-        .fin-search { width: 100%; padding: 7px 10px; font-size: 12px; background: rgba(255,255,255,0.04); border: 1px solid var(--border-subtle); border-radius: 6px; color: var(--text-primary); outline: none; font-family: inherit; transition: border-color var(--transition-fast); }
-        .fin-search::placeholder { color: var(--text-hint); }
-        .fin-search:focus { border-color: var(--color-accent-dim); }
-        .fin-trending-item { display: flex; align-items: center; gap: 8px; font-size: 11px; padding: 3px 0; }
-        .fin-trending-item .rank { color: var(--text-hint); width: 18px; }
-        .fin-trending-item .symbol { color: var(--text-primary); font-weight: 600; width: 48px; }
-        .fin-trending-item .change { color: var(--fin-green); font-weight: 500; }
-        .fin-trending-item .vol { color: var(--text-tertiary); margin-left: auto; }
-        .fin-signal-row { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 3px 0; }
-        .fin-signal-row .asset { color: var(--text-secondary); width: 36px; font-weight: 500; }
-        .fin-signal-row .indicator { color: var(--text-tertiary); flex: 1; }
-        .fin-signal-row .value { font-weight: 500; }
-        .fin-signal-row .value.bullish { color: var(--fin-green); }
-        .fin-signal-row .value.bearish { color: var(--fin-red); }
-        .fin-signal-row .value.neutral { color: var(--text-secondary); }
-        .fin-signal-row .value.anomaly { color: var(--fin-amber); }
-        .fin-whale-item { font-size: 11px; padding: 3px 0; color: var(--text-secondary); }
-        .fin-calendar-item { display: flex; gap: 8px; font-size: 11px; padding: 3px 0; }
-        .fin-calendar-item .date { color: var(--text-tertiary); width: 48px; flex-shrink: 0; }
-        .fin-calendar-item .event { color: var(--text-secondary); }
 
         /* 2. Unified Panel Colors */
         #detail-panel,
@@ -1077,7 +1054,7 @@
             content: '';
             width: 50px;
             height: 4px;
-            background: rgba(78, 205, 196, 0.5);
+            background: rgba(255, 255, 255, 0.5);
             border-radius: 2px;
         }
 
@@ -1124,7 +1101,7 @@
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(circle at center, rgba(78, 205, 196, 0.03) 0%, transparent 70%),
+                radial-gradient(circle at center, rgba(0, 255, 255, 0.03) 0%, transparent 70%),
                 linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
             background-size: 100% 100%, 20px 20px, 20px 20px;
@@ -1180,9 +1157,9 @@
         }
 
         #nodes-toggle-btn.active {
-            background: rgba(78, 205, 196, 0.1);
-            border-color: rgba(78, 205, 196, 0.4);
-            color: #4ECDC4;
+            background: rgba(0, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #fff;
             opacity: 1;
         }
 
@@ -1197,9 +1174,9 @@
             width: 85px; height: 40px;
             background: rgba(10,10,10,0.6);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(80,110,170,0.2);
+            border: 1px solid rgba(255,255,255,0.15);
             border-radius: 20px;
-            color: rgba(160,180,220,0.7);
+            color: rgba(255,255,255,0.7);
             font: 500 11px/1 'Outfit',sans-serif;
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -1216,16 +1193,16 @@
         }
         #graph-toggle-btn.visible { opacity: 1; pointer-events: auto; }
         #graph-toggle-btn:hover {
-            background: rgba(12,16,28,0.8);
-            border-color: rgba(60,90,160,0.45);
-            color: rgba(180,200,240,0.95);
-            box-shadow: 0 0 18px rgba(40,65,130,0.25);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.4);
+            color: #fff;
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
         }
         #graph-toggle-btn.active {
-            background: rgba(15,22,45,0.7);
-            border-color: rgba(70,100,180,0.5);
-            color: rgba(140,170,230,0.9);
-            box-shadow: 0 0 22px rgba(45,70,140,0.35);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
         }
         #graph-toggle-btn.dragging { cursor: grabbing !important; transition: none; }
 
@@ -1332,15 +1309,15 @@
         }
 
         .side-panel-item.action {
-            background: rgba(78, 205, 196, 0.08);
-            border: 1px solid rgba(78, 205, 196, 0.15);
-            color: #4ECDC4;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
             font-weight: 500;
         }
 
         .side-panel-item.action:hover {
-            background: rgba(78, 205, 196, 0.15);
-            border-color: rgba(78, 205, 196, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(0, 255, 255, 0.3);
         }
 
         .side-panel-item-icon {
@@ -1388,7 +1365,7 @@
         }
 
         .node-status {
-            color: #4ECDC4;
+            color: #fff;
             font-size: 8px;
         }
 
@@ -1512,7 +1489,7 @@
 
         .socket-input .socket-dot.can-connect {
             transform: scale(1.5);
-            box-shadow: 0 0 15px #4ECDC4;
+            box-shadow: 0 0 15px #00ffff;
             animation: pulse-accept 0.5s ease-in-out infinite;
         }
 
@@ -1522,8 +1499,8 @@
         }
 
         @keyframes pulse-accept {
-            0%, 100% { box-shadow: 0 0 10px #4ECDC4; }
-            50% { box-shadow: 0 0 20px #4ECDC4; }
+            0%, 100% { box-shadow: 0 0 10px #00ffff; }
+            50% { box-shadow: 0 0 20px #00ffff; }
         }
 
         .socket-label {
@@ -1613,8 +1590,8 @@
         }
 
         .setting-select:focus {
-            border-color: rgba(78, 205, 196, 0.4);
-            box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.1);
         }
 
         .setting-select option {
@@ -1655,9 +1632,9 @@
 
         .section-add-btn,
         .section-change-btn {
-            background: rgba(78, 205, 196, 0.15);
-            border: 1px solid rgba(78, 205, 196, 0.3);
-            color: #4ECDC4;
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
             font-size: 9px;
             padding: 2px 8px;
             border-radius: 3px;
@@ -1667,8 +1644,8 @@
 
         .section-add-btn:hover,
         .section-change-btn:hover {
-            background: rgba(78, 205, 196, 0.25);
-            border-color: rgba(78, 205, 196, 0.5);
+            background: rgba(0, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         /* Task Input */
@@ -1689,7 +1666,7 @@
 
         .node-task-input:focus {
             outline: none;
-            border-color: rgba(78, 205, 196, 0.4);
+            border-color: rgba(255, 255, 255, 0.4);
             background: rgba(255, 255, 255, 0.05);
         }
 
@@ -1709,14 +1686,14 @@
             align-items: center;
             gap: 6px;
             padding: 5px 8px;
-            background: rgba(78, 205, 196, 0.08);
-            border: 1px solid rgba(78, 205, 196, 0.15);
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 4px;
             font-size: 9px;
         }
 
         .kb-check {
-            color: #4ECDC4;
+            color: #fff;
             font-size: 10px;
         }
 
@@ -1865,7 +1842,7 @@
         }
 
         .kb-browser-search input:focus {
-            border-color: rgba(78, 205, 196, 0.4);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         .kb-browser-list,
@@ -1894,8 +1871,8 @@
 
         .kb-browser-item.selected,
         .agent-selector-item.selected {
-            background: rgba(78, 205, 196, 0.1);
-            border: 1px solid rgba(78, 205, 196, 0.2);
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.2);
         }
 
         .kb-browser-check {
@@ -1907,12 +1884,12 @@
             align-items: center;
             justify-content: center;
             font-size: 12px;
-            color: #4ECDC4;
+            color: #fff;
         }
 
         .kb-browser-item.selected .kb-browser-check {
-            background: rgba(78, 205, 196, 0.2);
-            border-color: #4ECDC4;
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #fff;
         }
 
         .kb-browser-info,
@@ -1936,7 +1913,7 @@
 
         .kb-browser-category {
             font-size: 9px;
-            color: rgba(78, 205, 196, 0.7);
+            color: rgba(255, 255, 255, 0.7);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -1947,22 +1924,22 @@
 
         .agent-selector-model {
             font-size: 9px;
-            color: rgba(78, 205, 196, 0.6);
+            color: rgba(0, 255, 255, 0.6);
             margin-top: 3px;
         }
 
         .agent-selector-check {
-            color: #4ECDC4;
+            color: #fff;
             font-size: 14px;
         }
 
         .node-run-btn {
             width: 100%;
             padding: 6px 10px;
-            background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(78, 205, 196, 0.1));
-            border: 1px solid rgba(78, 205, 196, 0.3);
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 255, 255, 0.1));
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 4px;
-            color: #4ECDC4;
+            color: #fff;
             cursor: pointer;
             font-size: 10px;
             font-weight: 600;
@@ -1971,9 +1948,9 @@
         }
 
         .node-run-btn:hover {
-            background: linear-gradient(135deg, rgba(78, 205, 196, 0.3), rgba(78, 205, 196, 0.2));
-            border-color: rgba(78, 205, 196, 0.5);
-            box-shadow: 0 0 15px rgba(78, 205, 196, 0.2);
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 255, 255, 0.2));
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
         }
 
         /* v3.12.1: Node Results Section */
@@ -2038,7 +2015,7 @@
         }
 
         .result-file:hover .file-download {
-            color: #4ECDC4;
+            color: #fff;
         }
 
         .file-icon {
@@ -2126,7 +2103,7 @@
 
         #node-library-btn:hover {
             background: rgba(40, 40, 45, 0.95);
-            border-color: rgba(78, 205, 196, 0.4);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
         #node-library {
@@ -2170,8 +2147,8 @@
         }
 
         .library-item:hover {
-            background: rgba(78, 205, 196, 0.1);
-            color: #4ECDC4;
+            background: rgba(0, 255, 255, 0.1);
+            color: #fff;
         }
 
         /* 5. Structured Detail Panel */
@@ -2202,8 +2179,8 @@
         }
 
         .status-badge.running {
-            background: rgba(78, 205, 196, 0.2);
-            color: #4ECDC4;
+            background: rgba(0, 255, 255, 0.2);
+            color: #fff;
         }
 
         .status-badge.done {
@@ -2354,7 +2331,7 @@
         }
         .model-tab.active {
             color: var(--text-secondary);
-            border-bottom-color: rgba(255, 255, 255, 0.3);
+            border-bottom-color: rgba(0, 255, 255, 0.4);
         }
         .model-tab:hover { color: rgba(255, 255, 255, 0.6); }
         .model-list { overflow-y: auto; max-height: 240px; padding: 5px; }
@@ -2369,9 +2346,9 @@
             color: white;
         }
         .model-item.active {
-            background: rgba(78, 205, 196, 0.08);
-            border: 1px solid rgba(78, 205, 196, 0.15);
-            color: #4ECDC4;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
         }
         .mi-icon {
             width: 28px; height: 28px;
@@ -2389,13 +2366,13 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
         .model-item.active .mi-icon {
-            background: rgba(78, 205, 196, 0.15);
-            border-color: rgba(78, 205, 196, 0.5);
-            color: #4ECDC4;
-            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
         .mi-name {
             flex: 1; font-size: 13px; letter-spacing: 0.03em;
@@ -2438,7 +2415,7 @@
             border: none;
             align-self: flex-start;
             color: rgba(255, 255, 255, 0.7);
-            border-left: 2px solid rgba(78, 205, 196, 0.3);
+            border-left: 2px solid rgba(255, 255, 255, 0.15);
             border-radius: 0 8px 8px 0;
             padding-left: 12px;
         }
@@ -2487,7 +2464,7 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
             transform: scale(1.15);
         }
 
@@ -2509,29 +2486,33 @@
             right: 20px;
             bottom: 20px;
             cursor: move;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
+            width: 85px;
+            height: 40px;
+            border-radius: 20px;
             background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             color: rgba(255, 255, 255, 0.7);
-            font-size: 1em;
-            font-weight: 600;
+            font: 500 11px/1 'Outfit', sans-serif;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 5px;
             z-index: 9998;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            user-select: none;
         }
 
         #agent-chat-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.08);
             color: #fff;
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
-            transform: scale(1.15);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
         }
 
         #agent-chat-toggle.hidden {
@@ -2667,6 +2648,107 @@
         }
         #oc-chat-close:hover { color: var(--text-primary); }
 
+        /* OpenClaw Model Selector Bar */
+        #oc-model-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px var(--spacing-md);
+            border-bottom: 1px solid var(--border-subtle);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        #oc-model-bar:hover { background: rgba(255, 255, 255, 0.05); }
+        #oc-model-icon {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            font-size: 10px; font-weight: 700; color: rgba(255, 255, 255, 0.7);
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.02em;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        #oc-model-name {
+            flex: 1; font-size: 13px; color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.03em;
+        }
+        #oc-model-brain {
+            font-size: 9px; opacity: 0.5; margin-left: 4px;
+        }
+        #oc-model-arrow {
+            font-size: 10px; color: var(--text-tertiary);
+            transition: transform var(--transition-fast);
+        }
+        #oc-model-dropdown {
+            display: none; border-bottom: 1px solid var(--border-subtle);
+            max-height: 280px; overflow: hidden; flex-direction: column;
+        }
+        #oc-model-dropdown.open { display: flex; }
+        .oc-model-tabs {
+            display: flex; padding: 0 5px;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .oc-model-tab {
+            flex: 1; padding: 8px 5px; background: transparent; border: none;
+            color: rgba(255, 255, 255, 0.35); font-size: 10px; font-weight: 400;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            cursor: pointer; transition: all 0.15s ease;
+            border-bottom: 2px solid transparent;
+        }
+        .oc-model-tab.active {
+            color: var(--text-secondary);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
+        }
+        .oc-model-tab:hover { color: rgba(255, 255, 255, 0.6); }
+        .oc-model-list { overflow-y: auto; max-height: 240px; padding: 5px; }
+        .oc-model-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px; border-radius: 6px;
+            cursor: pointer; transition: all 0.15s ease;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        .oc-model-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+        .oc-model-item.active {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+        }
+        .oc-mi-icon {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%;
+            font-size: 10px; font-weight: 700;
+            color: rgba(255, 255, 255, 0.7);
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.02em;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .oc-model-item:hover .oc-mi-icon {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        .oc-model-item.active .oc-mi-icon {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #fff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        }
+        .oc-mi-name {
+            flex: 1; font-size: 13px; letter-spacing: 0.03em;
+        }
+        .oc-mi-tag {
+            font-size: 10px; color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.05em;
+        }
+
         #oc-chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -2698,7 +2780,7 @@
             border: none;
             align-self: flex-start;
             color: rgba(255, 255, 255, 0.7);
-            border-left: 2px solid rgba(255, 165, 0, 0.4);
+            border-left: 2px solid rgba(255, 255, 255, 0.15);
             border-radius: 0 8px 8px 0;
             padding-left: 12px;
             white-space: pre-wrap;
@@ -2727,6 +2809,36 @@
             font-size: 11px;
             text-transform: uppercase;
         }
+        #oc-mic-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(10, 10, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        #oc-mic-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            transform: scale(1.15);
+        }
+        #oc-mic-btn.listening {
+            background: rgba(255, 107, 107, 0.15);
+            border-color: var(--color-error);
+            color: var(--color-error);
+            animation: oc-mic-pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes oc-mic-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(255, 107, 107, 0); }
+        }
         #oc-chat-send {
             width: 32px;
             height: 32px;
@@ -2745,38 +2857,41 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 165, 0, 0.3), inset 0 0 10px rgba(255, 165, 0, 0.1);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
             transform: scale(1.15);
         }
 
         #oc-chat-toggle {
             position: fixed;
             right: 20px;
-            bottom: 72px;
+            bottom: 78px;
             cursor: move;
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
+            width: 85px;
+            height: 40px;
+            border-radius: 20px;
             background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            color: rgba(255, 165, 0, 0.8);
-            font-size: 0.75em;
-            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            font: 500 11px/1 'Outfit', sans-serif;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 5px;
             z-index: 9998;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            letter-spacing: -0.02em;
+            user-select: none;
         }
         #oc-chat-toggle:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #ff8c00;
-            border-color: rgba(255, 165, 0, 0.5);
-            box-shadow: 0 0 15px rgba(255, 165, 0, 0.3), inset 0 0 10px rgba(255, 165, 0, 0.1);
-            transform: scale(1.15);
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
+            transform: scale(1.05);
         }
 
         .oc-typing {
@@ -2790,7 +2905,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: rgba(255, 165, 0, 0.5);
+            background: rgba(255, 255, 255, 0.5);
             animation: oc-pulse 1.4s ease-in-out infinite;
         }
         .oc-typing span:nth-child(2) { animation-delay: 0.2s; }
@@ -2945,10 +3060,10 @@
             <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#FF8C42;"></div></div>
         </div>
         <div class="dash-row" data-block="sales">
-            <span class="dash-dot" style="background:#4ECDC4;"></span>
+            <span class="dash-dot" style="background:#00ffff;"></span>
             <span class="dash-label">Продажи</span>
             <span class="dash-pct">0%</span>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4ECDC4;"></div></div>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#00ffff;"></div></div>
         </div>
     </div>
     
@@ -2973,10 +3088,10 @@
             <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#FF8C42;"></div></div>
         </div>
         <div class="dash-row" data-block="sales">
-            <span class="dash-dot" style="background:#4ECDC4;"></span>
+            <span class="dash-dot" style="background:#00ffff;"></span>
             <span class="dash-label">Продажи</span>
             <span class="dash-pct">0%</span>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4ECDC4;"></div></div>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#00ffff;"></div></div>
         </div>
     </div>
     <div id="task-tooltip"><div class="tt-title"></div><div class="tt-phase"></div><div class="tt-status"></div></div>
@@ -3141,7 +3256,7 @@
         NODES
     </button>
     <!-- v3.35: ГРАФ BUTTON -->
-    <button id="graph-toggle-btn" onclick="if(window.toggleGraph)window.toggleGraph()">
+    <button id="graph-toggle-btn">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/>
             <line x1="6" y1="6" x2="12" y2="18"/><line x1="18" y1="6" x2="12" y2="18"/>
@@ -4277,9 +4392,6 @@
             document.getElementById('back-button').classList.add('visible');
             document.getElementById('back-button').style.opacity = '1';
             document.getElementById('back-button').style.pointerEvents = 'auto';
-            // v3.22: Category-aware icon bar
-            if (window.renderIconBar) window.renderIconBar(name);
-
             // Icon Bar - show when drilled in
             document.getElementById('icon-bar').classList.add('visible');
             document.getElementById('icon-bar-toggle').style.display = 'flex';
@@ -4299,14 +4411,6 @@
 
             // Task interface открывается через кнопку в левой панели
             // Автоматический показ убран
-
-            // v3.22: Create Finance 3D graph when entering Finance
-            if (name === "Finance") {
-                destroyFinanceGraph();
-                setTimeout(() => { createFinanceGraph(window.FINANCE_MOCK); }, 300);
-            } else {
-                destroyFinanceGraph();
-            }
         }
 
         function updateDetailPanelForSubTask(idx) {
@@ -4432,18 +4536,17 @@
             // Close Side Panel
             if (typeof closeSidePanel === 'function') closeSidePanel();
 
-            // v3.22: Destroy finance graph on exit
-            destroyFinanceGraph();
-            // v3.22: Reset icon bar to Development (default)
-            if (window.renderIconBar) window.renderIconBar('Development');
-
             // v3.11: Hide icon bar toggle
             document.getElementById('icon-bar-toggle').style.display = 'none';
 
-            // v3.11: Hide task point meshes when leaving drill-down
+            // v3.11: Hide task point meshes AND their labels when leaving drill-down
             if (window.taskPoints) {
                 window.taskPoints.forEach(task => {
-                    if (task.mesh) task.mesh.visible = false;
+                    if (task.mesh) {
+                        task.mesh.visible = false;
+                        if (task.mesh.userData.labelSprite) task.mesh.userData.labelSprite.visible = false;
+                        if (task.mesh.userData.glowSprite) task.mesh.userData.glowSprite.visible = false;
+                    }
                 });
             }
 
@@ -4814,16 +4917,6 @@
                 // OrbitControls handles camera
                 controls.update();
 
-                // v3.36: Subtle pulse for selected/focused task
-                if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                    const pulse = 1.2 + 0.12 * Math.sin(time * 3.0);
-                    window._orbitPivotTask.mesh.scale.setScalar(pulse);
-                    // Subtle opacity breathing
-                    if (window._orbitPivotTask.mesh.userData.material) {
-                        window._orbitPivotTask.mesh.userData.material.opacity = 0.85 + 0.15 * Math.sin(time * 4.0);
-                    }
-                }
-
                 // Nucleus pulse
                 if (window._nucleus) {
                     window._nucleus.material.opacity = 0.25 + Math.sin(time * 1.5) * 0.1;
@@ -4887,7 +4980,6 @@
                     const taskById = {};
                     tp.forEach(t => { taskById[t.id] = t; });
                     window.task3DConnections.forEach(conn => {
-                        if (conn.bondType === 'matrix') return; // matrix bonds = visual only, no physics
                         const a = taskById[conn.from];
                         const b = taskById[conn.to];
                         if (!a || !b) return;
@@ -5180,7 +5272,12 @@
             }
 
             // Bond system visibility (single LineSegments mesh)
-            bondMesh.visible = isDrilled && !!window.graphVisible;
+            var isFinanceMode = (typeof currentCategory !== 'undefined' && currentCategory === 'Finance');
+            bondMesh.visible = isDrilled && !!window.graphVisible && !isFinanceMode;
+            particlesMesh.visible = !isFinanceMode;
+            subLinesMesh.visible = !isFinanceMode;
+            linesMesh.visible = !isFinanceMode;
+            highlightMesh.visible = !isFinanceMode;
 
             // v3.12.7: CRITICAL - Continuously enforce UI visibility during drill-down
             // This fixes the issue where UI disappears on second drill-down
@@ -5229,10 +5326,6 @@
 
             // v3.12.1: Animate 3D connection flow particles
             if (window.animateConnections) window.animateConnections();
-
-            // v3.22: Animate Finance graph + visibility
-            if (isDrilled && currentCategory === 'Finance') animateFinanceGraph(time);
-            if (window.financeGraphGroup) window.financeGraphGroup.visible = isDrilled && currentCategory === 'Finance';
 
             // v3.20: Сначала градиент, потом основная сцена
             renderer.autoClear = false;
@@ -5688,60 +5781,31 @@
         group.add(bondMesh);
 
         
-        // v3.35: MATRIX GRAPH — clean L0+L1 connections only
-        // L2 connections shown on hover (future)
+        // v3.35: CREATE MATRIX DEPENDENCIES
         window.createMatrixDeps = function(taskMap) {
             var deps = [];
             var add = function(from, to) {
                 if (taskMap[from] && taskMap[to]) deps.push({from:from, to:to});
             };
 
-            // ── L0 ↔ L0: ФАЗЫ ──
-            add('B1-L0','B2-L0');  // Инвестанализ → Проектирование
-            add('B2-L0','B3-L0');  // Проектирование → Строительство
-            add('B3-L0','B4-L0');  // Строительство → Продажи
-            add('B1-L0','B4-L0');  // Инвестанализ → Продажи
-            add('B2-L0','B4-L0');  // Проектирование → Продажи
+            // CROSS-PHASE
+            add(368,376); add(350,376); add(443,453); add(457,486); add(443,494); add(475,504);
 
-            // ── ИНВЕСТАНАЛИЗ (внутри) ──
-            add('B1-1.1','B1-1.4'); add('B1-1.2','B1-1.4'); add('B1-1.3','B1-1.4');
-            add('B1-1.4','B1-1.5'); add('B1-1.5','B1-1.6'); add('B1-1.6','B1-1.7');
+            // ИНВЕСТАНАЛИЗ
+            add(313,341); add(324,341); add(331,341); add(341,350); add(350,361); add(361,368);
 
-            // ── ПРОЕКТИРОВАНИЕ (внутри) ──
-            add('B2-2.1','B2-2.2'); add('B2-2.2','B2-2.3'); add('B2-2.3','B2-2.4');
-            add('B2-2.4','B2-2.5'); add('B2-2.5','B2-2.6'); add('B2-2.6','B2-2.7');
-            add('B2-2.7','B2-2.8'); add('B2-2.8','B2-2.9');
+            // ПРОЕКТИРОВАНИЕ
+            add(376,382); add(382,390); add(390,399); add(399,405); add(405,417); add(399,417);
+            add(417,424); add(424,435); add(435,443);
 
-            // ── СТРОИТЕЛЬСТВО (внутри) ──
-            add('B3-3.1','B3-3.2'); add('B3-3.2','B3-3.3');
-            add('B3-3.3','B3-3.4'); add('B3-3.4','B3-3.5');
+            // СТРОИТЕЛЬСТВО
+            add(453,457); add(457,463); add(463,468); add(468,475);
 
-            // ── ПРОДАЖИ (внутри) ──
-            add('B4-4.1','B4-4.2'); add('B4-4.2','B4-4.3');
+            // ПРОДАЖИ
+            add(486,494); add(494,504);
 
-            // ── МЕЖФАЗОВЫЕ: critical path ──
-            add('B1-1.7','B2-2.1'); // GO/NO GO → ГПЗУ
-            add('B2-2.9','B3-3.1'); // Экспертиза → Строительство
-            add('B3-3.5','B4-4.3'); // Ввод → Передача
-
-            // ── МЕЖФАЗОВЫЕ: матричные (нелинейные) ──
-            add('B1-1.2','B2-2.5'); // Due diligence → Изыскания
-            add('B1-1.3','B2-2.3'); // ЗОУИТ → АГР
-            add('B1-1.4','B2-2.2'); // Финмодель → Концепция
-            add('B1-1.1','B4-4.1'); // Маркетинг → Маркетинг продаж
-            add('B1-1.1','B2-2.2'); // Маркетинг → Концепция
-            add('B1-1.5','B4-4.2'); // Финмодель банк → Продажи
-            add('B2-2.6','B1-1.6'); // Стадия П → Стресс-тест
-            add('B2-2.7','B1-1.4'); // Инженерия → Финмодель
-            add('B2-2.3','B4-4.1'); // АГР → Маркетинг
-            add('B2-2.2','B4-4.1'); // Концепция → Маркетинг
-            add('B1-1.4','B3-3.1'); // Финмодель → Стройка
-            add('B2-2.8','B3-3.1'); // ПОС → Подготовка
-            add('B2-2.6','B3-3.2'); // Стадия П → Нулевой цикл
-            add('B2-2.7','B3-3.4'); // Инженерия → Отделка
-            add('B3-3.3','B4-4.2'); // Надземная → Продажи
-            add('B3-3.4','B4-4.3'); // Отделка → Передача
-            add('B3-3.2','B4-4.1'); // Нулевой цикл → Маркетинг
+            // MATRIX
+            add(324,405); add(331,390); add(341,382); add(417,361); add(424,341);
 
             return deps;
         };
@@ -5801,21 +5865,15 @@
             bondPositions[base + 4] = toTask.mesh.position.y;
             bondPositions[base + 5] = toTask.mesh.position.z;
 
-            // v3.35: Color by bond type
-            var r = 0.12, g = 0.12, b = 0.12; // default: dim gray
-            if (bondType === 'matrix') {
-                // Cyan for matrix dependencies
-                r = 0.0; g = 0.35; b = 0.4;
-            } else if (bondType === 'tree' || bondType === 'backbone') {
-                // Structural tree bonds — very subtle
-                r = 0.06; g = 0.06; b = 0.08;
-            }
-            bondColors[base]     = r;
-            bondColors[base + 1] = g;
-            bondColors[base + 2] = b;
-            bondColors[base + 3] = r;
-            bondColors[base + 4] = g;
-            bondColors[base + 5] = b;
+            // v3.33: ONLY trunk bonds visible. L1→L2 = invisible (proximity = connection)
+            const isTrunk = bondType === 'tree' || bondType === 'backbone';
+            const brightness = 0.38; // molecular bonds invisible
+            bondColors[base]     = brightness;
+            bondColors[base + 1] = brightness;
+            bondColors[base + 2] = brightness;
+            bondColors[base + 3] = brightness;
+            bondColors[base + 4] = brightness;
+            bondColors[base + 5] = brightness;
 
             bondCount++;
             bondGeometry.setDrawRange(0, bondCount * 2);
@@ -6944,26 +7002,20 @@
             const tp = task.mesh.position;
             const targetPos = new THREE.Vector3(tp.x, tp.y, tp.z);
             const startTarget = controls.target.clone();
-            const startCamPos = camera.position.clone();
-
-            // Preserve camera offset direction — move BOTH target and camera
-            const offset = startCamPos.clone().sub(startTarget);
-            const endCamPos = targetPos.clone().add(offset);
-
-            const duration = 600; // smooth Blender-style transition
+            const duration = 400; // fast pivot change
             const startTime = Date.now();
 
             // Enable OrbitControls zoom when focused on a task
             controls.enableZoom = true;
+
             lastInteractTime = Date.now() + 10000;
 
             function animatePivot() {
                 const elapsed = Date.now() - startTime;
                 const t = Math.min(elapsed / duration, 1);
-                const ease = 1 - Math.pow(1 - t, 3); // ease-out cubic
+                const ease = 1 - Math.pow(1 - t, 3);
 
                 controls.target.lerpVectors(startTarget, targetPos, ease);
-                camera.position.lerpVectors(startCamPos, endCamPos, ease);
                 controls.update();
 
                 if (t < 1) requestAnimationFrame(animatePivot);
@@ -6973,24 +7025,11 @@
         };
 
         window.resetOrbitPivot = function() {
-            // Reset pulse scale of previously focused task
-            if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                window._orbitPivotTask.mesh.scale.setScalar(1.0);
-                if (window._orbitPivotTask.mesh.userData.material) {
-                    window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
-                }
-            }
             window._orbitPivotTask = null;
 
             const startTarget = controls.target.clone();
-            const startCamPos = camera.position.clone();
             const originTarget = new THREE.Vector3(0, 0, 0);
-
-            // Move camera back proportionally
-            const offset = startCamPos.clone().sub(startTarget);
-            const endCamPos = originTarget.clone().add(offset);
-
-            const duration = 500;
+            const duration = 400;
             const startTime = Date.now();
 
             controls.enableZoom = false; // back to manual zoom
@@ -7001,7 +7040,6 @@
                 const ease = 1 - Math.pow(1 - t, 3);
 
                 controls.target.lerpVectors(startTarget, originTarget, ease);
-                camera.position.lerpVectors(startCamPos, endCamPos, ease);
                 controls.update();
 
                 if (t < 1) requestAnimationFrame(animateReset);
@@ -7315,7 +7353,7 @@ n                // v3.35: Create matrix bonds after DB load
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
                                 Агент
                             </span>
-                            <span style="color:#4ECDC4;">${data.agent || 'Не назначен'}</span>
+                            <span style="color:#00ffff;">${data.agent || 'Не назначен'}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span style="color:rgba(255,255,255,0.5);">
@@ -7435,7 +7473,7 @@ n                // v3.35: Create matrix bonds after DB load
                 bottom: 20px;
                 left: 50%;
                 transform: translateX(-50%);
-                background: rgba(78, 205, 196, 0.9);
+                background: rgba(0, 255, 255, 0.9);
                 color: #000;
                 padding: 10px 20px;
                 border-radius: 8px;
@@ -7471,15 +7509,8 @@ n                // v3.35: Create matrix bonds after DB load
             const intersects = raycasterTasks.intersectObjects(meshes);
 
             if (intersects.length === 0) {
-                // Clicked empty space — clear selection highlight but KEEP orbit pivot (Blender-style)
-                // Reset scale of previously selected task
-                if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                    window._orbitPivotTask.mesh.scale.setScalar(1.0);
-                    if (window._orbitPivotTask.mesh.userData.material) {
-                        window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
-                    }
-                }
-                window._orbitPivotTask = null;
+                // Clicked empty space — reset orbit pivot + highlights
+                if (window.resetOrbitPivot) window.resetOrbitPivot();
                 if (window.highlightTaskConnections) {
                     window.highlightTaskConnections(null);
                 }
@@ -7571,79 +7602,6 @@ n                // v3.35: Create matrix bonds after DB load
 
         // Update when panels might change layout
         // (Called in showDetailPanel and hide logic)
-
-        // ===== v3.22: 3D FINANCE PORTFOLIO GRAPH =====
-        window.financeGraphObjects = [];
-        window.financeGraphConnections = [];
-        window.financeGraphGroup = null;
-
-        function lerpFinColor(r1,g1,b1,r2,g2,b2,t) { return [r1+(r2-r1)*t, g1+(g2-g1)*t, b1+(b2-b1)*t]; }
-        function getChangeColor(ch) {
-            const t = Math.max(-10, Math.min(10, ch)) / 10;
-            if (t >= 0) { const [r,g,b] = lerpFinColor(1,1,1,0.29,0.87,0.5,t); return new THREE.Color(r,g,b); }
-            else { const [r,g,b] = lerpFinColor(1,1,1,0.97,0.44,0.44,-t); return new THREE.Color(r,g,b); }
-        }
-        function createFinGlow(r,g,b) {
-            const c = document.createElement('canvas'); c.width=64; c.height=64;
-            const ctx = c.getContext('2d'), rs=Math.round(r*255), gs=Math.round(g*255), bs=Math.round(b*255);
-            const grad = ctx.createRadialGradient(32,32,0,32,32,32);
-            grad.addColorStop(0,`rgba(${rs},${gs},${bs},1)`); grad.addColorStop(0.2,`rgba(${rs},${gs},${bs},0.7)`);
-            grad.addColorStop(0.5,`rgba(${rs},${gs},${bs},0.25)`); grad.addColorStop(0.8,`rgba(${rs},${gs},${bs},0.05)`);
-            grad.addColorStop(1,`rgba(0,0,0,0)`); ctx.fillStyle=grad; ctx.fillRect(0,0,64,64);
-            return new THREE.CanvasTexture(c);
-        }
-        function createFinBond(s,e,color,opacity) {
-            const geo = new THREE.BufferGeometry().setFromPoints([s.clone(),e.clone()]);
-            return new THREE.Line(geo, new THREE.LineBasicMaterial({color,transparent:true,opacity,depthWrite:false}));
-        }
-        function createFinanceGraph(mockData) {
-            destroyFinanceGraph();
-            const fg = new THREE.Group(); window.financeGraphGroup = fg; group.add(fg);
-            const assets = mockData.portfolio.assets, br = 35;
-            // CORE
-            const cGeo = new THREE.BufferGeometry(); cGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array([0,0,0]),3));
-            const cPt = new THREE.Points(cGeo, new THREE.PointsMaterial({color:0x00ffff,size:45,transparent:true,opacity:0.9,map:createFinGlow(0,1,1),blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true}));
-            cPt.userData = {finType:'core',baseSize:45,startTime:performance.now(),volatility:0.1}; fg.add(cPt);
-            window.financeGraphObjects.push({mesh:cPt,type:'core',data:{symbol:'PORTFOLIO'}});
-            // Categories
-            const cats = {}; assets.forEach(a => { if(!cats[a.category]) cats[a.category]=[]; cats[a.category].push(a); });
-            const cm = {crypto:{color:0xF7931A,angle:0},defi:{color:0x8B5CF6,angle:Math.PI*0.5},stable:{color:0x2DD4BF,angle:Math.PI},traditional:{color:0x60A5FA,angle:Math.PI*1.5}};
-            Object.keys(cats).forEach(ck => {
-                const m = cm[ck]||cm.crypto, ca = cats[ck];
-                const cx=Math.cos(m.angle)*60, cy=Math.sin(m.angle)*36, cz=Math.sin(m.angle*0.7)*20;
-                const cc = new THREE.Color(m.color), clG = createFinGlow(cc.r,cc.g,cc.b);
-                const clGeo = new THREE.BufferGeometry(); clGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array([0,0,0]),3));
-                const clPt = new THREE.Points(clGeo, new THREE.PointsMaterial({color:m.color,size:30,transparent:true,opacity:0.8,map:clG,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true}));
-                clPt.position.set(cx,cy,cz); clPt.userData={finType:'cluster',baseSize:30,startTime:performance.now(),volatility:0.1}; fg.add(clPt);
-                window.financeGraphObjects.push({mesh:clPt,type:'cluster',data:{category:ck}});
-                fg.add(createFinBond(new THREE.Vector3(0,0,0),new THREE.Vector3(cx,cy,cz),m.color,0.15));
-                ca.forEach((a,ai) => {
-                    const ang = m.angle+((ai-(ca.length-1)/2)*0.5), sp=30;
-                    const ax=cx+Math.cos(ang)*sp, ay=cy+Math.sin(ang*1.3)*sp*0.7, az=cz+(Math.random()-0.5)*15;
-                    const ns=Math.max(12,br*Math.sqrt(a.allocation)), nc=getChangeColor(a.change24h), aG=createFinGlow(nc.r,nc.g,nc.b);
-                    const aGeo=new THREE.BufferGeometry(); aGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array([0,0,0]),3));
-                    const aPt=new THREE.Points(aGeo,new THREE.PointsMaterial({color:nc,size:ns,transparent:true,opacity:0.9,map:aG,blending:THREE.AdditiveBlending,depthWrite:false,sizeAttenuation:true}));
-                    aPt.position.set(ax,ay,az); aPt.userData={finType:'asset',baseSize:ns,startTime:performance.now(),volatility:Math.abs(a.change24h)/10}; fg.add(aPt);
-                    window.financeGraphObjects.push({mesh:aPt,type:'asset',data:a});
-                    fg.add(createFinBond(new THREE.Vector3(cx,cy,cz),new THREE.Vector3(ax,ay,az),m.color,0.1));
-                });
-            });
-            const cn=window.financeGraphObjects.filter(o=>o.type==='asset'&&o.data.category==='crypto');
-            for(let i=0;i<cn.length;i++) for(let j=i+1;j<cn.length;j++) fg.add(createFinBond(cn[i].mesh.position,cn[j].mesh.position,0xffffff,0.04));
-        }
-        function destroyFinanceGraph() {
-            if(window.financeGraphGroup){group.remove(window.financeGraphGroup);window.financeGraphGroup.traverse(o=>{if(o.geometry)o.geometry.dispose();if(o.material){if(o.material.map)o.material.map.dispose();o.material.dispose();}});window.financeGraphGroup=null;}
-            window.financeGraphObjects=[]; window.financeGraphConnections=[];
-        }
-        function animateFinanceGraph(time) {
-            if(!window.financeGraphObjects||!window.financeGraphObjects.length) return;
-            window.financeGraphObjects.forEach(o => {
-                if(!o.mesh||!o.mesh.material) return;
-                const m=o.mesh, vol=m.userData.volatility||0.1;
-                m.material.size = (m.userData.baseSize||20) * (1.0+Math.sin(time*(2+vol*3))*vol*0.15);
-                if(m.userData.startTime){const age=performance.now()-m.userData.startTime;if(age<800){const t=age/800,e=1-Math.pow(1-t,3);m.material.size*=e;m.material.opacity=0.9*e;}}
-            });
-        }
 
         animate();
     </script>
@@ -8087,7 +8045,7 @@ n                // v3.35: Create matrix bonds after DB load
         // ===== PORT COLORS (согласно плану) =====
         const portColors = {
             'string': '#FFD93D',     // жёлтый
-            'number': '#4ECDC4',     // бирюзовый
+            'number': '#00ffff',     // бирюзовый
             'boolean': '#FFFFFF',    // белый
             'date': '#9B59B6',       // фиолетовый
             'file': '#6BCB77',       // зелёный
@@ -8096,9 +8054,9 @@ n                // v3.35: Create matrix bonds after DB load
             'geo': '#1ABC9C',        // морской
             'bundle': '#FF6B6B',     // коралловый
             'reference': '#95A5A6',  // серый
-            'data': '#4ECDC4',       // бирюзовый (алиас для object)
+            'data': '#00ffff',       // бирюзовый (алиас для object)
             'document': '#6BCB77',   // зелёный (алиас для file)
-            'closure': '#4ECDC4',    // бирюзовый (агент)
+            'closure': '#00ffff',    // бирюзовый (агент)
             'trigger': '#FF69B4'     // розовый (flow/сигнал) — для цепочки задач
         };
 
@@ -8131,7 +8089,7 @@ n                // v3.35: Create matrix bonds after DB load
                 svg.innerHTML = `
                     <defs>
                         <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#4ECDC4;stop-opacity:0.8"/>
+                            <stop offset="0%" style="stop-color:#00ffff;stop-opacity:0.8"/>
                             <stop offset="100%" style="stop-color:#FF6B6B;stop-opacity:0.8"/>
                         </linearGradient>
                     </defs>
@@ -8603,7 +8561,7 @@ n                // v3.35: Create matrix bonds after DB load
             if (nodeEl) {
                 const settingRow = nodeEl.querySelector(`[data-setting="${settingKey}"]`);
                 if (settingRow) {
-                    settingRow.style.background = 'rgba(78, 205, 196, 0.15)';
+                    settingRow.style.background = 'rgba(0, 255, 255, 0.15)';
                     setTimeout(() => {
                         settingRow.style.background = '';
                     }, 300);
@@ -8948,11 +8906,11 @@ n                // v3.35: Create matrix bonds after DB load
 
             const tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             tempLine.setAttribute('id', 'temp-connection');
-            tempLine.setAttribute('stroke', '#4ECDC4');
+            tempLine.setAttribute('stroke', '#00ffff');
             tempLine.setAttribute('stroke-width', '2.5');
             tempLine.setAttribute('fill', 'none');
             tempLine.setAttribute('stroke-dasharray', '8,4');
-            tempLine.style.filter = 'drop-shadow(0 0 4px #4ECDC4)';
+            tempLine.style.filter = 'drop-shadow(0 0 4px #00ffff)';
             svg.appendChild(tempLine);
             console.log('🔗 Temp line created');
 
@@ -9336,19 +9294,10 @@ n                // v3.35: Create matrix bonds after DB load
 
         // v3.35: TOGGLE GRAPH
         window.graphVisible = false;
-        window.toggleGraph = function() {
+        function toggleGraph() {
             var btn = document.getElementById('graph-toggle-btn');
             if (!btn || btn.classList.contains('dragging')) return;
             if (!window.bondMesh) { console.warn('[VZOR] No bondMesh'); return; }
-
-            // При первом включении — создать матричные bonds если ещё не созданы
-            if (!window._matrixBondsCreated && window.createMatrixBonds) {
-                var before = window.task3DConnections ? window.task3DConnections.length : 0;
-                window.createMatrixBonds();
-                var after = window.task3DConnections ? window.task3DConnections.length : 0;
-                window._matrixBondsCreated = true;
-                console.log('[VZOR] Matrix bonds created: ' + (after - before) + ' new bonds (total: ' + after + ')');
-            }
 
             window.graphVisible = !window.graphVisible;
             window.bondMesh.visible = window.graphVisible;
@@ -9356,51 +9305,51 @@ n                // v3.35: Create matrix bonds after DB load
             if (window.graphVisible) btn.classList.add('active');
             else btn.classList.remove('active');
 
-            console.log('[VZOR] Graph ' + (window.graphVisible ? 'ON' : 'OFF') + ', bonds: ' + (window.task3DConnections ? window.task3DConnections.length : 0));
-        };
+            console.log('[VZOR] Graph ' + (window.graphVisible ? 'ON' : 'OFF'));
+        }
 
-        // v3.35: GRAPH DRAG (click handled by onclick attr, drag suppresses click via dragging class)
+        // v3.35: GRAPH DRAG
         setTimeout(function() {
             var btn = document.getElementById('graph-toggle-btn');
             if (!btn) return;
 
-            var startX, startY, startLeft, startTop, moved = false;
+            var dragging = false, startX, startY, startLeft, startTop;
 
-            btn.addEventListener('mousedown', function(e) {
+            btn.onmousedown = function(e) {
                 if (e.button !== 0) return;
-                moved = false;
                 var rect = btn.getBoundingClientRect();
                 startX = e.clientX; startY = e.clientY;
                 startLeft = rect.left; startTop = rect.top;
-
-                function onMove(e) {
-                    var dx = e.clientX - startX, dy = e.clientY - startY;
-                    if (!moved && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
-                        moved = true;
-                        btn.classList.add('dragging');
-                        btn.style.cursor = 'grabbing';
-                    }
-                    if (moved) {
-                        btn.style.left = (startLeft + dx) + 'px';
-                        btn.style.top = (startTop + dy) + 'px';
-                        btn.style.right = 'auto';
-                    }
-                }
-
-                function onUp() {
-                    document.removeEventListener('mousemove', onMove);
-                    document.removeEventListener('mouseup', onUp);
-                    if (moved) {
-                        setTimeout(function() {
-                            btn.classList.remove('dragging');
-                            btn.style.cursor = 'grab';
-                        }, 50);
-                    }
-                }
-
                 document.addEventListener('mousemove', onMove);
                 document.addEventListener('mouseup', onUp);
-            });
+                e.preventDefault();
+            };
+
+            function onMove(e) {
+                var dx = e.clientX - startX, dy = e.clientY - startY;
+                if (!dragging && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+                    dragging = true;
+                    btn.classList.add('dragging');
+                    btn.style.cursor = 'grabbing';
+                }
+                if (dragging) {
+                    btn.style.left = (startLeft + dx) + 'px';
+                    btn.style.top = (startTop + dy) + 'px';
+                    btn.style.right = 'auto';
+                }
+            }
+
+            function onUp(e) {
+                document.removeEventListener('mousemove', onMove);
+                document.removeEventListener('mouseup', onUp);
+                if (dragging) {
+                    setTimeout(function() {
+                        dragging = false;
+                        btn.classList.remove('dragging');
+                        btn.style.cursor = 'grab';
+                    }, 50);
+                }
+            }
         }, 500);
 
         
@@ -9462,435 +9411,6 @@ n                // v3.35: Create matrix bonds after DB load
             });
         })();
 
-        // ===== v3.22: FINANCE MODULE =====
-
-        // Mock data for Finance section
-        window.FINANCE_MOCK = {
-            portfolio: {
-                totalValue: 47832.15,
-                change24h: { value: 1247.30, percent: 2.68 },
-                assets: [
-                    { symbol: "BTC", name: "Bitcoin", amount: 0.2, price: 97240, allocation: 0.412, change24h: 1.2, color: 0xF7931A, category: "crypto" },
-                    { symbol: "ETH", name: "Ethereum", amount: 3.0, price: 3784, allocation: 0.238, change24h: 3.1, color: 0x627EEA, category: "crypto" },
-                    { symbol: "SOL", name: "Solana", amount: 40, price: 145.20, allocation: 0.121, change24h: 8.3, color: 0x9945FF, category: "crypto" },
-                    { symbol: "USDT", name: "Tether", amount: 4500, price: 1.0, allocation: 0.095, change24h: 0.01, color: 0x2DD4BF, category: "stable" },
-                    { symbol: "AAVE", name: "Aave", amount: 15, price: 285, allocation: 0.089, change24h: -1.8, color: 0x8B5CF6, category: "defi" },
-                    { symbol: "LINK", name: "Chainlink", amount: 120, price: 18.50, allocation: 0.046, change24h: 2.5, color: 0x2A5ADA, category: "crypto" }
-                ],
-                recentOps: [
-                    { type: "Buy", desc: "0.5 ETH", value: 1892 },
-                    { type: "Stake", desc: "10 SOL", value: 1450 },
-                    { type: "Sell", desc: "100 USDT", value: 100 }
-                ]
-            },
-            defiPositions: [
-                { protocol: "Uniswap V3", pair: "ETH/USDC", fee: "0.3%", tvl: 4200, apr: 18.0, rewards: 12.40, chain: "ethereum" },
-                { protocol: "Aave V3", type: "supply", asset: "ETH", amount: 2.0, tvl: 7568, apy: 3.2, healthFactor: 2.41, chain: "ethereum" },
-                { protocol: "Lido", type: "stake", asset: "ETH", amount: 0.5, apy: 3.8, rewards: 2.10, chain: "ethereum" }
-            ],
-            wallets: [
-                { name: "MetaMask", address: "0x7a2F...3e91", chain: "ethereum", balance: 23450, icon: "metamask" },
-                { name: "Phantom", address: "7xKX...9mPq", chain: "solana", balance: 8200, icon: "phantom" },
-                { name: "Binance", type: "exchange", balance: 16182, icon: "binance" }
-            ],
-            market: {
-                watchlist: [
-                    { symbol: "BTC", price: 97240, change: 1.2, sparkline: [] },
-                    { symbol: "ETH", price: 3784, change: 3.1, sparkline: [] },
-                    { symbol: "SOL", price: 145.20, change: 8.3, sparkline: [] },
-                    { symbol: "BNB", price: 612.50, change: -0.8, sparkline: [] },
-                    { symbol: "AVAX", price: 34.20, change: -2.4, sparkline: [] },
-                    { symbol: "LINK", price: 18.50, change: 2.5, sparkline: [] },
-                    { symbol: "DOT", price: 7.80, change: -1.1, sparkline: [] },
-                    { symbol: "MATIC", price: 0.92, change: 4.2, sparkline: [] }
-                ],
-                trending: [
-                    { symbol: "PEPE", change: 42, volume: 2e9 },
-                    { symbol: "WIF", change: 18, volume: 8e8 },
-                    { symbol: "JUP", change: 12, volume: 4e8 }
-                ],
-                stats: { totalMcap: 3.24e12, volume24h: 1.42e11, btcDominance: 54.2, ethBtcRatio: 0.0389 }
-            },
-            analytics: {
-                fearGreed: { value: 72, label: "Greed" },
-                onChain: { btcNetFlow: -12000, ethStaked: 28.3e6, gasGwei: 12, activeAddresses: 1.2e6 },
-                signals: [
-                    { asset: "BTC", indicator: "RSI(14)", value: 62.4, signal: "neutral" },
-                    { asset: "ETH", indicator: "MA Cross", value: null, signal: "bullish" },
-                    { asset: "SOL", indicator: "Volume", value: "+340%", signal: "warning" }
-                ],
-                whales: [
-                    { desc: "1000 BTC → Coinbase", type: "sell" },
-                    { desc: "5000 ETH → Unknown", type: "transfer" },
-                    { desc: "$2M USDT → Binance", type: "buy" }
-                ],
-                calendar: [
-                    { date: "Feb 14", event: "CPI Data" },
-                    { date: "Feb 15", event: "ETH Dencun Anniversary" },
-                    { date: "Feb 18", event: "FOMC Minutes" }
-                ]
-            }
-        };
-
-        // Generate random sparkline data for watchlist items
-        window.FINANCE_MOCK.market.watchlist.forEach(item => {
-            const base = item.price;
-            const points = [];
-            for (let i = 0; i < 20; i++) {
-                points.push(base * (1 + (Math.random() - 0.5) * 0.04));
-            }
-            // Trend final point toward current change
-            points[19] = base;
-            item.sparkline = points;
-        });
-
-        // Finance SVG icons
-        const FINANCE_ICONS = {
-            portfolio: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6.36 3.64"/><path d="M12 12L5.64 15.64"/></svg>`,
-            markets: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 20h18"/><rect x="5" y="12" width="2" height="6" rx="0.5"/><rect x="9" y="8" width="2" height="10" rx="0.5"/><rect x="13" y="5" width="2" height="13" rx="0.5"/><rect x="17" y="10" width="2" height="8" rx="0.5"/><path d="M4 9l4-4 4 3 5-5"/></svg>`,
-            defi: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v4c0 1.66 3.58 3 8 3s8-1.34 8-3V6"/><path d="M4 10v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/><path d="M4 14v4c0 1.66 3.58 3 8 3s8-1.34 8-3v-4"/></svg>`,
-            analytics: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3v18h18"/><path d="M7 16l4-6 4 4 5-8"/><circle cx="7" cy="16" r="1.5" fill="currentColor"/><circle cx="11" cy="10" r="1.5" fill="currentColor"/><circle cx="15" cy="14" r="1.5" fill="currentColor"/><circle cx="20" cy="6" r="1.5" fill="currentColor"/></svg>`,
-            wallets: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="6" width="20" height="14" rx="2"/><path d="M2 10h20"/><circle cx="17" cy="14" r="1.5"/><path d="M6 6V4a2 2 0 012-2h8a2 2 0 012 2v2"/></svg>`,
-            settings: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>`
-        };
-
-        // Store original Development icon-bar HTML
-        const DEV_ICON_BAR_HTML = document.getElementById('icon-bar') ? document.getElementById('icon-bar').innerHTML : '';
-
-        // Render category-specific icon bar
-        window.renderIconBar = function(category) {
-            const iconBar = document.getElementById('icon-bar');
-            if (!iconBar) return;
-
-            if (category === 'Finance') {
-                const finButtons = [
-                    { panel: 'fin-portfolio', title: 'Portfolio', icon: FINANCE_ICONS.portfolio },
-                    { panel: 'fin-markets', title: 'Markets', icon: FINANCE_ICONS.markets },
-                    { panel: 'fin-defi', title: 'DeFi', icon: FINANCE_ICONS.defi },
-                    { panel: 'fin-analytics', title: 'Analytics', icon: FINANCE_ICONS.analytics },
-                    { panel: 'fin-wallets', title: 'Wallets', icon: FINANCE_ICONS.wallets },
-                    { panel: 'fin-settings', title: 'Settings', icon: FINANCE_ICONS.settings }
-                ];
-
-                let html = '';
-                finButtons.forEach((btn, i) => {
-                    html += `<div class="icon-btn" data-panel="${btn.panel}" title="${btn.title}">${btn.icon}</div>`;
-                    if (i === 3) html += '<div class="icon-separator"></div>';
-                });
-                html += '<div style="flex:1"></div>';
-                html += `<div class="icon-btn" data-panel="fin-settings" title="Settings">${FINANCE_ICONS.settings}</div>`;
-
-                iconBar.innerHTML = html;
-
-                // Re-attach click handlers for Finance buttons
-                iconBar.querySelectorAll('.icon-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        const panelType = btn.dataset.panel;
-                        if (!panelType) return;
-                        const sidePanel = document.getElementById('side-panel');
-                        const isOpen = sidePanel && sidePanel.classList.contains('active');
-                        const isCurrent = btn.classList.contains('active');
-                        if (isOpen && isCurrent) {
-                            closeSidePanel();
-                        } else {
-                            openSidePanel(panelType);
-                        }
-                    });
-                });
-            } else {
-                // Restore Development (default) icon bar
-                iconBar.innerHTML = DEV_ICON_BAR_HTML;
-
-                // Re-attach Development click handlers
-                iconBar.querySelectorAll('.icon-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        if (btn.id === 'tasks-icon-btn') return;
-                        const panelType = btn.dataset.panel;
-                        if (!panelType) return;
-                        const sidePanel = document.getElementById('side-panel');
-                        const isOpen = sidePanel && sidePanel.classList.contains('active');
-                        const isCurrent = btn.classList.contains('active');
-                        if (isOpen && isCurrent) {
-                            closeSidePanel();
-                        } else {
-                            openSidePanel(panelType);
-                        }
-                    });
-                });
-
-                // Re-attach tasks button handler
-                const tasksBtn = document.getElementById('tasks-icon-btn');
-                if (tasksBtn) {
-                    tasksBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const taskInterface = document.getElementById('task-interface');
-                        if (taskInterface) {
-                            taskInterface.classList.toggle('visible');
-                        }
-                    });
-                }
-            }
-        };
-
-        // ===== FINANCE HELPER FUNCTIONS =====
-        function fmtUsd(n) {
-            return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-        function fmtPct(n) {
-            const sign = n >= 0 ? '+' : '';
-            return sign + n.toFixed(2) + '%';
-        }
-        function fmtCompact(n) {
-            if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
-            if (n >= 1e9) return '$' + (n / 1e9).toFixed(1) + 'B';
-            if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
-            if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
-            return '$' + n.toFixed(0);
-        }
-        function fmtNum(n) {
-            if (n >= 1e6) return (n / 1e6).toFixed(1) + 'M';
-            if (n >= 1e3) return (n / 1e3).toFixed(1) + 'K';
-            return n.toFixed(0);
-        }
-
-        function drawSparkline(canvasId, data, isPositive) {
-            const el = document.getElementById(canvasId);
-            if (!el) return;
-            const ctx = el.getContext('2d');
-            const w = el.width, h = el.height;
-            ctx.clearRect(0, 0, w, h);
-            if (!data || data.length < 2) return;
-            const min = Math.min(...data), max = Math.max(...data);
-            const range = max - min || 1;
-            ctx.strokeStyle = isPositive ? '#4ADE80' : '#F87171';
-            ctx.lineWidth = 1.5;
-            ctx.beginPath();
-            data.forEach((v, i) => {
-                const x = (i / (data.length - 1)) * w;
-                const y = h - ((v - min) / range) * h;
-                if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-            });
-            ctx.stroke();
-        }
-
-        // ===== FINANCE PANEL RENDERERS =====
-
-        function renderPortfolioPanel() {
-            const d = window.FINANCE_MOCK.portfolio;
-            const chgClass = d.change24h.percent >= 0 ? 'positive' : 'negative';
-            const chgSign = d.change24h.percent >= 0 ? '+' : '';
-
-            let html = `
-                <div class="fin-value">${fmtUsd(d.totalValue)}</div>
-                <div class="fin-change ${chgClass}">${chgSign}${fmtUsd(d.change24h.value)} (${fmtPct(d.change24h.percent)}) 24h</div>
-                <div class="fin-section-title">Allocation</div>`;
-
-            d.assets.forEach(a => {
-                const pct = (a.allocation * 100).toFixed(1);
-                const color = '#' + a.color.toString(16).padStart(6, '0');
-                html += `
-                <div class="fin-bar-row">
-                    <span class="fin-bar-label">${a.symbol}</span>
-                    <div class="fin-bar-track"><div class="fin-bar-fill" style="width:${pct}%;background:${color}"></div></div>
-                    <span class="fin-bar-pct">${pct}%</span>
-                </div>`;
-            });
-
-            html += '<div class="fin-section-title">Top Movers</div>';
-            const sorted = [...d.assets].sort((a, b) => Math.abs(b.change24h) - Math.abs(a.change24h)).slice(0, 3);
-            sorted.forEach(a => {
-                const cls = a.change24h >= 0 ? 'positive' : 'negative';
-                const arrow = a.change24h >= 0 ? '▲' : '▼';
-                html += `<div class="fin-mover ${cls}">${arrow} ${a.symbol} ${fmtPct(a.change24h)}</div>`;
-            });
-
-            html += '<div class="fin-section-title">Recent Operations</div>';
-            d.recentOps.forEach(op => {
-                html += `<div class="fin-stat-row"><span>${op.type} ${op.desc}</span><span>${fmtUsd(op.value)}</span></div>`;
-            });
-
-            return { title: 'Portfolio', html };
-        }
-
-        function renderMarketsPanel() {
-            const d = window.FINANCE_MOCK.market;
-            let html = `<input type="text" class="fin-search" placeholder="Search ticker..." readonly>
-                <div class="fin-section-title">Watchlist</div>`;
-
-            d.watchlist.forEach((item, i) => {
-                const cls = item.change >= 0 ? 'positive' : 'negative';
-                const arrow = item.change >= 0 ? '▲' : '▼';
-                const canvasId = 'spark-' + item.symbol;
-                html += `
-                <div class="fin-watchlist-item">
-                    <span class="fin-wl-symbol">${item.symbol}</span>
-                    <span class="fin-wl-price">${fmtUsd(item.price)}</span>
-                    <span class="fin-change ${cls}">${arrow} ${fmtPct(item.change)}</span>
-                    <canvas id="${canvasId}" width="60" height="20" style="margin-left:auto"></canvas>
-                </div>`;
-            });
-
-            html += '<div class="fin-section-title">Trending</div>';
-            d.trending.forEach((t, i) => {
-                html += `<div class="fin-trending-item"><span>#${i + 1} ${t.symbol}</span><span class="fin-change positive">+${t.change}%</span><span>Vol: ${fmtCompact(t.volume)}</span></div>`;
-            });
-
-            html += '<div class="fin-section-title">Market Stats</div>';
-            html += `<div class="fin-stat-row"><span>Total MCap</span><span>${fmtCompact(d.stats.totalMcap)}</span></div>`;
-            html += `<div class="fin-stat-row"><span>24h Volume</span><span>${fmtCompact(d.stats.volume24h)}</span></div>`;
-            html += `<div class="fin-stat-row"><span>BTC Dominance</span><span>${d.stats.btcDominance}%</span></div>`;
-            html += `<div class="fin-stat-row"><span>ETH/BTC</span><span>${d.stats.ethBtcRatio}</span></div>`;
-
-            return { title: 'Markets', html, afterRender: function() {
-                d.watchlist.forEach(item => {
-                    drawSparkline('spark-' + item.symbol, item.sparkline, item.change >= 0);
-                });
-            }};
-        }
-
-        function renderDeFiPanel() {
-            const positions = window.FINANCE_MOCK.defiPositions;
-            const totalTvl = positions.reduce((s, p) => s + p.tvl, 0);
-            const totalRewards = positions.reduce((s, p) => s + (p.rewards || 0), 0);
-
-            let html = `
-                <div class="fin-stat-row"><span>Total TVL</span><span class="fin-value" style="font-size:1.1rem">${fmtUsd(totalTvl)}</span></div>
-                <div class="fin-stat-row"><span>Pending Rewards</span><span class="fin-change positive">${fmtUsd(totalRewards)}</span></div>
-                <div class="fin-section-title">Active Positions</div>`;
-
-            positions.forEach(p => {
-                html += '<div class="fin-card">';
-                html += `<div class="fin-card-header">${p.protocol}</div>`;
-                if (p.pair) {
-                    html += `<div class="fin-stat-row"><span>${p.pair} ${p.fee}</span></div>`;
-                    html += `<div class="fin-stat-row"><span>TVL: ${fmtUsd(p.tvl)}</span><span>APR: ${p.apr}%</span></div>`;
-                    html += `<div class="fin-stat-row"><span>Rewards: ${fmtUsd(p.rewards)}</span></div>`;
-                } else if (p.healthFactor) {
-                    html += `<div class="fin-stat-row"><span>Supply: ${p.amount} ${p.asset}</span></div>`;
-                    html += `<div class="fin-stat-row"><span>TVL: ${fmtUsd(p.tvl)}</span><span>APY: ${p.apy}%</span></div>`;
-                    const hfPct = Math.min(p.healthFactor / 3 * 100, 100);
-                    const hfColor = p.healthFactor > 2 ? '#4ADE80' : p.healthFactor > 1.5 ? '#FBBF24' : '#F87171';
-                    html += `<div class="fin-stat-row"><span>Health: ${p.healthFactor.toFixed(2)}</span></div>`;
-                    html += `<div class="fin-health-bar"><div class="fin-health-fill" style="width:${hfPct}%;background:${hfColor}"></div></div>`;
-                } else {
-                    html += `<div class="fin-stat-row"><span>Staked: ${p.amount} ${p.asset}</span></div>`;
-                    html += `<div class="fin-stat-row"><span>APY: ${p.apy}%</span><span>Rewards: ${fmtUsd(p.rewards)}</span></div>`;
-                }
-                html += '</div>';
-            });
-
-            html += '<div class="fin-section-title">Protocol Breakdown</div>';
-            positions.forEach(p => {
-                const pct = (p.tvl / totalTvl * 100).toFixed(1);
-                html += `<div class="fin-bar-row">
-                    <span class="fin-bar-label">${p.protocol.split(' ')[0]}</span>
-                    <div class="fin-bar-track"><div class="fin-bar-fill" style="width:${pct}%;background:var(--fin-defi)"></div></div>
-                    <span class="fin-bar-pct">${pct}%</span>
-                </div>`;
-            });
-
-            return { title: 'DeFi Positions', html };
-        }
-
-        function renderAnalyticsPanel() {
-            const d = window.FINANCE_MOCK.analytics;
-            const fgColor = d.fearGreed.value > 60 ? 'var(--fin-green)' : d.fearGreed.value > 40 ? 'var(--fin-amber)' : 'var(--fin-red)';
-            const needlePos = d.fearGreed.value;
-
-            let html = `<div class="fin-section-title">Market Sentiment</div>`;
-            html += `<div class="fin-stat-row"><span>Fear & Greed</span><span style="color:${fgColor}">${d.fearGreed.value} (${d.fearGreed.label})</span></div>`;
-            html += `<div class="fin-gauge"><div class="fin-gauge-track"><div class="fin-gauge-needle" style="left:${needlePos}%;background:${fgColor}"></div></div></div>`;
-
-            html += '<div class="fin-section-title">On-Chain</div>';
-            const flowColor = d.onChain.btcNetFlow < 0 ? 'var(--fin-green)' : 'var(--fin-red)';
-            html += `<div class="fin-stat-row"><span>BTC Net Flow</span><span style="color:${flowColor}">${fmtNum(d.onChain.btcNetFlow)} BTC</span></div>`;
-            html += `<div class="fin-stat-row"><span>ETH Staked</span><span>${fmtNum(d.onChain.ethStaked)}</span></div>`;
-            html += `<div class="fin-stat-row"><span>Gas (Gwei)</span><span>${d.onChain.gasGwei}</span></div>`;
-            html += `<div class="fin-stat-row"><span>Active Addresses</span><span>${fmtNum(d.onChain.activeAddresses)}</span></div>`;
-
-            html += '<div class="fin-section-title">Signals</div>';
-            d.signals.forEach(s => {
-                const sigColor = s.signal === 'bullish' ? 'var(--fin-green)' : s.signal === 'warning' ? 'var(--fin-amber)' : 'rgba(255,255,255,0.7)';
-                const val = s.value !== null ? s.value : s.signal.charAt(0).toUpperCase() + s.signal.slice(1);
-                html += `<div class="fin-signal-row"><span>${s.asset} ${s.indicator}</span><span style="color:${sigColor}">${val}</span></div>`;
-            });
-
-            html += '<div class="fin-section-title">Whale Activity</div>';
-            d.whales.forEach(w => {
-                html += `<div class="fin-whale-item">${w.desc}</div>`;
-            });
-
-            html += '<div class="fin-section-title">Calendar</div>';
-            d.calendar.forEach(c => {
-                html += `<div class="fin-calendar-item"><span class="fin-cal-date">${c.date}</span><span>${c.event}</span></div>`;
-            });
-
-            return { title: 'Analytics', html };
-        }
-
-        function renderWalletsPanel() {
-            const wallets = window.FINANCE_MOCK.wallets;
-            let html = '<div class="fin-section-title">Connected Wallets</div>';
-
-            const walletIcons = { metamask: '\uD83E\uDD8A', phantom: '\uD83D\uDC7B', binance: '\uD83C\uDFE6' };
-
-            wallets.forEach(w => {
-                html += `<div class="fin-wallet-card">
-                    <div class="fin-wallet-header">${walletIcons[w.icon] || ''} ${w.name}</div>`;
-                if (w.address) html += `<div class="fin-wallet-addr">${w.address}</div>`;
-                html += `<div class="fin-wallet-balance">${fmtUsd(w.balance)}${w.chain ? ' (' + w.chain + ')' : ''}</div>`;
-                html += '</div>';
-            });
-
-            html += '<div class="fin-btn" style="margin-top:12px;text-align:center;cursor:pointer">+ Add Wallet</div>';
-
-            html += '<div class="fin-section-title">Recent Transactions</div>';
-            const txs = [
-                { icon: '\u2197', desc: '0.5 ETH → Uniswap' },
-                { icon: '\u2199', desc: '1,892 USDC received' },
-                { icon: '\u2197', desc: 'Approve USDC (Aave)' }
-            ];
-            txs.forEach(tx => {
-                html += `<div class="fin-tx-item"><span>${tx.icon}</span><span>${tx.desc}</span></div>`;
-            });
-
-            return { title: 'Wallets', html };
-        }
-
-        function renderFinSettingsPanel() {
-            let html = '<div class="fin-section-title">API Keys</div>';
-            const apis = [
-                { name: 'Binance', connected: true, status: 'Connected' },
-                { name: 'CoinGecko', connected: false, status: 'Not set' },
-                { name: 'DeFiLlama', connected: true, status: 'Free tier' },
-                { name: 'Etherscan', connected: false, status: 'Not set' }
-            ];
-            apis.forEach(a => {
-                const dot = a.connected ? '\u25CF' : '\u25CB';
-                const dotColor = a.connected ? 'var(--fin-green)' : 'rgba(255,255,255,0.3)';
-                html += `<div class="fin-api-row"><span>${a.name}</span><span style="color:${dotColor}">${dot} ${a.status}</span></div>`;
-            });
-
-            html += '<div class="fin-section-title">Preferences</div>';
-            html += `<div class="fin-stat-row"><span>Currency</span><span>USD</span></div>`;
-            html += `<div class="fin-stat-row"><span>Theme</span><span>Dark</span></div>`;
-            html += `<div class="fin-stat-row"><span>Refresh</span><span>30s</span></div>`;
-
-            html += '<div class="fin-section-title">Export</div>';
-            html += '<div style="display:flex;gap:8px;margin-top:8px"><div class="fin-btn" style="flex:1;text-align:center;cursor:pointer">Export CSV</div><div class="fin-btn" style="flex:1;text-align:center;cursor:pointer">Export JSON</div></div>';
-
-            return { title: 'Settings', html };
-        }
-
-        const FINANCE_PANEL_RENDERERS = {
-            'fin-portfolio': renderPortfolioPanel,
-            'fin-markets': renderMarketsPanel,
-            'fin-defi': renderDeFiPanel,
-            'fin-analytics': renderAnalyticsPanel,
-            'fin-wallets': renderWalletsPanel,
-            'fin-settings': renderFinSettingsPanel
-        };
-
         // ===== SIDE PANEL CONTROLS =====
         const sidePanelContent = {
             invest: {
@@ -9948,21 +9468,7 @@ n                // v3.35: Create matrix bonds after DB load
                 btn.classList.toggle('active', btn.dataset.panel === panelType);
             });
 
-            // v3.22: Check for Finance panel renderer first
-            const finRenderer = FINANCE_PANEL_RENDERERS[panelType];
-            if (finRenderer) {
-                const result = finRenderer();
-                title.textContent = result.title;
-                content.innerHTML = result.html;
-                panel.classList.add('active');
-                // Call afterRender if exists (e.g., for sparklines)
-                if (result.afterRender) {
-                    requestAnimationFrame(() => result.afterRender());
-                }
-                return;
-            }
-
-            // Get content for this panel (Development / default)
+            // Get content for this panel
             const data = sidePanelContent[panelType];
             if (!data) return;
 
@@ -10413,7 +9919,7 @@ async function sendToAgentZero(message) {
         <div class="chat-resize-handle resize-corner-bl"></div>
         <div class="chat-resize-handle resize-corner-br"></div>
         <div id="agent-chat-header">
-            <div id="agent-chat-title">AGENT VZOR</div>
+            <div id="agent-chat-title">VZOR BUILDER</div>
             <button id="agent-chat-close">×</button>
         </div>
         <div id="agent-model-bar" title="LLM brain selector">
@@ -10425,7 +9931,7 @@ async function sendToAgentZero(message) {
         <div id="agent-model-dropdown">
             <div id="agent-model-tabs">
                 <button class="model-tab active" data-tab="direct">Direct</button>
-                <button class="model-tab" data-tab="openrouter">OpenRouter</button>
+                <button class="model-tab" data-tab="openrouter" id="agent-tab-or">OpenRouter</button>
             </div>
             <div class="model-list" id="model-list-direct">
                 <div class="model-item" data-id="agent-zero" data-label="AgentVzor.0" data-icon="V0" style="border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:4px;padding-bottom:8px">
@@ -10483,11 +9989,12 @@ async function sendToAgentZero(message) {
                     <line x1="8" y1="23" x2="16" y2="23"></line>
                 </svg>
             </button>
+            <button id="agent-chat-send">&#10148;</button>
         </div>
     </div>
 
     <!-- Кнопка открытия чата -->
-    <button id="agent-chat-toggle">V</button>
+    <button id="agent-chat-toggle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="4"></circle><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg>BLD</button>
 
     <script>
     // ===== AGENT CHAT PANEL — Full functionality =====
@@ -10498,6 +10005,7 @@ async function sendToAgentZero(message) {
         const chatInput = document.getElementById('agent-chat-input');
         const chatMessages = document.getElementById('agent-chat-messages');
         const chatMicBtn = document.getElementById('agent-mic-btn');
+        const chatSendBtn = document.getElementById('agent-chat-send');
         const chatHeader = document.getElementById('agent-chat-header');
         if (!toggle || !panel) return;
 
@@ -10585,6 +10093,7 @@ async function sendToAgentZero(message) {
                 panel.classList.toggle('active');
                 if (isOpening) {
                     positionPanel();
+                    fetchBalances();
                     if (chatInput) setTimeout(function() { chatInput.focus(); }, 100);
                 }
             }
@@ -10836,6 +10345,7 @@ async function sendToAgentZero(message) {
                 e.stopPropagation();
                 modelDropdown.classList.toggle('open');
                 modelArrow.style.transform = modelDropdown.classList.contains('open') ? 'rotate(180deg)' : '';
+                if (modelDropdown.classList.contains('open')) fetchBalances();
             });
 
             var mTabs = modelDropdown.querySelectorAll('.model-tab');
@@ -10877,6 +10387,129 @@ async function sendToAgentZero(message) {
                 modelArrow.style.transform = '';
             });
             modelDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
+        }
+
+        function fetchBalances() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/oc-balance', true);
+            xhr.timeout = 10000;
+            xhr.onload = function() {
+                try {
+                    var b = JSON.parse(xhr.responseText);
+                    var directItems = document.querySelectorAll('#model-list-direct .model-item');
+                    directItems.forEach(function(item) {
+                        var tag = item.querySelector('.mi-tag');
+                        if (!tag) return;
+                        var mid = item.getAttribute('data-id') || '';
+                        if (mid === 'deepseek' && b.deepseek != null) {
+                            tag.textContent = '$' + b.deepseek.toFixed(2);
+                            tag.style.color = b.deepseek > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
+                        } else if (mid === 'gemini') {
+                            tag.textContent = b.google || 'free';
+                            tag.style.color = 'rgba(100,200,255,0.7)';
+                        } else if (mid === 'claude') {
+                            tag.textContent = b.anthropic != null ? '$' + b.anthropic.toFixed(2) : 'no key';
+                            tag.style.color = b.anthropic != null ? 'rgba(100,255,100,0.7)' : 'rgba(255,255,255,0.3)';
+                        }
+                    });
+                    var orTab = document.getElementById('agent-tab-or');
+                    if (orTab && b.openrouter != null) {
+                        orTab.textContent = 'OpenRouter — $' + b.openrouter.toFixed(2);
+                    }
+                    var orItems = document.querySelectorAll('#model-list-openrouter .model-item');
+                    orItems.forEach(function(item) {
+                        var tag = item.querySelector('.mi-tag');
+                        if (!tag) return;
+                        if (b.openrouter != null) {
+                            tag.textContent = '$' + b.openrouter.toFixed(2);
+                            tag.style.color = b.openrouter > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
+                        }
+                    });
+                } catch(e) {}
+            };
+            xhr.send();
+        }
+
+        function fetchBalances() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/oc-balance', true);
+            xhr.timeout = 10000;
+            xhr.onload = function() {
+                try {
+                    var b = JSON.parse(xhr.responseText);
+                    var directItems = document.querySelectorAll('#model-list-direct .model-item');
+                    directItems.forEach(function(item) {
+                        var tag = item.querySelector('.mi-tag');
+                        if (!tag) return;
+                        var mid = item.getAttribute('data-id') || '';
+                        if (mid === 'deepseek' && b.deepseek != null) {
+                            tag.textContent = '$' + b.deepseek.toFixed(2);
+                            tag.style.color = b.deepseek > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
+                        } else if (mid === 'gemini') {
+                            tag.textContent = b.google || 'free';
+                            tag.style.color = 'rgba(100,200,255,0.7)';
+                        } else if (mid === 'claude') {
+                            tag.textContent = b.anthropic != null ? '$' + b.anthropic.toFixed(2) : 'no key';
+                            tag.style.color = b.anthropic != null ? 'rgba(100,255,100,0.7)' : 'rgba(255,255,255,0.3)';
+                        }
+                    });
+                    var orTab = document.getElementById('agent-tab-or');
+                    if (orTab && b.openrouter != null) {
+                        orTab.textContent = 'OpenRouter — $' + b.openrouter.toFixed(2);
+                    }
+                    var orItems = document.querySelectorAll('#model-list-openrouter .model-item');
+                    orItems.forEach(function(item) {
+                        var tag = item.querySelector('.mi-tag');
+                        if (!tag) return;
+                        if (b.openrouter != null) {
+                            tag.textContent = '$' + b.openrouter.toFixed(2);
+                            tag.style.color = b.openrouter > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
+                        }
+                    });
+                } catch(e) {}
+            };
+            xhr.send();
+        }
+
+        function fetchBalances() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/oc-balance', true);
+            xhr.timeout = 10000;
+            xhr.onload = function() {
+                try {
+                    var b = JSON.parse(xhr.responseText);
+                    var directItems = document.querySelectorAll('#model-list-direct .model-item');
+                    directItems.forEach(function(item) {
+                        var tag = item.querySelector('.mi-tag');
+                        if (!tag) return;
+                        var mid = item.getAttribute('data-id') || '';
+                        if (mid === 'deepseek' && b.deepseek != null) {
+                            tag.textContent = '$' + b.deepseek.toFixed(2);
+                            tag.style.color = b.deepseek > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
+                        } else if (mid === 'gemini') {
+                            tag.textContent = b.google || 'free';
+                            tag.style.color = 'rgba(100,200,255,0.7)';
+                        } else if (mid === 'claude') {
+                            tag.textContent = b.anthropic != null ? '$' + b.anthropic.toFixed(2) : 'no key';
+                            tag.style.color = b.anthropic != null ? 'rgba(100,255,100,0.7)' : 'rgba(255,255,255,0.3)';
+                        }
+                    });
+                    var orTab = document.getElementById('agent-tab-or');
+                    if (orTab && b.openrouter != null) {
+                        orTab.textContent = 'OpenRouter — $' + b.openrouter.toFixed(2);
+                    }
+                    var orItems = document.querySelectorAll('#model-list-openrouter .model-item');
+                    orItems.forEach(function(item) {
+                        var tag = item.querySelector('.mi-tag');
+                        if (!tag) return;
+                        if (b.openrouter != null) {
+                            tag.textContent = '$' + b.openrouter.toFixed(2);
+                            tag.style.color = b.openrouter > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
+                        }
+                    });
+                } catch(e) {}
+            };
+            xhr.send();
         }
 
         async function sendMessage(text) {
@@ -11041,41 +10674,64 @@ async function sendToAgentZero(message) {
             });
         }
 
-        // --- Voice input for chat ---
+        // --- Voice input for chat (continuous + interim) ---
         if (chatMicBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            const chatRecog = new SR();
+            var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            var chatRecog = new SR();
             chatRecog.lang = 'ru-RU';
-            chatRecog.continuous = false;
-            chatRecog.interimResults = false;
-            let chatRecording = false;
+            chatRecog.continuous = true;
+            chatRecog.interimResults = true;
+            var chatRecording = false;
+            var savedInputText = '';
 
             chatMicBtn.addEventListener('click', function() {
                 if (!chatRecording) {
                     chatRecording = true;
+                    savedInputText = chatInput.value;
                     chatRecog.start();
                     chatMicBtn.classList.add('listening');
+                    chatInput.placeholder = 'Говорите...';
                 } else {
                     chatRecog.stop();
                 }
             });
 
             chatRecog.onresult = function(e) {
-                const text = e.results[0][0].transcript;
-                chatRecording = false;
-                chatMicBtn.classList.remove('listening');
-                sendMessage(text);
+                var final = '';
+                var interim = '';
+                for (var i = 0; i < e.results.length; i++) {
+                    if (e.results[i].isFinal) {
+                        final += e.results[i][0].transcript;
+                    } else {
+                        interim += e.results[i][0].transcript;
+                    }
+                }
+                var full = (savedInputText ? savedInputText + ' ' : '') + final + interim;
+                chatInput.value = full;
+                chatInput.style.color = interim ? 'rgba(0,255,255,0.6)' : '';
             };
 
             chatRecog.onerror = function() {
                 chatRecording = false;
                 chatMicBtn.classList.remove('listening');
+                chatInput.placeholder = 'Спросите Agent VZOR...';
+                chatInput.style.color = '';
             };
 
             chatRecog.onend = function() {
                 chatRecording = false;
                 chatMicBtn.classList.remove('listening');
+                chatInput.placeholder = 'Спросите Agent VZOR...';
+                chatInput.style.color = '';
+                chatInput.focus();
             };
+        }
+
+        // --- Send button ---
+        if (chatSendBtn) {
+            chatSendBtn.addEventListener('click', function() {
+                sendMessage(chatInput.value);
+            });
         }
     })();
     </script>
@@ -11094,19 +10750,73 @@ async function sendToAgentZero(message) {
         <div class="oc-resize-handle resize-corner-bl"></div>
         <div class="oc-resize-handle resize-corner-br"></div>
         <div id="oc-chat-header">
-            <div id="oc-chat-title">OPENCLAW</div>
+            <div id="oc-chat-title">VZOR MESSENGER <span id="oc-status" style="font-size:9px;opacity:0.5;margin-left:6px;letter-spacing:0.05em"></span></div>
             <button id="oc-chat-close">&times;</button>
+        </div>
+        <div id="oc-model-bar" title="LLM model selector">
+            <span id="oc-model-icon">DS</span>
+            <span id="oc-model-name">DeepSeek V3</span>
+            <span id="oc-model-brain"></span>
+            <span id="oc-model-arrow">&#9662;</span>
+        </div>
+        <div id="oc-model-dropdown">
+            <div class="oc-model-tabs">
+                <button class="oc-model-tab active" data-tab="direct">Direct</button>
+                <button class="oc-model-tab" data-tab="openrouter" id="oc-tab-or">OpenRouter</button>
+            </div>
+            <div class="oc-model-list" id="oc-model-list-direct">
+                <div class="oc-model-item active" data-id="deepseek/deepseek-chat" data-label="DeepSeek V3" data-icon="DS" data-provider="deepseek">
+                    <span class="oc-mi-icon">DS</span><span class="oc-mi-name">DeepSeek V3</span><span class="oc-mi-tag">—</span>
+                </div>
+                <div class="oc-model-item" data-id="google/gemini-2.5-flash" data-label="Gemini 2.5 Flash" data-icon="GM" data-provider="google">
+                    <span class="oc-mi-icon">GM</span><span class="oc-mi-name">Gemini 2.5 Flash</span><span class="oc-mi-tag">—</span>
+                </div>
+                <div class="oc-model-item" data-id="anthropic/claude-sonnet-4-5-20250929" data-label="Claude 4.5 Sonnet" data-icon="CL" data-provider="anthropic">
+                    <span class="oc-mi-icon">CL</span><span class="oc-mi-name">Claude 4.5 Sonnet</span><span class="oc-mi-tag">—</span>
+                </div>
+            </div>
+            <div class="oc-model-list" id="oc-model-list-openrouter" style="display:none">
+                <div class="oc-model-item" data-id="openrouter/anthropic/claude-sonnet-4-5-20250929" data-label="Claude 4.5 Sonnet" data-icon="CL">
+                    <span class="oc-mi-icon">CL</span><span class="oc-mi-name">Claude 4.5 Sonnet</span><span class="oc-mi-tag">claude</span>
+                </div>
+                <div class="oc-model-item" data-id="openrouter/openai/gpt-4o" data-label="GPT-4o" data-icon="4o">
+                    <span class="oc-mi-icon">4o</span><span class="oc-mi-name">GPT-4o</span><span class="oc-mi-tag">gpt4</span>
+                </div>
+                <div class="oc-model-item" data-id="openrouter/openai/gpt-4.1-mini" data-label="GPT-4.1 Mini" data-icon="4m">
+                    <span class="oc-mi-icon">4m</span><span class="oc-mi-name">GPT-4.1 Mini</span><span class="oc-mi-tag">gpt</span>
+                </div>
+                <div class="oc-model-item" data-id="openrouter/google/gemini-2.5-flash" data-label="Gemini 2.5 Flash" data-icon="GM">
+                    <span class="oc-mi-icon">GM</span><span class="oc-mi-name">Gemini 2.5 Flash</span><span class="oc-mi-tag">gemini</span>
+                </div>
+                <div class="oc-model-item" data-id="openrouter/google/gemini-2.5-pro" data-label="Gemini 2.5 Pro" data-icon="GP">
+                    <span class="oc-mi-icon">GP</span><span class="oc-mi-name">Gemini 2.5 Pro</span><span class="oc-mi-tag">pro</span>
+                </div>
+                <div class="oc-model-item" data-id="openrouter/meta-llama/llama-4-maverick" data-label="Llama 4 Maverick" data-icon="LL">
+                    <span class="oc-mi-icon">LL</span><span class="oc-mi-name">Llama 4 Maverick</span><span class="oc-mi-tag">llama</span>
+                </div>
+                <div class="oc-model-item" data-id="openrouter/deepseek/deepseek-r1" data-label="DeepSeek R1" data-icon="R1">
+                    <span class="oc-mi-icon">R1</span><span class="oc-mi-name">DeepSeek R1</span><span class="oc-mi-tag">r1</span>
+                </div>
+            </div>
         </div>
         <div id="oc-chat-messages"></div>
         <div id="oc-chat-input-container">
             <input type="text" id="oc-chat-input" placeholder="Message OpenClaw..." />
+            <button id="oc-mic-btn">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                    <line x1="12" y1="19" x2="12" y2="23"></line>
+                    <line x1="8" y1="23" x2="16" y2="23"></line>
+                </svg>
+            </button>
             <button id="oc-chat-send">&#10148;</button>
         </div>
     </div>
-    <button id="oc-chat-toggle">OC</button>
+    <button id="oc-chat-toggle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>MSG</button>
 
     <script>
-    // ===== OPENCLAW CHAT INTEGRATION =====
+    // ===== VZOR MESSENGER CHAT INTEGRATION =====
     (function() {
         var OC_TOKEN = 'bd98b4db1e61227f366ab3438f157d3953e6eb6baa28102c58d07ded593cf08e';
         var toggle = document.getElementById('oc-chat-toggle');
@@ -11115,8 +10825,11 @@ async function sendToAgentZero(message) {
         var chatInput = document.getElementById('oc-chat-input');
         var chatMessages = document.getElementById('oc-chat-messages');
         var chatSendBtn = document.getElementById('oc-chat-send');
+        var chatMicBtn = document.getElementById('oc-mic-btn');
         var chatHeader = document.getElementById('oc-chat-header');
+        var statusEl = document.getElementById('oc-status');
         if (!toggle || !panel) return;
+        function setStatus(s) { if (statusEl) statusEl.textContent = s; }
 
         var ws = null;
         var reconnectDelay = 1000;
@@ -11126,6 +10839,8 @@ async function sendToAgentZero(message) {
         var typingEl = null;
         var ocConnected = false;
         var reqIdCounter = 1;
+        var selectedModel = 'deepseek/deepseek-chat';
+        var pendingConfigGet = null; // { reqId, model }
 
         function uuid() {
             return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -11134,16 +10849,60 @@ async function sendToAgentZero(message) {
             });
         }
 
+        function fetchBalances() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '/api/oc-balance', true);
+            xhr.timeout = 10000;
+            xhr.onload = function() {
+                try {
+                    var b = JSON.parse(xhr.responseText);
+                    // Update Direct tab — per provider
+                    var directItems = document.querySelectorAll('#oc-model-list-direct .oc-model-item');
+                    directItems.forEach(function(item) {
+                        var tag = item.querySelector('.oc-mi-tag');
+                        if (!tag) return;
+                        var prov = item.getAttribute('data-provider') || '';
+                        if (prov === 'deepseek' && b.deepseek != null) {
+                            tag.textContent = '$' + b.deepseek.toFixed(2);
+                            tag.style.color = b.deepseek > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
+                        } else if (prov === 'google') {
+                            tag.textContent = b.google || 'free';
+                            tag.style.color = 'rgba(100,200,255,0.7)';
+                        } else if (prov === 'anthropic') {
+                            tag.textContent = b.anthropic != null ? '$' + b.anthropic.toFixed(2) : 'no key';
+                            tag.style.color = b.anthropic != null ? 'rgba(100,255,100,0.7)' : 'rgba(255,255,255,0.3)';
+                        }
+                    });
+                    // OpenRouter tab label — total balance
+                    var orTab = document.getElementById('oc-tab-or');
+                    if (orTab && b.openrouter != null) {
+                        orTab.textContent = 'OpenRouter — $' + b.openrouter.toFixed(2);
+                    }
+                    // OpenRouter models — show total per model too
+                    var orItems = document.querySelectorAll('#oc-model-list-openrouter .oc-model-item');
+                    orItems.forEach(function(item) {
+                        var tag = item.querySelector('.oc-mi-tag');
+                        if (!tag) return;
+                        if (b.openrouter != null) {
+                            tag.textContent = '$' + b.openrouter.toFixed(2);
+                            tag.style.color = b.openrouter > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
+                        }
+                    });
+                } catch(e) {}
+            };
+            xhr.send();
+        }
+
         function sendConnectHandshake(nonce) {
             if (!ws || ws.readyState !== WebSocket.OPEN) return;
             ws.send(JSON.stringify({
                 type: 'req',
-                id: reqIdCounter++,
+                id: 'c' + reqIdCounter++,
                 method: 'connect',
                 params: {
                     minProtocol: 3,
                     maxProtocol: 3,
-                    client: { id: 'webchat-vzor', mode: 'webchat', platform: 'web', version: '1.0.0' },
+                    client: { id: 'webchat', mode: 'webchat', platform: 'web', version: '1.0.0' },
                     auth: { token: OC_TOKEN },
                     role: 'operator',
                     scopes: ['operator.admin']
@@ -11160,6 +10919,7 @@ async function sendToAgentZero(message) {
 
             ws.onopen = function() {
                 reconnectDelay = 1000;
+                setStatus('handshake...');
                 console.log('[OpenClaw] WS open, waiting for challenge...');
             };
 
@@ -11172,6 +10932,7 @@ async function sendToAgentZero(message) {
             ws.onclose = function() {
                 ws = null;
                 ocConnected = false;
+                setStatus('disconnected');
                 scheduleReconnect();
             };
 
@@ -11187,8 +10948,18 @@ async function sendToAgentZero(message) {
             reconnectDelay = Math.min(reconnectDelay * 2, 30000);
         }
 
+        function extractText(payload) {
+            var msg = payload && payload.message;
+            if (!msg) return '';
+            var content = msg.content;
+            if (Array.isArray(content) && content.length > 0) {
+                return content[0].text || '';
+            }
+            if (typeof msg.text === 'string') return msg.text;
+            return '';
+        }
+
         function handleOCEvent(msg) {
-            // Handle connect.challenge event from server
             if (msg.type === 'event' && msg.event === 'connect.challenge') {
                 var nonce = msg.payload && msg.payload.nonce;
                 console.log('[OpenClaw] Got challenge, nonce:', nonce);
@@ -11196,24 +10967,52 @@ async function sendToAgentZero(message) {
                 return;
             }
 
-            // Handle connect response
-            if (msg.type === 'resp' && msg.method === 'connect') {
+            if (msg.type === 'res') {
                 if (msg.error) {
-                    console.error('[OpenClaw] Connect failed:', msg.error);
-                    addOCMessage('Connection error: ' + (msg.error.message || JSON.stringify(msg.error)), 'assistant');
-                } else {
-                    ocConnected = true;
-                    console.log('[OpenClaw] Connected OK, protocol:', msg.result && msg.result.protocol);
+                    console.error('[OpenClaw] Error:', msg.error);
+                    // Don't show config errors in chat
+                    if (!pendingConfigGet || msg.id !== pendingConfigGet.reqId) {
+                        addOCMessage('Error: ' + (msg.error.message || JSON.stringify(msg.error)), 'assistant');
+                    } else {
+                        pendingConfigGet = null;
+                    }
+                } else if (msg.ok) {
+                    var proto = msg.payload && msg.payload.protocol;
+                    if (proto) {
+                        ocConnected = true;
+                        setStatus('connected');
+                        console.log('[OpenClaw] Connected OK, protocol:', proto);
+                    }
+                    // Handle config.get response → send config.patch
+                    if (pendingConfigGet && msg.id === pendingConfigGet.reqId) {
+                        var cfgHash = msg.payload && msg.payload.hash;
+                        var newModel = pendingConfigGet.model;
+                        pendingConfigGet = null;
+                        if (cfgHash && ws && ws.readyState === WebSocket.OPEN) {
+                            var patchObj = { agents: { defaults: { model: { primary: newModel } } } };
+                            ws.send(JSON.stringify({
+                                type: 'req',
+                                id: 'cp' + reqIdCounter++,
+                                method: 'config.patch',
+                                params: {
+                                    raw: JSON.stringify(patchObj),
+                                    baseHash: cfgHash
+                                }
+                            }));
+                            console.log('[OpenClaw] Config patch sent, model:', newModel, 'hash:', cfgHash);
+                        }
+                    }
                 }
                 return;
             }
 
-            // Handle event-type messages (chat, agent, etc.)
             if (msg.type === 'event') {
                 var evt = msg.event || '';
                 var p = msg.payload || {};
 
                 if (evt === 'chat') {
+                    var text = extractText(p);
+
                     if (p.state === 'delta') {
                         removeTyping();
                         if (!currentAssistantEl) {
@@ -11221,72 +11020,35 @@ async function sendToAgentZero(message) {
                             currentAssistantEl.className = 'oc-message assistant';
                             chatMessages.appendChild(currentAssistantEl);
                         }
-                        accumulatedText += (p.delta || p.text || '');
-                        currentAssistantEl.textContent = accumulatedText;
+                        if (text) currentAssistantEl.textContent = text;
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     }
 
                     if (p.state === 'final') {
                         removeTyping();
                         if (currentAssistantEl) {
-                            if (p.text) currentAssistantEl.textContent = p.text;
+                            if (text) currentAssistantEl.textContent = text;
                             currentAssistantEl = null;
-                            accumulatedText = '';
-                        } else if (p.text) {
-                            addOCMessage(p.text, 'assistant');
+                        } else if (text) {
+                            addOCMessage(text, 'assistant');
                         }
                         chatMessages.scrollTop = chatMessages.scrollHeight;
+                    }
+
+                    if (p.state === 'error') {
+                        removeTyping();
+                        currentAssistantEl = null;
+                        addOCMessage('Error: ' + (p.errorMessage || 'Unknown error'), 'assistant');
                     }
                     return;
                 }
 
                 if (evt === 'agent') {
-                    if (p.phase === 'start') showTyping();
+                    if (!currentAssistantEl) showTyping();
                     return;
                 }
 
-                // Ignore other events (tick, presence, etc.)
                 return;
-            }
-
-            // Also handle ev/method format (protocol variation)
-            if (msg.type === 'ev' && msg.method === 'chat') {
-                var p = msg.params || {};
-
-                if (p.state === 'delta') {
-                    removeTyping();
-                    if (!currentAssistantEl) {
-                        currentAssistantEl = document.createElement('div');
-                        currentAssistantEl.className = 'oc-message assistant';
-                        chatMessages.appendChild(currentAssistantEl);
-                    }
-                    accumulatedText += (p.delta || p.text || '');
-                    currentAssistantEl.textContent = accumulatedText;
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }
-
-                if (p.state === 'final') {
-                    removeTyping();
-                    if (currentAssistantEl) {
-                        if (p.text) currentAssistantEl.textContent = p.text;
-                        currentAssistantEl = null;
-                        accumulatedText = '';
-                    } else if (p.text) {
-                        addOCMessage(p.text, 'assistant');
-                    }
-                    chatMessages.scrollTop = chatMessages.scrollHeight;
-                }
-                return;
-            }
-
-            if (msg.type === 'ev' && msg.method === 'agent') {
-                var p = msg.params || {};
-                if (p.phase === 'start') showTyping();
-                return;
-            }
-
-            if (msg.type === 'resp' && msg.error) {
-                addOCMessage('Error: ' + (msg.error.message || JSON.stringify(msg.error)), 'assistant');
             }
         }
 
@@ -11326,7 +11088,7 @@ async function sendToAgentZero(message) {
 
             ws.send(JSON.stringify({
                 type: 'req',
-                id: reqIdCounter++,
+                id: 'm' + reqIdCounter++,
                 method: 'chat.send',
                 params: {
                     sessionKey: 'main',
@@ -11336,6 +11098,125 @@ async function sendToAgentZero(message) {
             }));
         }
 
+        // --- Model selector ---
+        var modelBar = document.getElementById('oc-model-bar');
+        var modelDropdown = document.getElementById('oc-model-dropdown');
+        var modelIcon = document.getElementById('oc-model-icon');
+        var modelNameEl = document.getElementById('oc-model-name');
+        var modelArrow = document.getElementById('oc-model-arrow');
+
+        if (modelBar && modelDropdown) {
+            modelBar.addEventListener('click', function(e) {
+                e.stopPropagation();
+                modelDropdown.classList.toggle('open');
+                modelArrow.style.transform = modelDropdown.classList.contains('open') ? 'rotate(180deg)' : '';
+                if (modelDropdown.classList.contains('open')) fetchBalances();
+            });
+
+            var mTabs = modelDropdown.querySelectorAll('.oc-model-tab');
+            var listDirect = document.getElementById('oc-model-list-direct');
+            var listOR = document.getElementById('oc-model-list-openrouter');
+            mTabs.forEach(function(tab) {
+                tab.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    mTabs.forEach(function(t) { t.classList.remove('active'); });
+                    tab.classList.add('active');
+                    if (tab.getAttribute('data-tab') === 'direct') {
+                        listDirect.style.display = ''; listOR.style.display = 'none';
+                    } else {
+                        listDirect.style.display = 'none'; listOR.style.display = '';
+                    }
+                });
+            });
+
+            var allModelItems = modelDropdown.querySelectorAll('.oc-model-item');
+            allModelItems.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    allModelItems.forEach(function(i) { i.classList.remove('active'); });
+                    item.classList.add('active');
+                    selectedModel = item.getAttribute('data-id');
+                    modelNameEl.textContent = item.getAttribute('data-label');
+                    modelIcon.textContent = item.getAttribute('data-icon');
+                    modelDropdown.classList.remove('open');
+                    modelArrow.style.transform = '';
+
+                    // Update OpenClaw model via config.get + config.patch
+                    if (ws && ws.readyState === WebSocket.OPEN && ocConnected) {
+                        var getReqId = 'cg' + reqIdCounter++;
+                        pendingConfigGet = { reqId: getReqId, model: selectedModel };
+                        ws.send(JSON.stringify({
+                            type: 'req',
+                            id: getReqId,
+                            method: 'config.get',
+                            params: {}
+                        }));
+                        console.log('[OpenClaw] Requesting config for model switch to:', selectedModel);
+                    }
+                });
+            });
+
+            document.addEventListener('click', function() {
+                modelDropdown.classList.remove('open');
+                modelArrow.style.transform = '';
+            });
+            modelDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
+        }
+
+        // --- Voice input (microphone) ---
+        if (chatMicBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+            var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            var chatRecog = new SR();
+            chatRecog.lang = 'ru-RU';
+            chatRecog.continuous = true;
+            chatRecog.interimResults = true;
+            var chatRecording = false;
+            var savedInputText = '';
+
+            chatMicBtn.addEventListener('click', function() {
+                if (!chatRecording) {
+                    chatRecording = true;
+                    savedInputText = chatInput.value;
+                    chatRecog.start();
+                    chatMicBtn.classList.add('listening');
+                    chatInput.placeholder = 'Говорите...';
+                } else {
+                    chatRecog.stop();
+                }
+            });
+
+            chatRecog.onresult = function(e) {
+                var final = '';
+                var interim = '';
+                for (var i = 0; i < e.results.length; i++) {
+                    if (e.results[i].isFinal) {
+                        final += e.results[i][0].transcript;
+                    } else {
+                        interim += e.results[i][0].transcript;
+                    }
+                }
+                var full = (savedInputText ? savedInputText + ' ' : '') + final + interim;
+                chatInput.value = full;
+                chatInput.style.color = interim ? 'rgba(0,255,255,0.6)' : '';
+            };
+
+            chatRecog.onerror = function() {
+                chatRecording = false;
+                chatMicBtn.classList.remove('listening');
+                chatInput.placeholder = 'Message OpenClaw...';
+                chatInput.style.color = '';
+            };
+
+            chatRecog.onend = function() {
+                chatRecording = false;
+                chatMicBtn.classList.remove('listening');
+                chatInput.placeholder = 'Message OpenClaw...';
+                chatInput.style.color = '';
+                chatInput.focus();
+            };
+        }
+
+        // --- Position panel next to toggle ---
         function positionPanel() {
             var btnRect = toggle.getBoundingClientRect();
             var pw = panel.offsetWidth || 380;
@@ -11357,6 +11238,7 @@ async function sendToAgentZero(message) {
             panel.style.bottom = 'auto';
         }
 
+        // --- Toggle button: drag + click ---
         var dragStartX, dragStartY, btnStartX, btnStartY, isDraggingBtn = false, wasDragged = false;
         var panelOffX = null, panelOffY = null;
 
@@ -11406,6 +11288,7 @@ async function sendToAgentZero(message) {
                 if (isOpening) {
                     positionPanel();
                     connectOpenClaw();
+                    fetchBalances();
                     if (chatInput) setTimeout(function() { chatInput.focus(); }, 100);
                 }
             }
@@ -11476,6 +11359,7 @@ async function sendToAgentZero(message) {
             panel.classList.remove('active');
         }, { passive: true });
 
+        // --- Drag panel by header ---
         if (chatHeader) {
             var panelDragStartX, panelDragStartY, panelStartL, panelStartT, isDraggingPanel = false;
             var btnOffX, btnOffY;
@@ -11554,6 +11438,7 @@ async function sendToAgentZero(message) {
             });
         }
 
+        // --- Resize handles ---
         var handles = panel.querySelectorAll('.oc-resize-handle');
         handles.forEach(function(handle) {
             var cl = handle.classList;
@@ -11607,6 +11492,7 @@ async function sendToAgentZero(message) {
             }, { passive: true });
         });
 
+        // --- Input: Enter to send ---
         if (chatInput) {
             chatInput.addEventListener('keydown', function(e) {
                 if (e.key === 'Enter' && !e.shiftKey) {
@@ -11616,6 +11502,7 @@ async function sendToAgentZero(message) {
             });
         }
 
+        // --- Send button ---
         if (chatSendBtn) {
             chatSendBtn.addEventListener('click', function() {
                 sendOCMessage(chatInput.value);
