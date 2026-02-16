@@ -4148,8 +4148,9 @@
         function onClick(e) {
             if (!isClickValid) return; // Ignore drag-clicks
 
-            // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
+            // --- Click on Slide 1 — instant jump to Slide 2 (no zoom animation) ---
             if (smoothP < 0.1) {
+                smoothP = 1.0;
                 targetP = 1.0;
                 return;
             }
@@ -9667,11 +9668,12 @@
                     userProjects.forEach(function(p) {
                         var cls = p.id === activeId ? "side-panel-item ps-active" : "side-panel-item";
                         var dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString("ru-RU", {day:"2-digit",month:"2-digit"}) : "";
-                        html += '<div class="' + cls + '" data-project-id="' + p.id + '" onclick="switchProject(' + p.id + ')">'
-                             + '<div><div>' + p.name + '</div>'
+                        html += '<div class="' + cls + '" data-project-id="' + p.id + '" style="justify-content:space-between">'
+                             + '<div style="flex:1;cursor:pointer" onclick="switchProject(' + p.id + ')"><div>' + p.name + '</div>'
                              + '<div class="ps-item-meta">' + (p.task_count || 0) + ' tasks'
-                             + (dateStr ? ' &middot; ' + dateStr : '') + '</div>'
-                             + '</div></div>';
+                             + (dateStr ? ' &middot; ' + dateStr : '') + '</div></div>'
+                             + '<span onclick="event.stopPropagation();deleteProject(' + p.id + ')" style="cursor:pointer;color:rgba(255,255,255,0.25);font-size:14px;padding:4px 8px" title="Delete">&times;</span>'
+                             + '</div>';
                     });
                     html += '</div>';
                 }
@@ -9794,6 +9796,24 @@
             } catch(e) {
                 console.error("[Projects] Create error:", e);
                 window.showToast("Error", "Failed to create project", "error", 3000);
+            }
+        };
+
+        window.deleteProject = async function(projectId) {
+            if (!confirm("Delete this project?")) return;
+            try {
+                await fetch("/api/projects/" + projectId, { method: "DELETE" });
+                window.showToast("Project", "Deleted", "info", 2000);
+                // If deleted current project, reset to template
+                if (window.currentProjectId === projectId) {
+                    window.currentProjectId = null;
+                }
+                // Refresh panel
+                var panelContent = document.getElementById("side-panel-content");
+                if (panelContent) loadProjectsPanel(panelContent);
+            } catch(e) {
+                console.error("[Projects] Delete error:", e);
+                window.showToast("Error", "Failed to delete", "error", 3000);
             }
         };
 
@@ -11819,7 +11839,7 @@ async function sendToAgentZero(message) {
     })();
     </script>
 
-    <div id="version-badge" style="position:fixed;bottom:8px;right:8px;color:rgba(255,255,255,0.6);font-size:11px;font-family:Outfit,sans-serif;pointer-events:none;z-index:9999;">v3.31</div>
+    <div id="version-badge" style="position:fixed;bottom:8px;right:8px;color:rgba(255,255,255,0.6);font-size:11px;font-family:Outfit,sans-serif;pointer-events:none;z-index:9999;">v3.38-PS</div>
 </body>
 
 </html>
