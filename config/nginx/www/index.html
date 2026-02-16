@@ -4583,7 +4583,6 @@
 
         // v3.14: Keyboard support for back button
         document.getElementById('back-button').addEventListener('keydown', (e) => {
-            if (e.key === 'd' || e.key === 'D') { var _d = document.getElementById('debug-overlay'); if (_d) _d.style.display = _d.style.display === 'none' ? 'block' : 'none'; }
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
                 document.getElementById('back-button').click();
@@ -11845,6 +11844,13 @@ async function sendToAgentZero(message) {
             });
         }
     })();
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'd' || e.key === 'D') {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            var _d = document.getElementById('debug-overlay');
+            if (_d) _d.style.display = _d.style.display === 'none' ? 'block' : 'none';
+        }
+    });
     </script>
 
     <div id="debug-overlay" style="position:fixed;top:8px;left:8px;color:rgba(0,255,255,0.8);font-size:10px;font-family:monospace;pointer-events:none;z-index:99999;background:rgba(0,0,0,0.5);padding:4px 8px;border-radius:4px;display:none"></div>
