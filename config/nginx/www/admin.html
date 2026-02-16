@@ -192,6 +192,16 @@ function makeQR(url, size){
         qrOptions:{ errorCorrectionLevel:"H" }
     });
 }
+function makeQRhd(url){
+    return new QRCodeStyling({
+        width:1024, height:1024, type:"canvas", data:url,
+        dotsOptions:{ type:"rounded", color:"#FFFFFF" },
+        cornersSquareOptions:{ type:"extra-rounded", color:"#FFFFFF" },
+        cornersDotOptions:{ type:"dot", color:"#FFFFFF" },
+        backgroundOptions:{ color:"#111827" },
+        qrOptions:{ errorCorrectionLevel:"H" }
+    });
+}
 
 var lastCreated = null;
 
@@ -229,7 +239,7 @@ async function addGuest(){
     loadAll();
 }
 
-function dlResultQR(){ if(lastCreated&&lastCreated._qr) lastCreated._qr.download({name:"VZOR-"+sc(lastCreated.access_code),extension:"png"}); }
+function dlResultQR(){ if(!lastCreated) return; var hd=makeQRhd(tokenUrl(lastCreated.guest.token)); hd.download({name:"VZOR-"+sc(lastCreated.access_code),extension:"png"}); }
 function copyResultCode(){ if(!lastCreated) return; navigator.clipboard.writeText(lastCreated.access_code); flashBtn("copy-code-btn","Copied!"); }
 function copyResultLink(){ if(!lastCreated) return; navigator.clipboard.writeText(fullurl(lastCreated.access_code)); flashBtn("copy-link-btn","Copied!"); }
 function flashBtn(id,txt){ var b=document.getElementById(id); if(!b) return; var o=b.textContent; b.textContent=txt; b.classList.add("copied"); setTimeout(function(){ b.textContent=o; b.classList.remove("copied"); },1500); }
@@ -274,16 +284,11 @@ async function loadAll(){
             +'<button class="dbtn download" onclick="event.stopPropagation();dlGuestQR('+g.id+',\''+esc(g.access_code)+'\')">Download QR</button>';
 
         if(g.is_active){
-            html+='<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+',7)">+7d</button>'
-                +'<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+',30)">+30d</button>'
-                +'<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+',90)">+90d</button>'
+            html+='<span style="display:inline-flex;align-items:center;gap:4px">'
+                +'<input type="number" id="ext-'+g.id+'" value="30" min="1" max="999" onclick="event.stopPropagation()" style="width:52px;padding:4px 6px;font-size:11px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);outline:none;text-align:center;font-family:inherit">'
+                +'<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+')">+ days</button>'
+                +'</span>'
                 +'<button class="dbtn revoke" onclick="event.stopPropagation();revokeG('+g.id+')">Revoke</button>';
-        }
-        if(!g.is_active){
-            // no extend for revoked
-        }
-        if(g.is_active && isExp){
-            // already has extend buttons above
         }
 
         html+='<button class="dbtn share" onclick="event.stopPropagation();shareGuestWA(\''+esc(g.access_code)+'\')">WhatsApp</button>'
@@ -325,11 +330,19 @@ function copyGuestLink(id,code){
 }
 
 function dlGuestQR(id,code){
-    var qr=openGuests[id];
-    if(qr&&qr.download) qr.download({name:"VZOR-"+sc(code),extension:"png"});
+    // Fetch token and generate HD QR for download
+    fetch("/api/admin/guests",{headers:{"X-Admin-Secret":S}}).then(function(r){return r.json();}).then(function(d){
+        var g=(d.guests||[]).find(function(x){return x.id===id;});
+        if(!g) return;
+        var hd=makeQRhd(tokenUrl(g.token));
+        hd.download({name:"VZOR-"+sc(code),extension:"png"});
+    });
 }
 
-async function extendG(id,days){
+async function extendG(id){
+    var inp=document.getElementById("ext-"+id);
+    var days=inp?parseInt(inp.value):30;
+    if(!days||days<1){ return; }
     await fetch("/api/admin/guests/"+id+"/extend",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Secret":S},body:JSON.stringify({days:days})});
     openGuests={}; loadAll();
 }
