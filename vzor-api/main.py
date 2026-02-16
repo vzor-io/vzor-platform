@@ -579,6 +579,36 @@ async def admin_extend_guest(guest_id: int, request: Request):
         )
     return {"status": "extended", "guest_id": guest_id, "added_days": days}
 
+
+@app.patch("/api/admin/guests/{guest_id}")
+async def admin_update_guest(guest_id: int, request: Request):
+    """Update guest name/email (requires X-Admin-Secret header)."""
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    body = await request.json()
+    from db import get_pool
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        if "name" in body:
+            await conn.execute("UPDATE vzor_guests SET name = $1 WHERE id = $2", body["name"], guest_id)
+        if "email" in body:
+            await conn.execute("UPDATE vzor_guests SET email = $1 WHERE id = $2", body["email"], guest_id)
+    return {"status": "updated", "guest_id": guest_id}
+
+
+@app.post("/api/admin/guests/{guest_id}/delete")
+async def admin_delete_guest(guest_id: int, request: Request):
+    """Permanently delete a guest (requires X-Admin-Secret header)."""
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    from db import get_pool
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("DELETE FROM vzor_guests WHERE id = $1", guest_id)
+    return {"status": "deleted", "guest_id": guest_id}
+
 @app.get("/api/admin/guests/{guest_id}/qr")
 async def admin_guest_qr(guest_id: int, request: Request):
     """Generate QR code PNG for a guest."""

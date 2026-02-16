@@ -120,6 +120,13 @@ body { font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; background:v
 .dbtn.revoke:hover { border-color:var(--red); }
 .dbtn.share { color:var(--text3); }
 .dbtn.share:hover { color:var(--text2); border-color:var(--text3); }
+.dbtn.delete { color:var(--red); border-color:rgba(239,68,68,0.15); }
+.dbtn.delete:hover { border-color:var(--red); background:rgba(239,68,68,0.08); }
+.dbtn.save { color:var(--green); border-color:rgba(34,197,94,0.2); }
+.dbtn.save:hover { border-color:var(--green); }
+.dbtn.save.done { background:rgba(34,197,94,0.1); }
+.edit-input { padding:4px 8px; font-size:12px; background:var(--bg); border:1px solid var(--border); border-radius:6px; color:var(--text); outline:none; font-family:inherit; width:160px; }
+.edit-input:focus { border-color:var(--border-hover); }
 
 .empty { text-align:center; color:var(--text3); padding:48px; font-size:12px; letter-spacing:2px; }
 </style>
@@ -275,20 +282,25 @@ async function loadAll(){
             +'<div class="guest-detail" id="det-'+g.id+'">'
             +'<div class="detail-qr" id="dqr-'+g.id+'"></div>'
             +'<div class="detail-right">'
+            +'<div class="detail-row"><span class="detail-label">Name</span><input class="edit-input" id="en-'+g.id+'" value="'+esc(g.name)+'" onclick="event.stopPropagation()"></div>'
+            +'<div class="detail-row"><span class="detail-label">Email</span><input class="edit-input" id="ee-'+g.id+'" value="'+esc(g.email||"")+'" placeholder="email" onclick="event.stopPropagation()"></div>'
             +'<div class="detail-row"><span class="detail-label">Link</span><span class="detail-value"><a href="'+fullurl(g.access_code)+'" target="_blank">'+surl(g.access_code)+'</a></span></div>'
             +'<div class="detail-row"><span class="detail-label">Code</span><span class="detail-value">'+g.access_code+'</span></div>'
-            +'<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">'+(g.email||"—")+'</span></div>'
             +'<div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">'+fmtDate(g.created_at)+'</span></div>'
             +'<div class="detail-actions">'
+            +'<button class="dbtn save" id="sv-'+g.id+'" onclick="event.stopPropagation();saveGuest('+g.id+')">Save</button>'
             +'<button class="dbtn copy" id="cl-'+g.id+'" onclick="event.stopPropagation();copyGuestLink('+g.id+',\''+esc(g.access_code)+'\')">Copy link</button>'
             +'<button class="dbtn download" onclick="event.stopPropagation();dlGuestQR('+g.id+',\''+esc(g.access_code)+'\')">Download QR</button>';
 
         if(g.is_active){
             html+='<span style="display:inline-flex;align-items:center;gap:4px">'
-                +'<input type="number" id="ext-'+g.id+'" value="30" min="1" max="999" onclick="event.stopPropagation()" style="width:52px;padding:4px 6px;font-size:11px;background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text);outline:none;text-align:center;font-family:inherit">'
+                +'<input type="number" id="ext-'+g.id+'" value="30" min="1" max="999" onclick="event.stopPropagation()" style="width:52px;padding:4px 6px;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);outline:none;text-align:center;font-family:inherit">'
                 +'<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+')">+ days</button>'
                 +'</span>'
                 +'<button class="dbtn revoke" onclick="event.stopPropagation();revokeG('+g.id+')">Revoke</button>';
+        }
+        if(!g.is_active){
+            html+='<button class="dbtn delete" onclick="event.stopPropagation();deleteG('+g.id+')">Delete</button>';
         }
 
         html+='<button class="dbtn share" onclick="event.stopPropagation();shareGuestWA(\''+esc(g.access_code)+'\')">WhatsApp</button>'
@@ -350,6 +362,21 @@ async function extendG(id){
 async function revokeG(id){
     if(!confirm("Revoke access for this guest?")) return;
     await fetch("/api/admin/guests/"+id,{method:"DELETE",headers:{"X-Admin-Secret":S}});
+    openGuests={}; loadAll();
+}
+
+async function saveGuest(id){
+    var name=(document.getElementById("en-"+id)||{}).value||"";
+    var email=(document.getElementById("ee-"+id)||{}).value||"";
+    await fetch("/api/admin/guests/"+id,{method:"PATCH",headers:{"Content-Type":"application/json","X-Admin-Secret":S},body:JSON.stringify({name:name,email:email})});
+    var b=document.getElementById("sv-"+id);
+    if(b){ b.textContent="Saved!"; b.classList.add("done"); setTimeout(function(){ b.textContent="Save"; b.classList.remove("done"); },1500); }
+    openGuests={}; loadAll();
+}
+
+async function deleteG(id){
+    if(!confirm("Permanently delete this guest?")) return;
+    await fetch("/api/admin/guests/"+id+"/delete",{method:"POST",headers:{"X-Admin-Secret":S}});
     openGuests={}; loadAll();
 }
 
