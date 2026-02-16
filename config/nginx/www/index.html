@@ -12212,8 +12212,7 @@ async function sendToAgentZero(message) {
             history.replaceState({}, "", window.location.pathname);
         }
 
-        // Show auth popup immediately, hide only if already authenticated
-        showAuthModal();
+        // Check auth on load
         checkAuth();
     });
     </script>
