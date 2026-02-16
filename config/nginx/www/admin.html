@@ -3,413 +3,345 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>VZOR — Управление доступом</title>
+<title>VZOR — Guest Access</title>
 <script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-        font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
-        background: #08080a;
-        color: #fff;
-        min-height: 100vh;
-        padding: 40px 20px;
-    }
-    .container { max-width: 680px; margin: 0 auto; }
-    h1 { font-size: 28px; font-weight: 200; letter-spacing: 8px; text-align: center; margin-bottom: 6px; }
-    .sub { text-align: center; color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 48px; }
+:root {
+    --bg: #0B0F1A;
+    --card: #111827;
+    --card-hover: #1E293B;
+    --border: rgba(255,255,255,0.07);
+    --border-hover: rgba(255,255,255,0.14);
+    --text: #F1F5F9;
+    --text2: #94A3B8;
+    --text3: #64748B;
+    --accent: #3B82F6;
+    --accent-hover: #60A5FA;
+    --green: #22C55E;
+    --amber: #F59E0B;
+    --red: #EF4444;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+.wrap { max-width:760px; margin:0 auto; padding:32px 20px; }
 
-    /* Login */
-    #login-section { text-align: center; margin-top: 60px; }
-    #login-section input {
-        padding: 14px 20px; width: 320px; font-size: 14px;
-        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 8px; color: #fff; outline: none; text-align: center;
-        letter-spacing: 1px;
-    }
-    #login-section input:focus { border-color: rgba(255,255,255,0.2); }
-    #login-section input::placeholder { color: rgba(255,255,255,0.15); }
-    #login-section button {
-        display: block; margin: 20px auto 0; padding: 12px 40px;
-        font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
-        color: rgba(255,255,255,0.5); background: transparent;
-        border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; cursor: pointer;
-        transition: all 0.3s;
-    }
-    #login-section button:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
-    #admin-panel { display: none; }
+/* Header */
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:32px; }
+.header h1 { font-size:18px; font-weight:300; letter-spacing:6px; }
+.header .link-home { color:var(--text3); font-size:12px; text-decoration:none; letter-spacing:1px; }
+.header .link-home:hover { color:var(--text2); }
 
-    /* Cards */
-    .card {
-        background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 12px; padding: 28px; margin-bottom: 20px;
-    }
-    .card-title {
-        font-size: 11px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase;
-        color: rgba(255,255,255,0.3); margin-bottom: 20px;
-    }
+/* Login */
+#login { text-align:center; margin-top:100px; }
+#login input { padding:14px 20px; width:300px; font-size:14px; background:var(--card); border:1px solid var(--border); border-radius:8px; color:var(--text); outline:none; text-align:center; }
+#login input:focus { border-color:var(--border-hover); }
+#login input::placeholder { color:var(--text3); }
+#login button { display:block; margin:16px auto 0; padding:10px 36px; font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--text2); background:transparent; border:1px solid var(--border); border-radius:20px; cursor:pointer; }
+#login button:hover { border-color:var(--accent); color:var(--text); }
 
-    /* Form */
-    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-    .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
-    .form-grid input, .form-grid select {
-        padding: 11px 14px; font-size: 13px;
-        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 6px; color: #fff; outline: none; font-family: inherit;
-    }
-    .form-grid input:focus, .form-grid select:focus { border-color: rgba(255,255,255,0.2); }
-    .form-grid input::placeholder { color: rgba(255,255,255,0.15); }
-    .form-grid select { cursor: pointer; -webkit-appearance: none; }
-    .form-grid select option { background: #1a1a1a; }
-    .btn-create {
-        width: 100%; padding: 13px; font-size: 12px; letter-spacing: 3px;
-        text-transform: uppercase; color: rgba(255,255,255,0.8);
-        background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15));
-        border: 1px solid rgba(99,102,241,0.25); border-radius: 8px;
-        cursor: pointer; transition: all 0.3s;
-    }
-    .btn-create:hover {
-        background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(139,92,246,0.25));
-        border-color: rgba(99,102,241,0.5); color: #fff;
-    }
+#panel { display:none; }
 
-    /* Result */
-    #result-card { display: none; text-align: center; padding: 32px; }
-    .result-name { font-size: 13px; color: rgba(255,255,255,0.4); letter-spacing: 2px; margin-bottom: 6px; }
-    .result-code {
-        font-family: 'SF Mono', 'Fira Code', monospace; font-size: 32px; font-weight: 300;
-        letter-spacing: 6px; color: #fff; margin: 8px 0 20px;
-    }
-    #qr-container { margin: 0 auto 20px; width: 280px; height: 280px; }
-    #qr-container canvas, #qr-container svg { border-radius: 12px; }
-    .result-link {
-        font-size: 13px; color: rgba(255,255,255,0.5); font-family: monospace;
-        letter-spacing: 1px; margin-bottom: 20px;
-    }
-    .result-expires { font-size: 11px; color: rgba(255,255,255,0.2); margin-bottom: 20px; }
-    .action-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
-    .action-btn {
-        padding: 9px 20px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
-        color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;
-        cursor: pointer; transition: all 0.2s; font-family: inherit;
-    }
-    .action-btn:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
-    .action-btn.primary {
-        background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12));
-        border-color: rgba(99,102,241,0.2); color: rgba(255,255,255,0.7);
-    }
-    .action-btn.primary:hover { border-color: rgba(99,102,241,0.5); color: #fff; }
+/* Create section */
+.create-bar { display:flex; gap:8px; margin-bottom:24px; align-items:stretch; }
+.create-bar input, .create-bar select {
+    padding:10px 14px; font-size:13px; background:var(--card); border:1px solid var(--border);
+    border-radius:8px; color:var(--text); outline:none; font-family:inherit;
+}
+.create-bar input { flex:1; }
+.create-bar input::placeholder { color:var(--text3); }
+.create-bar input:focus, .create-bar select:focus { border-color:var(--border-hover); }
+.create-bar select { cursor:pointer; -webkit-appearance:none; min-width:100px; color:var(--text2); }
+.create-bar select option { background:var(--card); }
+.btn-add {
+    padding:10px 24px; font-size:12px; letter-spacing:2px; text-transform:uppercase;
+    color:#fff; background:var(--accent); border:none; border-radius:8px; cursor:pointer;
+    white-space:nowrap; transition:background 0.2s;
+}
+.btn-add:hover { background:var(--accent-hover); }
 
-    /* Guest List */
-    .guest-item {
-        display: flex; align-items: center; justify-content: space-between;
-        padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
-    }
-    .guest-item:last-child { border-bottom: none; }
-    .guest-info { flex: 1; }
-    .guest-name { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 3px; }
-    .guest-meta { font-size: 11px; color: rgba(255,255,255,0.25); }
-    .guest-meta span { margin-right: 14px; }
-    .guest-code {
-        font-family: monospace; font-size: 13px; letter-spacing: 2px;
-        color: rgba(255,255,255,0.4); margin-right: 16px;
-    }
-    .guest-actions { display: flex; gap: 6px; }
-    .btn-sm {
-        padding: 5px 12px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
-        background: transparent; border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 12px; cursor: pointer; transition: all 0.2s; font-family: inherit;
-    }
-    .btn-sm.qr { color: rgba(99,102,241,0.6); border-color: rgba(99,102,241,0.15); }
-    .btn-sm.qr:hover { color: #6366f1; border-color: rgba(99,102,241,0.4); }
-    .btn-sm.extend { color: rgba(80,200,120,0.6); border-color: rgba(80,200,120,0.15); }
-    .btn-sm.extend:hover { color: #50c878; border-color: rgba(80,200,120,0.4); }
-    .btn-sm.revoke { color: rgba(255,100,100,0.5); border-color: rgba(255,100,100,0.12); }
-    .btn-sm.revoke:hover { color: #ff6b6b; border-color: rgba(255,100,100,0.3); }
-    .badge {
-        display: inline-block; padding: 2px 8px; font-size: 9px; border-radius: 10px;
-        letter-spacing: 1px; text-transform: uppercase; margin-right: 10px;
-    }
-    .badge.active { background: rgba(80,200,120,0.1); color: #50c878; }
-    .badge.revoked { background: rgba(255,100,100,0.1); color: #ff6b6b; }
-    .badge.expired { background: rgba(255,180,50,0.1); color: #ffb432; }
-    .empty-msg { text-align: center; color: rgba(255,255,255,0.15); padding: 40px; font-size: 12px; letter-spacing: 2px; }
+/* Result banner */
+#result { display:none; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:28px; margin-bottom:24px; }
+.result-grid { display:flex; gap:28px; align-items:flex-start; }
+.result-qr { flex-shrink:0; }
+.result-qr canvas { border-radius:8px; }
+.result-info { flex:1; }
+.result-info .name { font-size:14px; color:var(--text2); margin-bottom:4px; }
+.result-info .code { font-family:'SF Mono','Fira Code',monospace; font-size:26px; font-weight:300; letter-spacing:4px; margin-bottom:12px; }
+.result-info .short-link { font-size:13px; color:var(--text3); font-family:monospace; margin-bottom:4px; }
+.result-info .expires { font-size:12px; color:var(--text3); margin-bottom:16px; }
+.result-actions { display:flex; gap:8px; flex-wrap:wrap; }
+.rbtn { padding:7px 16px; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--text2); background:transparent; border:1px solid var(--border); border-radius:16px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+.rbtn:hover { border-color:var(--text2); color:var(--text); }
+.rbtn.primary { background:var(--accent); border-color:var(--accent); color:#fff; }
+.rbtn.primary:hover { background:var(--accent-hover); }
+.rbtn.copied { background:rgba(34,197,94,0.1); border-color:var(--green); color:var(--green); }
+
+/* Guest list */
+.list-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.list-header h2 { font-size:13px; font-weight:400; letter-spacing:3px; text-transform:uppercase; color:var(--text3); }
+.count { font-size:12px; color:var(--text3); }
+
+.guest { background:var(--card); border:1px solid var(--border); border-radius:10px; margin-bottom:8px; overflow:hidden; transition:border-color 0.2s; }
+.guest:hover { border-color:var(--border-hover); }
+.guest-row { display:flex; align-items:center; padding:14px 18px; cursor:pointer; }
+.guest-main { flex:1; }
+.guest-name { font-size:14px; color:var(--text); margin-bottom:2px; }
+.guest-meta { font-size:11px; color:var(--text3); }
+.guest-meta span { margin-right:16px; }
+.guest-code { font-family:monospace; font-size:13px; letter-spacing:2px; color:var(--text3); margin-right:16px; }
+.pill { display:inline-block; padding:2px 8px; font-size:9px; border-radius:10px; letter-spacing:1px; text-transform:uppercase; margin-right:8px; }
+.pill.active { background:rgba(34,197,94,0.1); color:var(--green); }
+.pill.expired { background:rgba(239,68,68,0.1); color:var(--red); }
+.pill.revoked { background:rgba(107,114,128,0.1); color:#6B7280; }
+.dots-btn { background:none; border:none; color:var(--text3); cursor:pointer; font-size:18px; padding:4px 8px; border-radius:6px; }
+.dots-btn:hover { background:rgba(255,255,255,0.05); color:var(--text); }
+
+/* Expanded detail */
+.guest-detail { display:none; padding:0 18px 16px; border-top:1px solid var(--border); }
+.guest-detail.open { display:flex; gap:20px; padding-top:16px; }
+.detail-qr { flex-shrink:0; }
+.detail-qr canvas { border-radius:6px; }
+.detail-right { flex:1; }
+.detail-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.detail-label { font-size:11px; color:var(--text3); letter-spacing:1px; text-transform:uppercase; width:80px; flex-shrink:0; }
+.detail-value { font-size:13px; color:var(--text2); font-family:monospace; }
+.detail-value a { color:var(--text2); text-decoration:none; }
+.detail-value a:hover { color:var(--text); }
+.detail-actions { display:flex; gap:6px; flex-wrap:wrap; margin-top:12px; }
+.dbtn { padding:5px 14px; font-size:10px; letter-spacing:1px; text-transform:uppercase; background:transparent; border:1px solid var(--border); border-radius:14px; cursor:pointer; font-family:inherit; transition:all 0.2s; }
+.dbtn.copy { color:var(--text2); }
+.dbtn.copy:hover { border-color:var(--accent); color:var(--accent); }
+.dbtn.copy.done { border-color:var(--green); color:var(--green); }
+.dbtn.extend { color:var(--green); border-color:rgba(34,197,94,0.2); }
+.dbtn.extend:hover { border-color:var(--green); }
+.dbtn.download { color:var(--accent); border-color:rgba(59,130,246,0.2); }
+.dbtn.download:hover { border-color:var(--accent); }
+.dbtn.revoke { color:var(--red); border-color:rgba(239,68,68,0.15); }
+.dbtn.revoke:hover { border-color:var(--red); }
+.dbtn.share { color:var(--text3); }
+.dbtn.share:hover { color:var(--text2); border-color:var(--text3); }
+
+.empty { text-align:center; color:var(--text3); padding:48px; font-size:12px; letter-spacing:2px; }
 </style>
 </head>
 <body>
-
-<div class="container">
-    <h1>VZOR</h1>
-    <p class="sub">guest access</p>
-
-    <div id="login-section">
-        <input type="password" id="admin-secret" placeholder="Admin key">
-        <button onclick="adminLogin()">Enter</button>
+<div class="wrap">
+    <div class="header">
+        <h1>VZOR</h1>
+        <a href="https://vzor-ai.com" class="link-home" target="_blank">vzor-ai.com</a>
     </div>
 
-    <div id="admin-panel">
-        <div class="card">
-            <div class="card-title">New guest</div>
-            <div class="form-grid three">
-                <input type="text" id="g-name" placeholder="Name">
-                <input type="email" id="g-email" placeholder="Email">
-                <select id="g-days">
-                    <option value="7">7 days</option>
-                    <option value="30" selected>30 days</option>
-                    <option value="90">90 days</option>
-                    <option value="365">1 year</option>
-                </select>
-            </div>
-            <button class="btn-create" onclick="createGuest()">Create Access</button>
+    <div id="login">
+        <input type="password" id="secret-input" placeholder="Admin key" autocomplete="off">
+        <button onclick="doLogin()">Enter</button>
+    </div>
+
+    <div id="panel">
+        <div class="create-bar">
+            <input type="text" id="f-name" placeholder="Guest name">
+            <input type="email" id="f-email" placeholder="Email">
+            <select id="f-days">
+                <option value="7">7 days</option>
+                <option value="30" selected>30 days</option>
+                <option value="90">90 days</option>
+                <option value="365">1 year</option>
+            </select>
+            <button class="btn-add" onclick="addGuest()">+ Add</button>
         </div>
 
-        <div class="card" id="result-card">
-            <div class="result-name" id="r-name"></div>
-            <div class="result-code" id="r-code"></div>
-            <div id="qr-container"></div>
-            <div class="result-link" id="r-link"></div>
-            <div class="result-expires" id="r-expires"></div>
-            <div class="action-row">
-                <button class="action-btn primary" onclick="downloadQR()">Download QR</button>
-                <button class="action-btn" onclick="copyCode()">Copy code</button>
-                <button class="action-btn" onclick="shareWhatsApp()">WhatsApp</button>
-                <button class="action-btn" onclick="shareTelegram()">Telegram</button>
-            </div>
-        </div>
+        <div id="result"></div>
 
-        <div class="card">
-            <div class="card-title">Guests</div>
-            <div id="guest-list"></div>
+        <div class="list-header">
+            <h2>Guests</h2>
+            <span class="count" id="guest-count"></span>
         </div>
+        <div id="guest-list"></div>
     </div>
 </div>
 
 <script>
-let SECRET = sessionStorage.getItem("vzor_admin") || "";
-let lastResult = null;
-let currentQR = null;
+var S = sessionStorage.getItem("vzor_a") || "";
+if (S) { document.getElementById("login").style.display="none"; document.getElementById("panel").style.display="block"; loadAll(); }
 
-// Auto-login if stored
-if (SECRET) {
-    document.getElementById("login-section").style.display = "none";
-    document.getElementById("admin-panel").style.display = "block";
-    loadGuests();
+document.getElementById("secret-input").addEventListener("keydown", function(e){ if(e.key==="Enter") doLogin(); });
+
+function doLogin(){
+    S = document.getElementById("secret-input").value.trim();
+    if(!S) return;
+    fetch("/api/admin/guests",{headers:{"X-Admin-Secret":S}}).then(function(r){
+        if(r.ok){ sessionStorage.setItem("vzor_a",S); document.getElementById("login").style.display="none"; document.getElementById("panel").style.display="block"; loadAll(); }
+        else alert("Wrong key");
+    });
 }
 
-function adminLogin() {
-    SECRET = document.getElementById("admin-secret").value.trim();
-    if (!SECRET) return;
-    fetch("/api/admin/guests", { headers: {"X-Admin-Secret": SECRET} })
-    .then(function(r) {
-        if (r.ok) {
-            sessionStorage.setItem("vzor_admin", SECRET);
-            document.getElementById("login-section").style.display = "none";
-            document.getElementById("admin-panel").style.display = "block";
-            loadGuests();
-        } else {
-            alert("Wrong key");
+function sc(code){ return code.replace(/VZOR-/g,"").replace(/-/g,""); }
+function surl(code){ return "vzor-ai.com/go/"+sc(code); }
+function fullurl(code){ return "https://vzor-ai.com/go/"+sc(code); }
+function tokenUrl(token){ return "https://vzor-ai.com/api/auth/token/"+token; }
+function relTime(d){ if(!d) return "never"; var ms=Date.now()-new Date(d).getTime(); var m=ms/60000; if(m<60) return Math.floor(m)+"m ago"; var h=m/60; if(h<24) return Math.floor(h)+"h ago"; return Math.floor(h/24)+"d ago"; }
+function fmtDate(d){ return new Date(d).toLocaleDateString("ru-RU",{day:"numeric",month:"short",year:"numeric"}); }
+function esc(s){ var d=document.createElement("div"); d.textContent=s; return d.innerHTML; }
+
+function makeQR(url, size){
+    return new QRCodeStyling({
+        width:size, height:size, type:"canvas", data:url,
+        dotsOptions:{ type:"rounded", color:"#FFFFFF" },
+        cornersSquareOptions:{ type:"extra-rounded", color:"#FFFFFF" },
+        cornersDotOptions:{ type:"dot", color:"#FFFFFF" },
+        backgroundOptions:{ color:"#111827" },
+        qrOptions:{ errorCorrectionLevel:"H" }
+    });
+}
+
+var lastCreated = null;
+
+async function addGuest(){
+    var name=document.getElementById("f-name").value.trim();
+    if(!name){ document.getElementById("f-name").focus(); return; }
+    var email=document.getElementById("f-email").value.trim();
+    var days=parseInt(document.getElementById("f-days").value);
+    var r=await fetch("/api/admin/guests",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Secret":S},body:JSON.stringify({name:name,email:email,expires_days:days})});
+    var d=await r.json();
+    if(!r.ok){ alert(d.detail||"Error"); return; }
+    lastCreated=d;
+
+    var el=document.getElementById("result");
+    el.style.display="block";
+    el.innerHTML='<div class="result-grid"><div class="result-qr" id="rqr"></div><div class="result-info">'
+        +'<div class="name">'+esc(d.guest.name)+'</div>'
+        +'<div class="code">'+d.access_code+'</div>'
+        +'<div class="short-link">'+surl(d.access_code)+'</div>'
+        +'<div class="expires">Valid until '+fmtDate(d.guest.expires_at)+'</div>'
+        +'<div class="result-actions">'
+        +'<button class="rbtn primary" onclick="dlResultQR()">Download QR</button>'
+        +'<button class="rbtn" id="copy-code-btn" onclick="copyResultCode()">Copy code</button>'
+        +'<button class="rbtn" id="copy-link-btn" onclick="copyResultLink()">Copy link</button>'
+        +'<button class="rbtn" onclick="shareWA()">WhatsApp</button>'
+        +'<button class="rbtn" onclick="shareTG()">Telegram</button>'
+        +'</div></div></div>';
+
+    var qr=makeQR(tokenUrl(d.guest.token),200);
+    qr.append(document.getElementById("rqr"));
+    lastCreated._qr=qr;
+
+    document.getElementById("f-name").value="";
+    document.getElementById("f-email").value="";
+    loadAll();
+}
+
+function dlResultQR(){ if(lastCreated&&lastCreated._qr) lastCreated._qr.download({name:"VZOR-"+sc(lastCreated.access_code),extension:"png"}); }
+function copyResultCode(){ if(!lastCreated) return; navigator.clipboard.writeText(lastCreated.access_code); flashBtn("copy-code-btn","Copied!"); }
+function copyResultLink(){ if(!lastCreated) return; navigator.clipboard.writeText(fullurl(lastCreated.access_code)); flashBtn("copy-link-btn","Copied!"); }
+function flashBtn(id,txt){ var b=document.getElementById(id); if(!b) return; var o=b.textContent; b.textContent=txt; b.classList.add("copied"); setTimeout(function(){ b.textContent=o; b.classList.remove("copied"); },1500); }
+function shareWA(){ if(!lastCreated) return; window.open("https://wa.me/?text="+encodeURIComponent("VZOR — private access\n\nCode: "+lastCreated.access_code+"\n"+fullurl(lastCreated.access_code)),"_blank"); }
+function shareTG(){ if(!lastCreated) return; window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(lastCreated.access_code))+"&text="+encodeURIComponent("VZOR access code: "+lastCreated.access_code),"_blank"); }
+
+async function loadAll(){
+    var r=await fetch("/api/admin/guests",{headers:{"X-Admin-Secret":S}});
+    if(!r.ok){ S=""; sessionStorage.removeItem("vzor_a"); location.reload(); return; }
+    var d=await r.json();
+    var list=d.guests||[];
+    document.getElementById("guest-count").textContent=list.length+" total";
+    if(!list.length){ document.getElementById("guest-list").innerHTML='<div class="empty">No guests yet</div>'; return; }
+
+    var html="";
+    for(var i=0;i<list.length;i++){
+        var g=list[i];
+        var now=new Date(), exp=new Date(g.expires_at), isExp=exp<now;
+        var st=!g.is_active?"revoked":isExp?"expired":"active";
+        var stLabel=!g.is_active?"revoked":isExp?"expired":"active";
+
+        html+='<div class="guest" id="g-'+g.id+'">'
+            +'<div class="guest-row" onclick="toggle('+g.id+')">'
+            +'<div class="guest-main">'
+            +'<div class="guest-name"><span class="pill '+st+'">'+stLabel+'</span>'+esc(g.name)+'</div>'
+            +'<div class="guest-meta">'
+            +'<span>Last: '+relTime(g.last_login_at)+'</span>'
+            +'<span>Logins: '+(g.login_count||0)+'</span>'
+            +'<span>Expires: '+fmtDate(g.expires_at)+'</span>'
+            +'</div></div>'
+            +'<div class="guest-code">'+g.access_code+'</div>'
+            +'</div>'
+            +'<div class="guest-detail" id="det-'+g.id+'">'
+            +'<div class="detail-qr" id="dqr-'+g.id+'"></div>'
+            +'<div class="detail-right">'
+            +'<div class="detail-row"><span class="detail-label">Link</span><span class="detail-value"><a href="'+fullurl(g.access_code)+'" target="_blank">'+surl(g.access_code)+'</a></span></div>'
+            +'<div class="detail-row"><span class="detail-label">Code</span><span class="detail-value">'+g.access_code+'</span></div>'
+            +'<div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">'+(g.email||"—")+'</span></div>'
+            +'<div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">'+fmtDate(g.created_at)+'</span></div>'
+            +'<div class="detail-actions">'
+            +'<button class="dbtn copy" id="cl-'+g.id+'" onclick="event.stopPropagation();copyGuestLink('+g.id+',\''+esc(g.access_code)+'\')">Copy link</button>'
+            +'<button class="dbtn download" onclick="event.stopPropagation();dlGuestQR('+g.id+',\''+esc(g.access_code)+'\')">Download QR</button>';
+
+        if(g.is_active){
+            html+='<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+',7)">+7d</button>'
+                +'<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+',30)">+30d</button>'
+                +'<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+',90)">+90d</button>'
+                +'<button class="dbtn revoke" onclick="event.stopPropagation();revokeG('+g.id+')">Revoke</button>';
         }
-    });
-}
-document.getElementById("admin-secret").addEventListener("keydown", function(e) {
-    if (e.key === "Enter") adminLogin();
-});
-
-function shortCode(accessCode) {
-    return accessCode.replace(/VZOR-/g, "").replace(/-/g, "");
-}
-
-function shortUrl(accessCode) {
-    return "vzor-ai.com/go/" + shortCode(accessCode);
-}
-
-function generateStyledQR(url) {
-    document.getElementById("qr-container").innerHTML = "";
-    currentQR = new QRCodeStyling({
-        width: 280,
-        height: 280,
-        type: "canvas",
-        data: url,
-        dotsOptions: {
-            type: "classy-rounded",
-            gradient: {
-                type: "linear",
-                rotation: Math.PI / 4,
-                colorStops: [
-                    { offset: 0, color: "#6366f1" },
-                    { offset: 1, color: "#a78bfa" }
-                ]
-            }
-        },
-        cornersSquareOptions: {
-            type: "extra-rounded",
-            color: "#6366f1"
-        },
-        cornersDotOptions: {
-            type: "dot",
-            color: "#818cf8"
-        },
-        backgroundOptions: {
-            color: "#0f0f13"
-        },
-        imageOptions: {
-            hideBackgroundDots: true,
-            imageSize: 0.35,
-            margin: 6,
-            crossOrigin: "anonymous"
-        },
-        qrOptions: {
-            errorCorrectionLevel: "H"
+        if(!g.is_active){
+            // no extend for revoked
         }
-    });
-    currentQR.append(document.getElementById("qr-container"));
-}
+        if(g.is_active && isExp){
+            // already has extend buttons above
+        }
 
-async function createGuest() {
-    var name = document.getElementById("g-name").value.trim();
-    if (!name) { document.getElementById("g-name").focus(); return; }
-    var email = document.getElementById("g-email").value.trim();
-    var days = parseInt(document.getElementById("g-days").value);
-
-    var r = await fetch("/api/admin/guests", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Secret": SECRET },
-        body: JSON.stringify({ name: name, email: email, expires_days: days })
-    });
-    var d = await r.json();
-    if (!r.ok) { alert(d.detail || "Error"); return; }
-
-    lastResult = d;
-    lastResult._days = days;
-
-    document.getElementById("r-name").textContent = d.guest.name;
-    document.getElementById("r-code").textContent = d.access_code;
-    document.getElementById("r-link").textContent = shortUrl(d.access_code);
-
-    var expDate = new Date(d.guest.expires_at);
-    document.getElementById("r-expires").textContent = "valid until " + expDate.toLocaleDateString("ru-RU");
-
-    generateStyledQR(d.qr_url);
-
-    document.getElementById("result-card").style.display = "block";
-    document.getElementById("g-name").value = "";
-    document.getElementById("g-email").value = "";
-    loadGuests();
-}
-
-function downloadQR() {
-    if (!currentQR) return;
-    var code = lastResult ? lastResult.access_code : "VZOR";
-    currentQR.download({ name: "VZOR-" + shortCode(code), extension: "png" });
-}
-
-function copyCode() {
-    if (!lastResult) return;
-    navigator.clipboard.writeText(lastResult.access_code);
-    var el = document.getElementById("r-code");
-    el.style.color = "#6366f1";
-    setTimeout(function() { el.style.color = ""; }, 800);
-}
-
-function shareWhatsApp() {
-    if (!lastResult) return;
-    var text = "VZOR — private access\n\nCode: " + lastResult.access_code + "\nLink: " + shortUrl(lastResult.access_code);
-    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
-}
-
-function shareTelegram() {
-    if (!lastResult) return;
-    var text = "VZOR — private access\n\nCode: " + lastResult.access_code;
-    window.open("https://t.me/share/url?url=" + encodeURIComponent("https://" + shortUrl(lastResult.access_code)) + "&text=" + encodeURIComponent(text), "_blank");
-}
-
-async function loadGuests() {
-    var r = await fetch("/api/admin/guests", { headers: {"X-Admin-Secret": SECRET} });
-    if (!r.ok) { SECRET = ""; sessionStorage.removeItem("vzor_admin"); location.reload(); return; }
-    var d = await r.json();
-    var list = d.guests || [];
-
-    if (list.length === 0) {
-        document.getElementById("guest-list").innerHTML = '<div class="empty-msg">No guests yet</div>';
-        return;
+        html+='<button class="dbtn share" onclick="event.stopPropagation();shareGuestWA(\''+esc(g.access_code)+'\')">WhatsApp</button>'
+            +'<button class="dbtn share" onclick="event.stopPropagation();shareGuestTG(\''+esc(g.access_code)+'\')">Telegram</button>'
+            +'</div></div></div></div>';
     }
+    document.getElementById("guest-list").innerHTML=html;
+}
 
-    var html = "";
-    for (var g of list) {
-        var now = new Date();
-        var exp = new Date(g.expires_at);
-        var isExpired = exp < now;
-        var badgeClass = !g.is_active ? "revoked" : isExpired ? "expired" : "active";
-        var badgeText = !g.is_active ? "revoked" : isExpired ? "expired" : "active";
-
-        var lastLogin = g.last_login_at ? new Date(g.last_login_at).toLocaleDateString("ru-RU") : "never";
-        var expStr = exp.toLocaleDateString("ru-RU");
-
-        var actions = "";
-        if (g.is_active && !isExpired) {
-            actions = '<button class="btn-sm qr" onclick="showGuestQR(' + g.id + ',\'' + esc(g.access_code) + '\')">QR</button>'
-                + '<button class="btn-sm extend" onclick="extendGuest(' + g.id + ')">+30d</button>'
-                + '<button class="btn-sm revoke" onclick="revokeGuest(' + g.id + ')">Revoke</button>';
-        } else if (g.is_active && isExpired) {
-            actions = '<button class="btn-sm extend" onclick="extendGuest(' + g.id + ')">Renew</button>'
-                + '<button class="btn-sm revoke" onclick="revokeGuest(' + g.id + ')">Revoke</button>';
+var openGuests={};
+function toggle(id){
+    var det=document.getElementById("det-"+id);
+    if(!det) return;
+    if(det.classList.contains("open")){
+        det.classList.remove("open");
+        delete openGuests[id];
+    } else {
+        det.classList.add("open");
+        // Render QR if not done
+        if(!openGuests[id]){
+            openGuests[id]=true;
+            // Need token - fetch guests to find it
+            fetch("/api/admin/guests",{headers:{"X-Admin-Secret":S}}).then(function(r){return r.json();}).then(function(d){
+                var g=(d.guests||[]).find(function(x){return x.id===id;});
+                if(!g) return;
+                var qr=makeQR(tokenUrl(g.token),160);
+                var container=document.getElementById("dqr-"+id);
+                if(container){ container.innerHTML=""; qr.append(container); }
+                openGuests[id]=qr;
+            });
         }
-
-        html += '<div class="guest-item">'
-            + '<div class="guest-info">'
-            + '<div class="guest-name"><span class="badge ' + badgeClass + '">' + badgeText + '</span>' + esc(g.name) + '</div>'
-            + '<div class="guest-meta"><span>Logins: ' + (g.login_count || 0) + '</span><span>Last: ' + lastLogin + '</span><span>Expires: ' + expStr + '</span></div>'
-            + '</div>'
-            + '<div class="guest-code">' + g.access_code + '</div>'
-            + '<div class="guest-actions">' + actions + '</div>'
-            + '</div>';
     }
-    document.getElementById("guest-list").innerHTML = html;
 }
 
-async function revokeGuest(id) {
-    if (!confirm("Revoke access?")) return;
-    await fetch("/api/admin/guests/" + id, { method: "DELETE", headers: {"X-Admin-Secret": SECRET} });
-    loadGuests();
+function copyGuestLink(id,code){
+    navigator.clipboard.writeText(fullurl(code));
+    var b=document.getElementById("cl-"+id);
+    if(b){ b.textContent="Copied!"; b.classList.add("done"); setTimeout(function(){ b.textContent="Copy link"; b.classList.remove("done"); },1500); }
 }
 
-async function extendGuest(id) {
-    var r = await fetch("/api/admin/guests/" + id + "/extend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Secret": SECRET },
-        body: JSON.stringify({ days: 30 })
-    });
-    if (r.ok) { loadGuests(); } else { alert("Error extending"); }
+function dlGuestQR(id,code){
+    var qr=openGuests[id];
+    if(qr&&qr.download) qr.download({name:"VZOR-"+sc(code),extension:"png"});
 }
 
-async function showGuestQR(id, code) {
-    var guests = (await (await fetch("/api/admin/guests", { headers: {"X-Admin-Secret": SECRET} })).json()).guests;
-    var g = guests.find(function(x) { return x.id === id; });
-    if (!g) return;
-    var url = "https://vzor-ai.com/api/auth/token/" + g.token;
-    // Open modal with styled QR
-    var w = window.open("", "_blank", "width=360,height=440");
-    w.document.write('<!DOCTYPE html><html><head><title>VZOR QR</title>'
-        + '<script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"><\/script>'
-        + '<style>body{margin:0;background:#0f0f13;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;}'
-        + '.code{color:rgba(255,255,255,0.4);font-family:monospace;font-size:16px;letter-spacing:3px;margin-top:16px;}</style></head><body>'
-        + '<div id="qr"></div><div class="code">' + code + '</div>'
-        + '<script>'
-        + 'new QRCodeStyling({width:280,height:280,type:"canvas",data:"' + url + '",'
-        + 'dotsOptions:{type:"classy-rounded",gradient:{type:"linear",rotation:Math.PI/4,colorStops:[{offset:0,color:"#6366f1"},{offset:1,color:"#a78bfa"}]}},'
-        + 'cornersSquareOptions:{type:"extra-rounded",color:"#6366f1"},'
-        + 'cornersDotOptions:{type:"dot",color:"#818cf8"},'
-        + 'backgroundOptions:{color:"#0f0f13"},'
-        + 'qrOptions:{errorCorrectionLevel:"H"},'
-        + 'imageOptions:{hideBackgroundDots:true,imageSize:0.35,margin:6}'
-        + '}).append(document.getElementById("qr"));<\/script></body></html>');
+async function extendG(id,days){
+    await fetch("/api/admin/guests/"+id+"/extend",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Secret":S},body:JSON.stringify({days:days})});
+    openGuests={}; loadAll();
 }
 
-function esc(s) {
-    var d = document.createElement("div");
-    d.textContent = s;
-    return d.innerHTML;
+async function revokeG(id){
+    if(!confirm("Revoke access for this guest?")) return;
+    await fetch("/api/admin/guests/"+id,{method:"DELETE",headers:{"X-Admin-Secret":S}});
+    openGuests={}; loadAll();
 }
+
+function shareGuestWA(code){ window.open("https://wa.me/?text="+encodeURIComponent("VZOR — private access\n\nCode: "+code+"\n"+fullurl(code)),"_blank"); }
+function shareGuestTG(code){ window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(code))+"&text="+encodeURIComponent("VZOR access code: "+code),"_blank"); }
 </script>
 </body>
 </html>
