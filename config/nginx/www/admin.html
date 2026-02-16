@@ -253,18 +253,17 @@
         <div id="create-result">
             <div class="label">Код доступа</div>
             <div class="code" id="r-code"></div>
-            <div>
+            <div style="margin-bottom:4px">
                 <button class="copy-btn" onclick="copyCode()">Копировать код</button>
-                <button class="copy-btn" onclick="copyLink()">Копировать ссылку</button>
             </div>
             <img id="r-qr" width="200" height="200" alt="QR">
-            <div style="margin-top:12px">
+            <div class="label" style="margin-top:14px">Отправить инвестору</div>
+            <div>
                 <button class="copy-btn" onclick="downloadQR()">Скачать QR</button>
                 <button class="copy-btn" onclick="shareWhatsApp()">WhatsApp</button>
                 <button class="copy-btn" onclick="shareTelegram()">Telegram</button>
                 <button class="copy-btn" onclick="shareEmail()">Email</button>
             </div>
-            <div class="link">Ссылка: <a id="r-link" href="#" target="_blank"></a></div>
         </div>
 
         <!-- Guest List -->
@@ -322,9 +321,6 @@ async function createGuest() {
 
     // Show result
     document.getElementById("r-code").textContent = d.access_code;
-    document.getElementById("r-link").textContent = d.qr_url;
-    document.getElementById("r-link").href = d.qr_url;
-
     // Load QR image
     var qrImg = document.getElementById("r-qr");
     qrImg.src = "/api/admin/guests/" + d.guest.id + "/qr?t=" + Date.now();
@@ -350,9 +346,6 @@ function copyCode() {
     if (lastResult) { navigator.clipboard.writeText(lastResult.access_code); flash("Код скопирован"); }
 }
 
-function copyLink() {
-    if (lastResult) { navigator.clipboard.writeText(lastResult.qr_url); flash("Ссылка скопирована"); }
-}
 
 function flash(msg) {
     var el = document.getElementById("r-code");
