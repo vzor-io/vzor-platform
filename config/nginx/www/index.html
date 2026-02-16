@@ -16,7 +16,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>VZOR v3.37</title>
+    <title>VZOR v3.31</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@100;300;400;700&display=swap" rel="stylesheet">
@@ -375,7 +375,7 @@
             background: rgba(8, 8, 8, 0.9);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(0, 255, 255, 0.2);
+            border: 1px solid rgba(78, 205, 196, 0.2);
             padding: 5px 12px;
             z-index: 100;
             transition: bottom 0.5s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.3s;
@@ -383,7 +383,7 @@
             align-items: center;
             gap: 8px;
             border-radius: 25px;
-            box-shadow: 0 0 20px rgba(0, 255, 255, 0.1), 0 8px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.1), 0 8px 25px rgba(0, 0, 0, 0.4);
             opacity: 0;
             pointer-events: none;
         }
@@ -431,66 +431,6 @@
             0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
             50% { box-shadow: 0 0 0 6px rgba(255, 107, 107, 0); }
         }
-        #agent-chat-send {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-secondary); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            font-size: 14px;
-        }
-        #agent-chat-send:hover {
-            background: rgba(255, 255, 255, 0.1); color: #fff;
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
-            transform: scale(1.15);
-        }
-
-        #agent-chat-send {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            font-size: 14px;
-        }
-        #agent-chat-send:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
-            transform: scale(1.15);
-        }
-
-        #agent-chat-send {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            font-size: 14px;
-        }
-        #agent-chat-send:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-            transform: scale(1.15);
-        }
-
 
         @keyframes mic-ring {
             0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
@@ -562,7 +502,7 @@
             content: "•";
             position: absolute;
             left: 0;
-            color: #fff;
+            color: #00ffff;
             font-weight: bold;
         }
 
@@ -976,15 +916,15 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
             transform: scale(1.15);
         }
 
         .icon-btn.active {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            background: rgba(78, 205, 196, 0.15);
+            border-color: rgba(78, 205, 196, 0.5);
+            color: #4ECDC4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
         }
 
         .icon-btn svg {
@@ -1054,7 +994,7 @@
             content: '';
             width: 50px;
             height: 4px;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(78, 205, 196, 0.5);
             border-radius: 2px;
         }
 
@@ -1101,7 +1041,7 @@
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(circle at center, rgba(0, 255, 255, 0.03) 0%, transparent 70%),
+                radial-gradient(circle at center, rgba(78, 205, 196, 0.03) 0%, transparent 70%),
                 linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
             background-size: 100% 100%, 20px 20px, 20px 20px;
@@ -1157,9 +1097,9 @@
         }
 
         #nodes-toggle-btn.active {
-            background: rgba(0, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.4);
-            color: #fff;
+            background: rgba(78, 205, 196, 0.1);
+            border-color: rgba(78, 205, 196, 0.4);
+            color: #4ECDC4;
             opacity: 1;
         }
 
@@ -1168,15 +1108,15 @@
         }
 
         
-        /* v3.35: GRAPH BUTTON */
+        /* v3.35: ГРАФ BUTTON */
         #graph-toggle-btn {
             position: fixed; top: 130px; right: 40px;
             width: 85px; height: 40px;
             background: rgba(10,10,10,0.6);
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.15);
+            border: 1px solid rgba(80,110,170,0.2);
             border-radius: 20px;
-            color: rgba(255,255,255,0.7);
+            color: rgba(160,180,220,0.7);
             font: 500 11px/1 'Outfit',sans-serif;
             letter-spacing: 0.08em;
             text-transform: uppercase;
@@ -1193,16 +1133,16 @@
         }
         #graph-toggle-btn.visible { opacity: 1; pointer-events: auto; }
         #graph-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: rgba(255, 255, 255, 0.4);
-            color: #fff;
-            box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
+            background: rgba(12,16,28,0.8);
+            border-color: rgba(60,90,160,0.45);
+            color: rgba(180,200,240,0.95);
+            box-shadow: 0 0 18px rgba(40,65,130,0.25);
         }
         #graph-toggle-btn.active {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #fff;
-            box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
+            background: rgba(15,22,45,0.7);
+            border-color: rgba(70,100,180,0.5);
+            color: rgba(140,170,230,0.9);
+            box-shadow: 0 0 22px rgba(45,70,140,0.35);
         }
         #graph-toggle-btn.dragging { cursor: grabbing !important; transition: none; }
 
@@ -1309,15 +1249,15 @@
         }
 
         .side-panel-item.action {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
+            background: rgba(78, 205, 196, 0.08);
+            border: 1px solid rgba(78, 205, 196, 0.15);
+            color: #4ECDC4;
             font-weight: 500;
         }
 
         .side-panel-item.action:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(0, 255, 255, 0.3);
+            background: rgba(78, 205, 196, 0.15);
+            border-color: rgba(78, 205, 196, 0.3);
         }
 
         .side-panel-item-icon {
@@ -1365,7 +1305,7 @@
         }
 
         .node-status {
-            color: #fff;
+            color: #4ECDC4;
             font-size: 8px;
         }
 
@@ -1489,7 +1429,7 @@
 
         .socket-input .socket-dot.can-connect {
             transform: scale(1.5);
-            box-shadow: 0 0 15px #00ffff;
+            box-shadow: 0 0 15px #4ECDC4;
             animation: pulse-accept 0.5s ease-in-out infinite;
         }
 
@@ -1499,8 +1439,8 @@
         }
 
         @keyframes pulse-accept {
-            0%, 100% { box-shadow: 0 0 10px #00ffff; }
-            50% { box-shadow: 0 0 20px #00ffff; }
+            0%, 100% { box-shadow: 0 0 10px #4ECDC4; }
+            50% { box-shadow: 0 0 20px #4ECDC4; }
         }
 
         .socket-label {
@@ -1590,8 +1530,8 @@
         }
 
         .setting-select:focus {
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 0 2px rgba(0, 255, 255, 0.1);
+            border-color: rgba(78, 205, 196, 0.4);
+            box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.1);
         }
 
         .setting-select option {
@@ -1632,9 +1572,9 @@
 
         .section-add-btn,
         .section-change-btn {
-            background: rgba(255, 255, 255, 0.15);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: #fff;
+            background: rgba(78, 205, 196, 0.15);
+            border: 1px solid rgba(78, 205, 196, 0.3);
+            color: #4ECDC4;
             font-size: 9px;
             padding: 2px 8px;
             border-radius: 3px;
@@ -1644,8 +1584,8 @@
 
         .section-add-btn:hover,
         .section-change-btn:hover {
-            background: rgba(0, 255, 255, 0.25);
-            border-color: rgba(255, 255, 255, 0.5);
+            background: rgba(78, 205, 196, 0.25);
+            border-color: rgba(78, 205, 196, 0.5);
         }
 
         /* Task Input */
@@ -1666,7 +1606,7 @@
 
         .node-task-input:focus {
             outline: none;
-            border-color: rgba(255, 255, 255, 0.4);
+            border-color: rgba(78, 205, 196, 0.4);
             background: rgba(255, 255, 255, 0.05);
         }
 
@@ -1686,14 +1626,14 @@
             align-items: center;
             gap: 6px;
             padding: 5px 8px;
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(78, 205, 196, 0.08);
+            border: 1px solid rgba(78, 205, 196, 0.15);
             border-radius: 4px;
             font-size: 9px;
         }
 
         .kb-check {
-            color: #fff;
+            color: #4ECDC4;
             font-size: 10px;
         }
 
@@ -1842,7 +1782,7 @@
         }
 
         .kb-browser-search input:focus {
-            border-color: rgba(255, 255, 255, 0.4);
+            border-color: rgba(78, 205, 196, 0.4);
         }
 
         .kb-browser-list,
@@ -1871,8 +1811,8 @@
 
         .kb-browser-item.selected,
         .agent-selector-item.selected {
-            background: rgba(0, 255, 255, 0.1);
-            border: 1px solid rgba(0, 255, 255, 0.2);
+            background: rgba(78, 205, 196, 0.1);
+            border: 1px solid rgba(78, 205, 196, 0.2);
         }
 
         .kb-browser-check {
@@ -1884,12 +1824,12 @@
             align-items: center;
             justify-content: center;
             font-size: 12px;
-            color: #fff;
+            color: #4ECDC4;
         }
 
         .kb-browser-item.selected .kb-browser-check {
-            background: rgba(0, 255, 255, 0.2);
-            border-color: #fff;
+            background: rgba(78, 205, 196, 0.2);
+            border-color: #4ECDC4;
         }
 
         .kb-browser-info,
@@ -1913,7 +1853,7 @@
 
         .kb-browser-category {
             font-size: 9px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(78, 205, 196, 0.7);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -1924,22 +1864,22 @@
 
         .agent-selector-model {
             font-size: 9px;
-            color: rgba(0, 255, 255, 0.6);
+            color: rgba(78, 205, 196, 0.6);
             margin-top: 3px;
         }
 
         .agent-selector-check {
-            color: #fff;
+            color: #4ECDC4;
             font-size: 14px;
         }
 
         .node-run-btn {
             width: 100%;
             padding: 6px 10px;
-            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 255, 255, 0.1));
-            border: 1px solid rgba(255, 255, 255, 0.15);
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.2), rgba(78, 205, 196, 0.1));
+            border: 1px solid rgba(78, 205, 196, 0.3);
             border-radius: 4px;
-            color: #fff;
+            color: #4ECDC4;
             cursor: pointer;
             font-size: 10px;
             font-weight: 600;
@@ -1948,9 +1888,9 @@
         }
 
         .node-run-btn:hover {
-            background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 255, 255, 0.2));
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+            background: linear-gradient(135deg, rgba(78, 205, 196, 0.3), rgba(78, 205, 196, 0.2));
+            border-color: rgba(78, 205, 196, 0.5);
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.2);
         }
 
         /* v3.12.1: Node Results Section */
@@ -2015,7 +1955,7 @@
         }
 
         .result-file:hover .file-download {
-            color: #fff;
+            color: #4ECDC4;
         }
 
         .file-icon {
@@ -2103,7 +2043,7 @@
 
         #node-library-btn:hover {
             background: rgba(40, 40, 45, 0.95);
-            border-color: rgba(255, 255, 255, 0.4);
+            border-color: rgba(78, 205, 196, 0.4);
         }
 
         #node-library {
@@ -2147,8 +2087,8 @@
         }
 
         .library-item:hover {
-            background: rgba(0, 255, 255, 0.1);
-            color: #fff;
+            background: rgba(78, 205, 196, 0.1);
+            color: #4ECDC4;
         }
 
         /* 5. Structured Detail Panel */
@@ -2179,8 +2119,8 @@
         }
 
         .status-badge.running {
-            background: rgba(0, 255, 255, 0.2);
-            color: #fff;
+            background: rgba(78, 205, 196, 0.2);
+            color: #4ECDC4;
         }
 
         .status-badge.done {
@@ -2331,7 +2271,7 @@
         }
         .model-tab.active {
             color: var(--text-secondary);
-            border-bottom-color: rgba(0, 255, 255, 0.4);
+            border-bottom-color: rgba(255, 255, 255, 0.3);
         }
         .model-tab:hover { color: rgba(255, 255, 255, 0.6); }
         .model-list { overflow-y: auto; max-height: 240px; padding: 5px; }
@@ -2346,9 +2286,9 @@
             color: white;
         }
         .model-item.active {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
+            background: rgba(78, 205, 196, 0.08);
+            border: 1px solid rgba(78, 205, 196, 0.15);
+            color: #4ECDC4;
         }
         .mi-icon {
             width: 28px; height: 28px;
@@ -2366,13 +2306,13 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
         }
         .model-item.active .mi-icon {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            background: rgba(78, 205, 196, 0.15);
+            border-color: rgba(78, 205, 196, 0.5);
+            color: #4ECDC4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.3);
         }
         .mi-name {
             flex: 1; font-size: 13px; letter-spacing: 0.03em;
@@ -2415,7 +2355,7 @@
             border: none;
             align-self: flex-start;
             color: rgba(255, 255, 255, 0.7);
-            border-left: 2px solid rgba(255, 255, 255, 0.15);
+            border-left: 2px solid rgba(78, 205, 196, 0.3);
             border-radius: 0 8px 8px 0;
             padding-left: 12px;
         }
@@ -2464,7 +2404,7 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
             transform: scale(1.15);
         }
 
@@ -2486,33 +2426,29 @@
             right: 20px;
             bottom: 20px;
             cursor: move;
-            width: 85px;
-            height: 40px;
-            border-radius: 20px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
             background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
             color: rgba(255, 255, 255, 0.7);
-            font: 500 11px/1 'Outfit', sans-serif;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            font-size: 1em;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
             z-index: 9998;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            user-select: none;
         }
 
         #agent-chat-toggle:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.1);
             color: #fff;
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
-            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
+            transform: scale(1.15);
         }
 
         #agent-chat-toggle.hidden {
@@ -2648,107 +2584,6 @@
         }
         #oc-chat-close:hover { color: var(--text-primary); }
 
-        /* OpenClaw Model Selector Bar */
-        #oc-model-bar {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px var(--spacing-md);
-            border-bottom: 1px solid var(--border-subtle);
-            cursor: pointer;
-            transition: all 0.15s ease;
-        }
-        #oc-model-bar:hover { background: rgba(255, 255, 255, 0.05); }
-        #oc-model-icon {
-            width: 28px; height: 28px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 50%;
-            font-size: 10px; font-weight: 700; color: rgba(255, 255, 255, 0.7);
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            letter-spacing: 0.02em;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        #oc-model-name {
-            flex: 1; font-size: 13px; color: rgba(255, 255, 255, 0.7);
-            letter-spacing: 0.03em;
-        }
-        #oc-model-brain {
-            font-size: 9px; opacity: 0.5; margin-left: 4px;
-        }
-        #oc-model-arrow {
-            font-size: 10px; color: var(--text-tertiary);
-            transition: transform var(--transition-fast);
-        }
-        #oc-model-dropdown {
-            display: none; border-bottom: 1px solid var(--border-subtle);
-            max-height: 280px; overflow: hidden; flex-direction: column;
-        }
-        #oc-model-dropdown.open { display: flex; }
-        .oc-model-tabs {
-            display: flex; padding: 0 5px;
-            border-bottom: 1px solid var(--border-subtle);
-        }
-        .oc-model-tab {
-            flex: 1; padding: 8px 5px; background: transparent; border: none;
-            color: rgba(255, 255, 255, 0.35); font-size: 10px; font-weight: 400;
-            letter-spacing: 0.15em; text-transform: uppercase;
-            cursor: pointer; transition: all 0.15s ease;
-            border-bottom: 2px solid transparent;
-        }
-        .oc-model-tab.active {
-            color: var(--text-secondary);
-            border-bottom-color: rgba(255, 255, 255, 0.3);
-        }
-        .oc-model-tab:hover { color: rgba(255, 255, 255, 0.6); }
-        .oc-model-list { overflow-y: auto; max-height: 240px; padding: 5px; }
-        .oc-model-item {
-            display: flex; align-items: center; gap: 10px;
-            padding: 8px 12px; border-radius: 6px;
-            cursor: pointer; transition: all 0.15s ease;
-            color: rgba(255, 255, 255, 0.7);
-        }
-        .oc-model-item:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-        }
-        .oc-model-item.active {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
-        }
-        .oc-mi-icon {
-            width: 28px; height: 28px;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 50%;
-            font-size: 10px; font-weight: 700;
-            color: rgba(255, 255, 255, 0.7);
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            letter-spacing: 0.02em;
-            flex-shrink: 0;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        .oc-model-item:hover .oc-mi-icon {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-        }
-        .oc-model-item.active .oc-mi-icon {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.5);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-        }
-        .oc-mi-name {
-            flex: 1; font-size: 13px; letter-spacing: 0.03em;
-        }
-        .oc-mi-tag {
-            font-size: 10px; color: rgba(255, 255, 255, 0.35);
-            letter-spacing: 0.05em;
-        }
-
         #oc-chat-messages {
             flex: 1;
             overflow-y: auto;
@@ -2780,7 +2615,7 @@
             border: none;
             align-self: flex-start;
             color: rgba(255, 255, 255, 0.7);
-            border-left: 2px solid rgba(255, 255, 255, 0.15);
+            border-left: 2px solid rgba(255, 165, 0, 0.4);
             border-radius: 0 8px 8px 0;
             padding-left: 12px;
             white-space: pre-wrap;
@@ -2809,36 +2644,6 @@
             font-size: 11px;
             text-transform: uppercase;
         }
-        #oc-mic-btn {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-secondary);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-        }
-        #oc-mic-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-            transform: scale(1.15);
-        }
-        #oc-mic-btn.listening {
-            background: rgba(255, 107, 107, 0.15);
-            border-color: var(--color-error);
-            color: var(--color-error);
-            animation: oc-mic-pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes oc-mic-pulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 107, 107, 0.4); }
-            50% { box-shadow: 0 0 0 6px rgba(255, 107, 107, 0); }
-        }
         #oc-chat-send {
             width: 32px;
             height: 32px;
@@ -2857,41 +2662,38 @@
             background: rgba(255, 255, 255, 0.1);
             color: #fff;
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.3), inset 0 0 10px rgba(255, 165, 0, 0.1);
             transform: scale(1.15);
         }
 
         #oc-chat-toggle {
             position: fixed;
             right: 20px;
-            bottom: 78px;
+            bottom: 72px;
             cursor: move;
-            width: 85px;
-            height: 40px;
-            border-radius: 20px;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
             background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-            color: rgba(255, 255, 255, 0.7);
-            font: 500 11px/1 'Outfit', sans-serif;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
+            color: rgba(255, 165, 0, 0.8);
+            font-size: 0.75em;
+            font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 5px;
             z-index: 9998;
             transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            user-select: none;
+            letter-spacing: -0.02em;
         }
         #oc-chat-toggle:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #fff;
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 18px rgba(255, 255, 255, 0.15);
-            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.1);
+            color: #ff8c00;
+            border-color: rgba(255, 165, 0, 0.5);
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.3), inset 0 0 10px rgba(255, 165, 0, 0.1);
+            transform: scale(1.15);
         }
 
         .oc-typing {
@@ -2905,7 +2707,7 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 165, 0, 0.5);
             animation: oc-pulse 1.4s ease-in-out infinite;
         }
         .oc-typing span:nth-child(2) { animation-delay: 0.2s; }
@@ -2960,7 +2762,45 @@
             height: 100%; border-radius: 2px; transition: width 0.5s ease;
         }
 
-        /* Block progress dashboard */        /* Task hover tooltip */
+        /* Block progress dashboard */
+        #block-dashboard {
+            position: fixed;
+            bottom: 90px;
+            left: 16px;
+            z-index: 300;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            background: rgba(10,10,15,0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-family: 'Outfit', sans-serif;
+            min-width: 180px;
+        }
+        #block-dashboard.visible { display: flex; }
+        .dash-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dash-dot {
+            width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+        }
+        .dash-label {
+            font-size: 10px; color: rgba(255,255,255,0.7); flex: 1; white-space: nowrap;
+        }
+        .dash-pct {
+            font-size: 10px; color: rgba(255,255,255,0.5); width: 32px; text-align: right;
+        }
+        .dash-bar-bg {
+            width: 50px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
+        }
+        .dash-bar-fill {
+            height: 100%; border-radius: 2px; transition: width 0.5s ease;
+        }
+        /* Task hover tooltip */
         #task-tooltip {
             position: fixed;
             display: none;
@@ -3022,14 +2862,40 @@
             <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#FF8C42;"></div></div>
         </div>
         <div class="dash-row" data-block="sales">
-            <span class="dash-dot" style="background:#00ffff;"></span>
+            <span class="dash-dot" style="background:#4ECDC4;"></span>
             <span class="dash-label">Продажи</span>
             <span class="dash-pct">0%</span>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#00ffff;"></div></div>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4ECDC4;"></div></div>
         </div>
     </div>
     
-    
+    <div id="block-dashboard">
+        <div style="font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:2px;">Прогресс</div>
+        <div class="dash-row" data-block="analysis">
+            <span class="dash-dot" style="background:#4D96FF;"></span>
+            <span class="dash-label">Анализ</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4D96FF;"></div></div>
+        </div>
+        <div class="dash-row" data-block="design">
+            <span class="dash-dot" style="background:#C084FC;"></span>
+            <span class="dash-label">Проектирование</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#C084FC;"></div></div>
+        </div>
+        <div class="dash-row" data-block="build">
+            <span class="dash-dot" style="background:#FF8C42;"></span>
+            <span class="dash-label">Строительство</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#FF8C42;"></div></div>
+        </div>
+        <div class="dash-row" data-block="sales">
+            <span class="dash-dot" style="background:#4ECDC4;"></span>
+            <span class="dash-label">Продажи</span>
+            <span class="dash-pct">0%</span>
+            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4ECDC4;"></div></div>
+        </div>
+    </div>
     <div id="task-tooltip"><div class="tt-title"></div><div class="tt-phase"></div><div class="tt-status"></div></div>
     <!-- v3.14: Toast Notification Container -->
     <div id="toast-container" aria-live="polite" aria-label="Уведомления"></div>
@@ -3091,14 +2957,6 @@
             </svg>
         </div>
 
-        <!-- Progress -->
-        <div class="icon-btn" id="progress-icon-btn" title="Progress" onclick="toggleDashboard()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M18 20V10"/>
-                <path d="M12 20V4"/>
-                <path d="M6 20v-6"/>
-            </svg>
-        </div>
         <!-- Settings -->
         <div class="icon-btn" data-panel="settings" title="Settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -3199,13 +3057,13 @@
         </span>
         NODES
     </button>
-    <!-- v3.35: GRAPH BUTTON -->
-    <button id="graph-toggle-btn">
+    <!-- v3.35: ГРАФ BUTTON -->
+    <button id="graph-toggle-btn" onclick="if(window.toggleGraph)window.toggleGraph()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/>
             <line x1="6" y1="6" x2="12" y2="18"/><line x1="18" y1="6" x2="12" y2="18"/>
         </svg>
-        GRAPH
+        ГРАФ
     </button>
 
     
@@ -3556,6 +3414,8 @@
         controls.enabled = false; // Disabled initially (State 1/2 use scroll)
         controls.minDistance = 30;  // v3.34: Allow getting very close to focused task
         controls.maxDistance = 800; // v3.34: Allow zooming out far
+        controls.minPolarAngle = 0;
+        controls.maxPolarAngle = Math.PI;
 
         // INTERACTION LISTENER (OrbitControls)
         controls.addEventListener('change', () => {
@@ -4087,6 +3947,9 @@
             // 12. Enable orbit controls
             controls.enabled = true;
             controls.target.set(0, 0, 0);
+            window._orbitPivotTask = null;
+            controls.minDistance = 30;
+            controls.maxDistance = 800;
 
             console.log('[DrillDown] UI shown for:', categoryName);
         }
@@ -4182,40 +4045,32 @@
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
-                // Check intersection with detail targets
-                const hits = ray.intersectObjects(detailTargets);
-                if (hits.length > 0) {
-                    // Clicked on a Node
-                    const idx = detailTargets.indexOf(hits[0].object);
-                    updateDetailPanelForSubTask(idx);
-                } else {
-                    // CHECK TASK POINTS (window.taskPoints - created via input)
-                    // v3.12.7: Task points are THREE.Points, need special raycasting
-                    let taskClicked = false;
+                // v3.36: Check TASK POINTS FIRST (priority over legacy detailTargets)
+                let taskClicked = false;
+                console.log('[VZOR-Click] Level 2: taskPoints=' + (window.taskPoints ? window.taskPoints.length : 0));
 
-                    if (window.taskPoints && window.taskPoints.length > 0) {
-                        // Set raycaster threshold for Points
-                        // v3.22: Mesh raycasting — no threshold needed
+                if (window.taskPoints && window.taskPoints.length > 0) {
+                    const taskMeshes = window.taskPoints
+                        .filter(t => {
+                            if (!t.mesh || !t.mesh.visible) return false;
+                            if (window._focusedBlock) {
+                                const tc = getPhaseColor(t.phase || 'General');
+                                return tc === window._focusedBlock;
+                            }
+                            return true;
+                        })
+                        .map(t => t.mesh);
 
-                        // In focus mode: only raycast against focused block tasks
-                        const taskMeshes = window.taskPoints
-                            .filter(t => {
-                                if (!t.mesh || !t.mesh.visible) return false;
-                                if (window._focusedBlock) {
-                                    const tc = getPhaseColor(t.phase || 'General');
-                                    return tc === window._focusedBlock;
-                                }
-                                return true;
-                            })
-                            .map(t => t.mesh);
-
-                        if (taskMeshes.length > 0) {
-                            const taskHits = ray.intersectObjects(taskMeshes);
-                            if (taskHits.length > 0) {
-                                const clickedMesh = taskHits[0].object;
-                                const taskPayload = window.taskPoints.find(t => t.mesh === clickedMesh);
-                                if (taskPayload) {
-                                    taskClicked = true;
+                    console.log('[VZOR-Click] taskMeshes=' + taskMeshes.length + ', focusedBlock=' + (window._focusedBlock || 'none'));
+                    if (taskMeshes.length > 0) {
+                        const taskHits = ray.intersectObjects(taskMeshes);
+                        console.log('[VZOR-Click] taskHits=' + taskHits.length);
+                        if (taskHits.length > 0) {
+                            const clickedMesh = taskHits[0].object;
+                            const taskPayload = window.taskPoints.find(t => t.mesh === clickedMesh);
+                            if (taskPayload) {
+                                taskClicked = true;
+                                console.log('[VZOR] Task clicked:', taskPayload.id, taskPayload.title);
                                     // Block focus: click task -> focus its COLOR BLOCK
                                     // Clicking within same block keeps focus (shows detail panel)
                                     // Clicking task in different block switches focus
@@ -4287,9 +4142,16 @@
                         }
                     }
 
-                    if (!taskClicked) {
-                        // Clicked on Background (Void) -> do nothing (don't reset view)
-                        // showDetail(currentCategory); // DISABLED - keep current state
+                if (!taskClicked) {
+                    // Clicked on Background (Void) -> do nothing
+                }
+
+                // Fallback: legacy detailTargets (if no task was hit)
+                if (!taskClicked) {
+                    const hits = ray.intersectObjects(detailTargets);
+                    if (hits.length > 0) {
+                        const idx = detailTargets.indexOf(hits[0].object);
+                        updateDetailPanelForSubTask(idx);
                     }
                 }
             }
@@ -4350,6 +4212,9 @@
             // Enable Orbit Controls
             controls.enabled = true;
             controls.target.set(0, 0, 0);
+            window._orbitPivotTask = null;
+            controls.minDistance = 30;
+            controls.maxDistance = 800;
 
             // Sync Camera Z for smooth transition (optional, logic handles it)
 
@@ -4483,14 +4348,10 @@
             // v3.11: Hide icon bar toggle
             document.getElementById('icon-bar-toggle').style.display = 'none';
 
-            // v3.11: Hide task point meshes AND their labels when leaving drill-down
+            // v3.11: Hide task point meshes when leaving drill-down
             if (window.taskPoints) {
                 window.taskPoints.forEach(task => {
-                    if (task.mesh) {
-                        task.mesh.visible = false;
-                        if (task.mesh.userData.labelSprite) task.mesh.userData.labelSprite.visible = false;
-                        if (task.mesh.userData.glowSprite) task.mesh.userData.glowSprite.visible = false;
-                    }
+                    if (task.mesh) task.mesh.visible = false;
                 });
             }
 
@@ -4548,13 +4409,16 @@
                 // We keep it at 0 on mobile unless moving, but on desktop we fade it
             }, 1000);
 
-            // v3.12.9: Allow rotation in both normal and drill-down modes
+            // v3.12.9: Allow rotation in normal mode; in drill-down OrbitControls handles it
             if (isDrag) {
                 let dx = x - prevM.x; let dy = y - prevM.y;
-                group.rotation.y += dx * 0.005;
-                group.rotation.x += dy * 0.005;
-                mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
-                lastInteractTime = Date.now(); // Reset idle timer on drag
+                if (!isDrilled) {
+                    group.rotation.y += dx * 0.005;
+                    group.rotation.x += dy * 0.005;
+                    mom = { x: dx * 0.005, y: dy * 0.005 };
+                }
+                prevM = { x, y };
+                lastInteractTime = Date.now();
             }
         }
         document.addEventListener('mousedown', e => {
@@ -4617,8 +4481,21 @@
                 .map(t => t.mesh);
             const dblHits = dblRay.intersectObjects(taskMeshes2);
             if (dblHits.length === 0) {
+                // Reset orbit pivot state
+                if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                    window._orbitPivotTask.mesh.scale.setScalar(1.0);
+                    if (window._orbitPivotTask.mesh.userData.material) {
+                        window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
+                    }
+                }
+                window._orbitPivotTask = null;
+                window._isFlyAnimating = true;
                 window._focusedBlock = null;
                 window._focusedPhase = null;
+
+                controls.enabled = false;
+                flushControlsDeltas();
+
                 group.children.forEach(ch => {
                     if (ch.userData && ch.userData.isLabel) ch.visible = true;
                 });
@@ -4635,8 +4512,20 @@
                     const ease = 1 - Math.pow(1 - t, 3);
                     camera.position.lerpVectors(startPos, overviewPos, ease);
                     controls.target.lerpVectors(startTarget, overviewTarget, ease);
-                    controls.update();
-                    if (t < 1) requestAnimationFrame(flyBack);
+                    camera.lookAt(controls.target);
+                    if (t < 1) {
+                        requestAnimationFrame(flyBack);
+                    } else {
+                        controls.enableDamping = true;
+                        controls.dampingFactor = 0.05;
+                        controls.enableZoom = false;
+                        controls.enablePan = true;
+                        controls.minDistance = 30;
+                        controls.maxDistance = 800;
+                        controls.enabled = true;
+                        controls.update();
+                        window._isFlyAnimating = false;
+                    }
                 }
                 flyBack();
             }
@@ -4727,7 +4616,8 @@
                 leftPanel.contains(event.target);
 
             // Only zoom 3D when drilled AND not over any active panel
-            if (isDrilled && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
+            // When task focused, OrbitControls handles zoom — skip custom zoom
+            if (isDrilled && !window._orbitPivotTask && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
                 event.preventDefault(); // Prevent page scrolling
 
                 // Faster, more noticeable zoom
@@ -4858,8 +4748,18 @@
 
             // Update sub-lines and targets (Only if drilled)
             if (isDrilled) {
-                // OrbitControls handles camera
-                controls.update();
+                // OrbitControls handles camera (skip during fly animations to avoid conflict)
+                if (!window._isFlyAnimating) controls.update();
+
+                // v3.36: Subtle pulse for selected/focused task
+                if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                    const pulse = 1.2 + 0.12 * Math.sin(time * 3.0);
+                    window._orbitPivotTask.mesh.scale.setScalar(pulse);
+                    // Subtle opacity breathing
+                    if (window._orbitPivotTask.mesh.userData.material) {
+                        window._orbitPivotTask.mesh.userData.material.opacity = 0.85 + 0.15 * Math.sin(time * 4.0);
+                    }
+                }
 
                 // Nucleus pulse
                 if (window._nucleus) {
@@ -4924,6 +4824,7 @@
                     const taskById = {};
                     tp.forEach(t => { taskById[t.id] = t; });
                     window.task3DConnections.forEach(conn => {
+                        if (conn.bondType === 'matrix') return; // matrix bonds = visual only, no physics
                         const a = taskById[conn.from];
                         const b = taskById[conn.to];
                         if (!a || !b) return;
@@ -4949,6 +4850,13 @@
                     for (let i = 0; i < n; i++) {
                         const t = tp[i];
                         const pos = t.mesh.position;
+
+                        // Pin focused task — freeze it so orbit pivot is stable
+                        if (window._orbitPivotTask && t === window._orbitPivotTask) {
+                            t._vx = 0; t._vy = 0; t._vz = 0;
+                            t._fx = 0; t._fy = 0; t._fz = 0;
+                            continue;
+                        }
 
                         // Pull toward own block center (keeps clusters in their sector)
                         const blockDir = BLOCK_DIRS[getPhaseColor(t.phase || 'General')];
@@ -4998,11 +4906,8 @@
                     // Update bond lines
                     updateBondPositions();
 
-                    // v3.33: Keep orbit pivot on focused task as it moves
-                    if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                        const fp = window._orbitPivotTask.mesh.position;
-                        controls.target.set(fp.x, fp.y, fp.z);
-                    }
+                    // v3.33: Orbit pivot — target set once by flyToTask, task is pinned, no per-frame update needed
+                    // (Updating controls.target every frame conflicts with OrbitControls internal state)
                 }
 
                 // v3.22: Scale 3D mesh spheres + gentle pulsation
@@ -5068,7 +4973,7 @@
                 // 1. Stays still for 10s (elapsed check)
                 // 2. Returns SLOWLY (factor 0.0005)
                 const elapsed = Date.now() - lastInteractTime;
-                if (elapsed > 10000) {
+                if (elapsed > 10000 && !isDrilled) {
                     // Check if we are actually rotated away from 0
                     if (Math.abs(group.rotation.y) > 0.01 || Math.abs(group.rotation.x) > 0.01) {
                         const driftSpeed = 0.0005; // Extremely slow return
@@ -5216,8 +5121,7 @@
             }
 
             // Bond system visibility (single LineSegments mesh)
-            var isFinanceMode = (typeof currentCategory !== 'undefined' && currentCategory === 'Finance');
-            bondMesh.visible = isDrilled && !!window.graphVisible && !isFinanceMode;
+            bondMesh.visible = isDrilled && !!window.graphVisible;
 
             // v3.12.7: CRITICAL - Continuously enforce UI visibility during drill-down
             // This fixes the issue where UI disappears on second drill-down
@@ -5721,31 +5625,60 @@
         group.add(bondMesh);
 
         
-        // v3.35: CREATE MATRIX DEPENDENCIES
+        // v3.35: MATRIX GRAPH — clean L0+L1 connections only
+        // L2 connections shown on hover (future)
         window.createMatrixDeps = function(taskMap) {
             var deps = [];
             var add = function(from, to) {
                 if (taskMap[from] && taskMap[to]) deps.push({from:from, to:to});
             };
 
-            // CROSS-PHASE
-            add(368,376); add(350,376); add(443,453); add(457,486); add(443,494); add(475,504);
+            // ── L0 ↔ L0: ФАЗЫ ──
+            add('B1-L0','B2-L0');  // Инвестанализ → Проектирование
+            add('B2-L0','B3-L0');  // Проектирование → Строительство
+            add('B3-L0','B4-L0');  // Строительство → Продажи
+            add('B1-L0','B4-L0');  // Инвестанализ → Продажи
+            add('B2-L0','B4-L0');  // Проектирование → Продажи
 
-            // ИНВЕСТАНАЛИЗ
-            add(313,341); add(324,341); add(331,341); add(341,350); add(350,361); add(361,368);
+            // ── ИНВЕСТАНАЛИЗ (внутри) ──
+            add('B1-1.1','B1-1.4'); add('B1-1.2','B1-1.4'); add('B1-1.3','B1-1.4');
+            add('B1-1.4','B1-1.5'); add('B1-1.5','B1-1.6'); add('B1-1.6','B1-1.7');
 
-            // ПРОЕКТИРОВАНИЕ
-            add(376,382); add(382,390); add(390,399); add(399,405); add(405,417); add(399,417);
-            add(417,424); add(424,435); add(435,443);
+            // ── ПРОЕКТИРОВАНИЕ (внутри) ──
+            add('B2-2.1','B2-2.2'); add('B2-2.2','B2-2.3'); add('B2-2.3','B2-2.4');
+            add('B2-2.4','B2-2.5'); add('B2-2.5','B2-2.6'); add('B2-2.6','B2-2.7');
+            add('B2-2.7','B2-2.8'); add('B2-2.8','B2-2.9');
 
-            // СТРОИТЕЛЬСТВО
-            add(453,457); add(457,463); add(463,468); add(468,475);
+            // ── СТРОИТЕЛЬСТВО (внутри) ──
+            add('B3-3.1','B3-3.2'); add('B3-3.2','B3-3.3');
+            add('B3-3.3','B3-3.4'); add('B3-3.4','B3-3.5');
 
-            // ПРОДАЖИ
-            add(486,494); add(494,504);
+            // ── ПРОДАЖИ (внутри) ──
+            add('B4-4.1','B4-4.2'); add('B4-4.2','B4-4.3');
 
-            // MATRIX
-            add(324,405); add(331,390); add(341,382); add(417,361); add(424,341);
+            // ── МЕЖФАЗОВЫЕ: critical path ──
+            add('B1-1.7','B2-2.1'); // GO/NO GO → ГПЗУ
+            add('B2-2.9','B3-3.1'); // Экспертиза → Строительство
+            add('B3-3.5','B4-4.3'); // Ввод → Передача
+
+            // ── МЕЖФАЗОВЫЕ: матричные (нелинейные) ──
+            add('B1-1.2','B2-2.5'); // Due diligence → Изыскания
+            add('B1-1.3','B2-2.3'); // ЗОУИТ → АГР
+            add('B1-1.4','B2-2.2'); // Финмодель → Концепция
+            add('B1-1.1','B4-4.1'); // Маркетинг → Маркетинг продаж
+            add('B1-1.1','B2-2.2'); // Маркетинг → Концепция
+            add('B1-1.5','B4-4.2'); // Финмодель банк → Продажи
+            add('B2-2.6','B1-1.6'); // Стадия П → Стресс-тест
+            add('B2-2.7','B1-1.4'); // Инженерия → Финмодель
+            add('B2-2.3','B4-4.1'); // АГР → Маркетинг
+            add('B2-2.2','B4-4.1'); // Концепция → Маркетинг
+            add('B1-1.4','B3-3.1'); // Финмодель → Стройка
+            add('B2-2.8','B3-3.1'); // ПОС → Подготовка
+            add('B2-2.6','B3-3.2'); // Стадия П → Нулевой цикл
+            add('B2-2.7','B3-3.4'); // Инженерия → Отделка
+            add('B3-3.3','B4-4.2'); // Надземная → Продажи
+            add('B3-3.4','B4-4.3'); // Отделка → Передача
+            add('B3-3.2','B4-4.1'); // Нулевой цикл → Маркетинг
 
             return deps;
         };
@@ -5805,15 +5738,21 @@
             bondPositions[base + 4] = toTask.mesh.position.y;
             bondPositions[base + 5] = toTask.mesh.position.z;
 
-            // v3.33: ONLY trunk bonds visible. L1→L2 = invisible (proximity = connection)
-            const isTrunk = bondType === 'tree' || bondType === 'backbone';
-            const brightness = 0.38; // molecular bonds invisible
-            bondColors[base]     = brightness;
-            bondColors[base + 1] = brightness;
-            bondColors[base + 2] = brightness;
-            bondColors[base + 3] = brightness;
-            bondColors[base + 4] = brightness;
-            bondColors[base + 5] = brightness;
+            // v3.35: Color by bond type
+            var r = 0.12, g = 0.12, b = 0.12; // default: dim gray
+            if (bondType === 'matrix') {
+                // Cyan for matrix dependencies
+                r = 0.0; g = 0.35; b = 0.4;
+            } else if (bondType === 'tree' || bondType === 'backbone') {
+                // Structural tree bonds — very subtle
+                r = 0.06; g = 0.06; b = 0.08;
+            }
+            bondColors[base]     = r;
+            bondColors[base + 1] = g;
+            bondColors[base + 2] = b;
+            bondColors[base + 3] = r;
+            bondColors[base + 4] = g;
+            bondColors[base + 5] = b;
 
             bondCount++;
             bondGeometry.setDrawRange(0, bondCount * 2);
@@ -6730,7 +6669,43 @@
         window.updateDashboard = function() {
             const dash = document.getElementById('block-dashboard');
             if (!dash || !window.taskPoints || window.taskPoints.length === 0) return;
-            if (!window._dashboardVisible) return;
+            dash.classList.add('visible');
+
+            const BLOCK_COLORS = {
+                'analysis': 0x4D96FF,
+                'design': 0xC084FC,
+                'build': 0xFF8C42,
+                'sales': 0x4ECDC4
+            };
+
+            // Group tasks by block (based on their phase color)
+            const blocks = { analysis: {done:0,total:0}, design: {done:0,total:0}, build: {done:0,total:0}, sales: {done:0,total:0} };
+            window.taskPoints.forEach(tp => {
+                if (tp.level === 0) return; // Skip phase nodes
+                const color = getPhaseColor(tp.phase || 'General');
+                let block = 'analysis';
+                if (color === 0xC084FC) block = 'design';
+                else if (color === 0xFF8C42) block = 'build';
+                else if (color === 0x4ECDC4) block = 'sales';
+                blocks[block].total++;
+                if (tp.status === 'completed') blocks[block].done++;
+            });
+
+            Object.keys(blocks).forEach(key => {
+                const row = dash.querySelector('[data-block="' + key + '"]');
+                if (!row) return;
+                const b = blocks[key];
+                const pct = b.total > 0 ? Math.round(b.done / b.total * 100) : 0;
+                row.querySelector('.dash-pct').textContent = pct + '%';
+                row.querySelector('.dash-bar-fill').style.width = pct + '%';
+            });
+        };
+
+                // Dashboard: update block progress bars
+        window.updateDashboard = function() {
+            const dash = document.getElementById('block-dashboard');
+            if (!dash || !window.taskPoints || window.taskPoints.length === 0) return;
+            dash.classList.add('visible');
 
             const BLOCK_COLORS = {
                 'analysis': 0x4D96FF,
@@ -6894,59 +6869,130 @@
             // Opacity handled by animate loop via _focusedPhase
         }
 
-        // v3.33: Blender/Rhino-style orbit pivot
-        // Click task → orbit around it. Click empty → reset to origin.
-        // Camera STAYS where it is. Only the pivot point changes.
-        window._orbitPivotTask = null; // currently focused task (or null)
+        // v3.33: Blender-style orbit pivot
+        // THREE.js r160 OrbitControls stores sphericalDelta/panOffset/scale as closure vars
+        // (NOT instance properties) — can't clear them directly from outside.
+        // Solution: flush residual deltas via update() with damping OFF before animation,
+        // and keep damping OFF during orbit mode for direct Blender-like control.
+        window._orbitPivotTask = null;
+        window._isFlyAnimating = false;
+
+        // Helper: flush all residual OrbitControls momentum
+        // Temporarily disables damping so update() consumes deltas fully (reset to 0)
+        function flushControlsDeltas() {
+            const wasDamping = controls.enableDamping;
+            controls.enableDamping = false;
+            controls.update(); // with damping OFF, deltas are applied fully and zeroed
+            controls.enableDamping = wasDamping;
+        }
 
         window.flyToTask = function(task) {
             if (!task || !task.mesh) return;
             window._orbitPivotTask = task;
+            window._isFlyAnimating = true;
 
-            const tp = task.mesh.position;
-            const targetPos = new THREE.Vector3(tp.x, tp.y, tp.z);
+            // Reset group rotation so local coords = world coords
+            group.rotation.set(0, 0, 0);
+            mom.x = 0; mom.y = 0;
+
+            // 1. Disable controls and flush any accumulated deltas
+            controls.enabled = false;
+            flushControlsDeltas();
+
+            // Capture start state AFTER flush (clean camera position)
+            const targetPos = new THREE.Vector3();
+            task.mesh.getWorldPosition(targetPos);
             const startTarget = controls.target.clone();
-            const duration = 400; // fast pivot change
+            const startCamPos = camera.position.clone();
+
+            // Direction from task to camera
+            const approachDir = startCamPos.clone().sub(targetPos);
+            if (approachDir.length() < 0.001) approachDir.set(0, 0, 1);
+            approachDir.normalize();
+
+            // Camera 60 units from task (close orbit distance)
+            const orbitRadius = 60;
+            const endCamPos = targetPos.clone().add(approachDir.multiplyScalar(orbitRadius));
+
+            const duration = 600;
             const startTime = Date.now();
-
-            // Enable OrbitControls zoom when focused on a task
-            controls.enableZoom = true;
-
-            lastInteractTime = Date.now() + 10000;
 
             function animatePivot() {
                 const elapsed = Date.now() - startTime;
                 const t = Math.min(elapsed / duration, 1);
                 const ease = 1 - Math.pow(1 - t, 3);
 
+                // 2. Animate both (NO controls.update during animation)
+                camera.position.lerpVectors(startCamPos, endCamPos, ease);
                 controls.target.lerpVectors(startTarget, targetPos, ease);
-                controls.update();
+                camera.lookAt(controls.target);
 
-                if (t < 1) requestAnimationFrame(animatePivot);
-                else lastInteractTime = Date.now();
+                if (t < 1) {
+                    requestAnimationFrame(animatePivot);
+                } else {
+                    // 3. Hand off to OrbitControls — damping OFF for direct control
+                    controls.enableDamping = false;
+                    controls.enableZoom = true;
+                    controls.enablePan = false;
+                    controls.minDistance = 20;
+                    controls.maxDistance = 200;
+                    controls.enabled = true;
+                    controls.update(); // sync internal spherical state
+                    window._isFlyAnimating = false;
+                    lastInteractTime = Date.now();
+                }
             }
             animatePivot();
         };
 
         window.resetOrbitPivot = function() {
+            if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                window._orbitPivotTask.mesh.scale.setScalar(1.0);
+                if (window._orbitPivotTask.mesh.userData.material) {
+                    window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
+                }
+            }
             window._orbitPivotTask = null;
+            window._isFlyAnimating = true;
+
+            controls.enabled = false;
+            flushControlsDeltas();
 
             const startTarget = controls.target.clone();
+            const startCamPos = camera.position.clone();
             const originTarget = new THREE.Vector3(0, 0, 0);
-            const duration = 400;
-            const startTime = Date.now();
 
-            controls.enableZoom = false; // back to manual zoom
+            const backDir = startCamPos.clone().sub(originTarget);
+            if (backDir.length() < 0.001) backDir.set(0, 0, 1);
+            backDir.normalize();
+            const endCamPos = originTarget.clone().add(backDir.multiplyScalar(200));
+
+            const duration = 500;
+            const startTime = Date.now();
 
             function animateReset() {
                 const elapsed = Date.now() - startTime;
                 const t = Math.min(elapsed / duration, 1);
                 const ease = 1 - Math.pow(1 - t, 3);
 
+                camera.position.lerpVectors(startCamPos, endCamPos, ease);
                 controls.target.lerpVectors(startTarget, originTarget, ease);
-                controls.update();
+                camera.lookAt(controls.target);
 
-                if (t < 1) requestAnimationFrame(animateReset);
+                if (t < 1) {
+                    requestAnimationFrame(animateReset);
+                } else {
+                    // Restore damping for overview mode
+                    controls.enableDamping = true;
+                    controls.dampingFactor = 0.05;
+                    controls.enableZoom = false;
+                    controls.enablePan = true;
+                    controls.minDistance = 30;
+                    controls.maxDistance = 800;
+                    controls.enabled = true;
+                    controls.update();
+                    window._isFlyAnimating = false;
+                }
             }
             animateReset();
         };
@@ -7100,11 +7146,7 @@
                 if (window.buildPhaseNav) window.buildPhaseNav();
                 // Update dashboard
                 if (window.updateDashboard) window.updateDashboard();
-n                // v3.35: Create matrix bonds after DB load
-                setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
-                // Update dashboard
-                if (window.updateDashboard) window.updateDashboard();
-n                // v3.35: Create matrix bonds after DB load
+                // v3.35: Create matrix bonds after DB load
                 setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
 
             } catch (e) {
@@ -7146,8 +7188,6 @@ n                // v3.35: Create matrix bonds after DB load
             // Update phase progress + dashboard
             updatePhaseProgress(task.phase);
             if (window.updateDashboard) window.updateDashboard();
-n                // v3.35: Create matrix bonds after DB load
-                setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
 
             // Update task list panel if visible
             if (window.updateTaskListContent) window.updateTaskListContent();
@@ -7257,7 +7297,7 @@ n                // v3.35: Create matrix bonds after DB load
                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
                                 Агент
                             </span>
-                            <span style="color:#00ffff;">${data.agent || 'Не назначен'}</span>
+                            <span style="color:#4ECDC4;">${data.agent || 'Не назначен'}</span>
                         </div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <span style="color:rgba(255,255,255,0.5);">
@@ -7377,7 +7417,7 @@ n                // v3.35: Create matrix bonds after DB load
                 bottom: 20px;
                 left: 50%;
                 transform: translateX(-50%);
-                background: rgba(0, 255, 255, 0.9);
+                background: rgba(78, 205, 196, 0.9);
                 color: #000;
                 padding: 10px 20px;
                 border-radius: 8px;
@@ -7413,8 +7453,15 @@ n                // v3.35: Create matrix bonds after DB load
             const intersects = raycasterTasks.intersectObjects(meshes);
 
             if (intersects.length === 0) {
-                // Clicked empty space — reset orbit pivot + highlights
-                if (window.resetOrbitPivot) window.resetOrbitPivot();
+                // Clicked empty space — clear selection highlight but KEEP orbit pivot (Blender-style)
+                // Reset scale of previously selected task
+                if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                    window._orbitPivotTask.mesh.scale.setScalar(1.0);
+                    if (window._orbitPivotTask.mesh.userData.material) {
+                        window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
+                    }
+                }
+                window._orbitPivotTask = null;
                 if (window.highlightTaskConnections) {
                     window.highlightTaskConnections(null);
                 }
@@ -7949,7 +7996,7 @@ n                // v3.35: Create matrix bonds after DB load
         // ===== PORT COLORS (согласно плану) =====
         const portColors = {
             'string': '#FFD93D',     // жёлтый
-            'number': '#00ffff',     // бирюзовый
+            'number': '#4ECDC4',     // бирюзовый
             'boolean': '#FFFFFF',    // белый
             'date': '#9B59B6',       // фиолетовый
             'file': '#6BCB77',       // зелёный
@@ -7958,9 +8005,9 @@ n                // v3.35: Create matrix bonds after DB load
             'geo': '#1ABC9C',        // морской
             'bundle': '#FF6B6B',     // коралловый
             'reference': '#95A5A6',  // серый
-            'data': '#00ffff',       // бирюзовый (алиас для object)
+            'data': '#4ECDC4',       // бирюзовый (алиас для object)
             'document': '#6BCB77',   // зелёный (алиас для file)
-            'closure': '#00ffff',    // бирюзовый (агент)
+            'closure': '#4ECDC4',    // бирюзовый (агент)
             'trigger': '#FF69B4'     // розовый (flow/сигнал) — для цепочки задач
         };
 
@@ -7993,7 +8040,7 @@ n                // v3.35: Create matrix bonds after DB load
                 svg.innerHTML = `
                     <defs>
                         <linearGradient id="wireGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" style="stop-color:#00ffff;stop-opacity:0.8"/>
+                            <stop offset="0%" style="stop-color:#4ECDC4;stop-opacity:0.8"/>
                             <stop offset="100%" style="stop-color:#FF6B6B;stop-opacity:0.8"/>
                         </linearGradient>
                     </defs>
@@ -8465,7 +8512,7 @@ n                // v3.35: Create matrix bonds after DB load
             if (nodeEl) {
                 const settingRow = nodeEl.querySelector(`[data-setting="${settingKey}"]`);
                 if (settingRow) {
-                    settingRow.style.background = 'rgba(0, 255, 255, 0.15)';
+                    settingRow.style.background = 'rgba(78, 205, 196, 0.15)';
                     setTimeout(() => {
                         settingRow.style.background = '';
                     }, 300);
@@ -8810,11 +8857,11 @@ n                // v3.35: Create matrix bonds after DB load
 
             const tempLine = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             tempLine.setAttribute('id', 'temp-connection');
-            tempLine.setAttribute('stroke', '#00ffff');
+            tempLine.setAttribute('stroke', '#4ECDC4');
             tempLine.setAttribute('stroke-width', '2.5');
             tempLine.setAttribute('fill', 'none');
             tempLine.setAttribute('stroke-dasharray', '8,4');
-            tempLine.style.filter = 'drop-shadow(0 0 4px #00ffff)';
+            tempLine.style.filter = 'drop-shadow(0 0 4px #4ECDC4)';
             svg.appendChild(tempLine);
             console.log('🔗 Temp line created');
 
@@ -9198,10 +9245,19 @@ n                // v3.35: Create matrix bonds after DB load
 
         // v3.35: TOGGLE GRAPH
         window.graphVisible = false;
-        function toggleGraph() {
+        window.toggleGraph = function() {
             var btn = document.getElementById('graph-toggle-btn');
             if (!btn || btn.classList.contains('dragging')) return;
             if (!window.bondMesh) { console.warn('[VZOR] No bondMesh'); return; }
+
+            // При первом включении — создать матричные bonds если ещё не созданы
+            if (!window._matrixBondsCreated && window.createMatrixBonds) {
+                var before = window.task3DConnections ? window.task3DConnections.length : 0;
+                window.createMatrixBonds();
+                var after = window.task3DConnections ? window.task3DConnections.length : 0;
+                window._matrixBondsCreated = true;
+                console.log('[VZOR] Matrix bonds created: ' + (after - before) + ' new bonds (total: ' + after + ')');
+            }
 
             window.graphVisible = !window.graphVisible;
             window.bondMesh.visible = window.graphVisible;
@@ -9209,69 +9265,51 @@ n                // v3.35: Create matrix bonds after DB load
             if (window.graphVisible) btn.classList.add('active');
             else btn.classList.remove('active');
 
-            console.log('[VZOR] Graph ' + (window.graphVisible ? 'ON' : 'OFF'));
-        }
-        // v3.37b: Toggle progress dashboard
-        window._dashboardVisible = false;
-        function toggleDashboard() {
-            var dash = document.getElementById('block-dashboard');
-            if (!dash) return;
-            window._dashboardVisible = !window._dashboardVisible;
-            if (window._dashboardVisible) {
-                dash.classList.add('visible');
-                if (window.updateDashboard) window.updateDashboard();
-                var btn = document.getElementById('progress-icon-btn');
-                if (btn) btn.classList.add('active');
-            } else {
-                dash.classList.remove('visible');
-                var btn = document.getElementById('progress-icon-btn');
-                if (btn) btn.classList.remove('active');
-            }
-        }
+            console.log('[VZOR] Graph ' + (window.graphVisible ? 'ON' : 'OFF') + ', bonds: ' + (window.task3DConnections ? window.task3DConnections.length : 0));
+        };
 
-
-        // v3.35: GRAPH DRAG
+        // v3.35: GRAPH DRAG (click handled by onclick attr, drag suppresses click via dragging class)
         setTimeout(function() {
             var btn = document.getElementById('graph-toggle-btn');
             if (!btn) return;
 
-            var dragging = false, startX, startY, startLeft, startTop;
+            var startX, startY, startLeft, startTop, moved = false;
 
-            btn.onmousedown = function(e) {
+            btn.addEventListener('mousedown', function(e) {
                 if (e.button !== 0) return;
+                moved = false;
                 var rect = btn.getBoundingClientRect();
                 startX = e.clientX; startY = e.clientY;
                 startLeft = rect.left; startTop = rect.top;
+
+                function onMove(e) {
+                    var dx = e.clientX - startX, dy = e.clientY - startY;
+                    if (!moved && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+                        moved = true;
+                        btn.classList.add('dragging');
+                        btn.style.cursor = 'grabbing';
+                    }
+                    if (moved) {
+                        btn.style.left = (startLeft + dx) + 'px';
+                        btn.style.top = (startTop + dy) + 'px';
+                        btn.style.right = 'auto';
+                    }
+                }
+
+                function onUp() {
+                    document.removeEventListener('mousemove', onMove);
+                    document.removeEventListener('mouseup', onUp);
+                    if (moved) {
+                        setTimeout(function() {
+                            btn.classList.remove('dragging');
+                            btn.style.cursor = 'grab';
+                        }, 50);
+                    }
+                }
+
                 document.addEventListener('mousemove', onMove);
                 document.addEventListener('mouseup', onUp);
-                e.preventDefault();
-            };
-
-            function onMove(e) {
-                var dx = e.clientX - startX, dy = e.clientY - startY;
-                if (!dragging && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
-                    dragging = true;
-                    btn.classList.add('dragging');
-                    btn.style.cursor = 'grabbing';
-                }
-                if (dragging) {
-                    btn.style.left = (startLeft + dx) + 'px';
-                    btn.style.top = (startTop + dy) + 'px';
-                    btn.style.right = 'auto';
-                }
-            }
-
-            function onUp(e) {
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('mouseup', onUp);
-                if (dragging) {
-                    setTimeout(function() {
-                        dragging = false;
-                        btn.classList.remove('dragging');
-                        btn.style.cursor = 'grab';
-                    }, 50);
-                }
-            }
+            });
         }, 500);
 
         
@@ -9841,7 +9879,7 @@ async function sendToAgentZero(message) {
         <div class="chat-resize-handle resize-corner-bl"></div>
         <div class="chat-resize-handle resize-corner-br"></div>
         <div id="agent-chat-header">
-            <div id="agent-chat-title">VZOR BUILDER</div>
+            <div id="agent-chat-title">AGENT VZOR</div>
             <button id="agent-chat-close">×</button>
         </div>
         <div id="agent-model-bar" title="LLM brain selector">
@@ -9853,7 +9891,7 @@ async function sendToAgentZero(message) {
         <div id="agent-model-dropdown">
             <div id="agent-model-tabs">
                 <button class="model-tab active" data-tab="direct">Direct</button>
-                <button class="model-tab" data-tab="openrouter" id="agent-tab-or">OpenRouter</button>
+                <button class="model-tab" data-tab="openrouter">OpenRouter</button>
             </div>
             <div class="model-list" id="model-list-direct">
                 <div class="model-item" data-id="agent-zero" data-label="AgentVzor.0" data-icon="V0" style="border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:4px;padding-bottom:8px">
@@ -9911,12 +9949,11 @@ async function sendToAgentZero(message) {
                     <line x1="8" y1="23" x2="16" y2="23"></line>
                 </svg>
             </button>
-            <button id="agent-chat-send">&#10148;</button>
         </div>
     </div>
 
     <!-- Кнопка открытия чата -->
-    <button id="agent-chat-toggle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"></rect><circle cx="12" cy="5" r="4"></circle><line x1="8" y1="16" x2="8" y2="16"></line><line x1="16" y1="16" x2="16" y2="16"></line></svg>BLD</button>
+    <button id="agent-chat-toggle">V</button>
 
     <script>
     // ===== AGENT CHAT PANEL — Full functionality =====
@@ -9927,7 +9964,6 @@ async function sendToAgentZero(message) {
         const chatInput = document.getElementById('agent-chat-input');
         const chatMessages = document.getElementById('agent-chat-messages');
         const chatMicBtn = document.getElementById('agent-mic-btn');
-        const chatSendBtn = document.getElementById('agent-chat-send');
         const chatHeader = document.getElementById('agent-chat-header');
         if (!toggle || !panel) return;
 
@@ -10015,7 +10051,6 @@ async function sendToAgentZero(message) {
                 panel.classList.toggle('active');
                 if (isOpening) {
                     positionPanel();
-                    fetchBalances();
                     if (chatInput) setTimeout(function() { chatInput.focus(); }, 100);
                 }
             }
@@ -10267,7 +10302,6 @@ async function sendToAgentZero(message) {
                 e.stopPropagation();
                 modelDropdown.classList.toggle('open');
                 modelArrow.style.transform = modelDropdown.classList.contains('open') ? 'rotate(180deg)' : '';
-                if (modelDropdown.classList.contains('open')) fetchBalances();
             });
 
             var mTabs = modelDropdown.querySelectorAll('.model-tab');
@@ -10309,129 +10343,6 @@ async function sendToAgentZero(message) {
                 modelArrow.style.transform = '';
             });
             modelDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
-        }
-
-        function fetchBalances() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/api/oc-balance', true);
-            xhr.timeout = 10000;
-            xhr.onload = function() {
-                try {
-                    var b = JSON.parse(xhr.responseText);
-                    var directItems = document.querySelectorAll('#model-list-direct .model-item');
-                    directItems.forEach(function(item) {
-                        var tag = item.querySelector('.mi-tag');
-                        if (!tag) return;
-                        var mid = item.getAttribute('data-id') || '';
-                        if (mid === 'deepseek' && b.deepseek != null) {
-                            tag.textContent = '$' + b.deepseek.toFixed(2);
-                            tag.style.color = b.deepseek > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
-                        } else if (mid === 'gemini') {
-                            tag.textContent = b.google || 'free';
-                            tag.style.color = 'rgba(100,200,255,0.7)';
-                        } else if (mid === 'claude') {
-                            tag.textContent = b.anthropic != null ? '$' + b.anthropic.toFixed(2) : 'no key';
-                            tag.style.color = b.anthropic != null ? 'rgba(100,255,100,0.7)' : 'rgba(255,255,255,0.3)';
-                        }
-                    });
-                    var orTab = document.getElementById('agent-tab-or');
-                    if (orTab && b.openrouter != null) {
-                        orTab.textContent = 'OpenRouter — $' + b.openrouter.toFixed(2);
-                    }
-                    var orItems = document.querySelectorAll('#model-list-openrouter .model-item');
-                    orItems.forEach(function(item) {
-                        var tag = item.querySelector('.mi-tag');
-                        if (!tag) return;
-                        if (b.openrouter != null) {
-                            tag.textContent = '$' + b.openrouter.toFixed(2);
-                            tag.style.color = b.openrouter > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
-                        }
-                    });
-                } catch(e) {}
-            };
-            xhr.send();
-        }
-
-        function fetchBalances() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/api/oc-balance', true);
-            xhr.timeout = 10000;
-            xhr.onload = function() {
-                try {
-                    var b = JSON.parse(xhr.responseText);
-                    var directItems = document.querySelectorAll('#model-list-direct .model-item');
-                    directItems.forEach(function(item) {
-                        var tag = item.querySelector('.mi-tag');
-                        if (!tag) return;
-                        var mid = item.getAttribute('data-id') || '';
-                        if (mid === 'deepseek' && b.deepseek != null) {
-                            tag.textContent = '$' + b.deepseek.toFixed(2);
-                            tag.style.color = b.deepseek > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
-                        } else if (mid === 'gemini') {
-                            tag.textContent = b.google || 'free';
-                            tag.style.color = 'rgba(100,200,255,0.7)';
-                        } else if (mid === 'claude') {
-                            tag.textContent = b.anthropic != null ? '$' + b.anthropic.toFixed(2) : 'no key';
-                            tag.style.color = b.anthropic != null ? 'rgba(100,255,100,0.7)' : 'rgba(255,255,255,0.3)';
-                        }
-                    });
-                    var orTab = document.getElementById('agent-tab-or');
-                    if (orTab && b.openrouter != null) {
-                        orTab.textContent = 'OpenRouter — $' + b.openrouter.toFixed(2);
-                    }
-                    var orItems = document.querySelectorAll('#model-list-openrouter .model-item');
-                    orItems.forEach(function(item) {
-                        var tag = item.querySelector('.mi-tag');
-                        if (!tag) return;
-                        if (b.openrouter != null) {
-                            tag.textContent = '$' + b.openrouter.toFixed(2);
-                            tag.style.color = b.openrouter > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
-                        }
-                    });
-                } catch(e) {}
-            };
-            xhr.send();
-        }
-
-        function fetchBalances() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/api/oc-balance', true);
-            xhr.timeout = 10000;
-            xhr.onload = function() {
-                try {
-                    var b = JSON.parse(xhr.responseText);
-                    var directItems = document.querySelectorAll('#model-list-direct .model-item');
-                    directItems.forEach(function(item) {
-                        var tag = item.querySelector('.mi-tag');
-                        if (!tag) return;
-                        var mid = item.getAttribute('data-id') || '';
-                        if (mid === 'deepseek' && b.deepseek != null) {
-                            tag.textContent = '$' + b.deepseek.toFixed(2);
-                            tag.style.color = b.deepseek > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
-                        } else if (mid === 'gemini') {
-                            tag.textContent = b.google || 'free';
-                            tag.style.color = 'rgba(100,200,255,0.7)';
-                        } else if (mid === 'claude') {
-                            tag.textContent = b.anthropic != null ? '$' + b.anthropic.toFixed(2) : 'no key';
-                            tag.style.color = b.anthropic != null ? 'rgba(100,255,100,0.7)' : 'rgba(255,255,255,0.3)';
-                        }
-                    });
-                    var orTab = document.getElementById('agent-tab-or');
-                    if (orTab && b.openrouter != null) {
-                        orTab.textContent = 'OpenRouter — $' + b.openrouter.toFixed(2);
-                    }
-                    var orItems = document.querySelectorAll('#model-list-openrouter .model-item');
-                    orItems.forEach(function(item) {
-                        var tag = item.querySelector('.mi-tag');
-                        if (!tag) return;
-                        if (b.openrouter != null) {
-                            tag.textContent = '$' + b.openrouter.toFixed(2);
-                            tag.style.color = b.openrouter > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
-                        }
-                    });
-                } catch(e) {}
-            };
-            xhr.send();
         }
 
         async function sendMessage(text) {
@@ -10596,64 +10507,41 @@ async function sendToAgentZero(message) {
             });
         }
 
-        // --- Voice input for chat (continuous + interim) ---
+        // --- Voice input for chat ---
         if (chatMicBtn && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
-            var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            var chatRecog = new SR();
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            const chatRecog = new SR();
             chatRecog.lang = 'ru-RU';
-            chatRecog.continuous = true;
-            chatRecog.interimResults = true;
-            var chatRecording = false;
-            var savedInputText = '';
+            chatRecog.continuous = false;
+            chatRecog.interimResults = false;
+            let chatRecording = false;
 
             chatMicBtn.addEventListener('click', function() {
                 if (!chatRecording) {
                     chatRecording = true;
-                    savedInputText = chatInput.value;
                     chatRecog.start();
                     chatMicBtn.classList.add('listening');
-                    chatInput.placeholder = 'Говорите...';
                 } else {
                     chatRecog.stop();
                 }
             });
 
             chatRecog.onresult = function(e) {
-                var final = '';
-                var interim = '';
-                for (var i = 0; i < e.results.length; i++) {
-                    if (e.results[i].isFinal) {
-                        final += e.results[i][0].transcript;
-                    } else {
-                        interim += e.results[i][0].transcript;
-                    }
-                }
-                var full = (savedInputText ? savedInputText + ' ' : '') + final + interim;
-                chatInput.value = full;
-                chatInput.style.color = interim ? 'rgba(0,255,255,0.6)' : '';
+                const text = e.results[0][0].transcript;
+                chatRecording = false;
+                chatMicBtn.classList.remove('listening');
+                sendMessage(text);
             };
 
             chatRecog.onerror = function() {
                 chatRecording = false;
                 chatMicBtn.classList.remove('listening');
-                chatInput.placeholder = 'Спросите Agent VZOR...';
-                chatInput.style.color = '';
             };
 
             chatRecog.onend = function() {
                 chatRecording = false;
                 chatMicBtn.classList.remove('listening');
-                chatInput.placeholder = 'Спросите Agent VZOR...';
-                chatInput.style.color = '';
-                chatInput.focus();
             };
-        }
-
-        // --- Send button ---
-        if (chatSendBtn) {
-            chatSendBtn.addEventListener('click', function() {
-                sendMessage(chatInput.value);
-            });
         }
     })();
     </script>
@@ -10661,7 +10549,7 @@ async function sendToAgentZero(message) {
 
 
 
-    <!-- OpenClaw Chat Panel -->
+<!-- OpenClaw Chat Panel -->
     <div id="oc-chat-panel">
         <div class="oc-resize-handle resize-top"></div>
         <div class="oc-resize-handle resize-left"></div>
@@ -10699,7 +10587,7 @@ async function sendToAgentZero(message) {
             </div>
             <div class="oc-model-list" id="oc-model-list-openrouter" style="display:none">
                 <div class="oc-model-item" data-id="openrouter/anthropic/claude-sonnet-4.5" data-label="Claude Sonnet 4.5" data-icon="CL">
-                    <span class="oc-mi-icon">CL</span><span class="oc-mi-name">Claude Sonnet 4</span><span class="oc-mi-tag">claude</span>
+                    <span class="oc-mi-icon">CL</span><span class="oc-mi-name">Claude Sonnet 4.5</span><span class="oc-mi-tag">claude</span>
                 </div>
                 <div class="oc-model-item" data-id="openrouter/openai/gpt-4o" data-label="GPT-4o" data-icon="4o">
                     <span class="oc-mi-icon">4o</span><span class="oc-mi-name">GPT-4o</span><span class="oc-mi-tag">gpt4</span>
@@ -11432,7 +11320,6 @@ async function sendToAgentZero(message) {
         }
     })();
     </script>
-
     <div id="version-badge" style="position:fixed;bottom:8px;right:8px;color:rgba(255,255,255,0.6);font-size:11px;font-family:Outfit,sans-serif;pointer-events:none;z-index:9999;">v3.31</div>
 </body>
 
