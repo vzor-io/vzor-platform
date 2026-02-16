@@ -467,3 +467,8 @@ async def revoke_guest(guest_id: int):
             UPDATE vzor_guests SET is_active = FALSE WHERE id = $1
         """, guest_id)
         return {"status": "revoked", "guest_id": guest_id}
+
+async def activate_guest(guest_id):
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("UPDATE vzor_guests SET is_active = TRUE WHERE id = $1", guest_id)

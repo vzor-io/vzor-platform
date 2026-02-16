@@ -92,7 +92,7 @@ body { font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; background:v
 .pill { display:inline-block; padding:2px 8px; font-size:9px; border-radius:10px; letter-spacing:1px; text-transform:uppercase; margin-right:8px; }
 .pill.active { background:rgba(34,197,94,0.1); color:var(--green); }
 .pill.expired { background:rgba(239,68,68,0.1); color:var(--red); }
-.pill.revoked { background:rgba(107,114,128,0.1); color:#6B7280; }
+.pill.stopped { background:rgba(239,68,68,0.1); color:var(--red); }
 .dots-btn { background:none; border:none; color:var(--text3); cursor:pointer; font-size:18px; padding:4px 8px; border-radius:6px; }
 .dots-btn:hover { background:rgba(255,255,255,0.05); color:var(--text); }
 
@@ -116,8 +116,10 @@ body { font-family:-apple-system,'Helvetica Neue',Arial,sans-serif; background:v
 .dbtn.extend:hover { border-color:var(--green); }
 .dbtn.download { color:var(--accent); border-color:rgba(59,130,246,0.2); }
 .dbtn.download:hover { border-color:var(--accent); }
-.dbtn.revoke { color:var(--red); border-color:rgba(239,68,68,0.15); }
-.dbtn.revoke:hover { border-color:var(--red); }
+.dbtn.stop { color:var(--red); border-color:rgba(239,68,68,0.15); }
+.dbtn.stop:hover { border-color:var(--red); background:rgba(239,68,68,0.08); }
+.dbtn.start { color:var(--green); border-color:rgba(34,197,94,0.15); }
+.dbtn.start:hover { border-color:var(--green); background:rgba(34,197,94,0.08); }
 .dbtn.share { color:var(--text3); }
 .dbtn.share:hover { color:var(--text2); border-color:var(--text3); }
 .dbtn.delete { color:var(--red); border-color:rgba(239,68,68,0.15); }
@@ -265,8 +267,8 @@ async function loadAll(){
     for(var i=0;i<list.length;i++){
         var g=list[i];
         var now=new Date(), exp=new Date(g.expires_at), isExp=exp<now;
-        var st=!g.is_active?"revoked":isExp?"expired":"active";
-        var stLabel=!g.is_active?"revoked":isExp?"expired":"active";
+        var st=!g.is_active?"stopped":isExp?"expired":"active";
+        var stLabel=!g.is_active?"stopped":isExp?"expired":"active";
 
         html+='<div class="guest" id="g-'+g.id+'">'
             +'<div class="guest-row" onclick="toggle('+g.id+')">'
@@ -297,7 +299,12 @@ async function loadAll(){
                 +'<input type="number" id="ext-'+g.id+'" value="30" min="1" max="999" onclick="event.stopPropagation()" style="width:52px;padding:4px 6px;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);outline:none;text-align:center;font-family:inherit">'
                 +'<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+')">+ days</button>'
                 +'</span>'
-                +'<button class="dbtn revoke" onclick="event.stopPropagation();revokeG('+g.id+')">Revoke</button>';
+                ;
+        if(g.is_active){
+            html+='<button class="dbtn stop" onclick="event.stopPropagation();stopG('+g.id+')">Stop</button>';
+        } else {
+            html+='<button class="dbtn start" onclick="event.stopPropagation();startG('+g.id+')">Start</button>';
+        }
         }
         if(true){
             html+='<button class="dbtn delete" onclick="event.stopPropagation();deleteG('+g.id+')">Delete</button>';
@@ -359,21 +366,16 @@ async function extendG(id){
     openGuests={}; loadAll();
 }
 
-async function revokeG(id){
-    if(!confirm("Revoke access for this guest?")) return;
-    await fetch("/api/admin/guests/"+id,{method:"DELETE",headers:{"X-Admin-Secret":S}});
-    openGuests={}; loadAll();
+async function stopG(id){
+    if(!confirm('Stop access for this guest?')) return;
+    await fetch('/api/admin/guests/'+id,{method:'DELETE',headers:{'X-Admin-Secret':S}});
+    loadGuests();
 }
-
-async function saveGuest(id){
-    var name=(document.getElementById("en-"+id)||{}).value||"";
-    var email=(document.getElementById("ee-"+id)||{}).value||"";
-    await fetch("/api/admin/guests/"+id,{method:"PATCH",headers:{"Content-Type":"application/json","X-Admin-Secret":S},body:JSON.stringify({name:name,email:email})});
-    var b=document.getElementById("sv-"+id);
-    if(b){ b.textContent="Saved!"; b.classList.add("done"); setTimeout(function(){ b.textContent="Save"; b.classList.remove("done"); },1500); }
-    openGuests={}; loadAll();
+async function startG(id){
+    if(!confirm('Reactivate access for this guest?')) return;
+    await fetch('/api/admin/guests/'+id+'/activate',{method:'POST',headers:{'X-Admin-Secret':S}});
+    loadGuests();
 }
-
 async function deleteG(id){
     if(!confirm("Permanently delete this guest?")) return;
     await fetch("/api/admin/guests/"+id+"/delete",{method:"POST",headers:{"X-Admin-Secret":S}});
