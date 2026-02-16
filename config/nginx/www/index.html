@@ -5813,15 +5813,27 @@
             bondPositions[base + 4] = toTask.mesh.position.y;
             bondPositions[base + 5] = toTask.mesh.position.z;
 
-            // v3.33: ONLY trunk bonds visible. L1→L2 = invisible (proximity = connection)
-            const isTrunk = bondType === 'tree' || bondType === 'backbone';
-            const brightness = 0.38; // molecular bonds invisible
-            bondColors[base]     = brightness;
-            bondColors[base + 1] = brightness;
-            bondColors[base + 2] = brightness;
-            bondColors[base + 3] = brightness;
-            bondColors[base + 4] = brightness;
-            bondColors[base + 5] = brightness;
+            // v3.37: Bond brightness by type
+            var brightness, r, g, b;
+            if (bondType === 'backbone') {
+                // L1-L1 backbone: bright white
+                r = 0.7; g = 0.7; b = 0.7;
+            } else if (bondType === 'matrix') {
+                // Cross-block: cyan accent
+                r = 0.2; g = 0.7; b = 0.8;
+            } else if (bondType === 'tree') {
+                // L1-L2: medium
+                r = 0.4; g = 0.4; b = 0.4;
+            } else {
+                // molecular (L2-L2 sequential): dim
+                r = 0.25; g = 0.25; b = 0.25;
+            }
+            bondColors[base]     = r;
+            bondColors[base + 1] = g;
+            bondColors[base + 2] = b;
+            bondColors[base + 3] = r;
+            bondColors[base + 4] = g;
+            bondColors[base + 5] = b;
 
             bondCount++;
             bondGeometry.setDrawRange(0, bondCount * 2);
@@ -7096,7 +7108,22 @@
                     }
                 });
 
-                // v3.33: NO dependency bonds — pure tree only (Gource-style)
+                // v3.37: Draw DB dependency bonds (sequential chains + cross-subblock)
+                if (data.dependencies && data.dependencies.length > 0) {
+                    data.dependencies.forEach(function(dep) {
+                        var fromTask = taskIdMap[dep.from];
+                        var toTask = taskIdMap[dep.to];
+                        if (fromTask && toTask) {
+                            // Determine bond type by task levels
+                            var fLevel = fromTask.level || 1;
+                            var tLevel = toTask.level || 1;
+                            var btype = 'molecular'; // default: L2-L2
+                            if (fLevel <= 1 && tLevel <= 1) btype = 'backbone'; // L1-L1
+                            else if (fLevel <= 1 || tLevel <= 1) btype = 'tree'; // L1-L2
+                            window.connect3DTasks(fromTask.id, toTask.id, btype);
+                        }
+                    });
+                }
 
                 const _bc2 = window.task3DConnections ? window.task3DConnections.length : 0;
                 console.log('[VZOR v3.31] DB loaded', Object.keys(taskIdMap).length, 'tasks,', _bc2, 'bonds. NODE_RADII:', JSON.stringify(NODE_RADII));
