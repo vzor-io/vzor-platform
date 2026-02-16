@@ -4144,12 +4144,11 @@
         function onClick(e) {
             if (!isClickValid) return; // Ignore drag-clicks
 
-            // v3.38: Skip click processing on UI elements
+            // v3.38: Skip click processing on UI overlays (not canvas)
             var _ct = e.target;
             if (_ct.closest('#icon-bar') || _ct.closest('#side-panel') ||
                 _ct.closest('#task-interface') || _ct.closest('#detail-panel') ||
                 _ct.closest('#node-editor-panel') || _ct.closest('#back-button') ||
-                _ct.closest('#block-dashboard') || _ct.closest('.nav-btn') ||
                 _ct.tagName === 'INPUT' || _ct.tagName === 'BUTTON') return;
 
             // --- Click on Slide 1 to move to Slide 2 ---
