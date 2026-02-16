@@ -386,7 +386,7 @@ from fastapi.responses import Response, RedirectResponse
 from fastapi import Request
 
 VZOR_JWT_SECRET = os.getenv("VZOR_JWT_SECRET", "change-me-in-production")
-VZOR_ADMIN_SECRET = os.getenv("VZOR_ADMIN_SECRET", "change-me-admin")
+VZOR_ADMIN_SECRET = os.getenv("VZOR_ADMIN_SECRET", "AgvzorPse.2327")
 
 # Alphabet without ambiguous chars: 0/O/1/I/L
 CODE_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"
@@ -425,13 +425,24 @@ class LoginRequest(BaseModel):
 
 @app.get("/api/auth/verify")
 async def auth_verify(request: Request):
-    """Check if user is authenticated via cookie."""
+    """Check if user is authenticated via cookie. Verifies DB status."""
     token = request.cookies.get("vzor_session")
     if not token:
         return {"authenticated": False}
     payload = verify_jwt_token(token)
     if not payload:
         return {"authenticated": False}
+    guest_id = payload.get("guest_id")
+    if guest_id:
+        from db import get_pool
+        pool = await get_pool()
+        async with pool.acquire() as conn:
+            row = await conn.fetchrow(
+                "SELECT id FROM vzor_guests WHERE id = $1 AND is_active = TRUE AND expires_at > NOW()",
+                guest_id
+            )
+            if not row:
+                return {"authenticated": False}
     return {"authenticated": True, "name": payload.get("name", "")}
 
 
