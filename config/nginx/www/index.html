@@ -4286,6 +4286,7 @@
 
             // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
             if (smoothP < 0.1) {
+                if (!window._vzorAuth) { showAuthModal(); return; }
                 targetP = 1.0;
                 return;
             }
@@ -4313,7 +4314,6 @@
                     const data = coreData[labelIndex];
 
                     // Set drill-down state
-                    if (!window._vzorAuth) { showAuthModal(); return; }
                     isDrilled = true;
                     hasEverDrilled = true; // v3.18: Stop pulsation hint after first click
                     currentCategory = data.name;
