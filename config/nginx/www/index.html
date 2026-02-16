@@ -4542,10 +4542,13 @@
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
         function move(x, y, cx, cy) {
             lastInteractTime = Date.now(); // Track interaction
-            mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
-            ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
-            material.uniforms.uMouse.value.set(pt.x, pt.y);
-            material.uniforms.uMouseActive.value = 1.0;
+            // v3.35: Skip shader mouse effects during orbit mode (prevents cloud repulsion)
+            if (!window._orbitPivotTask) {
+                mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
+                ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
+                material.uniforms.uMouse.value.set(pt.x, pt.y);
+                material.uniforms.uMouseActive.value = 1.0;
+            }
 
             clearTimeout(mouseTimer);
             mouseTimer = setTimeout(() => {
@@ -4587,7 +4590,7 @@
             downPos = { x: e.clientX, y: e.clientY };
             prevM = { x: e.clientX, y: e.clientY };
             mom = { x: 0, y: 0 };
-            material.uniforms.uMouseActive.value = 1;
+            if (!window._orbitPivotTask) material.uniforms.uMouseActive.value = 1;
         });
         document.addEventListener('mousemove', e => {
             // v3.12.7: Skip heavy processing when over UI elements
@@ -4608,6 +4611,21 @@
         document.addEventListener('mouseup', () => isDrag = false);
         window.addEventListener('mouseleave', () => { isDrag = false; material.uniforms.uMouseActive.value = 0; });
         window.addEventListener('blur', () => { isDrag = false; material.uniforms.uMouseActive.value = 0; });
+
+        // v3.35: Right-click exits orbit mode (returns to overview)
+        document.getElementById('canvas-wrapper').addEventListener('contextmenu', (event) => {
+            if (window._orbitPivotTask && isDrilled) {
+                event.preventDefault();
+                if (window.resetOrbitPivot) window.resetOrbitPivot();
+            }
+        });
+
+        // Escape key also exits orbit mode
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && window._orbitPivotTask && isDrilled) {
+                if (window.resetOrbitPivot) window.resetOrbitPivot();
+            }
+        });
 
         // Double-click on empty space = unfocus block (registered ONCE)
         document.getElementById('canvas-wrapper').addEventListener('dblclick', (event) => {
@@ -4829,8 +4847,10 @@
                 if (hint) hint.style.display = 'none';
             }
 
-            // Smoother MouseActive fade
-            if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
+            // Smoother MouseActive fade (force 0 in orbit mode)
+            if (window._orbitPivotTask) {
+                material.uniforms.uMouseActive.value = 0;
+            } else if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
                 material.uniforms.uMouseActive.value *= 0.92;
             }
 
@@ -6976,6 +6996,9 @@
 
             group.rotation.set(0, 0, 0);
             mom.x = 0; mom.y = 0;
+            material.uniforms.uMouseActive.value = 0;
+            currentZoom = 1.0; targetZoom = 1.0;
+            material.uniforms.uGraphZoom.value = 1.0;
 
             controls.enabled = false;
             flushControlsDeltas();
