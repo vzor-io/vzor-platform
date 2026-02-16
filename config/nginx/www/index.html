@@ -12212,10 +12212,9 @@ async function sendToAgentZero(message) {
             history.replaceState({}, "", window.location.pathname);
         }
 
-        // Check auth on load — show popup if not authenticated
-        checkAuth().then(function() {
-            if (!window._vzorAuth) showAuthModal();
-        });
+        // Show auth popup immediately, hide only if already authenticated
+        showAuthModal();
+        checkAuth();
     });
     </script>
 </body>
