@@ -333,34 +333,55 @@
             box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
         }
 
-        /* Auth — inline under VZOR title */
-        #auth-inline {
-            margin-top: 32px;
-            opacity: 0;
-            transition: opacity 0.6s ease;
-            pointer-events: none;
+        /* Auth — floating mini-card */
+        #auth-popup {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 100000;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
-        #auth-inline.visible {
-            opacity: 1;
-            pointer-events: auto;
+        #auth-popup.visible {
+            display: flex;
         }
-        #auth-inline .auth-row {
+        #auth-card {
+            background: rgba(12,12,18,0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            padding: 32px 28px 24px;
+            text-align: center;
+            min-width: 280px;
+        }
+        #auth-card .auth-title {
+            font-size: 11px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.3);
+            margin: 0 0 20px 0;
+        }
+        .auth-row {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
         }
         #auth-code-input {
-            width: 200px;
-            padding: 10px 14px;
+            width: 190px;
+            padding: 11px 14px;
             font-family: monospace;
             font-size: 14px;
             letter-spacing: 2px;
             text-transform: uppercase;
             text-align: center;
-            background: rgba(255,255,255,0.03);
+            background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 6px;
+            border-radius: 8px;
             color: #fff;
             outline: none;
             transition: border-color 0.3s;
@@ -373,14 +394,12 @@
             font-size: 12px;
         }
         #auth-submit-btn {
-            padding: 10px 20px;
-            font-size: 11px;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.5);
+            padding: 11px 18px;
+            font-size: 16px;
+            color: rgba(255,255,255,0.4);
             background: transparent;
             border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.3s;
         }
@@ -392,7 +411,7 @@
         #auth-error {
             color: #FF6B6B;
             font-size: 11px;
-            margin-top: 8px;
+            margin-top: 10px;
             min-height: 14px;
         }
 
@@ -3366,14 +3385,19 @@
     <div class="center-text" id="centerText">
         <h1>VZOR</h1>
         <p>capital data system</p>
-        <div id="auth-inline">
+        <div class="mobile-hint" style="display:none;">TAP TO ENTER</div>
+    </div>
+
+    <!-- Auth popup -->
+    <div id="auth-popup">
+        <div id="auth-card">
+            <p class="auth-title">enter access code</p>
             <div class="auth-row">
                 <input id="auth-code-input" placeholder="VZOR-XXXX-XXXX" maxlength="14" autocomplete="off" spellcheck="false">
                 <button id="auth-submit-btn">→</button>
             </div>
             <div id="auth-error"></div>
         </div>
-        <div class="mobile-hint" style="display:none;">TAP TO ENTER</div>
     </div>
 
     <!-- BACK TO START (Visible on Slide 2) -->
@@ -12111,7 +12135,7 @@ async function sendToAgentZero(message) {
     }
 
     function showAuthModal() {
-        var el = document.getElementById("auth-inline");
+        var el = document.getElementById("auth-popup");
         if (el) el.classList.add("visible");
         var inp = document.getElementById("auth-code-input");
         if (inp) { inp.value = ""; inp.focus(); }
@@ -12120,7 +12144,7 @@ async function sendToAgentZero(message) {
     }
 
     function hideAuthModal() {
-        var el = document.getElementById("auth-inline");
+        var el = document.getElementById("auth-popup");
         if (el) el.classList.remove("visible");
     }
 
@@ -12176,6 +12200,10 @@ async function sendToAgentZero(message) {
         }
         var btn = document.getElementById("auth-submit-btn");
         if (btn) btn.addEventListener("click", submitAuthCode);
+        var popup = document.getElementById("auth-popup");
+        if (popup) popup.addEventListener("click", function(e) {
+            if (e.target === popup) hideAuthModal();
+        });
 
         // Check for QR redirect param
         if (window.location.search.includes("authenticated=1")) {
@@ -12184,10 +12212,8 @@ async function sendToAgentZero(message) {
             history.replaceState({}, "", window.location.pathname);
         }
 
-        // Check auth on load — show input if not authenticated
-        checkAuth().then(function() {
-            if (!window._vzorAuth) showAuthModal();
-        });
+        // Check auth on load
+        checkAuth();
     });
     </script>
 </body>
