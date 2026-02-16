@@ -4595,23 +4595,26 @@
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
         function move(x, y, cx, cy) {
             lastInteractTime = Date.now(); // Track interaction
-            mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
-            ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
-            material.uniforms.uMouse.value.set(pt.x, pt.y);
-            material.uniforms.uMouseActive.value = 1.0;
+            // v3.35: Only apply shader mouse effects when NOT in drill-down
+            if (!isDrilled) {
+                mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
+                ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
+                material.uniforms.uMouse.value.set(pt.x, pt.y);
+                material.uniforms.uMouseActive.value = 1.0;
+            }
 
             clearTimeout(mouseTimer);
             mouseTimer = setTimeout(() => {
                 // We keep it at 0 on mobile unless moving, but on desktop we fade it
             }, 1000);
 
-            // v3.12.9: Allow rotation in both normal and drill-down modes
-            if (isDrag) {
+            // v3.12.9: Rotation only outside drill-down (OrbitControls handles drill-down)
+            if (isDrag && !isDrilled) {
                 let dx = x - prevM.x; let dy = y - prevM.y;
                 group.rotation.y += dx * 0.005;
                 group.rotation.x += dy * 0.005;
                 mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
-                lastInteractTime = Date.now(); // Reset idle timer on drag
+                lastInteractTime = Date.now();
             }
         }
         document.addEventListener('mousedown', e => {
@@ -4639,7 +4642,7 @@
             downPos = { x: e.clientX, y: e.clientY };
             prevM = { x: e.clientX, y: e.clientY };
             mom = { x: 0, y: 0 };
-            material.uniforms.uMouseActive.value = 1;
+            if (!isDrilled) material.uniforms.uMouseActive.value = 1;
         });
         document.addEventListener('mousemove', e => {
             // v3.12.7: Skip heavy processing when over UI elements
@@ -4870,8 +4873,10 @@
                 if (hint) hint.style.display = 'none';
             }
 
-            // Smoother MouseActive fade
-            if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
+            // Smoother MouseActive fade (force 0 in drill-down)
+            if (isDrilled) {
+                material.uniforms.uMouseActive.value = 0;
+            } else if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
                 material.uniforms.uMouseActive.value *= 0.92;
             }
 
@@ -5136,7 +5141,7 @@
                 // 1. Stays still for 10s (elapsed check)
                 // 2. Returns SLOWLY (factor 0.0005)
                 const elapsed = Date.now() - lastInteractTime;
-                if (elapsed > 10000) {
+                if (elapsed > 10000 && !isDrilled) {
                     // Check if we are actually rotated away from 0
                     if (Math.abs(group.rotation.y) > 0.01 || Math.abs(group.rotation.x) > 0.01) {
                         const driftSpeed = 0.0005; // Extremely slow return
