@@ -432,22 +432,6 @@
             50% { box-shadow: 0 0 0 6px rgba(255, 107, 107, 0); }
         }
         #agent-chat-send {
-            width: 32px; height: 32px; border-radius: 50%;
-            background: rgba(10, 10, 10, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            color: var(--text-secondary); cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            font-size: 14px;
-        }
-        #agent-chat-send:hover {
-            background: rgba(255, 255, 255, 0.1); color: #fff;
-            border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3), inset 0 0 10px rgba(0, 255, 255, 0.1);
-            transform: scale(1.15);
-        }
-
-        #agent-chat-send {
             width: 32px;
             height: 32px;
             border-radius: 50%;
@@ -10053,47 +10037,6 @@ async function sendToAgentZero(message) {
                 modelArrow.style.transform = '';
             });
             modelDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
-        }
-
-        function fetchBalances() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '/api/oc-balance', true);
-            xhr.timeout = 10000;
-            xhr.onload = function() {
-                try {
-                    var b = JSON.parse(xhr.responseText);
-                    var directItems = document.querySelectorAll('#model-list-direct .model-item');
-                    directItems.forEach(function(item) {
-                        var tag = item.querySelector('.mi-tag');
-                        if (!tag) return;
-                        var mid = item.getAttribute('data-id') || '';
-                        if (mid === 'deepseek' && b.deepseek != null) {
-                            tag.textContent = '$' + b.deepseek.toFixed(2);
-                            tag.style.color = b.deepseek > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
-                        } else if (mid === 'gemini') {
-                            tag.textContent = b.google || 'free';
-                            tag.style.color = 'rgba(100,200,255,0.7)';
-                        } else if (mid === 'claude') {
-                            tag.textContent = b.anthropic != null ? '$' + b.anthropic.toFixed(2) : 'no key';
-                            tag.style.color = b.anthropic != null ? 'rgba(100,255,100,0.7)' : 'rgba(255,255,255,0.3)';
-                        }
-                    });
-                    var orTab = document.getElementById('agent-tab-or');
-                    if (orTab && b.openrouter != null) {
-                        orTab.textContent = 'OpenRouter — $' + b.openrouter.toFixed(2);
-                    }
-                    var orItems = document.querySelectorAll('#model-list-openrouter .model-item');
-                    orItems.forEach(function(item) {
-                        var tag = item.querySelector('.mi-tag');
-                        if (!tag) return;
-                        if (b.openrouter != null) {
-                            tag.textContent = '$' + b.openrouter.toFixed(2);
-                            tag.style.color = b.openrouter > 1 ? 'rgba(100,255,100,0.7)' : 'rgba(255,100,100,0.7)';
-                        }
-                    });
-                } catch(e) {}
-            };
-            xhr.send();
         }
 
         function fetchBalances() {
