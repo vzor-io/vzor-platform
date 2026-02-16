@@ -4089,11 +4089,17 @@
         }
 
         // --- Interaction ---
-        let targetP = 0; let smoothP = 0;
+        let targetP = 0;
+        Object.defineProperty(window, 'targetP', { get() { return targetP; }, set(v) { targetP = v; } }); let smoothP = 0;
+        Object.defineProperty(window, 'smoothP', { get() { return smoothP; }, set(v) { smoothP = v; } });
         let wasInStage1 = true; // v3.15: Флаг для сброса вращения при переходе Stage 1→2
         let wasDrilled = false; // v3.15: Флаг для сброса вращения при выходе из drill-down
         let isDrilled = false; let drillProg = 0;
+        // Expose module vars to non-module scripts (project selector etc.)
+        Object.defineProperty(window, 'isDrilled', { get() { return isDrilled; }, set(v) { isDrilled = v; } });
+        Object.defineProperty(window, 'drillProg', { get() { return drillProg; }, set(v) { drillProg = v; } });
         let currentCategory = "";
+        Object.defineProperty(window, 'currentCategory', { get() { return currentCategory; }, set(v) { currentCategory = v; } });
         let isDrag = false; let prevM = { x: 0, y: 0 }; let mom = { x: 0, y: 0 };
         const ray = new THREE.Raycaster(); const mv = new THREE.Vector2(); const pl = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
         let mouseTimer;
@@ -4136,7 +4142,8 @@
         let currentZoom = 1.0;
         let lastZoomTime = 0;
         let lastInteractTime = Date.now(); // Initialize to NOW so it doesn't trigger immediately
-        let hasEverDrilled = false; // v3.18: Track if user ever clicked a category (for pulsation hint)
+        let hasEverDrilled = false;
+        Object.defineProperty(window, 'hasEverDrilled', { get() { return hasEverDrilled; }, set(v) { hasEverDrilled = v; } }); // v3.18: Track if user ever clicked a category (for pulsation hint)
 
         // v3.12.6: Centralized function to show ALL drill-down UI
         // This ensures consistent state regardless of how we enter drill-down
@@ -7760,6 +7767,12 @@
         // Update when panels might change layout
         // (Called in showDetailPanel and hide logic)
 
+        // Expose to non-module scripts
+        window._controls = controls;
+        window._bondMesh = bondMesh;
+        window._showDrillDownUI = showDrillDownUI;
+        window._showDetail = showDetail;
+
         animate();
     </script>
 
@@ -9762,18 +9775,20 @@
                 });
             }
             window.taskPoints = [];
+            window.task3DConnections = [];
             window._forceReloadTasks = true;
+            window._batchCreating = false;
             if (typeof initBondSystem === "function") initBondSystem();
         };
 
         window.enterDrillDown = function(categoryName) {
-            if (!window._vzorAuth) { showAuthModal(); return; }
-            isDrilled = true;
-            hasEverDrilled = true;
-            currentCategory = categoryName || "Development";
-            if (smoothP < 0.8) targetP = 1.0;
-            drillProg = 1.0;
-            showDrillDownUI(currentCategory);
+            if (!window._vzorAuth) { if (typeof showAuthModal === 'function') showAuthModal(); return; }
+            window.isDrilled = true;
+            window.hasEverDrilled = true;
+            window.currentCategory = categoryName || "Development";
+            if (window.smoothP < 0.8) window.targetP = 1.0;
+            window.drillProg = 1.0;
+            if (window._showDrillDownUI) window._showDrillDownUI(window.currentCategory);
             var backBtn = document.getElementById('back-button');
             if (backBtn) {
                 backBtn.classList.add('visible');
@@ -9785,14 +9800,16 @@
             var progressDots = document.getElementById('progressDots');
             if (scrollHint) scrollHint.style.opacity = '0';
             if (progressDots) progressDots.style.opacity = '0';
-            controls.enabled = false;
-            controls.enableRotate = false;
-            controls.target.set(0, 0, 0);
+            if (window._controls) {
+                window._controls.enabled = false;
+                window._controls.enableRotate = false;
+                window._controls.target.set(0, 0, 0);
+            }
             window._orbitPivotTask = null;
-            bondMesh.visible = true;
+            if (window._bondMesh) window._bondMesh.visible = true;
             window.graphVisible = true;
             document.body.style.overflow = 'hidden';
-            showDetail(currentCategory);
+            if (window._showDetail) window._showDetail(window.currentCategory);
         };
 
         window.switchProject = function(projectId) {
@@ -9807,11 +9824,25 @@
             });
             closeSidePanel();
             window.clearAllTasks();
+            console.log('[switchProject] cleared, isDrilled=' + isDrilled + ', forceReload=' + window._forceReloadTasks);
             if (!isDrilled) window.enterDrillDown("Development");
             bondMesh.visible = true;
             window.graphVisible = true;
             setTimeout(function() {
-                window.loadTasksFromDB(window.currentCategory || "Development");
+                console.log('[switchProject] loading tasks for project_id=' + window.currentProjectId);
+                window.loadTasksFromDB(window.currentCategory || "Development").then(function() {
+                    console.log('[switchProject] loaded, taskPoints=' + (window.taskPoints ? window.taskPoints.length : 0));
+                    // Force visibility
+                    if (window.taskPoints) {
+                        window.taskPoints.forEach(function(t) {
+                            if (t.mesh) { t.mesh.visible = true; }
+                        });
+                    }
+                    bondMesh.visible = true;
+                }).catch(function(err) {
+                    console.error('[switchProject] load error:', err);
+                    window.showToast("Error", "Task load failed: " + err.message, "error", 5000);
+                });
             }, 500);
             window.showToast("Project", projName || ("Project #" + projectId), "info", 2000);
             console.log('[switchProject] id=' + projectId + ' isDrilled=' + isDrilled + ' taskPoints=' + (window.taskPoints ? window.taskPoints.length : 'null'));
