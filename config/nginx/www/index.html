@@ -4232,7 +4232,9 @@
 
                     // Lock scroll and enable controls
                     document.body.style.overflow = 'hidden';
-                    controls.enabled = true;
+                    controls.enabled = false;
+                    camera.position.set(0, 0, 550);
+                    camera.lookAt(0, 0, 0);
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
@@ -4709,7 +4711,7 @@
                 });
                 const startPos = camera.position.clone();
                 const startTarget = controls.target.clone();
-                const overviewPos = new THREE.Vector3(0, 0, 450);
+                const overviewPos = new THREE.Vector3(0, 0, 550);
                 const overviewTarget = new THREE.Vector3(0, 0, 0);
                 const duration = 1000;
                 const startTime = Date.now();
@@ -4937,16 +4939,12 @@
             currentZoom += (targetZoom - currentZoom) * 0.12;
             material.uniforms.uGraphZoom.value = currentZoom;
 
-            // Also move camera for real 3D zoom effect (when drilled)
-            // v3.33: SKIP when task is focused — OrbitControls handles zoom
+            // v3.38: Fixed camera in drill-down (no drift, no OrbitControls interference)
             if (isDrilled && !window._orbitPivotTask) {
-                const baseDistance = 550;
-                const targetDistance = baseDistance / currentZoom;
-                const currentDistance = camera.position.length();
-                const newDistance = currentDistance + (targetDistance - currentDistance) * 0.1;
-
-                const direction = camera.position.clone().normalize();
-                camera.position.copy(direction.multiplyScalar(newDistance));
+                controls.enabled = false;
+                var _camDist = 550 / currentZoom;
+                camera.position.set(0, 0, _camDist);
+                camera.lookAt(0, 0, 0);
             }
 
             // Update Progress Uniforms
@@ -9734,10 +9732,12 @@
             var progressDots = document.getElementById('progressDots');
             if (scrollHint) scrollHint.style.opacity = '0';
             if (progressDots) progressDots.style.opacity = '0';
-            controls.enabled = true;
+            controls.enabled = false;
             controls.enableRotate = false;
             controls.target.set(0, 0, 0);
             window._orbitPivotTask = null;
+            camera.position.set(0, 0, 550);
+            camera.lookAt(0, 0, 0);
             bondMesh.visible = true;
             window.graphVisible = true;
             document.body.style.overflow = 'hidden';
