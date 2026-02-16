@@ -1321,9 +1321,8 @@
         }
 
         .side-panel-item.ps-active {
-            border-left: 2px solid var(--color-accent);
-            background: rgba(0, 255, 255, 0.04);
             color: #fff;
+            opacity: 1;
         }
 
         .ps-item-meta {
@@ -7098,11 +7097,12 @@
 
         // Load tasks from database when entering drill-down
         window.loadTasksFromDB = async function(category) {
-            // Don't load if tasks already exist
-            if (window.taskPoints && window.taskPoints.length > 0) {
+            // Don't load if tasks already exist (skip if force-reload via project switch)
+            if (window.taskPoints && window.taskPoints.length > 0 && !window._forceReloadTasks) {
                 console.log('[VZOR-Tasks] Tasks already loaded:', window.taskPoints.length);
                 return;
             }
+            window._forceReloadTasks = false;
 
             try {
                 // v3.31: Load all tasks (empty category) — single project graph
@@ -9622,27 +9622,9 @@
             }
         }
 
-        window.switchProject = function(projectId) {
-            if (window.currentProjectId === projectId) return;
-            window.currentProjectId = projectId;
-
-            // Find project name from panel items
-            var items = document.querySelectorAll("[data-project-id]");
-            var projName = "Project #" + projectId;
-            items.forEach(function(el) {
-                el.classList.remove("ps-active");
-                if (parseInt(el.dataset.projectId) === projectId) {
-                    el.classList.add("ps-active");
-                    var nameEl = el.querySelector("div > div:first-child");
-                    if (nameEl) projName = nameEl.textContent;
-                }
-            });
-
-            window.showToast("Project", projName, "info", 2000);
-
-            // If in drill-down with tasks loaded, clear and reload
+        // Clear all task meshes and bonds from 3D scene
+        window.clearAllTasks = function() {
             if (window.taskPoints && window.taskPoints.length > 0) {
-                // Remove existing task meshes
                 window.taskPoints.forEach(function(t) {
                     if (t.mesh) {
                         if (t.mesh.userData.labelSprite) t.mesh.parent.remove(t.mesh.userData.labelSprite);
@@ -9650,15 +9632,92 @@
                         t.mesh.parent.remove(t.mesh);
                     }
                 });
-                window.taskPoints = [];
-                if (typeof initBondSystem === "function") initBondSystem();
-                // Reload tasks for new project
-                window.loadTasksFromDB(window.currentCategory || "");
+            }
+            window.taskPoints = [];
+            window._forceReloadTasks = true;
+            if (typeof initBondSystem === "function") initBondSystem();
+        };
+
+        // Programmatically enter drill-down (same as clicking Development sphere)
+        window.enterDrillDown = function(categoryName) {
+            // Set state
+            isDrilled = true;
+            hasEverDrilled = true;
+            currentCategory = categoryName || "Development";
+
+            // Transition to spheres view if not there
+            if (smoothP < 0.8) {
+                targetP = 1.0;
             }
 
-            // Refresh the panel to show updated active state
+            // Set drillProg for animation
+            drillProg = 1.0;
+
+            // Show drill-down UI
+            showDrillDownUI(currentCategory);
+
+            // Show Back button directly
+            var backBtn = document.getElementById('back-button');
+            if (backBtn) {
+                backBtn.classList.add('visible');
+                backBtn.style.cssText = 'opacity: 1 !important; pointer-events: auto !important; display: block !important;';
+            }
+
+            // Show icon bar toggle
+            var iconBarToggle = document.getElementById('icon-bar-toggle');
+            if (iconBarToggle) iconBarToggle.style.cssText = 'display: flex !important;';
+
+            // Hide scroll indicators
+            var scrollHint = document.getElementById('scrollHint');
+            var progressDots = document.getElementById('progressDots');
+            if (scrollHint) scrollHint.style.opacity = '0';
+            if (progressDots) progressDots.style.opacity = '0';
+
+            // Enable orbit
+            controls.enabled = true;
+            controls.target.set(0, 0, 0);
+
+            // Lock scroll
+            document.body.style.overflow = 'hidden';
+
+            // Update title
+            showDetail(currentCategory);
+        };
+
+        window.switchProject = function(projectId) {
+            window.currentProjectId = projectId;
+
+            // Find project name
+            var projName = "";
+            var items = document.querySelectorAll("[data-project-id]");
+            items.forEach(function(el) {
+                if (parseInt(el.dataset.projectId) === projectId) {
+                    var nameEl = el.querySelector("div > div:first-child");
+                    if (nameEl) projName = nameEl.textContent;
+                }
+            });
+
+            window.showToast("Project", projName || ("Project #" + projectId), "info", 2000);
+
+            // Clear existing tasks
+            window.clearAllTasks();
+
+            // Enter drill-down if not already there
+            if (!isDrilled) {
+                window.enterDrillDown("Development");
+            }
+
+            // Load tasks for this project (with short delay for UI)
+            setTimeout(function() {
+                window.loadTasksFromDB(window.currentCategory || "Development");
+            }, 300);
+
+            // Refresh panel
             var panelContent = document.getElementById("side-panel-content");
             if (panelContent) loadProjectsPanel(panelContent);
+
+            // Close side panel after selection
+            closeSidePanel();
         };
 
         window.showNewProjectInput = function() {
@@ -9685,7 +9744,6 @@
             if (!name) { if (inp) inp.focus(); return; }
 
             try {
-                // Find template id
                 var templateId = 1;
                 var resp = await fetch("/api/projects", {
                     method: "POST",
@@ -9693,17 +9751,13 @@
                     body: JSON.stringify({name: name, source_template_id: templateId})
                 });
                 var proj = await resp.json();
-                window.showToast("Project", "Created: " + name, "success", 2000);
-
-                // Switch to new project
-                if (proj && proj.id) {
-                    window.currentProjectId = proj.id;
+                var newId = proj.id || proj.project_id;
+                if (newId) {
+                    window.showToast("Project", name, "success", 2000);
+                    window.switchProject(newId);
+                } else {
+                    window.showToast("Error", "No project ID returned", "error", 3000);
                 }
-
-                // Refresh panel
-                var panelContent = document.getElementById("side-panel-content");
-                if (panelContent) loadProjectsPanel(panelContent);
-
             } catch(e) {
                 console.error("[Projects] Create error:", e);
                 window.showToast("Error", "Failed to create project", "error", 3000);
