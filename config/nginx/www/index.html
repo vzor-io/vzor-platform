@@ -2993,82 +2993,6 @@
             border-radius: 4px;
             display: inline-block;
         }
-
-        /* === PROJECT SELECTOR SCREEN === */
-        #project-selector {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.92);
-            backdrop-filter: blur(30px);
-            z-index: 100000;
-            display: flex; align-items: center; justify-content: center;
-            font-family: 'Outfit', sans-serif;
-            opacity: 1; transition: opacity 0.5s ease;
-        }
-        #project-selector.hidden { opacity: 0; pointer-events: none; }
-        .ps-container {
-            max-width: 800px; width: 90%; max-height: 80vh;
-            display: flex; flex-direction: column; align-items: center;
-        }
-        .ps-title {
-            font-size: 28px; font-weight: 300; letter-spacing: 6px;
-            color: rgba(255,255,255,0.9); text-transform: uppercase;
-            margin-bottom: 8px;
-        }
-        .ps-subtitle {
-            font-size: 12px; letter-spacing: 3px;
-            color: rgba(255,255,255,0.35); text-transform: uppercase;
-            margin-bottom: 40px;
-        }
-        .ps-section-label {
-            font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
-            color: rgba(255,255,255,0.3); margin-bottom: 12px; width: 100%;
-            text-align: left;
-        }
-        .ps-cards {
-            display: flex; flex-direction: column; gap: 12px;
-            width: 100%; margin-bottom: 24px;
-        }
-        .ps-card {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px; padding: 20px 24px;
-            cursor: pointer; transition: all 0.2s ease;
-            display: flex; align-items: center; gap: 20px;
-        }
-        .ps-card:hover {
-            background: rgba(255,255,255,0.08);
-            border-color: rgba(255,255,255,0.15);
-            transform: translateY(-1px);
-        }
-        .ps-card.template { border-color: rgba(0,255,255,0.15); }
-        .ps-card.template:hover { border-color: rgba(0,255,255,0.3); background: rgba(0,255,255,0.05); }
-        .ps-card-icon {
-            width: 48px; height: 48px; border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; flex-shrink: 0;
-        }
-        .ps-card.template .ps-card-icon { background: rgba(0,255,255,0.1); color: #0ff; }
-        .ps-card.project .ps-card-icon { background: rgba(100,140,255,0.1); color: #648cff; }
-        .ps-card.new .ps-card-icon { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.4); }
-        .ps-card.new { border-style: dashed; }
-        .ps-card-info { flex: 1; }
-        .ps-card-name {
-            font-size: 16px; font-weight: 500; color: rgba(255,255,255,0.85);
-            margin-bottom: 4px;
-        }
-        .ps-card-meta {
-            font-size: 11px; color: rgba(255,255,255,0.35);
-            letter-spacing: 0.5px;
-        }
-        .ps-card-badge {
-            font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
-            padding: 3px 8px; border-radius: 4px;
-            flex-shrink: 0;
-        }
-        .ps-card.template .ps-card-badge { background: rgba(0,255,255,0.1); color: #0ff; }
-        .ps-card.project .ps-card-badge { background: rgba(100,140,255,0.1); color: #648cff; }
-        .ps-loading { color: rgba(255,255,255,0.3); font-size: 13px; letter-spacing: 1px; }
-
     </style>
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -3076,17 +3000,7 @@
 </head>
 
 <body>
-    <!-- Project Selector Screen -->
-    <div id="project-selector">
-        <div class="ps-container">
-            <div class="ps-title">VZOR</div>
-            <div class="ps-subtitle">Project Management</div>
-            <div id="ps-templates"></div>
-            <div id="ps-projects"></div>
-            <div id="ps-loading" class="ps-loading">Loading projects...</div>
-        </div>
-    </div>
-
+    
     <div id="block-dashboard">
         <div style="font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:2px;">Прогресс</div>
         <div class="dash-row" data-block="analysis">
@@ -3434,129 +3348,7 @@
 
     <script type="module">
 
-        
-        // === PROJECT SELECTOR ===
-        window.currentProjectId = null;
-
-        async function initProjectSelector() {
-            const overlay = document.getElementById('project-selector');
-            const templatesDiv = document.getElementById('ps-templates');
-            const projectsDiv = document.getElementById('ps-projects');
-            const loadingDiv = document.getElementById('ps-loading');
-            if (!overlay) return;
-
-            try {
-                const resp = await fetch('/api/projects');
-                const data = await resp.json();
-                const projects = data.projects || [];
-                loadingDiv.style.display = 'none';
-
-                const templates = projects.filter(p => p.type === 'template');
-                const userProjects = projects.filter(p => p.type === 'project');
-
-                // Templates section
-                if (templates.length > 0) {
-                    var html = '<div class="ps-section-label">Templates</div><div class="ps-cards">';
-                    templates.forEach(function(t) {
-                        html += '<div class="ps-card template" data-project-id="' + t.id + '" data-type="template">'
-                            + '<div class="ps-card-icon">&#9670;</div>'
-                            + '<div class="ps-card-info">'
-                            + '<div class="ps-card-name">' + t.name + '</div>'
-                            + '<div class="ps-card-meta">' + t.task_count + ' tasks &middot; ' + (t.description || '') + '</div>'
-                            + '</div>'
-                            + '<div class="ps-card-badge">template</div>'
-                            + '</div>';
-                    });
-                    html += '</div>';
-                    templatesDiv.innerHTML = html;
-                }
-
-                // Projects section
-                var phtml = '<div class="ps-section-label">Projects</div><div class="ps-cards">';
-                userProjects.forEach(function(p) {
-                    var dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString('ru-RU') : '';
-                    phtml += '<div class="ps-card project" data-project-id="' + p.id + '" data-type="project">'
-                        + '<div class="ps-card-icon">&#9632;</div>'
-                        + '<div class="ps-card-info">'
-                        + '<div class="ps-card-name">' + p.name + '</div>'
-                        + '<div class="ps-card-meta">' + p.task_count + ' tasks &middot; ' + dateStr + '</div>'
-                        + '</div>'
-                        + '<div class="ps-card-badge">project</div>'
-                        + '</div>';
-                });
-
-                // "Create new" card
-                phtml += '<div class="ps-card new" id="ps-create-new">'
-                    + '<div class="ps-card-icon">+</div>'
-                    + '<div class="ps-card-info">'
-                    + '<div class="ps-card-name">New Project</div>'
-                    + '<div class="ps-card-meta">Create from template</div>'
-                    + '</div></div>';
-                phtml += '</div>';
-                projectsDiv.innerHTML = phtml;
-
-                // Click handlers
-                overlay.addEventListener('click', function(e) {
-                    var card = e.target.closest('.ps-card');
-                    if (!card) return;
-
-                    if (card.id === 'ps-create-new') {
-                        createNewProject(templates);
-                        return;
-                    }
-
-                    var pid = parseInt(card.dataset.projectId);
-                    selectProject(pid);
-                });
-
-            } catch (err) {
-                loadingDiv.textContent = 'Error loading projects: ' + err.message;
-                console.error('[Projects]', err);
-            }
-        }
-
-        async function createNewProject(templates) {
-            var name = prompt('Project name:', '');
-            if (!name) return;
-
-            var templateId = templates.length > 0 ? templates[0].id : null;
-            try {
-                var resp = await fetch('/api/projects', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({
-                        name: name,
-                        source_template_id: templateId,
-                        description: 'Created from template'
-                    })
-                });
-                var data = await resp.json();
-                if (data.project_id) {
-                    selectProject(data.project_id);
-                } else if (data.id) {
-                    selectProject(data.id);
-                }
-            } catch (err) {
-                alert('Error creating project: ' + err.message);
-            }
-        }
-
-        function selectProject(projectId) {
-            window.currentProjectId = projectId;
-            console.log('[Projects] Selected project:', projectId);
-            var overlay = document.getElementById('project-selector');
-            if (overlay) {
-                overlay.classList.add('hidden');
-                setTimeout(function() { overlay.style.display = 'none'; }, 500);
-            }
-        }
-
-        // Init on load
-        document.addEventListener('DOMContentLoaded', function() {
-            initProjectSelector();
-        });
-
-// Принудительно скрыть task-interface при загрузке
+        // Принудительно скрыть task-interface при загрузке
         document.addEventListener('DOMContentLoaded', () => {
             const taskInterface = document.getElementById('task-interface');
             if (taskInterface) {
@@ -7252,8 +7044,7 @@
 
             try {
                 // v3.31: Load all tasks (empty category) — single project graph
-                var _pid = window.currentProjectId || 1;
-                const resp = await fetch('/api/tasks/load?category=&session_id=default&project_id=' + _pid);
+                const resp = await fetch('/api/tasks/load?category=&session_id=default');
                 const data = await resp.json();
 
                 if (!data.tasks || data.tasks.length === 0) {
