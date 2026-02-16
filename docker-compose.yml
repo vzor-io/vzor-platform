@@ -193,12 +193,14 @@ services:
   agent-zero:
     image: agent-zero-local:v0.9.8
     container_name: vzor-agent-zero
+    command: ["/bin/bash", "-c", "cp /a0/usr/patches/run_A0_patched.sh /exe/run_A0.sh && /exe/initialize.sh $$BRANCH"]
     restart: unless-stopped
     environment:
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY}
       - GOOGLE_API_KEY=${GOOGLE_API_KEY}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - MCP_SERVER_TOKEN=vzor-agent-key-2026
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
       - PASSWORD=7U3236DNVazwx8TNhgibO3Ypmo7eek8S
     ports:
       - "50080:80"
