@@ -5816,8 +5816,8 @@
         // Connect two tasks — straight line with type-based brightness
         // 'tree'/'backbone' = trunk (bright), 'molecular' = branch (very dim)
         window.connect3DTasks = function(fromTaskId, toTaskId, bondType) {
-            const fromTask = window.taskPoints.find(t => t.id === fromTaskId);
-            const toTask = window.taskPoints.find(t => t.id === toTaskId);
+            const fromTask = window.taskPoints.find(t => t.id == fromTaskId);
+            const toTask = window.taskPoints.find(t => t.id == toTaskId);
             if (!fromTask || !toTask) return;
             if (bondCount >= MAX_BONDS) return;
 
@@ -5864,8 +5864,8 @@
         // Update bond positions (straight lines — just copy node positions)
         function updateBondPositions() {
             window.task3DConnections.forEach(conn => {
-                const fromTask = window.taskPoints.find(t => t.id === conn.from);
-                const toTask = window.taskPoints.find(t => t.id === conn.to);
+                const fromTask = window.taskPoints.find(t => t.id == conn.from);
+                const toTask = window.taskPoints.find(t => t.id == conn.to);
                 if (!fromTask || !toTask) return;
                 const base = conn.bondIndex * 6;
                 bondPositions[base]     = fromTask.mesh.position.x;
@@ -7133,11 +7133,7 @@
                 if (window.buildPhaseNav) window.buildPhaseNav();
                 // Update dashboard
                 if (window.updateDashboard) window.updateDashboard();
-n                // v3.35: Create matrix bonds after DB load
-                setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
-                // Update dashboard
-                if (window.updateDashboard) window.updateDashboard();
-n                // v3.35: Create matrix bonds after DB load
+                // v3.35: Create matrix bonds after DB load
                 setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
 
             } catch (e) {
@@ -7179,8 +7175,6 @@ n                // v3.35: Create matrix bonds after DB load
             // Update phase progress + dashboard
             updatePhaseProgress(task.phase);
             if (window.updateDashboard) window.updateDashboard();
-n                // v3.35: Create matrix bonds after DB load
-                setTimeout(function(){ if(window.createMatrixBonds) window.createMatrixBonds(); }, 200);
 
             // Update task list panel if visible
             if (window.updateTaskListContent) window.updateTaskListContent();
