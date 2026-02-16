@@ -3556,8 +3556,6 @@
         controls.enabled = false; // Disabled initially (State 1/2 use scroll)
         controls.minDistance = 30;  // v3.34: Allow getting very close to focused task
         controls.maxDistance = 800; // v3.34: Allow zooming out far
-        controls.minPolarAngle = 0;
-        controls.maxPolarAngle = Math.PI;
 
         // INTERACTION LISTENER (OrbitControls)
         controls.addEventListener('change', () => {
@@ -4086,11 +4084,9 @@
             // 11. Lock scroll
             document.body.style.overflow = 'hidden';
 
-            // 12. Controls on but rotation locked until orbit
+            // 12. Enable orbit controls
             controls.enabled = true;
-            controls.enableRotate = false;
             controls.target.set(0, 0, 0);
-            window._orbitPivotTask = null;
 
             console.log('[DrillDown] UI shown for:', categoryName);
         }
@@ -4351,11 +4347,9 @@
             // LOCK SCROLL (CSS Method)
             document.body.style.overflow = 'hidden';
 
-            // Controls on but rotation locked until orbit
+            // Enable Orbit Controls
             controls.enabled = true;
-            controls.enableRotate = false;
             controls.target.set(0, 0, 0);
-            window._orbitPivotTask = null;
 
             // Sync Camera Z for smooth transition (optional, logic handles it)
 
@@ -4544,29 +4538,23 @@
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
         function move(x, y, cx, cy) {
             lastInteractTime = Date.now(); // Track interaction
-            // v3.35: Skip shader mouse effects during drill-down mode
-            if (!isDrilled) {
-                mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
-                ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
-                material.uniforms.uMouse.value.set(pt.x, pt.y);
-                material.uniforms.uMouseActive.value = 1.0;
-            }
+            mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
+            ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
+            material.uniforms.uMouse.value.set(pt.x, pt.y);
+            material.uniforms.uMouseActive.value = 1.0;
 
             clearTimeout(mouseTimer);
             mouseTimer = setTimeout(() => {
                 // We keep it at 0 on mobile unless moving, but on desktop we fade it
             }, 1000);
 
-            // v3.12.9: In drill-down OrbitControls handles rotation
+            // v3.12.9: Allow rotation in both normal and drill-down modes
             if (isDrag) {
                 let dx = x - prevM.x; let dy = y - prevM.y;
-                if (!isDrilled) {
-                    group.rotation.y += dx * 0.005;
-                    group.rotation.x += dy * 0.005;
-                    mom = { x: dx * 0.005, y: dy * 0.005 };
-                }
-                prevM = { x, y };
-                lastInteractTime = Date.now();
+                group.rotation.y += dx * 0.005;
+                group.rotation.x += dy * 0.005;
+                mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
+                lastInteractTime = Date.now(); // Reset idle timer on drag
             }
         }
         document.addEventListener('mousedown', e => {
@@ -4592,7 +4580,7 @@
             downPos = { x: e.clientX, y: e.clientY };
             prevM = { x: e.clientX, y: e.clientY };
             mom = { x: 0, y: 0 };
-            if (!isDrilled) material.uniforms.uMouseActive.value = 1;
+            material.uniforms.uMouseActive.value = 1;
         });
         document.addEventListener('mousemove', e => {
             // v3.12.7: Skip heavy processing when over UI elements
@@ -4614,19 +4602,6 @@
         window.addEventListener('mouseleave', () => { isDrag = false; material.uniforms.uMouseActive.value = 0; });
         window.addEventListener('blur', () => { isDrag = false; material.uniforms.uMouseActive.value = 0; });
 
-        // v3.35: Right-click exits orbit mode
-        document.getElementById('canvas-wrapper').addEventListener('contextmenu', (event) => {
-            if (window._orbitPivotTask && isDrilled) {
-                event.preventDefault();
-                if (window.resetOrbitPivot) window.resetOrbitPivot();
-            }
-        });
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && window._orbitPivotTask && isDrilled) {
-                if (window.resetOrbitPivot) window.resetOrbitPivot();
-            }
-        });
-
         // Double-click on empty space = unfocus block (registered ONCE)
         document.getElementById('canvas-wrapper').addEventListener('dblclick', (event) => {
             if (!window._focusedBlock) return;
@@ -4642,20 +4617,12 @@
                 .map(t => t.mesh);
             const dblHits = dblRay.intersectObjects(taskMeshes2);
             if (dblHits.length === 0) {
-                if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                    window._orbitPivotTask.mesh.scale.setScalar(1.0);
-                    if (window._orbitPivotTask.mesh.userData.material)
-                        window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
-                }
-                window._orbitPivotTask = null;
-                window._isFlyAnimating = true;
                 window._focusedBlock = null;
                 window._focusedPhase = null;
-                controls.enabled = false;
-                flushControlsDeltas();
                 group.children.forEach(ch => {
                     if (ch.userData && ch.userData.isLabel) ch.visible = true;
                 });
+                // Return camera to overview position
                 const startPos = camera.position.clone();
                 const startTarget = controls.target.clone();
                 const overviewPos = new THREE.Vector3(0, 0, 450);
@@ -4668,21 +4635,8 @@
                     const ease = 1 - Math.pow(1 - t, 3);
                     camera.position.lerpVectors(startPos, overviewPos, ease);
                     controls.target.lerpVectors(startTarget, overviewTarget, ease);
-                    camera.lookAt(controls.target);
-                    if (t < 1) {
-                        requestAnimationFrame(flyBack);
-                    } else {
-                        controls.enableDamping = true;
-                        controls.dampingFactor = 0.05;
-                        controls.enableZoom = false;
-                        controls.enablePan = true;
-                        controls.minDistance = 30;
-                        controls.maxDistance = 800;
-                        controls.enabled = true;
-                        controls.enableRotate = false;
-                        controls.update();
-                        window._isFlyAnimating = false;
-                    }
+                    controls.update();
+                    if (t < 1) requestAnimationFrame(flyBack);
                 }
                 flyBack();
             }
@@ -4773,7 +4727,7 @@
                 leftPanel.contains(event.target);
 
             // Only zoom 3D when drilled AND not over any active panel
-            if (isDrilled && !window._orbitPivotTask && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
+            if (isDrilled && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
                 event.preventDefault(); // Prevent page scrolling
 
                 // Faster, more noticeable zoom
@@ -4848,10 +4802,8 @@
                 if (hint) hint.style.display = 'none';
             }
 
-            // Smoother MouseActive fade (force 0 in drill-down)
-            if (isDrilled) {
-                material.uniforms.uMouseActive.value = 0;
-            } else if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
+            // Smoother MouseActive fade
+            if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
                 material.uniforms.uMouseActive.value *= 0.92;
             }
 
@@ -4906,8 +4858,8 @@
 
             // Update sub-lines and targets (Only if drilled)
             if (isDrilled) {
-                // OrbitControls handles camera (skip during fly animations)
-                if (!window._isFlyAnimating) controls.update();
+                // OrbitControls handles camera
+                controls.update();
 
                 // Nucleus pulse
                 if (window._nucleus) {
@@ -4998,13 +4950,6 @@
                         const t = tp[i];
                         const pos = t.mesh.position;
 
-                        // Pin focused task so orbit pivot is stable
-                        if (window._orbitPivotTask && t === window._orbitPivotTask) {
-                            t._vx = 0; t._vy = 0; t._vz = 0;
-                            t._fx = 0; t._fy = 0; t._fz = 0;
-                            continue;
-                        }
-
                         // Pull toward own block center (keeps clusters in their sector)
                         const blockDir = BLOCK_DIRS[getPhaseColor(t.phase || 'General')];
                         if (blockDir) {
@@ -5053,7 +4998,11 @@
                     // Update bond lines
                     updateBondPositions();
 
-                    // v3.33: Orbit target set once by flyToTask; task pinned, no per-frame update
+                    // v3.33: Keep orbit pivot on focused task as it moves
+                    if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                        const fp = window._orbitPivotTask.mesh.position;
+                        controls.target.set(fp.x, fp.y, fp.z);
+                    }
                 }
 
                 // v3.22: Scale 3D mesh spheres + gentle pulsation
@@ -5119,7 +5068,7 @@
                 // 1. Stays still for 10s (elapsed check)
                 // 2. Returns SLOWLY (factor 0.0005)
                 const elapsed = Date.now() - lastInteractTime;
-                if (elapsed > 10000 && !isDrilled) {
+                if (elapsed > 10000) {
                     // Check if we are actually rotated away from 0
                     if (Math.abs(group.rotation.y) > 0.01 || Math.abs(group.rotation.x) > 0.01) {
                         const driftSpeed = 0.0005; // Extremely slow return
@@ -5780,31 +5729,31 @@
             };
 
             // === WITHIN-BLOCK semantic (beyond sequential chain) ===
-            add('B1-1.1','B1-1.4'); // Маркетинг → Финмодель (цены влияют на модель)
-            add('B1-1.2','B1-1.4'); // Земля DD → Финмодель (стоимость земли)
-            add('B2-2.3','B2-2.5'); // Эскиз → Изыскания/ТУ (параллельный запуск)
-            add('B2-2.5','B2-2.6'); // Изыскания → Стадия П арх (результаты изысканий)
+            add('B1-1.1','B1-1.4'); // Маркетинг → Финмодель
+            add('B1-1.2','B1-1.4'); // Земля DD → Финмодель
+            add('B2-2.3','B2-2.5'); // Эскиз → Изыскания/ТУ
+            add('B2-2.5','B2-2.6'); // Изыскания → Стадия П арх
 
             // === CROSS-BLOCK: main pipeline ===
-            add('B1-1.7','B2-2.1'); // GO/NO GO → ГПЗУ (инвестрешение → проектирование)
-            add('B1-1.5','B2-2.1'); // Банк ПФ → ГПЗУ (финансирование → проектирование)
-            add('B2-2.9','B3-3.1'); // Экспертиза → Подготовка (проект → стройка)
-            add('B3-3.2','B4-4.1'); // Нулевой цикл → Маркетинг продаж (можно продавать)
-            add('B2-2.9','B4-4.2'); // Экспертиза → Активные продажи (проектная декларация)
+            add('B1-1.7','B2-2.1'); // GO/NO GO → ГПЗУ
+            add('B1-1.5','B2-2.1'); // Банк ПФ → ГПЗУ
+            add('B2-2.9','B3-3.1'); // Экспертиза → Подготовка
+            add('B3-3.2','B4-4.1'); // Нулевой цикл → Маркетинг продаж
+            add('B2-2.9','B4-4.2'); // Экспертиза → Активные продажи
             add('B3-3.5','B4-4.3'); // Контроль/ввод → Передача ключей
 
             // === CROSS-BLOCK: semantic dependencies ===
             add('B1-1.1','B2-2.2'); // Маркетинг → Продуктовая концепция
-            add('B1-1.2','B2-2.1'); // Земля DD → ГПЗУ (данные участка)
-            add('B1-1.2','B2-2.5'); // Земля DD → Изыскания/ТУ (данные участка)
-            add('B1-1.3','B2-2.3'); // ЗОУИТ → Эскиз (ограничения → дизайн)
-            add('B1-1.3','B2-2.4'); // ЗОУИТ → Москомарх (ограничения → АГР)
-            add('B1-1.4','B2-2.2'); // Финмодель → Квартирография (бюджет → продукт)
-            add('B1-1.5','B4-4.1'); // Банк ПФ → Маркетинг продаж (бюджет)
-            add('B1-1.6','B2-2.9'); // Стресс-тест → Экспертиза (анализ рисков)
-            add('B2-2.6','B3-3.4'); // Стадия П арх → Инженерия стройки
-            add('B2-2.7','B3-3.4'); // Стадия П инж → Инженерия стройки
-            add('B2-2.8','B3-3.1'); // Спец разделы → Подготовка стройки
+            add('B1-1.2','B2-2.1'); // Земля DD → ГПЗУ
+            add('B1-1.2','B2-2.5'); // Земля DD → Изыскания/ТУ
+            add('B1-1.3','B2-2.3'); // ЗОУИТ → Эскиз
+            add('B1-1.3','B2-2.4'); // ЗОУИТ → Москомарх
+            add('B1-1.4','B2-2.2'); // Финмодель → Квартирография
+            add('B1-1.5','B4-4.1'); // Банк ПФ → Маркетинг продаж
+            add('B1-1.6','B2-2.9'); // Стресс-тест → Экспертиза
+            add('B2-2.6','B3-3.4'); // Стадия П арх → Инженерия
+            add('B2-2.7','B3-3.4'); // Стадия П инж → Инженерия
+            add('B2-2.8','B3-3.1'); // Спец разделы → Подготовка
 
             return deps;
         };
@@ -6953,114 +6902,59 @@
             // Opacity handled by animate loop via _focusedPhase
         }
 
-        // v3.33: Blender-style orbit pivot
-        // r160 OrbitControls: closure-scoped internals, flush via update() with damping OFF
-        window._orbitPivotTask = null;
-        window._isFlyAnimating = false;
-
-        function flushControlsDeltas() {
-            var d = controls.enableDamping;
-            controls.enableDamping = false;
-            controls.update();
-            controls.enableDamping = d;
-        }
+        // v3.33: Blender/Rhino-style orbit pivot
+        // Click task → orbit around it. Click empty → reset to origin.
+        // Camera STAYS where it is. Only the pivot point changes.
+        window._orbitPivotTask = null; // currently focused task (or null)
 
         window.flyToTask = function(task) {
             if (!task || !task.mesh) return;
             window._orbitPivotTask = task;
-            window._isFlyAnimating = true;
 
-            group.rotation.set(0, 0, 0);
-            mom.x = 0; mom.y = 0;
-            material.uniforms.uMouseActive.value = 0;
-            currentZoom = 1.0; targetZoom = 1.0;
-            material.uniforms.uGraphZoom.value = 1.0;
+            const tp = task.mesh.position;
+            const targetPos = new THREE.Vector3(tp.x, tp.y, tp.z);
+            const startTarget = controls.target.clone();
+            const duration = 400; // fast pivot change
+            const startTime = Date.now();
 
-            controls.enabled = false;
-            flushControlsDeltas();
+            // Enable OrbitControls zoom when focused on a task
+            controls.enableZoom = true;
 
-            var targetPos = new THREE.Vector3();
-            task.mesh.getWorldPosition(targetPos);
-            var startTarget = controls.target.clone();
-            var startCamPos = camera.position.clone();
-
-            var approachDir = startCamPos.clone().sub(targetPos);
-            if (approachDir.length() < 0.001) approachDir.set(0, 0, 1);
-            approachDir.normalize();
-
-            var orbitRadius = 60;
-            var endCamPos = targetPos.clone().add(approachDir.multiplyScalar(orbitRadius));
-            var duration = 600;
-            var startTime = Date.now();
+            lastInteractTime = Date.now() + 10000;
 
             function animatePivot() {
-                var elapsed = Date.now() - startTime;
-                var t = Math.min(elapsed / duration, 1);
-                var ease = 1 - Math.pow(1 - t, 3);
-                camera.position.lerpVectors(startCamPos, endCamPos, ease);
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+
                 controls.target.lerpVectors(startTarget, targetPos, ease);
-                camera.lookAt(controls.target);
-                if (t < 1) {
-                    requestAnimationFrame(animatePivot);
-                } else {
-                    controls.enableDamping = false;
-                    controls.enableRotate = true;
-                    controls.enableZoom = true;
-                    controls.enablePan = false;
-                    controls.minDistance = 20;
-                    controls.maxDistance = 200;
-                    controls.enabled = true;
-                    controls.update();
-                    window._isFlyAnimating = false;
-                    lastInteractTime = Date.now();
-                }
+                controls.update();
+
+                if (t < 1) requestAnimationFrame(animatePivot);
+                else lastInteractTime = Date.now();
             }
             animatePivot();
         };
 
         window.resetOrbitPivot = function() {
-            if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                window._orbitPivotTask.mesh.scale.setScalar(1.0);
-                if (window._orbitPivotTask.mesh.userData.material)
-                    window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
-            }
             window._orbitPivotTask = null;
-            window._isFlyAnimating = true;
 
-            controls.enabled = false;
-            flushControlsDeltas();
+            const startTarget = controls.target.clone();
+            const originTarget = new THREE.Vector3(0, 0, 0);
+            const duration = 400;
+            const startTime = Date.now();
 
-            var startTarget = controls.target.clone();
-            var startCamPos = camera.position.clone();
-            var originTarget = new THREE.Vector3(0, 0, 0);
-            var backDir = startCamPos.clone().sub(originTarget);
-            if (backDir.length() < 0.001) backDir.set(0, 0, 1);
-            backDir.normalize();
-            var endCamPos = originTarget.clone().add(backDir.multiplyScalar(200));
-            var duration = 500;
-            var startTime = Date.now();
+            controls.enableZoom = false; // back to manual zoom
 
             function animateReset() {
-                var elapsed = Date.now() - startTime;
-                var t = Math.min(elapsed / duration, 1);
-                var ease = 1 - Math.pow(1 - t, 3);
-                camera.position.lerpVectors(startCamPos, endCamPos, ease);
+                const elapsed = Date.now() - startTime;
+                const t = Math.min(elapsed / duration, 1);
+                const ease = 1 - Math.pow(1 - t, 3);
+
                 controls.target.lerpVectors(startTarget, originTarget, ease);
-                camera.lookAt(controls.target);
-                if (t < 1) {
-                    requestAnimationFrame(animateReset);
-                } else {
-                    controls.enableDamping = true;
-                    controls.dampingFactor = 0.05;
-                    controls.enableZoom = false;
-                    controls.enablePan = true;
-                    controls.minDistance = 30;
-                    controls.maxDistance = 800;
-                    controls.enabled = true;
-                    controls.enableRotate = false;
-                    controls.update();
-                    window._isFlyAnimating = false;
-                }
+                controls.update();
+
+                if (t < 1) requestAnimationFrame(animateReset);
             }
             animateReset();
         };
