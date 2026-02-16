@@ -166,7 +166,7 @@ services:
 
   # VZOR API (FastAPI backend)
   vzor-api:
-    build: /home/vzor/vzor-api
+    build: ./vzor-api
     container_name: vzor-api
     restart: unless-stopped
     environment:

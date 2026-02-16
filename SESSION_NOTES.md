@@ -1,36 +1,227 @@
-# Session: Unify BLD and MSG Panel Design
-**Date:** 2026-02-13
+# VZOR Platform - Session Notes
+**Last Updated:** 2026-02-13
+**Server:** 95.174.95.209 (Cloud.ru)
+**Current Branch:** development (main = эталон)
 
-## Changes Made
+---
 
-### 1. MSG Panel (VZOR Messenger) - Color Unification
-- oc_css.txt: All orange accents removed, replaced with white-subtle (no bright colors)
-- oc_html_js.txt: Full panel with model selector, balance display, continuous mic, send button
-- Toggle button: MSG, 42px, matches icon-btn style exactly
+## ✅ ЧТО СДЕЛАНО (13.02.2026)
 
-### 2. BLD Panel (Agent VZOR Builder) - Added Missing Features
-- CSS: Teal colors normalized to white-subtle (matching MSG)
-- HTML: Added send arrow button after mic
-- JS: Added fetchBalances() - fetches /api/oc-balance, updates Direct + OpenRouter tabs
-- JS: Replaced single-shot mic with continuous + interimResults
-- JS: Added send button click handler
-- Toggle button: BLD, 42px, matches icon-btn style
+### 1. Унификация дизайна чат-панелей (BLD + MSG)
+- **BLD** (VZOR Builder) и **MSG** (VZOR Messenger) теперь выглядят одинаково
+- Убрали оранжевые акценты из MSG (были rgba(255,165,0)), заменили на белый
+- Убрали бирюзовые акценты из BLD (были rgba(78,205,196)), заменили на белый
+- **Внутри панелей нет ярких цветов** — всё в стиле icon-btn левой панели
+- Кнопки-тогглы: 42px, белое свечение, scale 1.15 (как icon-btn)
+- Model selector, tabs, items — всё белое-subtle
 
-### 3. Design Normalization - No Bright Colors Inside Panels
-- All interior cyan accents removed from both panels
-- Hover behavior matches .icon-btn:hover: white glow + scale(1.15)
-- Typing dots, message borders, model icons - all white/subtle
+### 2. Новые фичи в BLD панели
+- Кнопка отправки (стрелка) — `#agent-chat-send`
+- Отображение баланса API ключей — `fetchBalances()` через `/api/oc-balance`
+- Непрерывный микрофон с interim-результатами (текст в поле ввода, не автоотправка)
 
-### 4. AgentVzor.0 - Fixed Two Errors
-- 401 API key: Set MCP_SERVER_TOKEN, patched settings.py, added X-API-KEY header
-- 500 CallSubordinate: Added **kwargs to usr overrides in /a0/usr/prompts/
+### 3. Починка AgentVzor.0
+- **Ошибка 401:** mcp_server_token был пустой. Добавлен в /a0/usr/.env, пропатчен settings.py
+- **Ошибка 500:** CallSubordinate.get_variables() не принимал **kwargs. Пропатчены файлы в /a0/usr/prompts/
+- **Результат:** AgentVzor.0 отвечает корректно
 
-### 5. Infrastructure
-- oc_balance.py on port 18791, proxied via /api/oc-balance
-- Nginx WebSocket proxy /ws/openclaw/ to port 18789
-- Patch system: patch_oc.py restores from .bak, injects CSS + HTML/JS
+### 4. Безопасность — API ключи
+- Вынесли все API ключи из docker-compose.yml в .env
+- docker-compose.yml использует ${VAR} ссылки
+- .env в .gitignore — не попадает в Git
 
-## Files Modified (server)
-- config/nginx/default.conf
-- config/nginx/www/index.html + index.html.bak
-- docker-compose.yml
+### 5. Git
+- Всё закоммичено и запушено на GitHub (ветка development)
+- 2 коммита: основной + docker-compose.yml с .env
+
+---
+
+## ✅ ЧТО СДЕЛАНО РАНЕЕ (06.02.2026)
+
+### Панель задач (task-interface)
+- Панель скрыта по умолчанию, появляется по клику на кнопку в левой панели
+- Крестик закрывает панель
+
+### Кнопки и UI
+- Левая панель (icon-bar): Круглые кнопки с белым свечением, scale 1.15
+- Все кнопки единообразный hover
+- NODES видна только в Development
+
+### Git и GitHub
+- Тег: stable-v1.0 (эталонная версия)
+- main = эталон, development = рабочая
+- SSH ключ настроен
+
+---
+
+## 📁 СТРУКТУРА ПРОЕКТА
+
+```
+/home/vzor/vzor/
+├── docker-compose.yml          # Оркестрация (ключи в .env)
+├── .env                        # API ключи (НЕ в Git)
+├── config/
+│   ├── nginx/
+│   │   ├── default.conf        # Nginx конфиг (SSL, proxy)
+│   │   ├── ssl/                # Сертификаты
+│   │   └── www/
+│   │       ├── index.html      # ГЛАВНЫЙ ФАЙЛ (собирается из .bak + патчи)
+│   │       └── index.html.bak  # БАЗОВЫЙ ФАЙЛ (BLD панель здесь)
+│   └── prometheus/
+├── data/                       # Docker volumes
+└── SESSION_NOTES.md            # Этот файл
+```
+
+### Локальные файлы (C:\Users\vzor\)
+- `oc_css.txt` — CSS для MSG панели (белый дизайн)
+- `oc_html_js.txt` — HTML+JS для MSG панели
+- `patch_oc.py` — Скрипт деплоя (собирает index.html из .bak + oc_css + oc_html_js)
+- `patch_bld.py` — Скрипт патча BLD панели в index.html.bak
+
+---
+
+## 🔧 КАК РАБОТАЕТ ДЕПЛОЙ
+
+### Система сборки index.html
+1. `index.html.bak` — базовый файл с BLD панелью
+2. `patch_oc.py` копирует .bak в index.html
+3. Вставляет CSS из `/tmp/oc_css.txt` перед `/* Block progress dashboard */`
+4. Вставляет HTML/JS из `/tmp/oc_html_js.txt` перед `<div id="version-badge"`
+5. `docker restart vzor-nginx` применяет изменения
+
+### Команды деплоя
+```bash
+# На локальной машине — загрузить файлы на сервер
+scp -i C:\Users\vzor\Desktop\.ssh\id_ed25519 C:\Users\vzor\oc_css.txt vzor@95.174.95.209:/tmp/
+scp -i C:\Users\vzor\Desktop\.ssh\id_ed25519 C:\Users\vzor\oc_html_js.txt vzor@95.174.95.209:/tmp/
+scp -i C:\Users\vzor\Desktop\.ssh\id_ed25519 C:\Users\vzor\patch_oc.py vzor@95.174.95.209:/tmp/
+
+# На сервере
+python3 /tmp/patch_oc.py
+docker restart vzor-nginx
+```
+
+---
+
+## 🔧 DOCKER СЕРВИСЫ
+
+| Контейнер | Порт | Описание |
+|-----------|------|----------|
+| vzor-nginx | 443 | Frontend (index.html) |
+| vzor-api | 8000 | Backend API |
+| vzor-agent-zero | 5000->80 | Agent Zero (AI) |
+| vzor-grafana | 3000 | Мониторинг |
+| vzor-postgres | 5432 | База данных |
+| vzor-redis | 6379 | Кэш |
+
+---
+
+## 🔧 ФАЙЛЫ AGENT ZERO
+
+```
+/a0/
+├── usr/
+│   ├── .env                    # MCP_SERVER_TOKEN=vzor-agent-key-2026
+│   ├── prompts/
+│   │   ├── agent.system.tool.call_sub.py   # Пропатчен: **kwargs
+│   │   └── agent.system.tools.py           # Пропатчен: **kwargs
+│   └── settings.json
+├── python/helpers/
+│   └── settings.py             # Пропатчен: загрузка MCP токена из dotenv
+```
+
+---
+
+## 🚀 КОМАНДЫ
+
+### Подключение к серверу
+```bash
+ssh -i C:\Users\vzor\Desktop\.ssh\id_ed25519 vzor@95.174.95.209
+```
+
+### Docker
+```bash
+cd /home/vzor/vzor
+docker-compose ps                    # Статус сервисов
+docker restart vzor-nginx           # Перезапуск nginx
+docker-compose logs -f vzor-nginx   # Логи
+```
+
+### Git
+```bash
+cd /home/vzor/vzor
+git status
+git checkout development            # Рабочая ветка
+git checkout main                   # Эталон
+git log --oneline -10               # История
+```
+
+---
+
+## 🐛 РЕШЕННЫЕ ПРОБЛЕМЫ
+
+- task-interface автопоказ (было 3 места)
+- Кнопка задач не работала (общий обработчик мешал)
+- Бирюзовая/оранжевая подсветка кнопок (теперь белая)
+- NODES видна на всех этапах (теперь только в Development)
+- AgentVzor.0 ошибка 401 (mcp_server_token пустой)
+- AgentVzor.0 ошибка 500 (CallSubordinate без **kwargs)
+- API ключи в docker-compose.yml (вынесены в .env)
+- GitHub Push Protection блокировала push (ключи убраны)
+
+---
+
+## 💡 ВАЖНЫЕ ЗАМЕТКИ
+
+- **Не трогать ветку main** — это эталон
+- **Работать только на development**
+- **index.html собирается из .bak** — не редактировать напрямую
+- **После изменений:** `docker restart vzor-nginx`
+- **Очистка кэша:** Ctrl+F5 в браузере
+- **Дизайн кнопок:** Всё как icon-btn (42px, белое свечение, scale 1.15)
+
+---
+
+## 🔗 ССЫЛКИ
+
+- **Сайт:** https://95.174.95.209
+- **GitHub:** https://github.com/vzor-io/vzor-platform
+- **Эталон:** ветка main, тег stable-v1.0
+- **Рабочая:** ветка development
+
+---
+
+## 📞 КАК ПРОДОЛЖИТЬ РАБОТУ
+
+### 1. Запустить Claude Code
+```
+claude
+```
+
+### 2. Первое сообщение
+```
+Прочитай C:\Users\vzor\SESSION_NOTES.md и продолжим работу над VZOR проектом
+```
+
+### 3. Подключение к серверу
+**SSH (через Claude Code):**
+```bash
+ssh -i C:\Users\vzor\Desktop\.ssh\id_ed25519 vzor@95.174.95.209
+```
+
+**WinSCP (GUI):**
+1. Запусти `C:\Users\vzor\Desktop\WinSCP\WinSCP.exe`
+2. Сессия: **CloudRU_VZOR**
+3. Пароль: `Vzor2024!Temp`
+
+---
+
+## 🎯 СЛЕДУЮЩИЕ ШАГИ
+
+1. [ ] Тестирование голосового ввода
+2. [ ] Интеграция Agent Zero API с task-interface
+3. [ ] Добавление новых функций
+
+---
+
+**ВАЖНО:** Скажи Claude прочитать этот файл в начале каждой сессии!
