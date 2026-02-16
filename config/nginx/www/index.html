@@ -9334,7 +9334,7 @@ n                // v3.35: Create matrix bonds after DB load
                     btn.classList.add('dragging');
                     btn.style.cursor = 'grabbing';
                 }
-                if (!dragging) { toggleGraph(); } else {
+                if (dragging) {
                     btn.style.left = (startLeft + dx) + 'px';
                     btn.style.top = (startTop + dy) + 'px';
                     btn.style.right = 'auto';
