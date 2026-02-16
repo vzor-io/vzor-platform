@@ -4152,8 +4152,11 @@
                 _ct.closest('#block-dashboard') || _ct.closest('.nav-btn') ||
                 _ct.tagName === 'INPUT' || _ct.tagName === 'BUTTON') return;
 
-            // --- Slide transition by scroll only (click disabled) ---
-            if (smoothP < 0.1) return;
+            // --- Click on Slide 1 to move to Slide 2 ---
+            if (smoothP < 0.1) {
+                targetP = 1.0;
+                return;
+            }
 
             // v3.18 FIX: Calculate mouse coordinates relative to canvas, not window
             const rect = renderer.domElement.getBoundingClientRect();
