@@ -206,6 +206,8 @@ services:
       - "50080:80"
     volumes:
       - /home/vzor/agent-zero-data:/a0/usr
+      - /home/vzor/vzor:/vzor-repo
+      - /home/vzor/.ssh:/root/.ssh:ro
     networks:
       - vzor-network
     depends_on:
