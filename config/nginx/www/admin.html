@@ -4,442 +4,412 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>VZOR — Управление доступом</title>
+<script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
         font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
-        background: #0a0a0a;
+        background: #08080a;
         color: #fff;
         min-height: 100vh;
         padding: 40px 20px;
     }
-    .container { max-width: 720px; margin: 0 auto; }
-
-    h1 {
-        font-size: 28px;
-        font-weight: 300;
-        letter-spacing: 6px;
-        text-align: center;
-        margin-bottom: 8px;
-    }
-    .sub {
-        text-align: center;
-        color: rgba(255,255,255,0.35);
-        font-size: 12px;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        margin-bottom: 40px;
-    }
+    .container { max-width: 680px; margin: 0 auto; }
+    h1 { font-size: 28px; font-weight: 200; letter-spacing: 8px; text-align: center; margin-bottom: 6px; }
+    .sub { text-align: center; color: rgba(255,255,255,0.25); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 48px; }
 
     /* Login */
-    #login-section { text-align: center; margin-top: 80px; }
+    #login-section { text-align: center; margin-top: 60px; }
     #login-section input {
-        padding: 12px 16px;
-        width: 300px;
-        font-size: 14px;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 6px;
-        color: #fff;
-        outline: none;
-        text-align: center;
+        padding: 14px 20px; width: 320px; font-size: 14px;
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 8px; color: #fff; outline: none; text-align: center;
+        letter-spacing: 1px;
     }
+    #login-section input:focus { border-color: rgba(255,255,255,0.2); }
+    #login-section input::placeholder { color: rgba(255,255,255,0.15); }
     #login-section button {
-        display: block;
-        margin: 16px auto 0;
-        padding: 10px 32px;
-        font-size: 12px;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.6);
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.12);
-        border-radius: 20px;
-        cursor: pointer;
+        display: block; margin: 20px auto 0; padding: 12px 40px;
+        font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+        color: rgba(255,255,255,0.5); background: transparent;
+        border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; cursor: pointer;
+        transition: all 0.3s;
     }
-    #login-section button:hover { border-color: #fff; color: #fff; }
-
-    /* Panel */
+    #login-section button:hover { border-color: rgba(255,255,255,0.4); color: #fff; }
     #admin-panel { display: none; }
 
-    /* Create form */
+    /* Cards */
     .card {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 10px;
-        padding: 28px;
-        margin-bottom: 24px;
+        background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+        border-radius: 12px; padding: 28px; margin-bottom: 20px;
     }
-    .card h2 {
-        font-size: 14px;
-        font-weight: 400;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.5);
-        margin-bottom: 20px;
+    .card-title {
+        font-size: 11px; font-weight: 400; letter-spacing: 3px; text-transform: uppercase;
+        color: rgba(255,255,255,0.3); margin-bottom: 20px;
     }
-    .form-row {
-        display: flex;
-        gap: 12px;
-        margin-bottom: 12px;
+
+    /* Form */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+    .form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+    .form-grid input, .form-grid select {
+        padding: 11px 14px; font-size: 13px;
+        background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 6px; color: #fff; outline: none; font-family: inherit;
     }
-    .form-row input {
-        flex: 1;
-        padding: 10px 14px;
-        font-size: 14px;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 6px;
-        color: #fff;
-        outline: none;
-    }
-    .form-row input:focus { border-color: rgba(255,255,255,0.25); }
-    .form-row input::placeholder { color: rgba(255,255,255,0.2); }
+    .form-grid input:focus, .form-grid select:focus { border-color: rgba(255,255,255,0.2); }
+    .form-grid input::placeholder { color: rgba(255,255,255,0.15); }
+    .form-grid select { cursor: pointer; -webkit-appearance: none; }
+    .form-grid select option { background: #1a1a1a; }
     .btn-create {
-        width: 100%;
-        padding: 12px;
-        font-size: 13px;
-        letter-spacing: 3px;
-        text-transform: uppercase;
-        color: #fff;
-        background: rgba(255,255,255,0.06);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
+        width: 100%; padding: 13px; font-size: 12px; letter-spacing: 3px;
+        text-transform: uppercase; color: rgba(255,255,255,0.8);
+        background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(139,92,246,0.15));
+        border: 1px solid rgba(99,102,241,0.25); border-radius: 8px;
+        cursor: pointer; transition: all 0.3s;
     }
-    .btn-create:hover { background: rgba(255,255,255,0.1); }
+    .btn-create:hover {
+        background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(139,92,246,0.25));
+        border-color: rgba(99,102,241,0.5); color: #fff;
+    }
 
     /* Result */
-    #create-result {
-        display: none;
-        text-align: center;
-        padding: 24px;
-        background: rgba(255,255,255,0.02);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 10px;
-        margin-bottom: 24px;
+    #result-card { display: none; text-align: center; padding: 32px; }
+    .result-name { font-size: 13px; color: rgba(255,255,255,0.4); letter-spacing: 2px; margin-bottom: 6px; }
+    .result-code {
+        font-family: 'SF Mono', 'Fira Code', monospace; font-size: 32px; font-weight: 300;
+        letter-spacing: 6px; color: #fff; margin: 8px 0 20px;
     }
-    #create-result .code {
-        font-family: monospace;
-        font-size: 28px;
-        letter-spacing: 4px;
-        color: #fff;
-        margin: 12px 0;
+    #qr-container { margin: 0 auto 20px; width: 280px; height: 280px; }
+    #qr-container canvas, #qr-container svg { border-radius: 12px; }
+    .result-link {
+        font-size: 13px; color: rgba(255,255,255,0.5); font-family: monospace;
+        letter-spacing: 1px; margin-bottom: 20px;
     }
-    #create-result .label {
-        font-size: 11px;
-        color: rgba(255,255,255,0.35);
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        margin-bottom: 4px;
+    .result-expires { font-size: 11px; color: rgba(255,255,255,0.2); margin-bottom: 20px; }
+    .action-row { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
+    .action-btn {
+        padding: 9px 20px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+        color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08); border-radius: 20px;
+        cursor: pointer; transition: all 0.2s; font-family: inherit;
     }
-    #create-result img {
-        margin: 16px auto;
-        display: block;
-        border-radius: 8px;
+    .action-btn:hover { border-color: rgba(255,255,255,0.3); color: #fff; }
+    .action-btn.primary {
+        background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.12));
+        border-color: rgba(99,102,241,0.2); color: rgba(255,255,255,0.7);
     }
-    #create-result .link {
-        font-size: 12px;
-        color: rgba(255,255,255,0.3);
-        word-break: break-all;
-        margin-top: 8px;
-    }
-    #create-result .link a { color: rgba(255,255,255,0.5); }
-    .copy-btn {
-        display: inline-block;
-        margin: 8px 4px;
-        padding: 6px 16px;
-        font-size: 11px;
-        letter-spacing: 1px;
-        color: rgba(255,255,255,0.5);
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 14px;
-        cursor: pointer;
-    }
-    .copy-btn:hover { border-color: #fff; color: #fff; }
+    .action-btn.primary:hover { border-color: rgba(99,102,241,0.5); color: #fff; }
 
-    /* Guest list */
-    .guest-table { width: 100%; border-collapse: collapse; }
-    .guest-table th {
-        text-align: left;
-        font-size: 11px;
-        font-weight: 400;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        color: rgba(255,255,255,0.3);
-        padding: 8px 12px;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
+    /* Guest List */
+    .guest-item {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
     }
-    .guest-table td {
-        padding: 10px 12px;
-        font-size: 13px;
-        color: rgba(255,255,255,0.7);
-        border-bottom: 1px solid rgba(255,255,255,0.04);
+    .guest-item:last-child { border-bottom: none; }
+    .guest-info { flex: 1; }
+    .guest-name { font-size: 14px; color: rgba(255,255,255,0.8); margin-bottom: 3px; }
+    .guest-meta { font-size: 11px; color: rgba(255,255,255,0.25); }
+    .guest-meta span { margin-right: 14px; }
+    .guest-code {
+        font-family: monospace; font-size: 13px; letter-spacing: 2px;
+        color: rgba(255,255,255,0.4); margin-right: 16px;
     }
-    .guest-table .code-cell { font-family: monospace; letter-spacing: 1px; }
-    .badge-active {
-        display: inline-block;
-        padding: 2px 8px;
-        font-size: 10px;
-        border-radius: 10px;
-        background: rgba(80,200,120,0.15);
-        color: #50c878;
+    .guest-actions { display: flex; gap: 6px; }
+    .btn-sm {
+        padding: 5px 12px; font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+        background: transparent; border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px; cursor: pointer; transition: all 0.2s; font-family: inherit;
     }
-    .badge-revoked {
-        display: inline-block;
-        padding: 2px 8px;
-        font-size: 10px;
-        border-radius: 10px;
-        background: rgba(255,100,100,0.15);
-        color: #ff6b6b;
+    .btn-sm.qr { color: rgba(99,102,241,0.6); border-color: rgba(99,102,241,0.15); }
+    .btn-sm.qr:hover { color: #6366f1; border-color: rgba(99,102,241,0.4); }
+    .btn-sm.extend { color: rgba(80,200,120,0.6); border-color: rgba(80,200,120,0.15); }
+    .btn-sm.extend:hover { color: #50c878; border-color: rgba(80,200,120,0.4); }
+    .btn-sm.revoke { color: rgba(255,100,100,0.5); border-color: rgba(255,100,100,0.12); }
+    .btn-sm.revoke:hover { color: #ff6b6b; border-color: rgba(255,100,100,0.3); }
+    .badge {
+        display: inline-block; padding: 2px 8px; font-size: 9px; border-radius: 10px;
+        letter-spacing: 1px; text-transform: uppercase; margin-right: 10px;
     }
-    .btn-revoke {
-        padding: 4px 12px;
-        font-size: 10px;
-        color: rgba(255,100,100,0.6);
-        background: transparent;
-        border: 1px solid rgba(255,100,100,0.2);
-        border-radius: 10px;
-        cursor: pointer;
-    }
-    .btn-revoke:hover { border-color: #ff6b6b; color: #ff6b6b; }
-    .btn-qr {
-        padding: 4px 12px;
-        font-size: 10px;
-        color: rgba(255,255,255,0.4);
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 10px;
-        cursor: pointer;
-        margin-right: 6px;
-    }
-    .btn-qr:hover { border-color: #fff; color: #fff; }
-    .empty-msg {
-        text-align: center;
-        color: rgba(255,255,255,0.2);
-        padding: 30px;
-        font-size: 13px;
-    }
+    .badge.active { background: rgba(80,200,120,0.1); color: #50c878; }
+    .badge.revoked { background: rgba(255,100,100,0.1); color: #ff6b6b; }
+    .badge.expired { background: rgba(255,180,50,0.1); color: #ffb432; }
+    .empty-msg { text-align: center; color: rgba(255,255,255,0.15); padding: 40px; font-size: 12px; letter-spacing: 2px; }
 </style>
 </head>
 <body>
 
 <div class="container">
     <h1>VZOR</h1>
-    <p class="sub">guest access management</p>
+    <p class="sub">guest access</p>
 
-    <!-- Admin Login -->
     <div id="login-section">
-        <input type="password" id="admin-secret" placeholder="Admin Secret">
-        <button onclick="adminLogin()">Войти</button>
+        <input type="password" id="admin-secret" placeholder="Admin key">
+        <button onclick="adminLogin()">Enter</button>
     </div>
 
-    <!-- Admin Panel -->
     <div id="admin-panel">
-
-        <!-- Create Guest -->
         <div class="card">
-            <h2>Новый гость</h2>
-            <div class="form-row">
-                <input type="text" id="g-name" placeholder="Имя инвестора">
-                <input type="email" id="g-email" placeholder="Email (необязательно)">
+            <div class="card-title">New guest</div>
+            <div class="form-grid three">
+                <input type="text" id="g-name" placeholder="Name">
+                <input type="email" id="g-email" placeholder="Email">
+                <select id="g-days">
+                    <option value="7">7 days</option>
+                    <option value="30" selected>30 days</option>
+                    <option value="90">90 days</option>
+                    <option value="365">1 year</option>
+                </select>
             </div>
-            <button class="btn-create" onclick="createGuest()">Создать доступ</button>
+            <button class="btn-create" onclick="createGuest()">Create Access</button>
         </div>
 
-        <!-- Result -->
-        <div id="create-result">
-            <div class="label">Код доступа</div>
-            <div class="code" id="r-code"></div>
-            <div style="margin-bottom:4px">
-                <button class="copy-btn" onclick="copyCode()">Копировать код</button>
-            </div>
-            <img id="r-qr" width="200" height="200" alt="QR">
-            <div class="label" style="margin-top:14px">Отправить инвестору</div>
-            <div>
-                <button class="copy-btn" onclick="downloadQR()">Скачать QR</button>
-                <button class="copy-btn" onclick="shareWhatsApp()">WhatsApp</button>
-                <button class="copy-btn" onclick="shareTelegram()">Telegram</button>
-                <button class="copy-btn" onclick="shareEmail()">Email</button>
+        <div class="card" id="result-card">
+            <div class="result-name" id="r-name"></div>
+            <div class="result-code" id="r-code"></div>
+            <div id="qr-container"></div>
+            <div class="result-link" id="r-link"></div>
+            <div class="result-expires" id="r-expires"></div>
+            <div class="action-row">
+                <button class="action-btn primary" onclick="downloadQR()">Download QR</button>
+                <button class="action-btn" onclick="copyCode()">Copy code</button>
+                <button class="action-btn" onclick="shareWhatsApp()">WhatsApp</button>
+                <button class="action-btn" onclick="shareTelegram()">Telegram</button>
             </div>
         </div>
 
-        <!-- Guest List -->
         <div class="card">
-            <h2>Все гости</h2>
+            <div class="card-title">Guests</div>
             <div id="guest-list"></div>
         </div>
     </div>
 </div>
 
 <script>
-let SECRET = "";
+let SECRET = sessionStorage.getItem("vzor_admin") || "";
+let lastResult = null;
+let currentQR = null;
+
+// Auto-login if stored
+if (SECRET) {
+    document.getElementById("login-section").style.display = "none";
+    document.getElementById("admin-panel").style.display = "block";
+    loadGuests();
+}
 
 function adminLogin() {
     SECRET = document.getElementById("admin-secret").value.trim();
     if (!SECRET) return;
-    // Test the secret by listing guests
-    fetch("/api/admin/guests", {
-        headers: {"X-Admin-Secret": SECRET}
-    }).then(r => {
+    fetch("/api/admin/guests", { headers: {"X-Admin-Secret": SECRET} })
+    .then(function(r) {
         if (r.ok) {
+            sessionStorage.setItem("vzor_admin", SECRET);
             document.getElementById("login-section").style.display = "none";
             document.getElementById("admin-panel").style.display = "block";
             loadGuests();
         } else {
-            alert("Неверный секрет");
+            alert("Wrong key");
         }
     });
 }
-
-// Enter key on secret input
 document.getElementById("admin-secret").addEventListener("keydown", function(e) {
     if (e.key === "Enter") adminLogin();
 });
 
-let lastResult = null;
+function shortCode(accessCode) {
+    return accessCode.replace(/VZOR-/g, "").replace(/-/g, "");
+}
+
+function shortUrl(accessCode) {
+    return "vzor-ai.com/go/" + shortCode(accessCode);
+}
+
+function generateStyledQR(url) {
+    document.getElementById("qr-container").innerHTML = "";
+    currentQR = new QRCodeStyling({
+        width: 280,
+        height: 280,
+        type: "canvas",
+        data: url,
+        dotsOptions: {
+            type: "classy-rounded",
+            gradient: {
+                type: "linear",
+                rotation: Math.PI / 4,
+                colorStops: [
+                    { offset: 0, color: "#6366f1" },
+                    { offset: 1, color: "#a78bfa" }
+                ]
+            }
+        },
+        cornersSquareOptions: {
+            type: "extra-rounded",
+            color: "#6366f1"
+        },
+        cornersDotOptions: {
+            type: "dot",
+            color: "#818cf8"
+        },
+        backgroundOptions: {
+            color: "#0f0f13"
+        },
+        imageOptions: {
+            hideBackgroundDots: true,
+            imageSize: 0.35,
+            margin: 6,
+            crossOrigin: "anonymous"
+        },
+        qrOptions: {
+            errorCorrectionLevel: "H"
+        }
+    });
+    currentQR.append(document.getElementById("qr-container"));
+}
 
 async function createGuest() {
     var name = document.getElementById("g-name").value.trim();
     if (!name) { document.getElementById("g-name").focus(); return; }
     var email = document.getElementById("g-email").value.trim();
+    var days = parseInt(document.getElementById("g-days").value);
 
     var r = await fetch("/api/admin/guests", {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-Admin-Secret": SECRET
-        },
-        body: JSON.stringify({name: name, email: email})
+        headers: { "Content-Type": "application/json", "X-Admin-Secret": SECRET },
+        body: JSON.stringify({ name: name, email: email, expires_days: days })
     });
     var d = await r.json();
-    if (!r.ok) { alert("Ошибка: " + (d.detail || "unknown")); return; }
+    if (!r.ok) { alert(d.detail || "Error"); return; }
 
     lastResult = d;
+    lastResult._days = days;
 
-    // Show result
+    document.getElementById("r-name").textContent = d.guest.name;
     document.getElementById("r-code").textContent = d.access_code;
-    // Load QR image
-    var qrImg = document.getElementById("r-qr");
-    qrImg.src = "/api/admin/guests/" + d.guest.id + "/qr?t=" + Date.now();
-    // We need to pass the header for QR, but img tags can't do that.
-    // So let's fetch it as blob
-    var qrR = await fetch("/api/admin/guests/" + d.guest.id + "/qr", {
-        headers: {"X-Admin-Secret": SECRET}
-    });
-    var blob = await qrR.blob();
-    qrImg.src = URL.createObjectURL(blob);
+    document.getElementById("r-link").textContent = shortUrl(d.access_code);
 
-    document.getElementById("create-result").style.display = "block";
+    var expDate = new Date(d.guest.expires_at);
+    document.getElementById("r-expires").textContent = "valid until " + expDate.toLocaleDateString("ru-RU");
 
-    // Clear form
+    generateStyledQR(d.qr_url);
+
+    document.getElementById("result-card").style.display = "block";
     document.getElementById("g-name").value = "";
     document.getElementById("g-email").value = "";
-
-    // Refresh list
     loadGuests();
 }
 
-function copyCode() {
-    if (lastResult) { navigator.clipboard.writeText(lastResult.access_code); flash("Код скопирован"); }
-}
-
-
-function flash(msg) {
-    var el = document.getElementById("r-code");
-    var old = el.textContent;
-    el.textContent = msg;
-    el.style.fontSize = "14px";
-    setTimeout(function() { el.textContent = old; el.style.fontSize = ""; }, 1500);
-}
-
 function downloadQR() {
-    var img = document.getElementById("r-qr");
-    if (!img.src) return;
-    var a = document.createElement("a");
-    a.href = img.src;
-    a.download = "VZOR-QR-" + (lastResult ? lastResult.access_code : "code") + ".png";
-    a.click();
+    if (!currentQR) return;
+    var code = lastResult ? lastResult.access_code : "VZOR";
+    currentQR.download({ name: "VZOR-" + shortCode(code), extension: "png" });
+}
+
+function copyCode() {
+    if (!lastResult) return;
+    navigator.clipboard.writeText(lastResult.access_code);
+    var el = document.getElementById("r-code");
+    el.style.color = "#6366f1";
+    setTimeout(function() { el.style.color = ""; }, 800);
 }
 
 function shareWhatsApp() {
     if (!lastResult) return;
-    var text = "Доступ к VZOR\n\nКод: " + lastResult.access_code + "\n\nИли перейдите по ссылке:\n" + lastResult.qr_url;
+    var text = "VZOR — private access\n\nCode: " + lastResult.access_code + "\nLink: " + shortUrl(lastResult.access_code);
     window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
 }
 
 function shareTelegram() {
     if (!lastResult) return;
-    var text = "Доступ к VZOR\n\nКод: " + lastResult.access_code + "\n\nИли перейдите по ссылке:\n" + lastResult.qr_url;
-    window.open("https://t.me/share/url?url=" + encodeURIComponent(lastResult.qr_url) + "&text=" + encodeURIComponent("Доступ к VZOR\nКод: " + lastResult.access_code), "_blank");
-}
-
-function shareEmail() {
-    if (!lastResult) return;
-    var subj = "Доступ к платформе VZOR";
-    var body = "Здравствуйте!\n\nВаш код доступа к VZOR: " + lastResult.access_code + "\n\nТакже можете войти по ссылке:\n" + lastResult.qr_url + "\n\nКод действует 90 дней.";
-    window.open("mailto:?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body));
+    var text = "VZOR — private access\n\nCode: " + lastResult.access_code;
+    window.open("https://t.me/share/url?url=" + encodeURIComponent("https://" + shortUrl(lastResult.access_code)) + "&text=" + encodeURIComponent(text), "_blank");
 }
 
 async function loadGuests() {
-    var r = await fetch("/api/admin/guests", {
-        headers: {"X-Admin-Secret": SECRET}
-    });
+    var r = await fetch("/api/admin/guests", { headers: {"X-Admin-Secret": SECRET} });
+    if (!r.ok) { SECRET = ""; sessionStorage.removeItem("vzor_admin"); location.reload(); return; }
     var d = await r.json();
     var list = d.guests || [];
 
     if (list.length === 0) {
-        document.getElementById("guest-list").innerHTML = '<div class="empty-msg">Пока нет гостей</div>';
+        document.getElementById("guest-list").innerHTML = '<div class="empty-msg">No guests yet</div>';
         return;
     }
 
-    var html = '<table class="guest-table"><tr><th>Имя</th><th>Код</th><th>Входов</th><th>Статус</th><th></th></tr>';
+    var html = "";
     for (var g of list) {
-        var badge = g.is_active
-            ? '<span class="badge-active">Active</span>'
-            : '<span class="badge-revoked">Revoked</span>';
-        var actions = g.is_active
-            ? '<button class="btn-qr" onclick="showQR(' + g.id + ')">QR</button><button class="btn-revoke" onclick="revokeGuest(' + g.id + ')">Revoke</button>'
-            : '';
-        html += '<tr>'
-            + '<td>' + escHtml(g.name) + '</td>'
-            + '<td class="code-cell">' + g.access_code + '</td>'
-            + '<td>' + (g.login_count || 0) + '</td>'
-            + '<td>' + badge + '</td>'
-            + '<td>' + actions + '</td>'
-            + '</tr>';
+        var now = new Date();
+        var exp = new Date(g.expires_at);
+        var isExpired = exp < now;
+        var badgeClass = !g.is_active ? "revoked" : isExpired ? "expired" : "active";
+        var badgeText = !g.is_active ? "revoked" : isExpired ? "expired" : "active";
+
+        var lastLogin = g.last_login_at ? new Date(g.last_login_at).toLocaleDateString("ru-RU") : "never";
+        var expStr = exp.toLocaleDateString("ru-RU");
+
+        var actions = "";
+        if (g.is_active && !isExpired) {
+            actions = '<button class="btn-sm qr" onclick="showGuestQR(' + g.id + ',\'' + esc(g.access_code) + '\')">QR</button>'
+                + '<button class="btn-sm extend" onclick="extendGuest(' + g.id + ')">+30d</button>'
+                + '<button class="btn-sm revoke" onclick="revokeGuest(' + g.id + ')">Revoke</button>';
+        } else if (g.is_active && isExpired) {
+            actions = '<button class="btn-sm extend" onclick="extendGuest(' + g.id + ')">Renew</button>'
+                + '<button class="btn-sm revoke" onclick="revokeGuest(' + g.id + ')">Revoke</button>';
+        }
+
+        html += '<div class="guest-item">'
+            + '<div class="guest-info">'
+            + '<div class="guest-name"><span class="badge ' + badgeClass + '">' + badgeText + '</span>' + esc(g.name) + '</div>'
+            + '<div class="guest-meta"><span>Logins: ' + (g.login_count || 0) + '</span><span>Last: ' + lastLogin + '</span><span>Expires: ' + expStr + '</span></div>'
+            + '</div>'
+            + '<div class="guest-code">' + g.access_code + '</div>'
+            + '<div class="guest-actions">' + actions + '</div>'
+            + '</div>';
     }
-    html += '</table>';
     document.getElementById("guest-list").innerHTML = html;
 }
 
 async function revokeGuest(id) {
-    if (!confirm("Отозвать доступ?")) return;
-    await fetch("/api/admin/guests/" + id, {
-        method: "DELETE",
-        headers: {"X-Admin-Secret": SECRET}
-    });
+    if (!confirm("Revoke access?")) return;
+    await fetch("/api/admin/guests/" + id, { method: "DELETE", headers: {"X-Admin-Secret": SECRET} });
     loadGuests();
 }
 
-async function showQR(id) {
-    var r = await fetch("/api/admin/guests/" + id + "/qr", {
-        headers: {"X-Admin-Secret": SECRET}
+async function extendGuest(id) {
+    var r = await fetch("/api/admin/guests/" + id + "/extend", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Secret": SECRET },
+        body: JSON.stringify({ days: 30 })
     });
-    var blob = await r.blob();
-    var url = URL.createObjectURL(blob);
-    var w = window.open("", "_blank", "width=300,height=300");
-    w.document.write('<img src="' + url + '" style="width:100%">');
+    if (r.ok) { loadGuests(); } else { alert("Error extending"); }
 }
 
-function escHtml(s) {
+async function showGuestQR(id, code) {
+    var guests = (await (await fetch("/api/admin/guests", { headers: {"X-Admin-Secret": SECRET} })).json()).guests;
+    var g = guests.find(function(x) { return x.id === id; });
+    if (!g) return;
+    var url = "https://vzor-ai.com/api/auth/token/" + g.token;
+    // Open modal with styled QR
+    var w = window.open("", "_blank", "width=360,height=440");
+    w.document.write('<!DOCTYPE html><html><head><title>VZOR QR</title>'
+        + '<script src="https://unpkg.com/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"><\/script>'
+        + '<style>body{margin:0;background:#0f0f13;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;}'
+        + '.code{color:rgba(255,255,255,0.4);font-family:monospace;font-size:16px;letter-spacing:3px;margin-top:16px;}</style></head><body>'
+        + '<div id="qr"></div><div class="code">' + code + '</div>'
+        + '<script>'
+        + 'new QRCodeStyling({width:280,height:280,type:"canvas",data:"' + url + '",'
+        + 'dotsOptions:{type:"classy-rounded",gradient:{type:"linear",rotation:Math.PI/4,colorStops:[{offset:0,color:"#6366f1"},{offset:1,color:"#a78bfa"}]}},'
+        + 'cornersSquareOptions:{type:"extra-rounded",color:"#6366f1"},'
+        + 'cornersDotOptions:{type:"dot",color:"#818cf8"},'
+        + 'backgroundOptions:{color:"#0f0f13"},'
+        + 'qrOptions:{errorCorrectionLevel:"H"},'
+        + 'imageOptions:{hideBackgroundDots:true,imageSize:0.35,margin:6}'
+        + '}).append(document.getElementById("qr"));<\/script></body></html>');
+}
+
+function esc(s) {
     var d = document.createElement("div");
     d.textContent = s;
     return d.innerHTML;
 }
 </script>
-
 </body>
 </html>

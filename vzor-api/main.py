@@ -490,6 +490,30 @@ async def auth_logout():
     return response
 
 
+
+
+@app.get("/go/{short_code}")
+async def short_code_redirect(short_code: str):
+    """Short URL redirect: /go/S3QB43J8 -> find guest by code -> set cookie -> redirect."""
+    # Reconstruct VZOR-XXXX-XXXX from short code
+    sc = short_code.upper().replace("-", "")
+    if len(sc) == 8:
+        code = "VZOR-" + sc[:4] + "-" + sc[4:]
+    else:
+        raise HTTPException(status_code=404, detail="Invalid code")
+    guest = await find_guest_by_code(code)
+    if not guest:
+        raise HTTPException(status_code=404, detail="Invalid or expired code")
+    await record_login(guest["id"])
+    jwt_token = create_jwt_token(guest["id"], guest["name"])
+    response = RedirectResponse(url="/?authenticated=1", status_code=302)
+    response.set_cookie(
+        key="vzor_session", value=jwt_token,
+        httponly=True, secure=True, samesite="lax",
+        max_age=7 * 24 * 3600, path="/"
+    )
+    return response
+
 # ==========================================
 # ADMIN — Guest Management Endpoints
 # ==========================================
@@ -536,6 +560,24 @@ async def admin_revoke_guest(guest_id: int, request: Request):
     result = await revoke_guest(guest_id)
     return result
 
+
+
+@app.post("/api/admin/guests/{guest_id}/extend")
+async def admin_extend_guest(guest_id: int, request: Request):
+    """Extend guest access by N days (requires X-Admin-Secret header)."""
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    body = await request.json()
+    days = body.get("days", 30)
+    from db import get_pool
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute(
+            "UPDATE vzor_guests SET expires_at = GREATEST(expires_at, NOW()) + make_interval(days => $1) WHERE id = $2",
+            days, guest_id
+        )
+    return {"status": "extended", "guest_id": guest_id, "added_days": days}
 
 @app.get("/api/admin/guests/{guest_id}/qr")
 async def admin_guest_qr(guest_id: int, request: Request):
