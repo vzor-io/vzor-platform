@@ -3606,6 +3606,8 @@
         controls.enabled = false; // Disabled initially (State 1/2 use scroll)
         controls.minDistance = 30;  // v3.34: Allow getting very close to focused task
         controls.maxDistance = 800; // v3.34: Allow zooming out far
+        controls.minPolarAngle = 0;
+        controls.maxPolarAngle = Math.PI;
 
         // INTERACTION LISTENER (OrbitControls)
         controls.addEventListener('change', () => {
@@ -4136,7 +4138,9 @@
 
             // 12. Enable orbit controls
             controls.enabled = true;
+            controls.enableRotate = false;
             controls.target.set(0, 0, 0);
+            window._orbitPivotTask = null;
 
             console.log('[DrillDown] UI shown for:', categoryName);
         }
@@ -4144,14 +4148,7 @@
         function onClick(e) {
             if (!isClickValid) return; // Ignore drag-clicks
 
-            // v3.38: Skip click processing on UI overlays (not canvas)
-            var _ct = e.target;
-            if (_ct.closest('#icon-bar') || _ct.closest('#side-panel') ||
-                _ct.closest('#task-interface') || _ct.closest('#detail-panel') ||
-                _ct.closest('#node-editor-panel') || _ct.closest('#back-button') ||
-                _ct.tagName === 'INPUT' || _ct.tagName === 'BUTTON') return;
-
-            // --- Click on Slide 1 to move to Slide 2 ---
+            // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
             if (smoothP < 0.1) {
                 targetP = 1.0;
                 return;
@@ -4406,7 +4403,9 @@
 
             // Enable Orbit Controls
             controls.enabled = true;
+            controls.enableRotate = false;
             controls.target.set(0, 0, 0);
+            window._orbitPivotTask = null;
 
             // Sync Camera Z for smooth transition (optional, logic handles it)
 
@@ -4595,7 +4594,7 @@
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
         function move(x, y, cx, cy) {
             lastInteractTime = Date.now(); // Track interaction
-            // v3.35: Only apply shader mouse effects when NOT in drill-down
+            // v3.35: Skip shader mouse effects during drill-down
             if (!isDrilled) {
                 mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
                 ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
@@ -4608,12 +4607,15 @@
                 // We keep it at 0 on mobile unless moving, but on desktop we fade it
             }, 1000);
 
-            // v3.12.9: Rotation only outside drill-down (OrbitControls handles drill-down)
-            if (isDrag && !isDrilled) {
+            // v3.12.9: In drill-down OrbitControls handles rotation
+            if (isDrag) {
                 let dx = x - prevM.x; let dy = y - prevM.y;
-                group.rotation.y += dx * 0.005;
-                group.rotation.x += dy * 0.005;
-                mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
+                if (!isDrilled) {
+                    group.rotation.y += dx * 0.005;
+                    group.rotation.x += dy * 0.005;
+                    mom = { x: dx * 0.005, y: dy * 0.005 };
+                }
+                prevM = { x, y };
                 lastInteractTime = Date.now();
             }
         }
@@ -4624,7 +4626,6 @@
                                target.closest('#detail-panel') ||
                                target.closest('#node-editor-panel') ||
                                target.closest('#icon-bar') ||
-                               target.closest('#side-panel') ||
                                target.closest('#back-button') ||
                                target.closest('.nav-btn') ||
                                target.tagName === 'INPUT' ||
@@ -4633,7 +4634,6 @@
 
             if (isUIElement) {
                 isDrag = false;
-                isClickValid = false; // v3.38: Prevent onClick from firing on UI
                 return; // Don't interfere with UI interactions
             }
 
@@ -4649,8 +4649,7 @@
             const target = e.target;
             const isOverUI = target.closest('#task-interface') ||
                             target.closest('#detail-panel') ||
-                            target.closest('#node-editor-panel') ||
-                            target.closest('#side-panel');
+                            target.closest('#node-editor-panel');
 
             if (!isOverUI) {
                 move(e.clientX, e.clientY, e.clientX, e.clientY);
@@ -4672,6 +4671,11 @@
                 if (window.resetOrbitPivot) window.resetOrbitPivot();
             }
         });
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && window._orbitPivotTask && isDrilled) {
+                if (window.resetOrbitPivot) window.resetOrbitPivot();
+            }
+        });
 
         // Double-click on empty space = unfocus block (registered ONCE)
         document.getElementById('canvas-wrapper').addEventListener('dblclick', (event) => {
@@ -4688,12 +4692,20 @@
                 .map(t => t.mesh);
             const dblHits = dblRay.intersectObjects(taskMeshes2);
             if (dblHits.length === 0) {
+                if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                    window._orbitPivotTask.mesh.scale.setScalar(1.0);
+                    if (window._orbitPivotTask.mesh.userData.material)
+                        window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
+                }
+                window._orbitPivotTask = null;
+                window._isFlyAnimating = true;
                 window._focusedBlock = null;
                 window._focusedPhase = null;
+                controls.enabled = false;
+                flushControlsDeltas();
                 group.children.forEach(ch => {
                     if (ch.userData && ch.userData.isLabel) ch.visible = true;
                 });
-                // Return camera to overview position
                 const startPos = camera.position.clone();
                 const startTarget = controls.target.clone();
                 const overviewPos = new THREE.Vector3(0, 0, 450);
@@ -4706,8 +4718,21 @@
                     const ease = 1 - Math.pow(1 - t, 3);
                     camera.position.lerpVectors(startPos, overviewPos, ease);
                     controls.target.lerpVectors(startTarget, overviewTarget, ease);
-                    controls.update();
-                    if (t < 1) requestAnimationFrame(flyBack);
+                    camera.lookAt(controls.target);
+                    if (t < 1) {
+                        requestAnimationFrame(flyBack);
+                    } else {
+                        controls.enableDamping = true;
+                        controls.dampingFactor = 0.05;
+                        controls.enableZoom = false;
+                        controls.enablePan = true;
+                        controls.minDistance = 30;
+                        controls.maxDistance = 800;
+                        controls.enabled = true;
+                        controls.enableRotate = false;
+                        controls.update();
+                        window._isFlyAnimating = false;
+                    }
                 }
                 flyBack();
             }
@@ -4798,7 +4823,7 @@
                 leftPanel.contains(event.target);
 
             // Only zoom 3D when drilled AND not over any active panel
-            if (isDrilled && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
+            if (isDrilled && !window._orbitPivotTask && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
                 event.preventDefault(); // Prevent page scrolling
 
                 // Faster, more noticeable zoom
@@ -4931,7 +4956,7 @@
 
             // Update sub-lines and targets (Only if drilled)
             if (isDrilled) {
-                // OrbitControls handles camera
+                // OrbitControls handles camera (skip during fly animations)
                 if (!window._isFlyAnimating) controls.update();
 
                 // Nucleus pulse
@@ -5023,6 +5048,13 @@
                         const t = tp[i];
                         const pos = t.mesh.position;
 
+                        // Pin focused task so orbit pivot is stable
+                        if (window._orbitPivotTask && t === window._orbitPivotTask) {
+                            t._vx = 0; t._vy = 0; t._vz = 0;
+                            t._fx = 0; t._fy = 0; t._fz = 0;
+                            continue;
+                        }
+
                         // Pull toward own block center (keeps clusters in their sector)
                         const blockDir = BLOCK_DIRS[getPhaseColor(t.phase || 'General')];
                         if (blockDir) {
@@ -5071,11 +5103,7 @@
                     // Update bond lines
                     updateBondPositions();
 
-                    // v3.33: Keep orbit pivot on focused task as it moves
-                    if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                        const fp = window._orbitPivotTask.mesh.position;
-                        controls.target.set(fp.x, fp.y, fp.z);
-                    }
+                    // v3.33: Orbit target set once by flyToTask; task pinned, no per-frame update
                 }
 
                 // v3.22: Scale 3D mesh spheres + gentle pulsation
@@ -6987,14 +7015,31 @@
             // Opacity handled by animate loop via _focusedPhase
         }
 
-        // v3.35: Blender-style orbit — camera flies to task
+        // v3.33: Blender-style orbit pivot
+        // r160 OrbitControls: closure-scoped internals, flush via update() with damping OFF
         window._orbitPivotTask = null;
         window._isFlyAnimating = false;
+
+        function flushControlsDeltas() {
+            var d = controls.enableDamping;
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = d;
+        }
 
         window.flyToTask = function(task) {
             if (!task || !task.mesh) return;
             window._orbitPivotTask = task;
             window._isFlyAnimating = true;
+
+            group.rotation.set(0, 0, 0);
+            mom.x = 0; mom.y = 0;
+            material.uniforms.uMouseActive.value = 0;
+            currentZoom = 1.0; targetZoom = 1.0;
+            material.uniforms.uGraphZoom.value = 1.0;
+
+            controls.enabled = false;
+            flushControlsDeltas();
 
             var targetPos = new THREE.Vector3();
             task.mesh.getWorldPosition(targetPos);
@@ -7010,9 +7055,6 @@
             var duration = 600;
             var startTime = Date.now();
 
-            controls.enableZoom = true;
-            lastInteractTime = Date.now() + 10000;
-
             function animatePivot() {
                 var elapsed = Date.now() - startTime;
                 var t = Math.min(elapsed / duration, 1);
@@ -7023,6 +7065,14 @@
                 if (t < 1) {
                     requestAnimationFrame(animatePivot);
                 } else {
+                    controls.enableDamping = false;
+                    controls.enableRotate = true;
+                    controls.enableZoom = true;
+                    controls.enablePan = false;
+                    controls.minDistance = 20;
+                    controls.maxDistance = 200;
+                    controls.enabled = true;
+                    controls.update();
                     window._isFlyAnimating = false;
                     lastInteractTime = Date.now();
                 }
@@ -7031,8 +7081,16 @@
         };
 
         window.resetOrbitPivot = function() {
+            if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                window._orbitPivotTask.mesh.scale.setScalar(1.0);
+                if (window._orbitPivotTask.mesh.userData.material)
+                    window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
+            }
             window._orbitPivotTask = null;
             window._isFlyAnimating = true;
+
+            controls.enabled = false;
+            flushControlsDeltas();
 
             var startTarget = controls.target.clone();
             var startCamPos = camera.position.clone();
@@ -7044,8 +7102,6 @@
             var duration = 500;
             var startTime = Date.now();
 
-            controls.enableZoom = false;
-
             function animateReset() {
                 var elapsed = Date.now() - startTime;
                 var t = Math.min(elapsed / duration, 1);
@@ -7056,6 +7112,15 @@
                 if (t < 1) {
                     requestAnimationFrame(animateReset);
                 } else {
+                    controls.enableDamping = true;
+                    controls.dampingFactor = 0.05;
+                    controls.enableZoom = false;
+                    controls.enablePan = true;
+                    controls.minDistance = 30;
+                    controls.maxDistance = 800;
+                    controls.enabled = true;
+                    controls.enableRotate = false;
+                    controls.update();
                     window._isFlyAnimating = false;
                 }
             }
@@ -7101,7 +7166,7 @@
 
         // Load tasks from database when entering drill-down
         window.loadTasksFromDB = async function(category) {
-            // Don't load if tasks already exist (skip if force-reload via project switch)
+            // Don't load if tasks already exist (skip guard if force-reload via project switch)
             if (window.taskPoints && window.taskPoints.length > 0 && !window._forceReloadTasks) {
                 console.log('[VZOR-Tasks] Tasks already loaded:', window.taskPoints.length);
                 return;
@@ -7224,7 +7289,7 @@
                 if (_vb2) _vb2.textContent = 'v3.31 | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' bonds';
                 window.showToast('VZOR Tasks', Object.keys(taskIdMap).length + ' задач загружено', 'info', 3000);
 
-                // Ensure all task meshes and bonds are visible
+                // Ensure all task meshes visible after reload
                 window.taskPoints.forEach(function(t) {
                     if (t.mesh) {
                         t.mesh.visible = true;
@@ -9563,17 +9628,14 @@
                 const _data = await resp.json();
                 const projects = _data.projects || _data;
 
-                // Separate templates from user projects
                 const templates = projects.filter(p => p.is_template || p.type === 'template');
                 const userProjects = projects.filter(p => !p.is_template && p.type !== 'template');
 
-                // Determine active project
                 const activeId = window.currentProjectId || (templates.length > 0 ? templates[0].id : null);
                 if (!window.currentProjectId && activeId) window.currentProjectId = activeId;
 
                 let html = "";
 
-                // Current project section
                 const active = projects.find(p => p.id === activeId);
                 if (active) {
                     html += '<div class="side-panel-section">';
@@ -9586,7 +9648,6 @@
                     html += '</div>';
                 }
 
-                // Templates section
                 if (templates.length > 0) {
                     html += '<div class="side-panel-section">';
                     html += '<div class="side-panel-section-title">Templates</div>';
@@ -9600,7 +9661,6 @@
                     html += '</div>';
                 }
 
-                // User projects section
                 if (userProjects.length > 0) {
                     html += '<div class="side-panel-section">';
                     html += '<div class="side-panel-section-title">Projects</div>';
@@ -9616,7 +9676,6 @@
                     html += '</div>';
                 }
 
-                // New project action
                 html += '<div class="side-panel-section">';
                 html += '<div class="side-panel-item action" id="ps-new-project-btn" onclick="showNewProjectInput()">+ New project</div>';
                 html += '<div id="ps-new-project-form" style="display:none;padding:4px 12px">';
@@ -9628,14 +9687,12 @@
                 html += '</div>';
 
                 container.innerHTML = html;
-
             } catch(e) {
                 console.error("[Projects] Load error:", e);
                 container.innerHTML = '<div class="ps-loading">Error loading projects</div>';
             }
         }
 
-        // Clear all task meshes and bonds from 3D scene
         window.clearAllTasks = function() {
             if (window.taskPoints && window.taskPoints.length > 0) {
                 window.taskPoints.forEach(function(t) {
@@ -9651,62 +9708,36 @@
             if (typeof initBondSystem === "function") initBondSystem();
         };
 
-        // Programmatically enter drill-down (same as clicking Development sphere)
         window.enterDrillDown = function(categoryName) {
-            // Set state
             isDrilled = true;
             hasEverDrilled = true;
             currentCategory = categoryName || "Development";
-
-            // Transition to spheres view if not there
-            if (smoothP < 0.8) {
-                targetP = 1.0;
-            }
-
-            // Set drillProg for animation
+            if (smoothP < 0.8) targetP = 1.0;
             drillProg = 1.0;
-
-            // Show drill-down UI
             showDrillDownUI(currentCategory);
-
-            // Show Back button directly
             var backBtn = document.getElementById('back-button');
             if (backBtn) {
                 backBtn.classList.add('visible');
                 backBtn.style.cssText = 'opacity: 1 !important; pointer-events: auto !important; display: block !important;';
             }
-
-            // Show icon bar toggle
             var iconBarToggle = document.getElementById('icon-bar-toggle');
             if (iconBarToggle) iconBarToggle.style.cssText = 'display: flex !important;';
-
-            // Hide scroll indicators
             var scrollHint = document.getElementById('scrollHint');
             var progressDots = document.getElementById('progressDots');
             if (scrollHint) scrollHint.style.opacity = '0';
             if (progressDots) progressDots.style.opacity = '0';
-
-            // Enable orbit
             controls.enabled = true;
+            controls.enableRotate = false;
             controls.target.set(0, 0, 0);
-
-            // Show bonds
+            window._orbitPivotTask = null;
             bondMesh.visible = true;
             window.graphVisible = true;
-
-            // Lock scroll
             document.body.style.overflow = 'hidden';
-
-            // Update title
             showDetail(currentCategory);
-            console.log('[Projects] enterDrillDown complete:', categoryName);
         };
 
         window.switchProject = function(projectId) {
-            console.log('[Projects] switchProject:', projectId, 'isDrilled:', isDrilled);
             window.currentProjectId = projectId;
-
-            // Find project name
             var projName = "";
             var items = document.querySelectorAll("[data-project-id]");
             items.forEach(function(el) {
@@ -9715,28 +9746,14 @@
                     if (nameEl) projName = nameEl.textContent;
                 }
             });
-
-            // Close side panel first
             closeSidePanel();
-
-            // Clear existing tasks from 3D scene
             window.clearAllTasks();
-
-            // Enter drill-down if not already there
-            if (!isDrilled) {
-                window.enterDrillDown("Development");
-            }
-
-            // Ensure bonds visible
+            if (!isDrilled) window.enterDrillDown("Development");
             bondMesh.visible = true;
             window.graphVisible = true;
-
-            // Load tasks for this project
             setTimeout(function() {
-                console.log('[Projects] Loading tasks for project_id:', projectId, 'currentCategory:', window.currentCategory);
                 window.loadTasksFromDB(window.currentCategory || "Development");
             }, 500);
-
             window.showToast("Project", projName || ("Project #" + projectId), "info", 2000);
         };
 
@@ -9762,21 +9779,17 @@
             var inp = document.getElementById("ps-new-name");
             var name = inp ? inp.value.trim() : "";
             if (!name) { if (inp) inp.focus(); return; }
-
             try {
-                var templateId = 1;
                 var resp = await fetch("/api/projects", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify({name: name, source_template_id: templateId})
+                    body: JSON.stringify({name: name, source_template_id: 1})
                 });
                 var proj = await resp.json();
                 var newId = proj.id || proj.project_id;
                 if (newId) {
                     window.showToast("Project", name, "success", 2000);
                     window.switchProject(newId);
-                } else {
-                    window.showToast("Error", "No project ID returned", "error", 3000);
                 }
             } catch(e) {
                 console.error("[Projects] Create error:", e);
