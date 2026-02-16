@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VZOR — Управление доступом</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif;
+        background: #0a0a0a;
+        color: #fff;
+        min-height: 100vh;
+        padding: 40px 20px;
+    }
+    .container { max-width: 720px; margin: 0 auto; }
+
+    h1 {
+        font-size: 28px;
+        font-weight: 300;
+        letter-spacing: 6px;
+        text-align: center;
+        margin-bottom: 8px;
+    }
+    .sub {
+        text-align: center;
+        color: rgba(255,255,255,0.35);
+        font-size: 12px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        margin-bottom: 40px;
+    }
+
+    /* Login */
+    #login-section { text-align: center; margin-top: 80px; }
+    #login-section input {
+        padding: 12px 16px;
+        width: 300px;
+        font-size: 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 6px;
+        color: #fff;
+        outline: none;
+        text-align: center;
+    }
+    #login-section button {
+        display: block;
+        margin: 16px auto 0;
+        padding: 10px 32px;
+        font-size: 12px;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.6);
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 20px;
+        cursor: pointer;
+    }
+    #login-section button:hover { border-color: #fff; color: #fff; }
+
+    /* Panel */
+    #admin-panel { display: none; }
+
+    /* Create form */
+    .card {
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        padding: 28px;
+        margin-bottom: 24px;
+    }
+    .card h2 {
+        font-size: 14px;
+        font-weight: 400;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.5);
+        margin-bottom: 20px;
+    }
+    .form-row {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+    .form-row input {
+        flex: 1;
+        padding: 10px 14px;
+        font-size: 14px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 6px;
+        color: #fff;
+        outline: none;
+    }
+    .form-row input:focus { border-color: rgba(255,255,255,0.25); }
+    .form-row input::placeholder { color: rgba(255,255,255,0.2); }
+    .btn-create {
+        width: 100%;
+        padding: 12px;
+        font-size: 13px;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #fff;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .btn-create:hover { background: rgba(255,255,255,0.1); }
+
+    /* Result */
+    #create-result {
+        display: none;
+        text-align: center;
+        padding: 24px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 10px;
+        margin-bottom: 24px;
+    }
+    #create-result .code {
+        font-family: monospace;
+        font-size: 28px;
+        letter-spacing: 4px;
+        color: #fff;
+        margin: 12px 0;
+    }
+    #create-result .label {
+        font-size: 11px;
+        color: rgba(255,255,255,0.35);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    #create-result img {
+        margin: 16px auto;
+        display: block;
+        border-radius: 8px;
+    }
+    #create-result .link {
+        font-size: 12px;
+        color: rgba(255,255,255,0.3);
+        word-break: break-all;
+        margin-top: 8px;
+    }
+    #create-result .link a { color: rgba(255,255,255,0.5); }
+    .copy-btn {
+        display: inline-block;
+        margin: 8px 4px;
+        padding: 6px 16px;
+        font-size: 11px;
+        letter-spacing: 1px;
+        color: rgba(255,255,255,0.5);
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
+        cursor: pointer;
+    }
+    .copy-btn:hover { border-color: #fff; color: #fff; }
+
+    /* Guest list */
+    .guest-table { width: 100%; border-collapse: collapse; }
+    .guest-table th {
+        text-align: left;
+        font-size: 11px;
+        font-weight: 400;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.3);
+        padding: 8px 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .guest-table td {
+        padding: 10px 12px;
+        font-size: 13px;
+        color: rgba(255,255,255,0.7);
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .guest-table .code-cell { font-family: monospace; letter-spacing: 1px; }
+    .badge-active {
+        display: inline-block;
+        padding: 2px 8px;
+        font-size: 10px;
+        border-radius: 10px;
+        background: rgba(80,200,120,0.15);
+        color: #50c878;
+    }
+    .badge-revoked {
+        display: inline-block;
+        padding: 2px 8px;
+        font-size: 10px;
+        border-radius: 10px;
+        background: rgba(255,100,100,0.15);
+        color: #ff6b6b;
+    }
+    .btn-revoke {
+        padding: 4px 12px;
+        font-size: 10px;
+        color: rgba(255,100,100,0.6);
+        background: transparent;
+        border: 1px solid rgba(255,100,100,0.2);
+        border-radius: 10px;
+        cursor: pointer;
+    }
+    .btn-revoke:hover { border-color: #ff6b6b; color: #ff6b6b; }
+    .btn-qr {
+        padding: 4px 12px;
+        font-size: 10px;
+        color: rgba(255,255,255,0.4);
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 10px;
+        cursor: pointer;
+        margin-right: 6px;
+    }
+    .btn-qr:hover { border-color: #fff; color: #fff; }
+    .empty-msg {
+        text-align: center;
+        color: rgba(255,255,255,0.2);
+        padding: 30px;
+        font-size: 13px;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>VZOR</h1>
+    <p class="sub">guest access management</p>
+
+    <!-- Admin Login -->
+    <div id="login-section">
+        <input type="password" id="admin-secret" placeholder="Admin Secret">
+        <button onclick="adminLogin()">Войти</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel">
+
+        <!-- Create Guest -->
+        <div class="card">
+            <h2>Новый гость</h2>
+            <div class="form-row">
+                <input type="text" id="g-name" placeholder="Имя инвестора">
+                <input type="email" id="g-email" placeholder="Email (необязательно)">
+            </div>
+            <button class="btn-create" onclick="createGuest()">Создать доступ</button>
+        </div>
+
+        <!-- Result -->
+        <div id="create-result">
+            <div class="label">Код доступа</div>
+            <div class="code" id="r-code"></div>
+            <div>
+                <button class="copy-btn" onclick="copyCode()">Копировать код</button>
+                <button class="copy-btn" onclick="copyLink()">Копировать ссылку</button>
+            </div>
+            <img id="r-qr" width="200" height="200" alt="QR">
+            <div style="margin-top:12px">
+                <button class="copy-btn" onclick="downloadQR()">Скачать QR</button>
+                <button class="copy-btn" onclick="shareWhatsApp()">WhatsApp</button>
+                <button class="copy-btn" onclick="shareTelegram()">Telegram</button>
+                <button class="copy-btn" onclick="shareEmail()">Email</button>
+            </div>
+            <div class="link">Ссылка: <a id="r-link" href="#" target="_blank"></a></div>
+        </div>
+
+        <!-- Guest List -->
+        <div class="card">
+            <h2>Все гости</h2>
+            <div id="guest-list"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+let SECRET = "";
+
+function adminLogin() {
+    SECRET = document.getElementById("admin-secret").value.trim();
+    if (!SECRET) return;
+    // Test the secret by listing guests
+    fetch("/api/admin/guests", {
+        headers: {"X-Admin-Secret": SECRET}
+    }).then(r => {
+        if (r.ok) {
+            document.getElementById("login-section").style.display = "none";
+            document.getElementById("admin-panel").style.display = "block";
+            loadGuests();
+        } else {
+            alert("Неверный секрет");
+        }
+    });
+}
+
+// Enter key on secret input
+document.getElementById("admin-secret").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") adminLogin();
+});
+
+let lastResult = null;
+
+async function createGuest() {
+    var name = document.getElementById("g-name").value.trim();
+    if (!name) { document.getElementById("g-name").focus(); return; }
+    var email = document.getElementById("g-email").value.trim();
+
+    var r = await fetch("/api/admin/guests", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-Admin-Secret": SECRET
+        },
+        body: JSON.stringify({name: name, email: email})
+    });
+    var d = await r.json();
+    if (!r.ok) { alert("Ошибка: " + (d.detail || "unknown")); return; }
+
+    lastResult = d;
+
+    // Show result
+    document.getElementById("r-code").textContent = d.access_code;
+    document.getElementById("r-link").textContent = d.qr_url;
+    document.getElementById("r-link").href = d.qr_url;
+
+    // Load QR image
+    var qrImg = document.getElementById("r-qr");
+    qrImg.src = "/api/admin/guests/" + d.guest.id + "/qr?t=" + Date.now();
+    // We need to pass the header for QR, but img tags can't do that.
+    // So let's fetch it as blob
+    var qrR = await fetch("/api/admin/guests/" + d.guest.id + "/qr", {
+        headers: {"X-Admin-Secret": SECRET}
+    });
+    var blob = await qrR.blob();
+    qrImg.src = URL.createObjectURL(blob);
+
+    document.getElementById("create-result").style.display = "block";
+
+    // Clear form
+    document.getElementById("g-name").value = "";
+    document.getElementById("g-email").value = "";
+
+    // Refresh list
+    loadGuests();
+}
+
+function copyCode() {
+    if (lastResult) { navigator.clipboard.writeText(lastResult.access_code); flash("Код скопирован"); }
+}
+
+function copyLink() {
+    if (lastResult) { navigator.clipboard.writeText(lastResult.qr_url); flash("Ссылка скопирована"); }
+}
+
+function flash(msg) {
+    var el = document.getElementById("r-code");
+    var old = el.textContent;
+    el.textContent = msg;
+    el.style.fontSize = "14px";
+    setTimeout(function() { el.textContent = old; el.style.fontSize = ""; }, 1500);
+}
+
+function downloadQR() {
+    var img = document.getElementById("r-qr");
+    if (!img.src) return;
+    var a = document.createElement("a");
+    a.href = img.src;
+    a.download = "VZOR-QR-" + (lastResult ? lastResult.access_code : "code") + ".png";
+    a.click();
+}
+
+function shareWhatsApp() {
+    if (!lastResult) return;
+    var text = "Доступ к VZOR\n\nКод: " + lastResult.access_code + "\n\nИли перейдите по ссылке:\n" + lastResult.qr_url;
+    window.open("https://wa.me/?text=" + encodeURIComponent(text), "_blank");
+}
+
+function shareTelegram() {
+    if (!lastResult) return;
+    var text = "Доступ к VZOR\n\nКод: " + lastResult.access_code + "\n\nИли перейдите по ссылке:\n" + lastResult.qr_url;
+    window.open("https://t.me/share/url?url=" + encodeURIComponent(lastResult.qr_url) + "&text=" + encodeURIComponent("Доступ к VZOR\nКод: " + lastResult.access_code), "_blank");
+}
+
+function shareEmail() {
+    if (!lastResult) return;
+    var subj = "Доступ к платформе VZOR";
+    var body = "Здравствуйте!\n\nВаш код доступа к VZOR: " + lastResult.access_code + "\n\nТакже можете войти по ссылке:\n" + lastResult.qr_url + "\n\nКод действует 90 дней.";
+    window.open("mailto:?subject=" + encodeURIComponent(subj) + "&body=" + encodeURIComponent(body));
+}
+
+async function loadGuests() {
+    var r = await fetch("/api/admin/guests", {
+        headers: {"X-Admin-Secret": SECRET}
+    });
+    var d = await r.json();
+    var list = d.guests || [];
+
+    if (list.length === 0) {
+        document.getElementById("guest-list").innerHTML = '<div class="empty-msg">Пока нет гостей</div>';
+        return;
+    }
+
+    var html = '<table class="guest-table"><tr><th>Имя</th><th>Код</th><th>Входов</th><th>Статус</th><th></th></tr>';
+    for (var g of list) {
+        var badge = g.is_active
+            ? '<span class="badge-active">Active</span>'
+            : '<span class="badge-revoked">Revoked</span>';
+        var actions = g.is_active
+            ? '<button class="btn-qr" onclick="showQR(' + g.id + ')">QR</button><button class="btn-revoke" onclick="revokeGuest(' + g.id + ')">Revoke</button>'
+            : '';
+        html += '<tr>'
+            + '<td>' + escHtml(g.name) + '</td>'
+            + '<td class="code-cell">' + g.access_code + '</td>'
+            + '<td>' + (g.login_count || 0) + '</td>'
+            + '<td>' + badge + '</td>'
+            + '<td>' + actions + '</td>'
+            + '</tr>';
+    }
+    html += '</table>';
+    document.getElementById("guest-list").innerHTML = html;
+}
+
+async function revokeGuest(id) {
+    if (!confirm("Отозвать доступ?")) return;
+    await fetch("/api/admin/guests/" + id, {
+        method: "DELETE",
+        headers: {"X-Admin-Secret": SECRET}
+    });
+    loadGuests();
+}
+
+async function showQR(id) {
+    var r = await fetch("/api/admin/guests/" + id + "/qr", {
+        headers: {"X-Admin-Secret": SECRET}
+    });
+    var blob = await r.blob();
+    var url = URL.createObjectURL(blob);
+    var w = window.open("", "_blank", "width=300,height=300");
+    w.document.write('<img src="' + url + '" style="width:100%">');
+}
+
+function escHtml(s) {
+    var d = document.createElement("div");
+    d.textContent = s;
+    return d.innerHTML;
+}
+</script>
+
+</body>
+</html>
