@@ -1168,7 +1168,7 @@
         }
 
         
-        /* v3.35: ГРАФ BUTTON */
+        /* v3.35: GRAPH BUTTON */
         #graph-toggle-btn {
             position: fixed; top: 130px; right: 40px;
             width: 85px; height: 40px;
@@ -2960,45 +2960,7 @@
             height: 100%; border-radius: 2px; transition: width 0.5s ease;
         }
 
-        /* Block progress dashboard */
-        #block-dashboard {
-            position: fixed;
-            bottom: 90px;
-            left: 16px;
-            z-index: 300;
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            background: rgba(10,10,15,0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 12px;
-            padding: 10px 14px;
-            font-family: 'Outfit', sans-serif;
-            min-width: 180px;
-        }
-        #block-dashboard.visible { display: flex; }
-        .dash-row {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .dash-dot {
-            width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
-        }
-        .dash-label {
-            font-size: 10px; color: rgba(255,255,255,0.7); flex: 1; white-space: nowrap;
-        }
-        .dash-pct {
-            font-size: 10px; color: rgba(255,255,255,0.5); width: 32px; text-align: right;
-        }
-        .dash-bar-bg {
-            width: 50px; height: 3px; background: rgba(255,255,255,0.08); border-radius: 2px; overflow: hidden;
-        }
-        .dash-bar-fill {
-            height: 100%; border-radius: 2px; transition: width 0.5s ease;
-        }
-        /* Task hover tooltip */
+        /* Block progress dashboard */        /* Task hover tooltip */
         #task-tooltip {
             position: fixed;
             display: none;
@@ -3067,33 +3029,7 @@
         </div>
     </div>
     
-    <div id="block-dashboard">
-        <div style="font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:2px;">Прогресс</div>
-        <div class="dash-row" data-block="analysis">
-            <span class="dash-dot" style="background:#4D96FF;"></span>
-            <span class="dash-label">Анализ</span>
-            <span class="dash-pct">0%</span>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#4D96FF;"></div></div>
-        </div>
-        <div class="dash-row" data-block="design">
-            <span class="dash-dot" style="background:#C084FC;"></span>
-            <span class="dash-label">Проектирование</span>
-            <span class="dash-pct">0%</span>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#C084FC;"></div></div>
-        </div>
-        <div class="dash-row" data-block="build">
-            <span class="dash-dot" style="background:#FF8C42;"></span>
-            <span class="dash-label">Строительство</span>
-            <span class="dash-pct">0%</span>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#FF8C42;"></div></div>
-        </div>
-        <div class="dash-row" data-block="sales">
-            <span class="dash-dot" style="background:#00ffff;"></span>
-            <span class="dash-label">Продажи</span>
-            <span class="dash-pct">0%</span>
-            <div class="dash-bar-bg"><div class="dash-bar-fill" style="width:0%;background:#00ffff;"></div></div>
-        </div>
-    </div>
+    
     <div id="task-tooltip"><div class="tt-title"></div><div class="tt-phase"></div><div class="tt-status"></div></div>
     <!-- v3.14: Toast Notification Container -->
     <div id="toast-container" aria-live="polite" aria-label="Уведомления"></div>
@@ -3155,6 +3091,14 @@
             </svg>
         </div>
 
+        <!-- Progress -->
+        <div class="icon-btn" id="progress-icon-btn" title="Progress" onclick="toggleDashboard()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M18 20V10"/>
+                <path d="M12 20V4"/>
+                <path d="M6 20v-6"/>
+            </svg>
+        </div>
         <!-- Settings -->
         <div class="icon-btn" data-panel="settings" title="Settings">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -3255,13 +3199,13 @@
         </span>
         NODES
     </button>
-    <!-- v3.35: ГРАФ BUTTON -->
+    <!-- v3.35: GRAPH BUTTON -->
     <button id="graph-toggle-btn">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="12" cy="18" r="2.5"/>
             <line x1="6" y1="6" x2="12" y2="18"/><line x1="18" y1="6" x2="12" y2="18"/>
         </svg>
-        ГРАФ
+        GRAPH
     </button>
 
     
@@ -5274,10 +5218,6 @@
             // Bond system visibility (single LineSegments mesh)
             var isFinanceMode = (typeof currentCategory !== 'undefined' && currentCategory === 'Finance');
             bondMesh.visible = isDrilled && !!window.graphVisible && !isFinanceMode;
-            particlesMesh.visible = !isFinanceMode;
-            subLinesMesh.visible = !isFinanceMode;
-            linesMesh.visible = !isFinanceMode;
-            highlightMesh.visible = !isFinanceMode;
 
             // v3.12.7: CRITICAL - Continuously enforce UI visibility during drill-down
             // This fixes the issue where UI disappears on second drill-down
@@ -6790,43 +6730,7 @@
         window.updateDashboard = function() {
             const dash = document.getElementById('block-dashboard');
             if (!dash || !window.taskPoints || window.taskPoints.length === 0) return;
-            dash.classList.add('visible');
-
-            const BLOCK_COLORS = {
-                'analysis': 0x4D96FF,
-                'design': 0xC084FC,
-                'build': 0xFF8C42,
-                'sales': 0x4ECDC4
-            };
-
-            // Group tasks by block (based on their phase color)
-            const blocks = { analysis: {done:0,total:0}, design: {done:0,total:0}, build: {done:0,total:0}, sales: {done:0,total:0} };
-            window.taskPoints.forEach(tp => {
-                if (tp.level === 0) return; // Skip phase nodes
-                const color = getPhaseColor(tp.phase || 'General');
-                let block = 'analysis';
-                if (color === 0xC084FC) block = 'design';
-                else if (color === 0xFF8C42) block = 'build';
-                else if (color === 0x4ECDC4) block = 'sales';
-                blocks[block].total++;
-                if (tp.status === 'completed') blocks[block].done++;
-            });
-
-            Object.keys(blocks).forEach(key => {
-                const row = dash.querySelector('[data-block="' + key + '"]');
-                if (!row) return;
-                const b = blocks[key];
-                const pct = b.total > 0 ? Math.round(b.done / b.total * 100) : 0;
-                row.querySelector('.dash-pct').textContent = pct + '%';
-                row.querySelector('.dash-bar-fill').style.width = pct + '%';
-            });
-        };
-
-                // Dashboard: update block progress bars
-        window.updateDashboard = function() {
-            const dash = document.getElementById('block-dashboard');
-            if (!dash || !window.taskPoints || window.taskPoints.length === 0) return;
-            dash.classList.add('visible');
+            if (!window._dashboardVisible) return;
 
             const BLOCK_COLORS = {
                 'analysis': 0x4D96FF,
@@ -9307,6 +9211,24 @@ n                // v3.35: Create matrix bonds after DB load
 
             console.log('[VZOR] Graph ' + (window.graphVisible ? 'ON' : 'OFF'));
         }
+        // v3.37b: Toggle progress dashboard
+        window._dashboardVisible = false;
+        function toggleDashboard() {
+            var dash = document.getElementById('block-dashboard');
+            if (!dash) return;
+            window._dashboardVisible = !window._dashboardVisible;
+            if (window._dashboardVisible) {
+                dash.classList.add('visible');
+                if (window.updateDashboard) window.updateDashboard();
+                var btn = document.getElementById('progress-icon-btn');
+                if (btn) btn.classList.add('active');
+            } else {
+                dash.classList.remove('visible');
+                var btn = document.getElementById('progress-icon-btn');
+                if (btn) btn.classList.remove('active');
+            }
+        }
+
 
         // v3.35: GRAPH DRAG
         setTimeout(function() {
