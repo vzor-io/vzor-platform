@@ -4542,8 +4542,8 @@
         // MOUSE / DRAG Logic -> Only active when NOT Drill Down (Slide 1/2 Parallax)
         function move(x, y, cx, cy) {
             lastInteractTime = Date.now(); // Track interaction
-            // v3.35: Skip shader mouse effects during orbit mode
-            if (!window._orbitPivotTask) {
+            // v3.35: Skip shader mouse effects during drill-down mode
+            if (!isDrilled) {
                 mv.x = (cx / window.innerWidth) * 2 - 1; mv.y = -(cy / window.innerHeight) * 2 + 1;
                 ray.setFromCamera(mv, camera); const pt = new THREE.Vector3(); ray.ray.intersectPlane(pl, pt);
                 material.uniforms.uMouse.value.set(pt.x, pt.y);
@@ -4590,7 +4590,7 @@
             downPos = { x: e.clientX, y: e.clientY };
             prevM = { x: e.clientX, y: e.clientY };
             mom = { x: 0, y: 0 };
-            if (!window._orbitPivotTask) material.uniforms.uMouseActive.value = 1;
+            if (!isDrilled) material.uniforms.uMouseActive.value = 1;
         });
         document.addEventListener('mousemove', e => {
             // v3.12.7: Skip heavy processing when over UI elements
@@ -4845,8 +4845,8 @@
                 if (hint) hint.style.display = 'none';
             }
 
-            // Smoother MouseActive fade (force 0 in orbit mode)
-            if (window._orbitPivotTask) {
+            // Smoother MouseActive fade (force 0 in drill-down)
+            if (isDrilled) {
                 material.uniforms.uMouseActive.value = 0;
             } else if (!isDrag && material.uniforms.uMouseActive.value > 0.0) {
                 material.uniforms.uMouseActive.value *= 0.92;
