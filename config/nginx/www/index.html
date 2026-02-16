@@ -4152,11 +4152,8 @@
                 _ct.closest('#block-dashboard') || _ct.closest('.nav-btn') ||
                 _ct.tagName === 'INPUT' || _ct.tagName === 'BUTTON') return;
 
-            // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
-            if (smoothP < 0.1) {
-                targetP = 1.0;
-                return;
-            }
+            // --- Slide transition by scroll only (click disabled) ---
+            if (smoothP < 0.1) return;
 
             // v3.18 FIX: Calculate mouse coordinates relative to canvas, not window
             const rect = renderer.domElement.getBoundingClientRect();
@@ -7218,7 +7215,16 @@
                 console.log('[VZOR v3.31] DB loaded', Object.keys(taskIdMap).length, 'tasks,', _bc2, 'bonds. NODE_RADII:', JSON.stringify(NODE_RADII));
                 const _vb2 = document.getElementById('version-badge');
                 if (_vb2) _vb2.textContent = 'v3.31 | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' bonds';
-                window.showToast('VZOR Tasks', 'Восстановлено ' + Object.keys(taskIdMap).length + ' задач', 'info', 3000);
+                window.showToast('VZOR Tasks', Object.keys(taskIdMap).length + ' задач загружено', 'info', 3000);
+
+                // Ensure all task meshes and bonds are visible
+                window.taskPoints.forEach(function(t) {
+                    if (t.mesh) {
+                        t.mesh.visible = true;
+                        if (t.mesh.userData.labelSprite) t.mesh.userData.labelSprite.visible = true;
+                    }
+                });
+                bondMesh.visible = true;
 
                 // Build phase navigation panel
                 if (window.buildPhaseNav) window.buildPhaseNav();
@@ -9677,14 +9683,20 @@
             controls.enabled = true;
             controls.target.set(0, 0, 0);
 
+            // Show bonds
+            bondMesh.visible = true;
+            window.graphVisible = true;
+
             // Lock scroll
             document.body.style.overflow = 'hidden';
 
             // Update title
             showDetail(currentCategory);
+            console.log('[Projects] enterDrillDown complete:', categoryName);
         };
 
         window.switchProject = function(projectId) {
+            console.log('[Projects] switchProject:', projectId, 'isDrilled:', isDrilled);
             window.currentProjectId = projectId;
 
             // Find project name
@@ -9697,9 +9709,10 @@
                 }
             });
 
-            window.showToast("Project", projName || ("Project #" + projectId), "info", 2000);
+            // Close side panel first
+            closeSidePanel();
 
-            // Clear existing tasks
+            // Clear existing tasks from 3D scene
             window.clearAllTasks();
 
             // Enter drill-down if not already there
@@ -9707,17 +9720,17 @@
                 window.enterDrillDown("Development");
             }
 
-            // Load tasks for this project (with short delay for UI)
+            // Ensure bonds visible
+            bondMesh.visible = true;
+            window.graphVisible = true;
+
+            // Load tasks for this project
             setTimeout(function() {
+                console.log('[Projects] Loading tasks for project_id:', projectId, 'currentCategory:', window.currentCategory);
                 window.loadTasksFromDB(window.currentCategory || "Development");
-            }, 300);
+            }, 500);
 
-            // Refresh panel
-            var panelContent = document.getElementById("side-panel-content");
-            if (panelContent) loadProjectsPanel(panelContent);
-
-            // Close side panel after selection
-            closeSidePanel();
+            window.showToast("Project", projName || ("Project #" + projectId), "info", 2000);
         };
 
         window.showNewProjectInput = function() {
