@@ -1420,6 +1420,42 @@
             letter-spacing: 1px;
         }
 
+        .block-task-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .block-task-item:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .block-task-item.disabled {
+            opacity: 0.3;
+        }
+        .block-task-cb {
+            width: 14px;
+            height: 14px;
+            accent-color: #00ffff;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .block-select-all {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255,255,255,0.5);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            cursor: pointer;
+        }
+
         .side-panel-item-icon {
             font-size: 16px;
             width: 20px;
@@ -5362,7 +5398,7 @@
                 window.taskPoints.forEach(task => {
                     if (task.mesh) {
                         // Show only if drilled AND category matches
-                        task.mesh.visible = isDrilled && task.category === currentCategory;
+                        task.mesh.visible = isDrilled && (task.active !== false);
 
                         // v3.22: Scale-up animation for new task points (3D Mesh)
                         if (task.mesh.userData.startTime) {
@@ -7361,6 +7397,9 @@
                     }
                 });
                 bondMesh.visible = true;
+
+                // Restore active state from localStorage
+                if (typeof loadTaskActiveState === 'function') loadTaskActiveState();
 
                 // Build phase navigation panel
                 if (window.buildPhaseNav) window.buildPhaseNav();
@@ -9666,6 +9705,20 @@
 
             title.textContent = data.title;
 
+            // Dynamic panel: block task checklist (Invest/Design/Build/Sales in drill-down)
+            var _iconToPhase = {
+                invest: '\u0418\u043d\u0432\u0435\u0441\u0442\u0438\u0446\u0438\u043e\u043d\u043d\u044b\u0439 \u0430\u043d\u0430\u043b\u0438\u0437',
+                design: '\u041f\u0440\u043e\u0435\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435',
+                build: '\u0421\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c\u0441\u0442\u0432\u043e',
+                sales: '\u041f\u0440\u043e\u0434\u0430\u0436\u0438'
+            };
+            if (_iconToPhase[panelType] && window.isDrilled && window.taskPoints && window.taskPoints.length > 0) {
+                title.textContent = data.title;
+                loadBlockTasksPanel(content, _iconToPhase[panelType]);
+                panel.classList.add('active');
+                return;
+            }
+
             // Dynamic panel (Projects etc.)
             if (data.dynamic && panelType === 'projects') {
                 content.innerHTML = '<div class="ps-loading">Loading...</div>';
@@ -9905,6 +9958,118 @@
                 window.showToast("Error", "Failed to delete", "error", 3000);
             }
         };
+
+        // === BLOCK TASK CHECKLIST ===
+        function loadBlockTasksPanel(container, phaseName) {
+            var tasks = window.taskPoints.filter(function(t) { return t.phase === phaseName; });
+            var l1Tasks = tasks.filter(function(t) { return (t.level || 1) <= 1; });
+
+            var html = '';
+
+            // "Select all" checkbox
+            var allActive = tasks.every(function(t) { return t.active !== false; });
+            var escapedPhase = phaseName.replace(/'/g, "\\'");
+            html += '<div class="block-select-all">';
+            html += '<input type="checkbox" class="block-task-cb" id="block-select-all-cb"'
+                 + (allActive ? ' checked' : '') + " onchange=\"toggleAllBlockTasks('" + escapedPhase + "', this.checked)\">";
+            html += '<label for="block-select-all-cb" style="cursor:pointer">\u0412\u0441\u0435 \u0437\u0430\u0434\u0430\u0447\u0438</label>';
+            html += '</div>';
+
+            // L1 tasks with checkboxes
+            l1Tasks.forEach(function(t) {
+                var isActive = t.active !== false;
+                var cls = 'block-task-item' + (isActive ? '' : ' disabled');
+                html += '<div class="' + cls + '">';
+                html += '<input type="checkbox" class="block-task-cb"'
+                     + (isActive ? ' checked' : '')
+                     + " onchange=\"toggleTaskActive('" + t.id + "', this.checked)\">";
+                html += '<span>' + t.title + '</span>';
+                html += '</div>';
+            });
+
+            // Counter
+            var activeCount = tasks.filter(function(t) { return t.active !== false; }).length;
+            html += '<div style="padding:12px;font-size:11px;color:rgba(255,255,255,0.3)">';
+            html += activeCount + ' / ' + tasks.length + ' \u0437\u0430\u0434\u0430\u0447 \u0430\u043a\u0442\u0438\u0432\u043d\u043e';
+            html += '</div>';
+
+            container.innerHTML = html;
+        }
+
+        window.toggleTaskActive = function(taskId, active) {
+            var task = window.taskPoints.find(function(t) { return String(t.id) === String(taskId); });
+            if (!task) { console.warn('[Block] task not found:', taskId); return; }
+            task.active = active;
+
+            // Toggle mesh visibility
+            if (task.mesh) {
+                task.mesh.visible = active;
+                if (task.mesh.userData.labelSprite) task.mesh.userData.labelSprite.visible = active;
+                if (task.mesh.userData.glowSprite) task.mesh.userData.glowSprite.visible = active;
+            }
+
+            // Toggle child L2 tasks
+            window.taskPoints.forEach(function(ch) {
+                if (ch.dependsOn && (ch.dependsOn.includes(taskId) || ch.dependsOn.includes(String(taskId)))) {
+                    ch.active = active;
+                    if (ch.mesh) {
+                        ch.mesh.visible = active;
+                        if (ch.mesh.userData.labelSprite) ch.mesh.userData.labelSprite.visible = active;
+                        if (ch.mesh.userData.glowSprite) ch.mesh.userData.glowSprite.visible = active;
+                    }
+                }
+            });
+
+            saveTaskActiveState();
+        };
+
+        window.toggleAllBlockTasks = function(phaseName, active) {
+            var tasks = window.taskPoints.filter(function(t) { return t.phase === phaseName; });
+            tasks.forEach(function(t) {
+                t.active = active;
+                if (t.mesh) {
+                    t.mesh.visible = active;
+                    if (t.mesh.userData.labelSprite) t.mesh.userData.labelSprite.visible = active;
+                    if (t.mesh.userData.glowSprite) t.mesh.userData.glowSprite.visible = active;
+                }
+            });
+            saveTaskActiveState();
+
+            // Refresh panel checkboxes
+            var container = document.getElementById('side-panel-content');
+            if (container) loadBlockTasksPanel(container, phaseName);
+        };
+
+        function saveTaskActiveState() {
+            try {
+                var state = {};
+                window.taskPoints.forEach(function(t) {
+                    if (t.active === false) state[t.id] = false;
+                });
+                var key = 'vzor_task_active_' + (window.currentProjectId || 1);
+                localStorage.setItem(key, JSON.stringify(state));
+            } catch(e) { console.warn('[Block] save error:', e); }
+        }
+
+        function loadTaskActiveState() {
+            try {
+                var key = 'vzor_task_active_' + (window.currentProjectId || 1);
+                var raw = localStorage.getItem(key);
+                if (!raw) return;
+                var state = JSON.parse(raw);
+                window.taskPoints.forEach(function(t) {
+                    if (state[String(t.id)] === false) {
+                        t.active = false;
+                        if (t.mesh) {
+                            t.mesh.visible = false;
+                            if (t.mesh.userData.labelSprite) t.mesh.userData.labelSprite.visible = false;
+                            if (t.mesh.userData.glowSprite) t.mesh.userData.glowSprite.visible = false;
+                        }
+                    }
+                });
+                console.log('[Block] Loaded active state, disabled:', Object.keys(state).length);
+            } catch(e) { console.warn('[Block] load error:', e); }
+        }
 
         function closeSidePanel() {
             const panel = document.getElementById('side-panel');
