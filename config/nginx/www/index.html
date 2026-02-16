@@ -4086,8 +4086,8 @@
             // 11. Lock scroll
             document.body.style.overflow = 'hidden';
 
-            // 12. Enable orbit controls
-            controls.enabled = true;
+            // 12. Controls off until task orbit
+            controls.enabled = false;
             controls.target.set(0, 0, 0);
             window._orbitPivotTask = null;
 
@@ -4350,8 +4350,8 @@
             // LOCK SCROLL (CSS Method)
             document.body.style.overflow = 'hidden';
 
-            // Enable Orbit Controls
-            controls.enabled = true;
+            // Controls off until task orbit
+            controls.enabled = false;
             controls.target.set(0, 0, 0);
             window._orbitPivotTask = null;
 
@@ -4676,7 +4676,7 @@
                         controls.enablePan = true;
                         controls.minDistance = 30;
                         controls.maxDistance = 800;
-                        controls.enabled = true;
+                        controls.enabled = false;
                         controls.update();
                         window._isFlyAnimating = false;
                     }
@@ -4903,8 +4903,8 @@
 
             // Update sub-lines and targets (Only if drilled)
             if (isDrilled) {
-                // OrbitControls handles camera (skip during fly animations)
-                if (!window._isFlyAnimating) controls.update();
+                // OrbitControls handles camera (only in orbit mode)
+                if (window._orbitPivotTask && !window._isFlyAnimating) controls.update();
 
                 // Nucleus pulse
                 if (window._nucleus) {
@@ -7052,7 +7052,7 @@
                     controls.enablePan = true;
                     controls.minDistance = 30;
                     controls.maxDistance = 800;
-                    controls.enabled = true;
+                    controls.enabled = false;
                     controls.update();
                     window._isFlyAnimating = false;
                 }
