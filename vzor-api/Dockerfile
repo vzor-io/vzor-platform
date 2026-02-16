@@ -2,8 +2,10 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY packages/ /usr/local/lib/python3.11/site-packages/
-COPY main.py multi_model.py db.py system_prompt.py agent_zero_client.py simple_agent.py requirements.txt ./
+COPY requirements.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY main.py multi_model.py db.py system_prompt.py agent_zero_client.py simple_agent.py ./
 
 EXPOSE 8000
 

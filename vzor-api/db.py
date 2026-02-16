@@ -347,3 +347,123 @@ async def update_task(task_id, updates, project_id=1):
         query = f"UPDATE vzor_tasks SET {', '.join(sets)} WHERE project_id = ${idx} AND task_id = ${idx + 1}"
         await conn.execute(query, *vals)
         return True
+
+
+# ==========================================
+# VZOR GUESTS — Auth / Access Management
+# ==========================================
+
+async def create_guest(name: str, email: str, access_code: str, expires_days: int = 90, notes: str = ""):
+    """Create a new guest entry."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            INSERT INTO vzor_guests (name, email, access_code, expires_at, notes)
+            VALUES ($1, $2, $3, NOW() + make_interval(days => $4), $5)
+            RETURNING id, name, email, access_code, token, is_active, created_at, expires_at
+        """, name, email, access_code, expires_days, notes)
+        return {
+            "id": row["id"],
+            "name": row["name"],
+            "email": row["email"],
+            "access_code": row["access_code"],
+            "token": str(row["token"]),
+            "is_active": row["is_active"],
+            "created_at": row["created_at"].isoformat(),
+            "expires_at": row["expires_at"].isoformat(),
+        }
+
+
+async def find_guest_by_code(code: str):
+    """Find an active, non-expired guest by access code."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT id, name, email, access_code, token, is_active, created_at, expires_at
+            FROM vzor_guests
+            WHERE access_code = $1 AND is_active = TRUE AND expires_at > NOW()
+        """, code)
+        if not row:
+            return None
+        return {
+            "id": row["id"],
+            "name": row["name"],
+            "email": row["email"],
+            "access_code": row["access_code"],
+            "token": str(row["token"]),
+            "is_active": row["is_active"],
+            "created_at": row["created_at"].isoformat(),
+            "expires_at": row["expires_at"].isoformat(),
+        }
+
+
+async def find_guest_by_token(token_uuid: str):
+    """Find an active, non-expired guest by token UUID."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        row = await conn.fetchrow("""
+            SELECT id, name, email, access_code, token, is_active, created_at, expires_at
+            FROM vzor_guests
+            WHERE token = $1::uuid AND is_active = TRUE AND expires_at > NOW()
+        """, token_uuid)
+        if not row:
+            return None
+        return {
+            "id": row["id"],
+            "name": row["name"],
+            "email": row["email"],
+            "access_code": row["access_code"],
+            "token": str(row["token"]),
+            "is_active": row["is_active"],
+            "created_at": row["created_at"].isoformat(),
+            "expires_at": row["expires_at"].isoformat(),
+        }
+
+
+async def record_login(guest_id: int):
+    """Record a guest login (update last_login_at and increment login_count)."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("""
+            UPDATE vzor_guests
+            SET last_login_at = NOW(), login_count = login_count + 1
+            WHERE id = $1
+        """, guest_id)
+
+
+async def list_guests():
+    """List all guests."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        rows = await conn.fetch("""
+            SELECT id, name, email, access_code, token, is_active,
+                   created_at, expires_at, last_login_at, login_count, notes
+            FROM vzor_guests
+            ORDER BY created_at DESC
+        """)
+        return [
+            {
+                "id": r["id"],
+                "name": r["name"],
+                "email": r["email"],
+                "access_code": r["access_code"],
+                "token": str(r["token"]),
+                "is_active": r["is_active"],
+                "created_at": r["created_at"].isoformat(),
+                "expires_at": r["expires_at"].isoformat() if r["expires_at"] else None,
+                "last_login_at": r["last_login_at"].isoformat() if r["last_login_at"] else None,
+                "login_count": r["login_count"],
+                "notes": r["notes"],
+            }
+            for r in rows
+        ]
+
+
+async def revoke_guest(guest_id: int):
+    """Revoke guest access (set is_active = FALSE)."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        await conn.execute("""
+            UPDATE vzor_guests SET is_active = FALSE WHERE id = $1
+        """, guest_id)
+        return {"status": "revoked", "guest_id": guest_id}

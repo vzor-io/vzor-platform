@@ -7,7 +7,8 @@ from datetime import datetime
 from multi_model import call_model
 from db import (init_db, save_message, get_history, get_all_history, clear_history,
                 save_tasks, load_tasks, update_task,
-                get_projects, create_project, clone_from_template, delete_project)
+                get_projects, create_project, clone_from_template, delete_project,
+                create_guest, find_guest_by_code, find_guest_by_token, record_login, list_guests, revoke_guest)
 
 app = FastAPI(title="VZOR API", version="2.2.0")
 
@@ -369,3 +370,189 @@ async def get_balances():
     balances["google"] = {"balance": "free tier", "currency": ""}
 
     return {"balances": balances}
+
+
+# ==========================================
+# AUTH — Guest Authentication Endpoints
+# ==========================================
+
+import secrets
+import os
+import uuid as uuid_mod
+import jwt
+import qrcode
+from io import BytesIO
+from fastapi.responses import Response, RedirectResponse
+from fastapi import Request
+
+VZOR_JWT_SECRET = os.getenv("VZOR_JWT_SECRET", "change-me-in-production")
+VZOR_ADMIN_SECRET = os.getenv("VZOR_ADMIN_SECRET", "change-me-admin")
+
+# Alphabet without ambiguous chars: 0/O/1/I/L
+CODE_ALPHABET = "23456789ABCDEFGHJKMNPQRSTUVWXYZ"
+
+
+def generate_access_code() -> str:
+    """Generate VZOR-XXXX-XXXX code."""
+    part1 = "".join(secrets.choice(CODE_ALPHABET) for _ in range(4))
+    part2 = "".join(secrets.choice(CODE_ALPHABET) for _ in range(4))
+    return f"VZOR-{part1}-{part2}"
+
+
+def create_jwt_token(guest_id: int, guest_name: str) -> str:
+    """Create JWT token for session cookie."""
+    from datetime import timedelta
+    payload = {
+        "guest_id": guest_id,
+        "name": guest_name,
+        "exp": datetime.utcnow() + timedelta(days=7),
+        "iat": datetime.utcnow(),
+    }
+    return jwt.encode(payload, VZOR_JWT_SECRET, algorithm="HS256")
+
+
+def verify_jwt_token(token: str):
+    """Verify and decode JWT token. Returns payload or None."""
+    try:
+        return jwt.decode(token, VZOR_JWT_SECRET, algorithms=["HS256"])
+    except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+        return None
+
+
+class LoginRequest(BaseModel):
+    code: str
+
+
+@app.get("/api/auth/verify")
+async def auth_verify(request: Request):
+    """Check if user is authenticated via cookie."""
+    token = request.cookies.get("vzor_session")
+    if not token:
+        return {"authenticated": False}
+    payload = verify_jwt_token(token)
+    if not payload:
+        return {"authenticated": False}
+    return {"authenticated": True, "name": payload.get("name", "")}
+
+
+@app.post("/api/auth/login")
+async def auth_login(req: LoginRequest):
+    """Login with access code."""
+    code = req.code.strip().upper()
+    guest = await find_guest_by_code(code)
+    if not guest:
+        raise HTTPException(status_code=401, detail="Invalid or expired access code")
+    await record_login(guest["id"])
+    token = create_jwt_token(guest["id"], guest["name"])
+    import json as json_mod
+    response = Response(
+        content=json_mod.dumps({"status": "ok", "name": guest["name"]}),
+        media_type="application/json"
+    )
+    response.set_cookie(
+        key="vzor_session",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=7 * 24 * 3600,
+        path="/"
+    )
+    return response
+
+
+@app.get("/api/auth/token/{token_uuid}")
+async def auth_token_login(token_uuid: str):
+    """Login via QR/link token UUID."""
+    guest = await find_guest_by_token(token_uuid)
+    if not guest:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
+    await record_login(guest["id"])
+    jwt_token = create_jwt_token(guest["id"], guest["name"])
+    response = RedirectResponse(url="/?authenticated=1", status_code=302)
+    response.set_cookie(
+        key="vzor_session",
+        value=jwt_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=7 * 24 * 3600,
+        path="/"
+    )
+    return response
+
+
+@app.post("/api/auth/logout")
+async def auth_logout():
+    """Clear session cookie."""
+    response = Response(content='{"status":"logged_out"}', media_type="application/json")
+    response.delete_cookie(key="vzor_session", path="/")
+    return response
+
+
+# ==========================================
+# ADMIN — Guest Management Endpoints
+# ==========================================
+
+@app.post("/api/admin/guests")
+async def admin_create_guest(request: Request):
+    """Create a new guest (requires X-Admin-Secret header)."""
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    body = await request.json()
+    name = body.get("name", "Guest")
+    email = body.get("email", "")
+    notes = body.get("notes", "")
+    expires_days = body.get("expires_days", 90)
+    access_code = generate_access_code()
+    guest = await create_guest(name, email, access_code, expires_days, notes)
+    qr_url = f"https://vzor-ai.com/api/auth/token/{guest['token']}"
+    return {
+        "status": "ok",
+        "guest": guest,
+        "access_code": guest["access_code"],
+        "qr_url": qr_url,
+        "token_login_url": qr_url,
+    }
+
+
+@app.get("/api/admin/guests")
+async def admin_list_guests(request: Request):
+    """List all guests (requires X-Admin-Secret header)."""
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    guests = await list_guests()
+    return {"guests": guests}
+
+
+@app.delete("/api/admin/guests/{guest_id}")
+async def admin_revoke_guest(guest_id: int, request: Request):
+    """Revoke guest access (requires X-Admin-Secret header)."""
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    result = await revoke_guest(guest_id)
+    return result
+
+
+@app.get("/api/admin/guests/{guest_id}/qr")
+async def admin_guest_qr(guest_id: int, request: Request):
+    """Generate QR code PNG for a guest."""
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    guests = await list_guests()
+    guest = next((g for g in guests if g["id"] == guest_id), None)
+    if not guest:
+        raise HTTPException(status_code=404, detail="Guest not found")
+    url = f"https://vzor-ai.com/api/auth/token/{guest['token']}"
+    qr = qrcode.QRCode(version=1, box_size=10, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="white", back_color="black")
+    buf = BytesIO()
+    img.save(buf, format="PNG")
+    buf.seek(0)
+    return Response(content=buf.getvalue(), media_type="image/png")
