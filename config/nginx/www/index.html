@@ -3556,6 +3556,8 @@
         controls.enabled = false; // Disabled initially (State 1/2 use scroll)
         controls.minDistance = 30;  // v3.34: Allow getting very close to focused task
         controls.maxDistance = 800; // v3.34: Allow zooming out far
+        controls.minPolarAngle = 0;
+        controls.maxPolarAngle = Math.PI;
 
         // INTERACTION LISTENER (OrbitControls)
         controls.addEventListener('change', () => {
@@ -4087,6 +4089,7 @@
             // 12. Enable orbit controls
             controls.enabled = true;
             controls.target.set(0, 0, 0);
+            window._orbitPivotTask = null;
 
             console.log('[DrillDown] UI shown for:', categoryName);
         }
@@ -4350,6 +4353,7 @@
             // Enable Orbit Controls
             controls.enabled = true;
             controls.target.set(0, 0, 0);
+            window._orbitPivotTask = null;
 
             // Sync Camera Z for smooth transition (optional, logic handles it)
 
@@ -4548,13 +4552,16 @@
                 // We keep it at 0 on mobile unless moving, but on desktop we fade it
             }, 1000);
 
-            // v3.12.9: Allow rotation in both normal and drill-down modes
+            // v3.12.9: In drill-down OrbitControls handles rotation
             if (isDrag) {
                 let dx = x - prevM.x; let dy = y - prevM.y;
-                group.rotation.y += dx * 0.005;
-                group.rotation.x += dy * 0.005;
-                mom = { x: dx * 0.005, y: dy * 0.005 }; prevM = { x, y };
-                lastInteractTime = Date.now(); // Reset idle timer on drag
+                if (!isDrilled) {
+                    group.rotation.y += dx * 0.005;
+                    group.rotation.x += dy * 0.005;
+                    mom = { x: dx * 0.005, y: dy * 0.005 };
+                }
+                prevM = { x, y };
+                lastInteractTime = Date.now();
             }
         }
         document.addEventListener('mousedown', e => {
@@ -4617,12 +4624,20 @@
                 .map(t => t.mesh);
             const dblHits = dblRay.intersectObjects(taskMeshes2);
             if (dblHits.length === 0) {
+                if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                    window._orbitPivotTask.mesh.scale.setScalar(1.0);
+                    if (window._orbitPivotTask.mesh.userData.material)
+                        window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
+                }
+                window._orbitPivotTask = null;
+                window._isFlyAnimating = true;
                 window._focusedBlock = null;
                 window._focusedPhase = null;
+                controls.enabled = false;
+                flushControlsDeltas();
                 group.children.forEach(ch => {
                     if (ch.userData && ch.userData.isLabel) ch.visible = true;
                 });
-                // Return camera to overview position
                 const startPos = camera.position.clone();
                 const startTarget = controls.target.clone();
                 const overviewPos = new THREE.Vector3(0, 0, 450);
@@ -4635,8 +4650,20 @@
                     const ease = 1 - Math.pow(1 - t, 3);
                     camera.position.lerpVectors(startPos, overviewPos, ease);
                     controls.target.lerpVectors(startTarget, overviewTarget, ease);
-                    controls.update();
-                    if (t < 1) requestAnimationFrame(flyBack);
+                    camera.lookAt(controls.target);
+                    if (t < 1) {
+                        requestAnimationFrame(flyBack);
+                    } else {
+                        controls.enableDamping = true;
+                        controls.dampingFactor = 0.05;
+                        controls.enableZoom = false;
+                        controls.enablePan = true;
+                        controls.minDistance = 30;
+                        controls.maxDistance = 800;
+                        controls.enabled = true;
+                        controls.update();
+                        window._isFlyAnimating = false;
+                    }
                 }
                 flyBack();
             }
@@ -4727,7 +4754,7 @@
                 leftPanel.contains(event.target);
 
             // Only zoom 3D when drilled AND not over any active panel
-            if (isDrilled && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
+            if (isDrilled && !window._orbitPivotTask && !isOverNodeEditor && !isOverDetailPanel && !isOverLeftPanel) {
                 event.preventDefault(); // Prevent page scrolling
 
                 // Faster, more noticeable zoom
@@ -4858,8 +4885,8 @@
 
             // Update sub-lines and targets (Only if drilled)
             if (isDrilled) {
-                // OrbitControls handles camera
-                controls.update();
+                // OrbitControls handles camera (skip during fly animations)
+                if (!window._isFlyAnimating) controls.update();
 
                 // Nucleus pulse
                 if (window._nucleus) {
@@ -4950,6 +4977,13 @@
                         const t = tp[i];
                         const pos = t.mesh.position;
 
+                        // Pin focused task so orbit pivot is stable
+                        if (window._orbitPivotTask && t === window._orbitPivotTask) {
+                            t._vx = 0; t._vy = 0; t._vz = 0;
+                            t._fx = 0; t._fy = 0; t._fz = 0;
+                            continue;
+                        }
+
                         // Pull toward own block center (keeps clusters in their sector)
                         const blockDir = BLOCK_DIRS[getPhaseColor(t.phase || 'General')];
                         if (blockDir) {
@@ -4998,11 +5032,7 @@
                     // Update bond lines
                     updateBondPositions();
 
-                    // v3.33: Keep orbit pivot on focused task as it moves
-                    if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
-                        const fp = window._orbitPivotTask.mesh.position;
-                        controls.target.set(fp.x, fp.y, fp.z);
-                    }
+                    // v3.33: Orbit target set once by flyToTask; task pinned, no per-frame update
                 }
 
                 // v3.22: Scale 3D mesh spheres + gentle pulsation
@@ -5068,7 +5098,7 @@
                 // 1. Stays still for 10s (elapsed check)
                 // 2. Returns SLOWLY (factor 0.0005)
                 const elapsed = Date.now() - lastInteractTime;
-                if (elapsed > 10000) {
+                if (elapsed > 10000 && !isDrilled) {
                     // Check if we are actually rotated away from 0
                     if (Math.abs(group.rotation.y) > 0.01 || Math.abs(group.rotation.x) > 0.01) {
                         const driftSpeed = 0.0005; // Extremely slow return
@@ -6894,59 +6924,109 @@
             // Opacity handled by animate loop via _focusedPhase
         }
 
-        // v3.33: Blender/Rhino-style orbit pivot
-        // Click task → orbit around it. Click empty → reset to origin.
-        // Camera STAYS where it is. Only the pivot point changes.
-        window._orbitPivotTask = null; // currently focused task (or null)
+        // v3.33: Blender-style orbit pivot
+        // r160 OrbitControls: closure-scoped internals, flush via update() with damping OFF
+        window._orbitPivotTask = null;
+        window._isFlyAnimating = false;
+
+        function flushControlsDeltas() {
+            var d = controls.enableDamping;
+            controls.enableDamping = false;
+            controls.update();
+            controls.enableDamping = d;
+        }
 
         window.flyToTask = function(task) {
             if (!task || !task.mesh) return;
             window._orbitPivotTask = task;
+            window._isFlyAnimating = true;
 
-            const tp = task.mesh.position;
-            const targetPos = new THREE.Vector3(tp.x, tp.y, tp.z);
-            const startTarget = controls.target.clone();
-            const duration = 400; // fast pivot change
-            const startTime = Date.now();
+            group.rotation.set(0, 0, 0);
+            mom.x = 0; mom.y = 0;
 
-            // Enable OrbitControls zoom when focused on a task
-            controls.enableZoom = true;
+            controls.enabled = false;
+            flushControlsDeltas();
 
-            lastInteractTime = Date.now() + 10000;
+            var targetPos = new THREE.Vector3();
+            task.mesh.getWorldPosition(targetPos);
+            var startTarget = controls.target.clone();
+            var startCamPos = camera.position.clone();
+
+            var approachDir = startCamPos.clone().sub(targetPos);
+            if (approachDir.length() < 0.001) approachDir.set(0, 0, 1);
+            approachDir.normalize();
+
+            var orbitRadius = 60;
+            var endCamPos = targetPos.clone().add(approachDir.multiplyScalar(orbitRadius));
+            var duration = 600;
+            var startTime = Date.now();
 
             function animatePivot() {
-                const elapsed = Date.now() - startTime;
-                const t = Math.min(elapsed / duration, 1);
-                const ease = 1 - Math.pow(1 - t, 3);
-
+                var elapsed = Date.now() - startTime;
+                var t = Math.min(elapsed / duration, 1);
+                var ease = 1 - Math.pow(1 - t, 3);
+                camera.position.lerpVectors(startCamPos, endCamPos, ease);
                 controls.target.lerpVectors(startTarget, targetPos, ease);
-                controls.update();
-
-                if (t < 1) requestAnimationFrame(animatePivot);
-                else lastInteractTime = Date.now();
+                camera.lookAt(controls.target);
+                if (t < 1) {
+                    requestAnimationFrame(animatePivot);
+                } else {
+                    controls.enableDamping = false;
+                    controls.enableZoom = true;
+                    controls.enablePan = false;
+                    controls.minDistance = 20;
+                    controls.maxDistance = 200;
+                    controls.enabled = true;
+                    controls.update();
+                    window._isFlyAnimating = false;
+                    lastInteractTime = Date.now();
+                }
             }
             animatePivot();
         };
 
         window.resetOrbitPivot = function() {
+            if (window._orbitPivotTask && window._orbitPivotTask.mesh) {
+                window._orbitPivotTask.mesh.scale.setScalar(1.0);
+                if (window._orbitPivotTask.mesh.userData.material)
+                    window._orbitPivotTask.mesh.userData.material.opacity = 0.9;
+            }
             window._orbitPivotTask = null;
+            window._isFlyAnimating = true;
 
-            const startTarget = controls.target.clone();
-            const originTarget = new THREE.Vector3(0, 0, 0);
-            const duration = 400;
-            const startTime = Date.now();
+            controls.enabled = false;
+            flushControlsDeltas();
 
-            controls.enableZoom = false; // back to manual zoom
+            var startTarget = controls.target.clone();
+            var startCamPos = camera.position.clone();
+            var originTarget = new THREE.Vector3(0, 0, 0);
+            var backDir = startCamPos.clone().sub(originTarget);
+            if (backDir.length() < 0.001) backDir.set(0, 0, 1);
+            backDir.normalize();
+            var endCamPos = originTarget.clone().add(backDir.multiplyScalar(200));
+            var duration = 500;
+            var startTime = Date.now();
 
             function animateReset() {
-                const elapsed = Date.now() - startTime;
-                const t = Math.min(elapsed / duration, 1);
-                const ease = 1 - Math.pow(1 - t, 3);
-
+                var elapsed = Date.now() - startTime;
+                var t = Math.min(elapsed / duration, 1);
+                var ease = 1 - Math.pow(1 - t, 3);
+                camera.position.lerpVectors(startCamPos, endCamPos, ease);
                 controls.target.lerpVectors(startTarget, originTarget, ease);
-                controls.update();
-
-                if (t < 1) requestAnimationFrame(animateReset);
+                camera.lookAt(controls.target);
+                if (t < 1) {
+                    requestAnimationFrame(animateReset);
+                } else {
+                    controls.enableDamping = true;
+                    controls.dampingFactor = 0.05;
+                    controls.enableZoom = false;
+                    controls.enablePan = true;
+                    controls.minDistance = 30;
+                    controls.maxDistance = 800;
+                    controls.enabled = true;
+                    controls.update();
+                    window._isFlyAnimating = false;
+                }
             }
             animateReset();
         };
@@ -9254,7 +9334,7 @@ n                // v3.35: Create matrix bonds after DB load
                     btn.classList.add('dragging');
                     btn.style.cursor = 'grabbing';
                 }
-                if (dragging) {
+                if (!dragging) { toggleGraph(); } else {
                     btn.style.left = (startLeft + dx) + 'px';
                     btn.style.top = (startTop + dy) + 'px';
                     btn.style.right = 'auto';
@@ -9264,7 +9344,7 @@ n                // v3.35: Create matrix bonds after DB load
             function onUp(e) {
                 document.removeEventListener('mousemove', onMove);
                 document.removeEventListener('mouseup', onUp);
-                if (dragging) {
+                if (!dragging) { toggleGraph(); } else {
                     setTimeout(function() {
                         dragging = false;
                         btn.classList.remove('dragging');
