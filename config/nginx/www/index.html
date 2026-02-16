@@ -1320,6 +1320,44 @@
             border-color: rgba(0, 255, 255, 0.3);
         }
 
+        .side-panel-item.ps-active {
+            border-left: 2px solid var(--color-accent);
+            background: rgba(0, 255, 255, 0.04);
+            color: #fff;
+        }
+
+        .ps-item-meta {
+            font-size: 10px;
+            color: rgba(255,255,255,0.3);
+            margin-top: 2px;
+        }
+
+        .ps-input {
+            width: 100%;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 6px;
+            color: #fff;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            padding: 8px 12px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .ps-input:focus {
+            border-color: rgba(0,255,255,0.4);
+        }
+        .ps-input::placeholder {
+            color: rgba(255,255,255,0.25);
+        }
+
+        .ps-loading {
+            color: rgba(255,255,255,0.3);
+            font-size: 12px;
+            padding: 20px;
+            letter-spacing: 1px;
+        }
+
         .side-panel-item-icon {
             font-size: 16px;
             width: 20px;
@@ -3041,6 +3079,19 @@
 
     <!-- ICON BAR (Hidden by default in v3.11) - SVG High-Tech Icons -->
     <div id="icon-bar">
+        <!-- Projects -->
+        <div class="icon-btn" data-panel="projects" title="Projects">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 7l6-4 6 4"/>
+                <path d="M3 7v10l6 4 6-4V7"/>
+                <path d="M9 21V11"/>
+                <path d="M3 7l6 4 6-4"/>
+                <path d="M15 7l6 4v10l-6 4"/>
+                <path d="M15 7l6 4"/>
+                <path d="M21 11l-6 4"/>
+            </svg>
+        </div>
+        <div class="icon-separator"></div>
         <!-- Invest -->
         <div class="icon-btn" data-panel="invest" title="Invest">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -7044,7 +7095,8 @@
 
             try {
                 // v3.31: Load all tasks (empty category) — single project graph
-                const resp = await fetch('/api/tasks/load?category=&session_id=default');
+                var _pid = window.currentProjectId || 1;
+                const resp = await fetch('/api/tasks/load?category=&session_id=default&project_id=' + _pid);
                 const data = await resp.json();
 
                 if (!data.tasks || data.tasks.length === 0) {
@@ -9390,6 +9442,10 @@
 
         // ===== SIDE PANEL CONTROLS =====
         const sidePanelContent = {
+            projects: {
+                title: 'Projects',
+                dynamic: true
+            },
             invest: {
                 title: 'Invest',
                 sections: [
@@ -9451,6 +9507,14 @@
 
             title.textContent = data.title;
 
+            // Dynamic panel (Projects etc.)
+            if (data.dynamic && panelType === 'projects') {
+                content.innerHTML = '<div class="ps-loading">Loading...</div>';
+                loadProjectsPanel(content);
+                panel.classList.add('active');
+                return;
+            }
+
             // Generate HTML
             let html = '';
             data.sections.forEach(section => {
@@ -9465,6 +9529,174 @@
             content.innerHTML = html;
             panel.classList.add('active');
         }
+
+        // === PROJECT SELECTOR ===
+        window.currentProjectId = null;
+
+        async function loadProjectsPanel(container) {
+            try {
+                const resp = await fetch("/api/projects");
+                const projects = await resp.json();
+
+                // Separate templates from user projects
+                const templates = projects.filter(p => p.is_template);
+                const userProjects = projects.filter(p => !p.is_template);
+
+                // Determine active project
+                const activeId = window.currentProjectId || (templates.length > 0 ? templates[0].id : null);
+                if (!window.currentProjectId && activeId) window.currentProjectId = activeId;
+
+                let html = "";
+
+                // Current project section
+                const active = projects.find(p => p.id === activeId);
+                if (active) {
+                    html += '<div class="side-panel-section">';
+                    html += '<div class="side-panel-section-title">Current project</div>';
+                    html += '<div class="side-panel-item ps-active" data-project-id="' + active.id + '">'
+                         + '<div><div>' + active.name + '</div>'
+                         + '<div class="ps-item-meta">' + (active.task_count || 0) + ' tasks'
+                         + (active.is_template ? ' &middot; template' : '') + '</div>'
+                         + '</div></div>';
+                    html += '</div>';
+                }
+
+                // Templates section
+                if (templates.length > 0) {
+                    html += '<div class="side-panel-section">';
+                    html += '<div class="side-panel-section-title">Templates</div>';
+                    templates.forEach(function(p) {
+                        var cls = p.id === activeId ? "side-panel-item ps-active" : "side-panel-item";
+                        html += '<div class="' + cls + '" data-project-id="' + p.id + '" onclick="switchProject(' + p.id + ')">'
+                             + '<div><div>' + p.name + '</div>'
+                             + '<div class="ps-item-meta">' + (p.task_count || 0) + ' tasks</div>'
+                             + '</div></div>';
+                    });
+                    html += '</div>';
+                }
+
+                // User projects section
+                if (userProjects.length > 0) {
+                    html += '<div class="side-panel-section">';
+                    html += '<div class="side-panel-section-title">Projects</div>';
+                    userProjects.forEach(function(p) {
+                        var cls = p.id === activeId ? "side-panel-item ps-active" : "side-panel-item";
+                        var dateStr = p.created_at ? new Date(p.created_at).toLocaleDateString("ru-RU", {day:"2-digit",month:"2-digit"}) : "";
+                        html += '<div class="' + cls + '" data-project-id="' + p.id + '" onclick="switchProject(' + p.id + ')">'
+                             + '<div><div>' + p.name + '</div>'
+                             + '<div class="ps-item-meta">' + (p.task_count || 0) + ' tasks'
+                             + (dateStr ? ' &middot; ' + dateStr : '') + '</div>'
+                             + '</div></div>';
+                    });
+                    html += '</div>';
+                }
+
+                // New project action
+                html += '<div class="side-panel-section">';
+                html += '<div class="side-panel-item action" id="ps-new-project-btn" onclick="showNewProjectInput()">+ New project</div>';
+                html += '<div id="ps-new-project-form" style="display:none;padding:4px 12px">';
+                html += '<input class="ps-input" id="ps-new-name" placeholder="Project name..." />'
+                     + '<div style="display:flex;gap:6px;margin-top:6px">'
+                     + '<div class="side-panel-item action" style="flex:1;justify-content:center;padding:6px" onclick="createNewProject()">Create</div>'
+                     + '<div class="side-panel-item" style="flex:1;justify-content:center;padding:6px;font-size:11px" onclick="hideNewProjectInput()">Cancel</div>'
+                     + '</div></div>';
+                html += '</div>';
+
+                container.innerHTML = html;
+
+            } catch(e) {
+                console.error("[Projects] Load error:", e);
+                container.innerHTML = '<div class="ps-loading">Error loading projects</div>';
+            }
+        }
+
+        window.switchProject = function(projectId) {
+            if (window.currentProjectId === projectId) return;
+            window.currentProjectId = projectId;
+
+            // Find project name from panel items
+            var items = document.querySelectorAll("[data-project-id]");
+            var projName = "Project #" + projectId;
+            items.forEach(function(el) {
+                el.classList.remove("ps-active");
+                if (parseInt(el.dataset.projectId) === projectId) {
+                    el.classList.add("ps-active");
+                    var nameEl = el.querySelector("div > div:first-child");
+                    if (nameEl) projName = nameEl.textContent;
+                }
+            });
+
+            window.showToast("Project", projName, "info", 2000);
+
+            // If in drill-down with tasks loaded, clear and reload
+            if (window.taskPoints && window.taskPoints.length > 0) {
+                // Remove existing task meshes
+                window.taskPoints.forEach(function(t) {
+                    if (t.mesh) {
+                        if (t.mesh.userData.labelSprite) t.mesh.parent.remove(t.mesh.userData.labelSprite);
+                        if (t.mesh.userData.glowSprite) t.mesh.parent.remove(t.mesh.userData.glowSprite);
+                        t.mesh.parent.remove(t.mesh);
+                    }
+                });
+                window.taskPoints = [];
+                if (typeof initBondSystem === "function") initBondSystem();
+                // Reload tasks for new project
+                window.loadTasksFromDB(window.currentCategory || "");
+            }
+
+            // Refresh the panel to show updated active state
+            var panelContent = document.getElementById("side-panel-content");
+            if (panelContent) loadProjectsPanel(panelContent);
+        };
+
+        window.showNewProjectInput = function() {
+            var btn = document.getElementById("ps-new-project-btn");
+            var form = document.getElementById("ps-new-project-form");
+            if (btn) btn.style.display = "none";
+            if (form) {
+                form.style.display = "block";
+                var inp = document.getElementById("ps-new-name");
+                if (inp) setTimeout(function(){ inp.focus(); }, 100);
+            }
+        };
+
+        window.hideNewProjectInput = function() {
+            var btn = document.getElementById("ps-new-project-btn");
+            var form = document.getElementById("ps-new-project-form");
+            if (btn) btn.style.display = "";
+            if (form) form.style.display = "none";
+        };
+
+        window.createNewProject = async function() {
+            var inp = document.getElementById("ps-new-name");
+            var name = inp ? inp.value.trim() : "";
+            if (!name) { if (inp) inp.focus(); return; }
+
+            try {
+                // Find template id
+                var templateId = 1;
+                var resp = await fetch("/api/projects", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({name: name, source_template_id: templateId})
+                });
+                var proj = await resp.json();
+                window.showToast("Project", "Created: " + name, "success", 2000);
+
+                // Switch to new project
+                if (proj && proj.id) {
+                    window.currentProjectId = proj.id;
+                }
+
+                // Refresh panel
+                var panelContent = document.getElementById("side-panel-content");
+                if (panelContent) loadProjectsPanel(panelContent);
+
+            } catch(e) {
+                console.error("[Projects] Create error:", e);
+                window.showToast("Error", "Failed to create project", "error", 3000);
+            }
+        };
 
         function closeSidePanel() {
             const panel = document.getElementById('side-panel');
