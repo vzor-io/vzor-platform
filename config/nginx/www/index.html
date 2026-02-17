@@ -6959,7 +6959,6 @@
 
         // Create task point with explicit size and position
         window.addTaskPointStructured = function(taskInfo, posX, posY, posZ) {
-            console.log("[DEBUG-ATPS] isDrilled="+isDrilled+" id="+(taskInfo&&taskInfo.id));
             if (!isDrilled && !window._dbLoadingTasks) return null;
 
             const level = taskInfo.level || 1;
@@ -7135,7 +7134,7 @@
 
             // === MOLECULAR LAYOUT: compact clusters ===
             const taskIdMap = {};
-            window._batchCreating = true; // Disable auto-connect during batch layout
+            window._batchCreating = true; window._dbLoadingTasks = true; // Disable auto-connect during batch layout
 
             // Reset bond system for fresh layout
             initBondSystem();
@@ -7158,7 +7157,7 @@
                 });
             });
 
-            window._batchCreating = false; // Re-enable auto-connect for manual additions
+            window._batchCreating = false; window._dbLoadingTasks = false; // Re-enable auto-connect for manual additions
 
             // Create structural bonds (L0→L1 backbone) from molecular layout
             let connCount = 0;
@@ -7609,6 +7608,8 @@
                 return;
             }
             window._forceReloadTasks = false;
+                // Ensure drill state is active when loading tasks
+                if (!isDrilled) { console.log("[VZOR-Tasks] WARNING: loadTasksFromDB called while not drilled! Forcing isDrilled=true"); isDrilled = true; }
 
             try {
                 // v3.31: Load all tasks (empty category) — single project graph
@@ -7633,7 +7634,7 @@
                 });
 
                 const taskIdMap = {};
-                window._batchCreating = true; // Disable auto-connect during batch layout
+                window._batchCreating = true; window._dbLoadingTasks = true; // Disable auto-connect during batch layout
 
                 // CRITICAL: Restore dependsOn from DB dependencies BEFORE layout calc
                 // DB stores deps separately; calcMolecularPositions needs t.dependsOn
@@ -7692,7 +7693,7 @@
                     });
                 });
 
-                window._batchCreating = false; // Re-enable auto-connect
+                window._batchCreating = false; window._dbLoadingTasks = false; // Re-enable auto-connect
 
                 // Create structural bonds from molecular layout
                 _structBonds2.forEach(bond => {
@@ -10236,7 +10237,7 @@
                             if (t.mesh) { t.mesh.visible = true; }
                         });
                     }
-                    bondMesh.visible = true;
+                    if (window._bondMesh) window._bondMesh.visible = true;
                 }).catch(function(err) {
                     console.error('[switchProject] load error:', err);
                     window.showToast("Error", "Task load failed: " + err.message, "error", 5000);
@@ -10433,7 +10434,7 @@
                 var key = 'vzor_task_active_' + (window.currentProjectId || 1);
                 var raw = localStorage.getItem(key);
                 if (!raw) return;
-                var state = JSON.parse(raw);
+                var state = JSON.parse(raw); var disabledCount = Object.keys(state).length; var totalCount = window.taskPoints ? window.taskPoints.length : 0; if (disabledCount >= totalCount && totalCount > 0) { console.warn("[Block] Skipping stale active state: would hide ALL", totalCount, "tasks"); localStorage.removeItem(key); return; }
                 window.taskPoints.forEach(function(t) {
                     if (state[String(t.id)] === false) {
                         t.active = false;
