@@ -242,8 +242,8 @@ async function addGuest(){
         +'<button class="rbtn" id="copy-link-btn" onclick="copyResultLink()">Copy link</button>'
         +'<button class="rbtn" onclick="shareWA()">WA link</button>'
         +'<button class="rbtn" onclick="shareTG()">TG link</button>'
-        +'<button class="rbtn" onclick="shareResultQR('WhatsApp')">WA QR</button>'
-        +'<button class="rbtn" onclick="shareResultQR('Telegram')">TG QR</button>'
+        +'<button class="rbtn" onclick="shareResultQR(&#39;WhatsApp&#39;)">WA QR</button>'
+        +'<button class="rbtn" onclick="shareResultQR(&#39;Telegram&#39;)">TG QR</button>'
         +'</div></div></div>';
 
     var qr=makeQR(tokenUrl(d.guest.token),200);
@@ -330,10 +330,10 @@ async function loadAll(){
             html+='<button class="dbtn delete" onclick="event.stopPropagation();deleteG('+g.id+')">Delete</button>';
         }
 
-        html+='<button class="dbtn share" onclick="event.stopPropagation();shareGuestWA(''+esc(g.access_code)+'')">WA link</button>'
-            +'<button class="dbtn share" onclick="event.stopPropagation();shareQRImage('+g.id+',''+esc(g.access_code)+'','WhatsApp')">WA QR</button>'
-            +'<button class="dbtn share" onclick="event.stopPropagation();shareGuestTG(''+esc(g.access_code)+'')">TG link</button>'
-            +'<button class="dbtn share" onclick="event.stopPropagation();shareQRImage('+g.id+',''+esc(g.access_code)+'','Telegram')">TG QR</button>'
+        html+='<button class="dbtn share" onclick="event.stopPropagation();shareGuestWA(&#39;'+esc(g.access_code)+'&#39;)">WA link</button>'
+            +'<button class="dbtn share" onclick="event.stopPropagation();shareQRImage('+g.id+',&#39;'+esc(g.access_code)+'&#39;,&#39;WhatsApp&#39;)">WA QR</button>'
+            +'<button class="dbtn share" onclick="event.stopPropagation();shareGuestTG(&#39;'+esc(g.access_code)+'&#39;)">TG link</button>'
+            +'<button class="dbtn share" onclick="event.stopPropagation();shareQRImage('+g.id+',&#39;'+esc(g.access_code)+'&#39;,&#39;Telegram&#39;)">TG QR</button>'
             +'</div></div></div></div>';
     }
     document.getElementById("guest-list").innerHTML=html;
