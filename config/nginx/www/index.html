@@ -1602,40 +1602,37 @@
             letter-spacing: 1px;
         }
 
-        .block-task-item {
+        .block-section { margin-bottom: 2px; }
+        .block-section-header {
             display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            font-size: 13px;
-            color: rgba(255,255,255,0.7);
+            gap: 6px;
+            padding: 8px 5px;
+            font-size: 10px;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
             cursor: pointer;
-            transition: background 0.2s;
+            transition: color var(--transition-fast);
         }
-        .block-task-item:hover {
-            background: rgba(255,255,255,0.05);
-        }
-        .block-task-item.disabled {
-            opacity: 0.3;
-        }
-        .block-task-cb {
-            width: 14px;
-            height: 14px;
-            accent-color: #00ffff;
-            cursor: pointer;
+        .block-section-header:hover { color: rgba(255,255,255,0.6); }
+        .block-section-chevron {
+            font-size: 8px;
+            transition: transform var(--transition-fast);
+            display: inline-block;
+            width: 10px;
             flex-shrink: 0;
         }
-        .block-select-all {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: rgba(255,255,255,0.5);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            cursor: pointer;
+        .block-section-chevron.expanded { transform: rotate(90deg); }
+        .block-section-items { display: none; padding-left: 4px; }
+        .block-section-items.expanded { display: block; }
+        .block-section-count {
+            margin-left: auto;
+            font-size: 10px;
+            color: rgba(255,255,255,0.2);
+            letter-spacing: 0;
+            text-transform: none;
         }
 
         .side-panel-item-icon {
@@ -9905,7 +9902,7 @@
                 build: '\u0421\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c\u0441\u0442\u0432\u043e',
                 sales: '\u041f\u0440\u043e\u0434\u0430\u0436\u0438'
             };
-            if (_iconToPhase[panelType] && window.isDrilled && window.taskPoints && window.taskPoints.length > 0) {
+            if (_iconToPhase[panelType]) {
                 title.textContent = data.title;
                 loadBlockTasksPanel(content, _iconToPhase[panelType]);
                 panel.classList.add('active');
@@ -10154,39 +10151,71 @@
 
         // === BLOCK TASK CHECKLIST ===
         function loadBlockTasksPanel(container, phaseName) {
-            var tasks = window.taskPoints.filter(function(t) { return t.phase === phaseName; });
-            var l1Tasks = tasks.filter(function(t) { return (t.level || 1) <= 1; });
+            if (window.taskPoints && window.taskPoints.length > 0) {
+                renderBlockPanel(container, phaseName, window.taskPoints);
+            } else {
+                container.innerHTML = '<div class="ps-loading">Loading...</div>';
+                var pid = window.currentProjectId || 1;
+                fetch('/api/tasks/load?category=&session_id=default&project_id=' + pid)
+                    .then(function(r) { return r.json(); })
+                    .then(function(data) {
+                        renderBlockPanel(container, phaseName, data.tasks || []);
+                    })
+                    .catch(function() {
+                        container.innerHTML = '<div class="ps-loading">Error</div>';
+                    });
+            }
+        }
 
+        function renderBlockPanel(container, phaseName, allTasks) {
+            var tasks = allTasks.filter(function(t) { return t.phase === phaseName; });
+            var l1 = tasks.filter(function(t) { return t.level === 1; });
+            var l2 = tasks.filter(function(t) { return t.level === 2; });
             var html = '';
 
-            // "Select all" checkbox
-            var allActive = tasks.every(function(t) { return t.active !== false; });
-            var escapedPhase = phaseName.replace(/'/g, "\\'");
-            html += '<div class="block-select-all">';
-            html += '<input type="checkbox" class="block-task-cb" id="block-select-all-cb"'
-                 + (allActive ? ' checked' : '') + " onchange=\"toggleAllBlockTasks('" + escapedPhase + "', this.checked)\">";
-            html += '<label for="block-select-all-cb" style="cursor:pointer">\u0412\u0441\u0435 \u0437\u0430\u0434\u0430\u0447\u0438</label>';
-            html += '</div>';
-
-            // L1 tasks with checkboxes
-            l1Tasks.forEach(function(t) {
-                var isActive = t.active !== false;
-                var cls = 'block-task-item' + (isActive ? '' : ' disabled');
-                html += '<div class="' + cls + '">';
-                html += '<input type="checkbox" class="block-task-cb"'
-                     + (isActive ? ' checked' : '')
-                     + " onchange=\"toggleTaskActive('" + t.id + "', this.checked)\">";
-                html += '<span>' + t.title + '</span>';
+            l1.forEach(function(s) {
+                var prefix = s.id + '-T';
+                var children = l2.filter(function(t) { return t.id && t.id.indexOf(prefix) === 0; });
+                var name = s.title.replace(/^\d+\.\d+\s*/, '');
+                html += '<div class="block-section">';
+                html += '<div class="block-section-header" data-section="1">';
+                html += '<span class="block-section-chevron">▸</span>';
+                html += '<span>' + name + '</span>';
+                html += '<span class="block-section-count">' + children.length + '</span>';
                 html += '</div>';
+                html += '<div class="block-section-items">';
+                children.forEach(function(t) {
+                    html += '<div class="side-panel-item" data-tid="' + t.id + '">' + t.title + '</div>';
+                });
+                html += '</div></div>';
             });
 
-            // Counter
-            var activeCount = tasks.filter(function(t) { return t.active !== false; }).length;
-            html += '<div style="padding:12px;font-size:11px;color:rgba(255,255,255,0.3)">';
-            html += activeCount + ' / ' + tasks.length + ' \u0437\u0430\u0434\u0430\u0447 \u0430\u043a\u0442\u0438\u0432\u043d\u043e';
+            html += '<div style="padding:12px 5px;font-size:10px;color:rgba(255,255,255,0.2)">';
+            html += l2.length + ' задач';
             html += '</div>';
 
             container.innerHTML = html;
+
+            container.onclick = function(e) {
+                var header = e.target.closest('.block-section-header');
+                if (header) {
+                    var chevron = header.querySelector('.block-section-chevron');
+                    var items = header.nextElementSibling;
+                    if (items) {
+                        var expanded = items.classList.toggle('expanded');
+                        if (chevron) chevron.classList.toggle('expanded', expanded);
+                    }
+                    return;
+                }
+                var item = e.target.closest('[data-tid]');
+                if (item) {
+                    var taskId = item.getAttribute('data-tid');
+                    var task = (window.taskPoints || []).find(function(t) { return String(t.id) === String(taskId); });
+                    if (task && task.mesh && window.flyToTask) {
+                        window.flyToTask(task);
+                    }
+                }
+            };
         }
 
         window.toggleTaskActive = function(taskId, active) {
