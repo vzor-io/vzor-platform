@@ -6959,7 +6959,8 @@
 
         // Create task point with explicit size and position
         window.addTaskPointStructured = function(taskInfo, posX, posY, posZ) {
-            if (!isDrilled) return null;
+            console.log("[DEBUG-ATPS] isDrilled="+isDrilled+" id="+(taskInfo&&taskInfo.id));
+            if (!isDrilled && !window._dbLoadingTasks) return null;
 
             const level = taskInfo.level || 1;
             const pointSize = LEVEL_SIZES[level] || 25;
