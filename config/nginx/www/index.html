@@ -3834,6 +3834,7 @@
     </div>
 
     <script type="module">
+console.log("[MODULE] script started loading");
 
         // Принудительно скрыть task-interface при загрузке
         document.addEventListener('DOMContentLoaded', () => {
@@ -4594,6 +4595,7 @@
         }
 
         function onClick(e) {
+            console.log("[CLICK] onClick fired, isClickValid="+isClickValid+" isDrilled="+isDrilled+" smoothP="+smoothP.toFixed(2));
             if (!isClickValid) return; // Ignore drag-clicks
 
             // --- Click-Driven Interaction: Click on Slide 1 to move to Slide 2 ---
@@ -4685,8 +4687,9 @@
                 }
             } else {
                 // LEVEL 2 INTERACTION (Inner Graph Nodes)
+                console.log("[CLICK-L2] entered level 2, detailTargets="+detailTargets.length);
                 // Check intersection with detail targets
-                const hits = ray.intersectObjects(detailTargets);
+                const hits = ray.intersectObjects(detailTargets); console.log("[CLICK-L2] detailTarget hits:", hits.length);
                 if (hits.length > 0) {
                     // Clicked on a Node
                     const idx = detailTargets.indexOf(hits[0].object);
@@ -4694,7 +4697,7 @@
                 } else {
                     // CHECK TASK POINTS (window.taskPoints - created via input)
                     // v3.12.7: Task points are THREE.Points, need special raycasting
-                    let taskClicked = false;
+                    let taskClicked = false; console.log("[CLICK] isDrilled="+isDrilled+" taskPoints="+(window.taskPoints?window.taskPoints.length:0));
 
                     if (window.taskPoints && window.taskPoints.length > 0) {
                         // Set raycaster threshold for Points
@@ -4717,7 +4720,7 @@
                             if (taskHits.length > 0) {
                                 const clickedMesh = taskHits[0].object;
                                 const taskPayload = window.taskPoints.find(t => t.mesh === clickedMesh);
-                                if (taskPayload) {
+                                if (taskPayload) { console.log("[CLICK] HIT task:", taskPayload.id, taskPayload.title);
                                     taskClicked = true;
                                     // Block focus: click task -> focus its COLOR BLOCK
                                     // Clicking within same block keeps focus (shows detail panel)
@@ -4777,7 +4780,7 @@
                         const taskHits = ray.intersectObjects(userTasks.map(t => t.mesh));
                         if (taskHits.length > 0) {
                             const taskPayload = userTasks.find(t => t.mesh === taskHits[0].object);
-                            if (taskPayload) {
+                            if (taskPayload) { console.log("[CLICK] HIT task:", taskPayload.id, taskPayload.title);
                                 taskClicked = true;
                                 const header = document.querySelector('.detail-header');
                                 if (header) header.innerText = "ПОЛЬЗОВАТЕЛЬСКАЯ ЗАДАЧА";
@@ -5618,7 +5621,7 @@
 
                 // Hover Check
                 ray.setFromCamera(mv, camera);
-                const hits = ray.intersectObjects(detailTargets);
+                const hits = ray.intersectObjects(detailTargets); console.log("[CLICK-L2] detailTarget hits:", hits.length);
                 if (hits.length > 0) {
                     highlightMesh.position.copy(hits[0].object.position);
                     highlightMat.opacity = 0.8;
@@ -8209,7 +8212,7 @@
         window._bondMesh = bondMesh;
         window._showDrillDownUI = showDrillDownUI;
         window._showDetail = showDetail;
-        window.showDetailPanel = showDetailPanel;
+        window.showDetailPanel = showDetailPanel; console.log("[MODULE] showDetailPanel exported to window");
 
         animate();
     </script>
