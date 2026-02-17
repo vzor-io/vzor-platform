@@ -6969,7 +6969,8 @@
                 description: taskInfo.description || '',
                 documents: taskInfo.documents || [],
                 knowledge_sources: taskInfo.knowledge_sources || [],
-                model: taskInfo.model || ''
+                model: taskInfo.model || '',
+                dependsOn: taskInfo.dependsOn || []
             };
 
             window.taskPoints.push(taskData);
