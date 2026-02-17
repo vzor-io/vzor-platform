@@ -421,30 +421,45 @@
         #detail-panel {
             position: fixed;
             top: 50%;
-            right: -20rem;
+            right: -22rem;
             transform: translateY(-50%);
-            width: 17.5rem;
-            background: rgba(12, 12, 14, 0.65);
+            width: 20rem;
+            background: rgba(12, 12, 14, 0.75);
             backdrop-filter: blur(1.875rem);
             -webkit-backdrop-filter: blur(1.875rem);
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-right: none;
-            padding: 1.25rem 1.125rem;
+            padding: 1rem 1rem;
             z-index: 100;
             transition: right 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             display: flex;
             flex-direction: column;
-            gap: 0.625rem;
+            gap: 0;
             height: auto;
             min-height: 17.5rem;
-            max-height: 70vh;
+            max-height: 85vh;
             border-radius: 0.75rem 0 0 0.75rem;
             font-size: 0.6875rem;
             box-shadow: -0.625rem 0 2.5rem rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.1) transparent;
         }
 
         #detail-panel.active {
             right: 0;
+        }
+
+        #detail-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+        #detail-panel::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #detail-panel::-webkit-scrollbar-thumb {
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
         }
 
         /* TASK INTERFACE (Floating Pill - Minimal) - v3.11: smaller, subtle glow */
@@ -866,7 +881,7 @@
             #block-dashboard { left: max(1rem, env(safe-area-inset-left)); bottom: max(5.625rem, calc(env(safe-area-inset-bottom) + 1.25rem)); }
             #task-interface.active { bottom: max(1.5625rem, calc(env(safe-area-inset-bottom) + 0.625rem)); }
             #back-button { top: max(2.375rem, calc(env(safe-area-inset-top) + 0.625rem)); }
-            #detail-panel { padding-right: max(1.25rem, env(safe-area-inset-right)); }
+            #detail-panel { padding-right: max(1rem, env(safe-area-inset-right)); }
         }
 
         /* ===== RESPONSIVE: TABLET (max-width: 64rem) ===== */
@@ -6941,12 +6956,20 @@
                 mesh: sphere,
                 status: currentStatus,
                 progress: taskInfo.progress || 0,
-                agent: taskInfo.agent || 'Router Agent',
-                database: taskInfo.database || 'VZOR Core',
+                agent: taskInfo.agent || '',
+                database: taskInfo.database || '',
                 phase: taskInfo.phase || '',
                 level: level,
                 createdAt: new Date().toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'}),
-                statusColors: statusColors
+                statusColors: statusColors,
+                start_date: taskInfo.start_date || null,
+                end_date: taskInfo.end_date || null,
+                deadline: taskInfo.deadline || null,
+                priority: taskInfo.priority || '',
+                description: taskInfo.description || '',
+                documents: taskInfo.documents || [],
+                knowledge_sources: taskInfo.knowledge_sources || [],
+                model: taskInfo.model || ''
             };
 
             window.taskPoints.push(taskData);
@@ -7540,7 +7563,11 @@
                         const taskData = window.addTaskPointStructured(
                             { id: t.id, title: t.title, phase: t.phase, level: t.level,
                               status: t.status, progress: t.progress, agent: t.agent,
-                              database: t.database, dependsOn: t.dependsOn || [] },
+                              database: t.database, dependsOn: t.dependsOn || [],
+                              start_date: t.start_date, end_date: t.end_date,
+                              deadline: t.deadline, priority: t.priority,
+                              description: t.description, documents: t.documents,
+                              knowledge_sources: t.knowledge_sources, model: t.model },
                             gp.x, gp.y, gp.z
                         );
                         if (taskData) taskIdMap[t.id] = taskData;
@@ -7684,202 +7711,356 @@
         function showDetailPanel(data) {
             const detailPanel = document.getElementById('detail-panel');
 
-            // Status config with icons
+            // Status config
             const statusConfig = {
-                'pending': { label: 'Ожидание', color: '#E8E8E8', bg: 'rgba(232,232,232,0.15)', icon: '○' },
-                'in_progress': { label: 'В работе', color: '#FFB347', bg: 'rgba(255,179,71,0.15)', icon: '◐' },
-                'blocked': { label: 'Проблема', color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)', icon: '⚠' },
-                'completed': { label: 'Готово', color: '#77DD77', bg: 'rgba(119,221,119,0.15)', icon: '●' }
+                'pending': { label: 'Ожидание', color: '#E8E8E8', bg: 'rgba(232,232,232,0.12)', icon: '○' },
+                'in_progress': { label: 'В работе', color: '#FFB347', bg: 'rgba(255,179,71,0.12)', icon: '◐' },
+                'blocked': { label: 'Проблема', color: '#FF6B6B', bg: 'rgba(255,107,107,0.12)', icon: '⚠' },
+                'completed': { label: 'Готово', color: '#77DD77', bg: 'rgba(119,221,119,0.12)', icon: '●' }
             };
             const status = statusConfig[data.status] || statusConfig['pending'];
 
-            // Sample files for demo (in real app, would come from task data)
-            const files = data.files || [];
-            const hasFiles = files.length > 0 || data.status === 'completed';
+            // Priority config
+            const priorityConfig = {
+                'Критичная': { color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)' },
+                'Высокая': { color: '#FFB347', bg: 'rgba(255,179,71,0.15)' },
+                'Средняя': { color: '#E8E8E8', bg: 'rgba(232,232,232,0.1)' },
+            };
 
-            // Sample issues/questions
-            const issues = data.issues || [];
-            const hasIssues = issues.length > 0 || data.status === 'blocked';
+            // Breadcrumbs: Block -> Subblock
+            const phase = data.phase || '';
+            let subblock = '';
+            // Find parent L1 task
+            if (data.level === 2 && data.dependsOn && data.dependsOn.length > 0) {
+                const parentId = data.dependsOn[0]; // first dep is L1 parent
+                const parentTask = window.taskPoints.find(t => t.id === parentId && t.level <= 1);
+                if (parentTask) {
+                    subblock = parentTask.title.replace(/^\d+\.\d+\s*/, '');
+                }
+            } else if (data.level <= 1) {
+                subblock = data.title.replace(/^\d+\.\d+\s*/, '');
+            }
 
-            // Build comprehensive panel
-            detailPanel.innerHTML = `
-                <!-- Header -->
-                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
-                    <div>
-                        <span style="font-size:8px; letter-spacing:1.5px; color:rgba(255,255,255,0.35); text-transform:uppercase; display:block; margin-bottom:4px;">Задача #${data.id}</span>
-                        <div style="font-size:13px; font-weight:500; color:#fff; line-height:1.3;">${data.title}</div>
-                    </div>
-                    <button id="close-detail-btn" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:16px; cursor:pointer; padding:0; margin-left:8px;">×</button>
-                </div>
+            const phaseColorCSS = getPhaseColorCSS(phase);
 
-                <!-- Status Badge -->
-                <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 10px; background:${status.bg}; border-radius:12px; margin-bottom:12px;">
-                    <span style="color:${status.color}; font-size:12px;">${status.icon}</span>
-                    <span style="font-size:10px; color:${status.color}; font-weight:500;">${status.label}</span>
-                    <span style="font-size:9px; color:rgba(255,255,255,0.4);">${data.progress || 0}%</span>
-                </div>
+            // Date formatting
+            function fmtDate(isoStr) {
+                if (!isoStr) return '—';
+                const d = new Date(isoStr);
+                return d.toLocaleDateString('ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric' });
+            }
+            function daysLeft(isoStr) {
+                if (!isoStr) return '';
+                const now = new Date();
+                const end = new Date(isoStr);
+                const diff = Math.ceil((end - now) / (1000 * 60 * 60 * 24));
+                if (diff < 0) return '<span style="color:#FF6B6B">просрочено ' + Math.abs(diff) + ' дн.</span>';
+                if (diff === 0) return '<span style="color:#FFB347">сегодня</span>';
+                return 'осталось ' + diff + ' дн.';
+            }
+            function daysDuration(startStr, endStr) {
+                if (!startStr || !endStr) return '';
+                const s = new Date(startStr);
+                const e = new Date(endStr);
+                return Math.ceil((e - s) / (1000 * 60 * 60 * 24)) + ' дней';
+            }
 
-                <!-- Progress Bar -->
-                <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px; margin-bottom:10px; overflow:hidden;">
-                    <div style="width:${data.progress || 0}%; height:100%; background:linear-gradient(90deg, ${status.color}, ${status.color}aa); transition:width 0.3s; border-radius:2px;"></div>
-                </div>
+            // File icon by extension
+            function fileIcon(name) {
+                const ext = (name || '').split('.').pop().toLowerCase();
+                if (ext === 'pdf') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF4757" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
+                if (ext === 'xlsx' || ext === 'xls') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>';
+                if (ext === 'doc' || ext === 'docx') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498DB" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/></svg>';
+                return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
+            }
+            function fileColor(name) {
+                const ext = (name || '').split('.').pop().toLowerCase();
+                if (ext === 'pdf') return 'rgba(255,71,87,0.2)';
+                if (ext === 'xlsx' || ext === 'xls') return 'rgba(46,204,113,0.2)';
+                if (ext === 'doc' || ext === 'docx') return 'rgba(52,152,219,0.2)';
+                return 'rgba(255,255,255,0.1)';
+            }
+            function fileSize(bytes) {
+                if (!bytes) return '';
+                if (bytes >= 1048576) return (bytes / 1048576).toFixed(1) + ' MB';
+                if (bytes >= 1024) return (bytes / 1024).toFixed(0) + ' KB';
+                return bytes + ' B';
+            }
 
-                <!-- Status Buttons -->
-                <div style="display:flex; gap:6px; margin-bottom:14px;" id="status-buttons-row">
-                    <button onclick="window.updateTaskStatus('${data.id}','pending')" style="flex:1; padding:6px; border:1px solid rgba(255,255,255,0.15); border-radius:8px; background:${data.status==='pending'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.03)'}; color:#ccc; font-size:10px; cursor:pointer;">⬜ Ожидает</button>
-                    <button onclick="window.updateTaskStatus('${data.id}','in_progress')" style="flex:1; padding:6px; border:1px solid rgba(255,179,71,0.3); border-radius:8px; background:${data.status==='in_progress'?'rgba(255,179,71,0.2)':'rgba(255,255,255,0.03)'}; color:#FFB347; font-size:10px; cursor:pointer;">🔄 В работе</button>
-                    <button onclick="window.updateTaskStatus('${data.id}','completed')" style="flex:1; padding:6px; border:1px solid rgba(119,221,119,0.3); border-radius:8px; background:${data.status==='completed'?'rgba(119,221,119,0.2)':'rgba(255,255,255,0.03)'}; color:#77DD77; font-size:10px; cursor:pointer;">✅ Готово</button>
-                </div>
+            // Source type badge
+            function srcBadge(type) {
+                const t = (type || 'documents').toLowerCase();
+                const colors = { api: '#00ffff', documents: '#FFB347', database: '#77DD77' };
+                const cl = colors[t] || '#E8E8E8';
+                return '<span style="font-size:8px; color:' + cl + '; background:' + cl + '22; padding:1px 5px; border-radius:3px; text-transform:uppercase; letter-spacing:0.5px;">' + t + '</span>';
+            }
 
-                <!-- Info Section -->
-                <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; margin-bottom:12px;">
-                    <div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:8px;">Информация</div>
+            // Build description text
+            const desc = data.description || data.database || '';
+            const priority = data.priority || '';
+            const prioConf = priorityConfig[priority];
+            const startDate = data.start_date || null;
+            const endDate = data.end_date || data.deadline || null;
+            const deadline = data.deadline || data.end_date || null;
+            const documents = data.documents || [];
+            const knowledgeSources = data.knowledge_sources || [];
+            const model = data.model || '';
+            const agent = data.agent || '';
+            const progress = data.progress || 0;
 
-                    <div style="display:flex; flex-direction:column; gap:6px; font-size:10px;">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:rgba(255,255,255,0.5);">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-                                Создано
-                            </span>
-                            <span style="color:rgba(255,255,255,0.7);">${data.createdAt || 'Только что'}</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:rgba(255,255,255,0.5);">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
-                                Агент
-                            </span>
-                            <span style="color:#00ffff;">${data.agent || 'Не назначен'}</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:rgba(255,255,255,0.5);">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
-                                База знаний
-                            </span>
-                            <span style="color:rgba(255,255,255,0.7);">${data.database || 'VZOR Core'}</span>
-                        </div>
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <span style="color:rgba(255,255,255,0.5);">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-                                Категория
-                            </span>
-                            <span style="color:rgba(255,255,255,0.7);">${data.category || 'Общая'}</span>
-                        </div>
-                    </div>
-                </div>
+            // Duration text
+            const durText = daysDuration(startDate, deadline);
+            const leftText = daysLeft(deadline);
 
-                <!-- Issues/Questions Section (if blocked or has issues) -->
-                ${hasIssues || data.status === 'blocked' ? `
-                <div style="background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); border-radius:8px; padding:10px; margin-bottom:12px;">
-                    <div style="font-size:8px; letter-spacing:1px; color:#FF6B6B; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                        Требуется внимание
-                    </div>
-                    <div style="font-size:10px; color:rgba(255,255,255,0.7); line-height:1.4;">
-                        ${issues.length > 0 ? issues.map(i => `• ${i}`).join('<br>') : '• Задача заблокирована. Проверьте входные данные.'}
-                    </div>
-                </div>
-                ` : ''}
+            // === BUILD HTML ===
+            let html = '';
 
-                <!-- Files Section -->
-                <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; margin-bottom:12px;">
-                    <div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
-                        <span>Результаты</span>
-                        <span style="color:rgba(255,255,255,0.2);">${hasFiles ? (files.length || 2) : 0} файлов</span>
-                    </div>
+            // 1. HEADER
+            html += '<div style="margin-bottom:10px;">';
+            html += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
+            html += '<div style="flex:1; min-width:0;">';
+            html += '<span style="font-size:9px; letter-spacing:1px; color:rgba(255,255,255,0.3); font-family:monospace;">#' + data.id + '</span>';
+            html += '<div style="font-size:14px; font-weight:600; color:#fff; line-height:1.3; margin-top:3px;">' + data.title + '</div>';
+            if (phase) {
+                html += '<div style="font-size:9px; color:rgba(255,255,255,0.35); margin-top:4px; display:flex; align-items:center; gap:4px;">';
+                html += '<span style="color:' + phaseColorCSS + ';">' + phase + '</span>';
+                if (subblock && subblock !== data.title.replace(/^\d+\.\d+\s*/, '')) {
+                    html += '<span style="opacity:0.5;">\u2192</span>';
+                    html += '<span>' + subblock + '</span>';
+                }
+                html += '</div>';
+            }
+            html += '</div>';
+            html += '<button id="close-detail-btn" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:18px; cursor:pointer; padding:0 0 0 8px; line-height:1; flex-shrink:0;">\u00d7</button>';
+            html += '</div>';
+            html += '</div>';
 
-                    ${data.status === 'completed' ? `
-                    <div style="display:flex; flex-direction:column; gap:6px;">
-                        <div class="file-item" onclick="downloadFile('report_${data.id}.pdf')" style="display:flex; align-items:center; gap:8px; padding:8px; background:rgba(255,255,255,0.04); border-radius:6px; cursor:pointer; transition:background 0.2s;">
-                            <div style="width:28px; height:28px; background:rgba(255,71,87,0.2); border-radius:4px; display:flex; align-items:center; justify-content:center;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF4757" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>
-                            </div>
-                            <div style="flex:1; min-width:0;">
-                                <div style="font-size:10px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Отчёт_анализ.pdf</div>
-                                <div style="font-size:8px; color:rgba(255,255,255,0.4);">PDF • 2.4 MB</div>
-                            </div>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-                        </div>
-                        <div class="file-item" onclick="downloadFile('data_${data.id}.xlsx')" style="display:flex; align-items:center; gap:8px; padding:8px; background:rgba(255,255,255,0.04); border-radius:6px; cursor:pointer; transition:background 0.2s;">
-                            <div style="width:28px; height:28px; background:rgba(46,204,113,0.2); border-radius:4px; display:flex; align-items:center; justify-content:center;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M8 9h2"/></svg>
-                            </div>
-                            <div style="flex:1; min-width:0;">
-                                <div style="font-size:10px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Данные_расчёт.xlsx</div>
-                                <div style="font-size:8px; color:rgba(255,255,255,0.4);">Excel • 856 KB</div>
-                            </div>
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-                        </div>
-                    </div>
-                    ` : `
-                    <div style="text-align:center; padding:15px 0; color:rgba(255,255,255,0.3);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:6px; opacity:0.5;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
-                        <div style="font-size:9px;">Файлы появятся после завершения</div>
-                    </div>
-                    `}
-                </div>
+            // 2. STATUS & TIMING
+            html += '<div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:9px 10px; margin-bottom:8px;">';
+            // Status row with progress
+            html += '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">';
+            html += '<div style="display:flex; align-items:center; gap:5px;">';
+            html += '<span style="font-size:9px; color:rgba(255,255,255,0.4); width:65px;">Статус</span>';
+            html += '<span style="display:inline-flex; align-items:center; gap:4px; padding:2px 8px; background:' + status.bg + '; border-radius:10px;">';
+            html += '<span style="color:' + status.color + '; font-size:10px;">' + status.icon + '</span>';
+            html += '<span style="font-size:10px; color:' + status.color + '; font-weight:500;">' + status.label + '</span>';
+            html += '</span>';
+            html += '</div>';
+            html += '<span style="font-size:10px; color:rgba(255,255,255,0.5);">' + progress + '%</span>';
+            html += '</div>';
+            // Thin progress bar
+            html += '<div style="height:3px; background:rgba(255,255,255,0.06); border-radius:2px; margin-bottom:8px; overflow:hidden;">';
+            html += '<div style="width:' + progress + '%; height:100%; background:linear-gradient(90deg, ' + status.color + ', ' + status.color + '99); border-radius:2px; transition:width 0.3s;"></div>';
+            html += '</div>';
+            // Info rows
+            const rows = [];
+            if (priority) {
+                const pc = prioConf ? prioConf.color : '#E8E8E8';
+                rows.push(['Приоритет', '<span style="color:' + pc + '; font-weight:500;">' + priority + '</span>']);
+            }
+            if (startDate) rows.push(['Начало', fmtDate(startDate)]);
+            if (deadline) rows.push(['Дедлайн', '<span style="color:#FFB347;">' + fmtDate(deadline) + '</span>']);
+            if (durText && leftText) {
+                rows.push(['Длительность', durText + ' <span style="color:rgba(255,255,255,0.35);">(' + leftText + ')</span>']);
+            } else if (durText) {
+                rows.push(['Длительность', durText]);
+            } else if (leftText) {
+                rows.push(['Осталось', leftText]);
+            }
+            rows.forEach(function(row) {
+                html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:2px 0; font-size:10px;">';
+                html += '<span style="color:rgba(255,255,255,0.4);">' + row[0] + '</span>';
+                html += '<span style="color:rgba(255,255,255,0.7);">' + row[1] + '</span>';
+                html += '</div>';
+            });
+            html += '</div>';
 
-                <!-- Action Buttons -->
-                <div style="display:flex; gap:6px; margin-top:auto;">
-                    <button onclick="window.updateTaskStatus('${data.id}','in_progress',0)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,179,71,0.15); border:1px solid rgba(255,179,71,0.3); color:#FFB347; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                        Старт
-                    </button>
-                    <button onclick="window.updateTaskStatus('${data.id}','blocked',50)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3); color:#FF6B6B; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/></svg>
-                        Стоп
-                    </button>
-                    <button onclick="window.updateTaskStatus('${data.id}','completed',100)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(119,221,119,0.15); border:1px solid rgba(119,221,119,0.3); color:#77DD77; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
-                        Готово
-                    </button>
-                </div>
-            `;
+            // Status buttons
+            html += '<div style="display:flex; gap:4px; margin-bottom:8px;">';
+            html += '<button onclick="window.updateTaskStatus(\'' + data.id + '\',\'pending\')" style="flex:1; padding:5px; border:1px solid rgba(255,255,255,' + (data.status==='pending'?'0.25':'0.1') + '); border-radius:6px; background:' + (data.status==='pending'?'rgba(255,255,255,0.12)':'rgba(255,255,255,0.02)') + '; color:#aaa; font-size:9px; cursor:pointer;">\u25cb \u041e\u0436\u0438\u0434.</button>';
+            html += '<button onclick="window.updateTaskStatus(\'' + data.id + '\',\'in_progress\')" style="flex:1; padding:5px; border:1px solid rgba(255,179,71,' + (data.status==='in_progress'?'0.4':'0.15') + '); border-radius:6px; background:' + (data.status==='in_progress'?'rgba(255,179,71,0.15)':'rgba(255,255,255,0.02)') + '; color:#FFB347; font-size:9px; cursor:pointer;">\u25d0 \u0420\u0430\u0431\u043e\u0442\u0430</button>';
+            html += '<button onclick="window.updateTaskStatus(\'' + data.id + '\',\'completed\',100)" style="flex:1; padding:5px; border:1px solid rgba(119,221,119,' + (data.status==='completed'?'0.4':'0.15') + '); border-radius:6px; background:' + (data.status==='completed'?'rgba(119,221,119,0.15)':'rgba(255,255,255,0.02)') + '; color:#77DD77; font-size:9px; cursor:pointer;">\u25cf \u0413\u043e\u0442\u043e\u0432\u043e</button>';
+            html += '</div>';
 
-            // Adjust panel width for more content
-            detailPanel.style.width = '280px';
+            // 3. EXECUTOR
+            if (agent || model) {
+                html += '<div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:9px 10px; margin-bottom:8px;">';
+                html += '<div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:6px;">Исполнитель</div>';
+                if (agent) {
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:2px 0; font-size:10px;">';
+                    html += '<span style="color:rgba(255,255,255,0.4);">Агент</span>';
+                    html += '<span style="color:#00ffff;">' + agent + '</span>';
+                    html += '</div>';
+                }
+                if (model) {
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:2px 0; font-size:10px;">';
+                    html += '<span style="color:rgba(255,255,255,0.4);">Модель</span>';
+                    html += '<span style="color:rgba(255,255,255,0.6);">' + model + '</span>';
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+
+            // 4. KNOWLEDGE SOURCES
+            if (knowledgeSources && knowledgeSources.length > 0) {
+                html += '<div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:9px 10px; margin-bottom:8px;">';
+                html += '<div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:6px;">Источники данных</div>';
+                knowledgeSources.forEach(function(src) {
+                    html += '<div style="display:flex; justify-content:space-between; align-items:center; padding:3px 0; font-size:10px;">';
+                    html += '<span style="color:rgba(255,255,255,0.65);">' + (src.name || src) + '</span>';
+                    html += srcBadge(src.type || 'documents');
+                    html += '</div>';
+                });
+                html += '</div>';
+            }
+
+            // 5. DEPENDENCIES (loaded async)
+            html += '<div id="detail-deps-section" style="margin-bottom:8px;"></div>';
+
+            // 6. DOCUMENTS
+            html += '<div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:9px 10px; margin-bottom:8px;">';
+            html += '<div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:6px; display:flex; justify-content:space-between;">';
+            html += '<span>Результаты</span>';
+            html += '<span style="color:rgba(255,255,255,0.2);">' + documents.length + ' файл' + (documents.length === 1 ? '' : documents.length > 1 && documents.length < 5 ? 'а' : 'ов') + '</span>';
+            html += '</div>';
+            if (documents.length > 0) {
+                documents.forEach(function(doc) {
+                    const fname = doc.name || doc.filename || 'file';
+                    const fsize = doc.size ? fileSize(doc.size) : '';
+                    const fpath = doc.path || doc.url || ('/documents/' + fname);
+                    html += '<div class="file-item" onclick="window.downloadFile(\'' + fpath + '\')" style="display:flex; align-items:center; gap:8px; padding:6px; background:rgba(255,255,255,0.03); border-radius:6px; cursor:pointer; transition:background 0.2s; margin-bottom:4px;">';
+                    html += '<div style="width:26px; height:26px; background:' + fileColor(fname) + '; border-radius:4px; display:flex; align-items:center; justify-content:center;">';
+                    html += fileIcon(fname);
+                    html += '</div>';
+                    html += '<div style="flex:1; min-width:0;">';
+                    html += '<div style="font-size:10px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + fname + '</div>';
+                    if (fsize) html += '<div style="font-size:8px; color:rgba(255,255,255,0.35);">' + fsize + '</div>';
+                    html += '</div>';
+                    html += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>';
+                    html += '</div>';
+                });
+            } else {
+                html += '<div style="text-align:center; padding:10px 0; color:rgba(255,255,255,0.25);">';
+                html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:4px; opacity:0.4;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
+                html += '<div style="font-size:9px;">Документы появятся после выполнения</div>';
+                html += '</div>';
+            }
+            html += '</div>';
+
+            // 7. DESCRIPTION
+            if (desc) {
+                html += '<div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:9px 10px; margin-bottom:4px;">';
+                html += '<div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:4px;">Описание</div>';
+                html += '<div style="font-size:10px; color:rgba(255,255,255,0.55); line-height:1.4;">' + desc + '</div>';
+                html += '</div>';
+            }
+
+            detailPanel.innerHTML = html;
+
+            // Adjust panel width and show
+            detailPanel.style.width = '320px';
             detailPanel.classList.add('active');
 
-            // Add hover effects for file items
-            detailPanel.querySelectorAll('.file-item').forEach(item => {
-                item.addEventListener('mouseenter', () => item.style.background = 'rgba(255,255,255,0.08)');
-                item.addEventListener('mouseleave', () => item.style.background = 'rgba(255,255,255,0.04)');
+            // Hover effects for file items
+            detailPanel.querySelectorAll('.file-item').forEach(function(item) {
+                item.addEventListener('mouseenter', function() { item.style.background = 'rgba(255,255,255,0.07)'; });
+                item.addEventListener('mouseleave', function() { item.style.background = 'rgba(255,255,255,0.03)'; });
             });
 
-            // Re-attach close handler
-            document.getElementById('close-detail-btn').addEventListener('click', () => {
+            // Close button
+            document.getElementById('close-detail-btn').addEventListener('click', function() {
                 detailPanel.classList.remove('active');
                 if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
             });
 
             // Highlight 3D point
-            window.taskPoints.forEach(t => t.mesh.scale.set(1, 1, 1));
-            data.mesh.scale.set(1.3, 1.3, 1.3);
+            window.taskPoints.forEach(function(t) { t.mesh.scale.set(1, 1, 1); });
+            if (data.mesh) data.mesh.scale.set(1.3, 1.3, 1.3);
 
             if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+
+            // 5b. ASYNC: Load dependencies from API
+            const _pid = window.currentProjectId || 1;
+            fetch('/api/tasks/deps/' + data.id + '?project_id=' + _pid)
+                .then(function(r) { return r.json(); })
+                .then(function(deps) {
+                    const depsDiv = document.getElementById('detail-deps-section');
+                    if (!depsDiv) return;
+                    const blockedBy = deps.blocked_by || [];
+                    const blocks = deps.blocks || [];
+                    // Filter: only show L2 deps (skip the parent L1 which is structural)
+                    const realBlockers = blockedBy.filter(function(d) { return d.id !== data.dependsOn?.[0] || d.id.includes('-T'); });
+                    if (realBlockers.length === 0 && blocks.length === 0) return;
+
+                    let dh = '<div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:9px 10px;">';
+                    dh += '<div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.25); text-transform:uppercase; margin-bottom:6px;">Зависимости</div>';
+
+                    if (realBlockers.length > 0) {
+                        dh += '<div style="font-size:8px; color:rgba(255,255,255,0.3); margin-bottom:3px;">Блокируется</div>';
+                        realBlockers.forEach(function(dep) {
+                            const ds = statusConfig[dep.status] || statusConfig['pending'];
+                            dh += '<div onclick="window._focusTask(\'' + dep.id + '\')" style="display:flex; align-items:center; gap:5px; padding:3px 0; font-size:10px; cursor:pointer;" class="dep-link">';
+                            dh += '<span style="color:rgba(255,255,255,0.3);">\u2190</span>';
+                            dh += '<span style="flex:1; color:rgba(255,255,255,0.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + dep.title + '</span>';
+                            if (dep.status === 'completed') {
+                                dh += '<span style="color:#77DD77; font-size:9px;">\u2713</span>';
+                            } else {
+                                dh += '<span style="color:' + ds.color + '; font-size:9px;">' + ds.icon + ' ' + (dep.progress || 0) + '%</span>';
+                            }
+                            dh += '</div>';
+                        });
+                    }
+
+                    if (blocks.length > 0) {
+                        if (realBlockers.length > 0) dh += '<div style="height:6px;"></div>';
+                        dh += '<div style="font-size:8px; color:rgba(255,255,255,0.3); margin-bottom:3px;">Блокирует</div>';
+                        blocks.forEach(function(dep) {
+                            dh += '<div onclick="window._focusTask(\'' + dep.id + '\')" style="display:flex; align-items:center; gap:5px; padding:3px 0; font-size:10px; cursor:pointer;" class="dep-link">';
+                            dh += '<span style="color:rgba(255,255,255,0.3);">\u2192</span>';
+                            dh += '<span style="flex:1; color:rgba(255,255,255,0.6); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">' + dep.title + '</span>';
+                            dh += '</div>';
+                        });
+                    }
+
+                    dh += '</div>';
+                    depsDiv.innerHTML = dh;
+
+                    // Hover effects for dep links
+                    depsDiv.querySelectorAll('.dep-link').forEach(function(el) {
+                        el.addEventListener('mouseenter', function() { el.style.background = 'rgba(255,255,255,0.05)'; });
+                        el.addEventListener('mouseleave', function() { el.style.background = 'none'; });
+                    });
+                })
+                .catch(function(e) { console.log('deps load error:', e); });
         }
 
-        // File download function (demo)
-        window.downloadFile = function(filename) {
-            console.log('Downloading:', filename);
-            // In real app, would trigger actual download
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                bottom: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: rgba(0, 255, 255, 0.9);
-                color: #000;
-                padding: 10px 20px;
-                border-radius: 8px;
-                font-size: 12px;
-                z-index: 9999;
-                animation: fadeInUp 0.3s ease;
-            `;
-            notification.textContent = `Скачивание: ${filename}`;
-            document.body.appendChild(notification);
-            setTimeout(() => notification.remove(), 2000);
+        // Navigate to a dependency task
+        window._focusTask = function(taskId) {
+            const task = window.taskPoints.find(function(t) { return t.id === taskId; });
+            if (task) {
+                showDetailPanel(task);
+            }
         };
+
+
+        // File download function
+        window.downloadFile = function(path) {
+            // If path starts with / or http, use directly; otherwise prepend /documents/
+            let url = path;
+            if (!path.startsWith('/') && !path.startsWith('http')) {
+                url = '/documents/' + path;
+            }
+            console.log('Downloading:', url);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = path.split('/').pop();
+            a.style.display = 'none';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.showToast('Скачивание', path.split('/').pop(), 'info', 2000);
+        };
+
 
         // 4. Click Handler for Empty Space (reset orbit pivot + highlights)
         // v3.34: Task clicks handled by primary onClick handler only.
