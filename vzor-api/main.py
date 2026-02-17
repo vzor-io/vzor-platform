@@ -466,6 +466,8 @@ async def auth_verify(request: Request):
     payload = verify_jwt_token(token)
     if not payload:
         return {"authenticated": False}
+    if payload.get("admin"):
+        return {"authenticated": True, "name": "Admin"}
     guest_id = payload.get("guest_id")
     if guest_id:
         from db import get_pool
@@ -536,6 +538,38 @@ async def auth_logout():
 
 
 
+
+
+@app.post("/api/auth/admin")
+async def auth_admin_login(request: Request):
+    """Admin login with secret - 365 day session."""
+    body = await request.json()
+    secret = body.get("secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    from datetime import timedelta
+    payload = {
+        "admin": True,
+        "name": "Admin",
+        "exp": datetime.utcnow() + timedelta(days=365),
+        "iat": datetime.utcnow(),
+    }
+    token = jwt.encode(payload, VZOR_JWT_SECRET, algorithm="HS256")
+    import json as json_mod
+    response = Response(
+        content=json_mod.dumps({"status": "ok", "name": "Admin"}),
+        media_type="application/json"
+    )
+    response.set_cookie(
+        key="vzor_session",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        max_age=365 * 24 * 3600,
+        path="/"
+    )
+    return response
 
 @app.get("/go/{short_code}")
 async def short_code_redirect(short_code: str):

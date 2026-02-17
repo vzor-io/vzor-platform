@@ -3699,7 +3699,7 @@
         <div id="auth-card">
             <p class="auth-title">enter access code</p>
             <div class="auth-row">
-                <input id="auth-code-input" placeholder="VZOR-XXXX-XXXX" maxlength="14" autocomplete="off" spellcheck="false">
+                <input id="auth-code-input" placeholder="VZOR-XXXX-XXXX" maxlength="30" autocomplete="off" spellcheck="false">
                 <button id="auth-submit-btn">→</button>
             </div>
             <div id="auth-error"></div>
@@ -7836,6 +7836,8 @@
 
         // 3. Show Detail Panel (v3.12.1 - comprehensive info with files)
         function showDetailPanel(data) {
+            console.log("[PANEL] showDetailPanel called, data:", data && data.id, data && data.title);
+            try {
             const detailPanel = document.getElementById('detail-panel');
 
             // Status config
@@ -8060,6 +8062,7 @@
                     var depsEl = document.getElementById('deps-content');
                     if (depsEl) depsEl.innerHTML = '<div style="color:rgba(255,107,107,0.6);font-size:9px;">Ошибка загрузки</div>';
                 });
+            } catch(e) { console.error("[PANEL] ERROR:", e); }
         }
 
         // Focus on a task by ID (for dependency navigation)
@@ -12633,18 +12636,26 @@ async function sendToAgentZero(message) {
     async function submitAuthCode() {
         var inp = document.getElementById("auth-code-input");
         var err = document.getElementById("auth-error");
-        var code = (inp ? inp.value : "").trim().toUpperCase();
-        if (!code || code.length < 14) {
-            if (err) err.textContent = "Enter full code: VZOR-XXXX-XXXX";
-            return;
-        }
+        var raw = (inp ? inp.value : "").trim();
+        if (!raw) return;
+        var isVzorCode = /^VZOR-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(raw);
         try {
-            var r = await fetch("/api/auth/login", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                credentials: "include",
-                body: JSON.stringify({code: code})
-            });
+            var r;
+            if (isVzorCode) {
+                r = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    credentials: "include",
+                    body: JSON.stringify({code: raw.toUpperCase()})
+                });
+            } else {
+                r = await fetch("/api/auth/admin", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    credentials: "include",
+                    body: JSON.stringify({secret: raw})
+                });
+            }
             if (r.ok) {
                 window._vzorAuth = true;
                 hideAuthModal();
@@ -12662,7 +12673,10 @@ async function sendToAgentZero(message) {
         var inp = document.getElementById("auth-code-input");
         if (inp) {
             inp.addEventListener("input", function() {
-                var v = this.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                var raw = this.value;
+                // If contains dot or lowercase - admin password, don't format
+                if (/[.a-z]/.test(raw)) return;
+                var v = raw.toUpperCase().replace(/[^A-Z0-9]/g, "");
                 // Remove VZOR prefix if typed
                 if (v.startsWith("VZOR")) v = v.slice(4);
                 // Limit to 8 chars (two groups of 4)
