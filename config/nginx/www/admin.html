@@ -408,7 +408,7 @@ async function saveGuest(id){
     var name=document.getElementById("en-"+id);
     var email=document.getElementById("ee-"+id);
     if(!name) return;
-    var r=await fetch("/api/admin/guests/"+id+"/update",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Secret":S},body:JSON.stringify({name:name.value.trim(),email:email?email.value.trim():""})});
+    var r=await fetch("/api/admin/guests/"+id,{method:"PATCH",headers:{"Content-Type":"application/json","X-Admin-Secret":S},body:JSON.stringify({name:name.value.trim(),email:email?email.value.trim():""})});
     if(r.ok){
         var b=document.getElementById("sv-"+id);
         if(b){b.textContent="Saved!";b.classList.add("done");setTimeout(function(){b.textContent="Save";b.classList.remove("done");},1500);}

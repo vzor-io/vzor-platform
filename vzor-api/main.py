@@ -8,7 +8,7 @@ from multi_model import call_model
 from db import (get_task, get_task_dependencies, init_db, save_message, get_history, get_all_history, clear_history,
                 save_tasks, load_tasks, update_task,
                 get_projects, create_project, clone_from_template, delete_project,
-                create_guest, find_guest_by_code, find_guest_by_token, record_login, list_guests, revoke_guest)
+                create_guest, find_guest_by_code, find_guest_by_token, record_login, list_guests, revoke_guest, activate_guest)
 
 app = FastAPI(title="VZOR API", version="2.2.0")
 
@@ -623,6 +623,16 @@ async def admin_extend_guest(guest_id: int, request: Request):
             days, guest_id
         )
     return {"status": "extended", "guest_id": guest_id, "added_days": days}
+
+
+@app.post("/api/admin/guests/{guest_id}/activate")
+async def admin_activate_guest(guest_id: int, request: Request):
+    """Reactivate a stopped guest (requires X-Admin-Secret header)."""
+    secret = request.headers.get("X-Admin-Secret", "")
+    if secret != VZOR_ADMIN_SECRET:
+        raise HTTPException(status_code=403, detail="Forbidden")
+    await activate_guest(guest_id)
+    return {"status": "activated", "guest_id": guest_id}
 
 
 @app.patch("/api/admin/guests/{guest_id}")
