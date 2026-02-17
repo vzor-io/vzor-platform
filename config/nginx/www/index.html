@@ -437,11 +437,8 @@
             gap: 0.625rem;
             height: auto;
             min-height: 17.5rem;
-            max-height: 85vh;
+            max-height: 70vh;
             border-radius: 0.75rem 0 0 0.75rem;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255,255,255,0.1) transparent;
             font-size: 0.6875rem;
             box-shadow: -0.625rem 0 2.5rem rgba(0, 0, 0, 0.3);
         }
@@ -2738,6 +2735,78 @@
             border-left: 0.125rem solid rgba(255, 255, 255, 0.15);
             border-radius: 0 0.5rem 0.5rem 0;
             padding-left: 0.75rem;
+        }
+
+        
+        /* === Markdown rendering in agent messages === */
+        .agent-message.assistant h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(0, 255, 255, 0.9);
+            margin: 1rem 0 0.4rem 0;
+            letter-spacing: 0.04em;
+        }
+        .agent-message.assistant h3:first-child { margin-top: 0; }
+        .agent-message.assistant h4 {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 0.8rem 0 0.3rem 0;
+        }
+        .agent-message.assistant strong {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+        }
+        .agent-message.assistant em {
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+        }
+        .agent-message.assistant ul, .agent-message.assistant ol {
+            margin: 0.4rem 0 0.4rem 1.2rem;
+            padding: 0;
+        }
+        .agent-message.assistant li {
+            margin: 0.2rem 0;
+            line-height: 1.5;
+        }
+        .agent-message.assistant p {
+            margin: 0.4rem 0;
+        }
+        .agent-message.assistant hr {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin: 0.8rem 0;
+        }
+        .agent-message.assistant code {
+            background: rgba(255,255,255,0.08);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-size: 0.78rem;
+            font-family: monospace;
+        }
+        .agent-message.assistant pre {
+            background: rgba(255,255,255,0.05);
+            padding: 0.5rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.78rem;
+            margin: 0.5rem 0;
+        }
+        .agent-message.assistant table {
+            border-collapse: collapse;
+            margin: 0.5rem 0;
+            font-size: 0.78rem;
+            width: 100%;
+        }
+        .agent-message.assistant th, .agent-message.assistant td {
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 0.3rem 0.5rem;
+            text-align: left;
+        }
+        .agent-message.assistant th {
+            background: rgba(255,255,255,0.05);
+            color: rgba(0,255,255,0.8);
+            font-weight: 600;
         }
 
         #agent-chat-input-container {
@@ -7580,6 +7649,14 @@
 
                 const _bc2 = window.task3DConnections ? window.task3DConnections.length : 0;
                 console.log('[VZOR v3.31] DB loaded', Object.keys(taskIdMap).length, 'tasks,', _bc2, 'bonds. NODE_RADII:', JSON.stringify(NODE_RADII));
+                // DEBUG: check mesh visibility
+                var _visCount = 0, _invisCount = 0, _nullMesh = 0;
+                window.taskPoints.forEach(function(t) {
+                    if (!t.mesh) _nullMesh++;
+                    else if (t.mesh.visible) _visCount++;
+                    else _invisCount++;
+                });
+                console.log('[DEBUG] Meshes: visible=' + _visCount + ' invisible=' + _invisCount + ' null=' + _nullMesh + ' isDrilled=' + window.isDrilled + ' projectId=' + window.currentProjectId);
                 const _vb2 = document.getElementById('version-badge');
                 if (_vb2) _vb2.textContent = 'v3.38 | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' bonds';
                 window.showToast('VZOR Tasks', Object.keys(taskIdMap).length + ' задач загружено', 'info', 3000);
@@ -7687,265 +7764,201 @@
         function showDetailPanel(data) {
             const detailPanel = document.getElementById('detail-panel');
 
-            // Status config
+            // Status config with icons
             const statusConfig = {
-                'pending': { label: 'Ожидание', color: '#E8E8E8', bg: 'rgba(232,232,232,0.12)', icon: '○' },
-                'in_progress': { label: 'В работе', color: '#FFB347', bg: 'rgba(255,179,71,0.12)', icon: '◐' },
-                'blocked': { label: 'Проблема', color: '#FF6B6B', bg: 'rgba(255,107,107,0.12)', icon: '⚠' },
-                'completed': { label: 'Готово', color: '#77DD77', bg: 'rgba(119,221,119,0.12)', icon: '●' }
+                'pending': { label: 'Ожидание', color: '#E8E8E8', bg: 'rgba(232,232,232,0.15)', icon: '○' },
+                'in_progress': { label: 'В работе', color: '#FFB347', bg: 'rgba(255,179,71,0.15)', icon: '◐' },
+                'blocked': { label: 'Проблема', color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)', icon: '⚠' },
+                'completed': { label: 'Готово', color: '#77DD77', bg: 'rgba(119,221,119,0.15)', icon: '●' }
             };
             const status = statusConfig[data.status] || statusConfig['pending'];
 
-            // Priority config
-            const priorityConfig = {
-                'Критичная': { color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)' },
-                'Высокая': { color: '#FFB347', bg: 'rgba(255,179,71,0.15)' },
-                'Средняя': { color: '#E8E8E8', bg: 'rgba(232,232,232,0.1)' },
-            };
+            // Sample files for demo (in real app, would come from task data)
+            const files = data.files || [];
+            const hasFiles = files.length > 0 || data.status === 'completed';
 
-            // Breadcrumbs: Block -> Subblock (find parent L1 task)
-            const phase = data.phase || '';
-            let subblock = '';
-            if (data.level === 2 && data.dependsOn && data.dependsOn.length > 0) {
-                const parentId = data.dependsOn[0];
-                const parentTask = window.taskPoints.find(function(t) { return t.id === parentId && t.level <= 1; });
-                if (parentTask) subblock = parentTask.title.replace(/^\d+\.\d+\s*/, '');
-            } else if (data.level <= 1) {
-                subblock = data.title.replace(/^\d+\.\d+\s*/, '');
-            }
+            // Sample issues/questions
+            const issues = data.issues || [];
+            const hasIssues = issues.length > 0 || data.status === 'blocked';
 
-            const phaseColorCSS = typeof getPhaseColorCSS === 'function' ? getPhaseColorCSS(phase) : 'rgb(200,200,200)';
+            // Build comprehensive panel
+            detailPanel.innerHTML = `
+                <!-- Header -->
+                <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
+                    <div>
+                        <span style="font-size:8px; letter-spacing:1.5px; color:rgba(255,255,255,0.35); text-transform:uppercase; display:block; margin-bottom:4px;">Задача #${data.id}</span>
+                        <div style="font-size:13px; font-weight:500; color:#fff; line-height:1.3;">${data.title}</div>
+                    </div>
+                    <button id="close-detail-btn" style="background:none; border:none; color:rgba(255,255,255,0.4); font-size:16px; cursor:pointer; padding:0; margin-left:8px;">×</button>
+                </div>
 
-            // Helpers
-            function fmtDate(s) { if (!s) return '\u2014'; var d = new Date(s); return d.toLocaleDateString('ru-RU', {day:'2-digit',month:'2-digit',year:'numeric'}); }
-            function daysLeft(s) {
-                if (!s) return '';
-                var diff = Math.ceil((new Date(s) - new Date()) / 86400000);
-                if (diff < 0) return '<span style="color:#FF6B6B">\u043f\u0440\u043e\u0441\u0440\u043e\u0447\u0435\u043d\u043e ' + Math.abs(diff) + ' \u0434\u043d.</span>';
-                if (diff === 0) return '<span style="color:#FFB347">\u0441\u0435\u0433\u043e\u0434\u043d\u044f</span>';
-                return '\u043e\u0441\u0442\u0430\u043b\u043e\u0441\u044c ' + diff + ' \u0434\u043d.';
-            }
-            function daysDur(a,b) { if (!a||!b) return ''; return Math.ceil((new Date(b)-new Date(a))/86400000) + ' \u0434\u043d\u0435\u0439'; }
-            function fIcon(n) {
-                var e = (n||'').split('.').pop().toLowerCase();
-                if (e==='pdf') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF4757" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
-                if (e==='xlsx'||e==='xls') return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg>';
-                return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
-            }
-            function fColor(n) { var e=(n||'').split('.').pop().toLowerCase(); if(e==='pdf') return 'rgba(255,71,87,0.2)'; if(e==='xlsx'||e==='xls') return 'rgba(46,204,113,0.2)'; return 'rgba(255,255,255,0.1)'; }
-            function fSize(b) { if(!b) return ''; if(b>=1048576) return (b/1048576).toFixed(1)+' MB'; if(b>=1024) return Math.round(b/1024)+' KB'; return b+' B'; }
-            function srcBadge(tp) { var t=(tp||'documents').toLowerCase(); var cl={api:'#00ffff',documents:'#FFB347',database:'#77DD77'}[t]||'#E8E8E8'; return '<span style="font-size:8px;color:'+cl+';background:'+cl+'22;padding:1px 5px;border-radius:3px;text-transform:uppercase;letter-spacing:0.5px;">'+t+'</span>'; }
+                <!-- Status Badge -->
+                <div style="display:inline-flex; align-items:center; gap:6px; padding:5px 10px; background:${status.bg}; border-radius:12px; margin-bottom:12px;">
+                    <span style="color:${status.color}; font-size:12px;">${status.icon}</span>
+                    <span style="font-size:10px; color:${status.color}; font-weight:500;">${status.label}</span>
+                    <span style="font-size:9px; color:rgba(255,255,255,0.4);">${data.progress || 0}%</span>
+                </div>
 
-            // Data extraction (safe — works with old and new task objects)
-            var desc = data.description || data.database || '';
-            var priority = data.priority || '';
-            var prioConf = priorityConfig[priority];
-            var startDate = data.start_date || null;
-            var deadline = data.deadline || data.end_date || null;
-            var documents = data.documents || [];
-            var knowledgeSources = data.knowledge_sources || [];
-            var model = data.model || '';
-            var agent = data.agent || '';
-            var progress = data.progress || 0;
-            var durText = daysDur(startDate, deadline);
-            var leftText = daysLeft(deadline);
+                <!-- Progress Bar -->
+                <div style="height:4px; background:rgba(255,255,255,0.08); border-radius:2px; margin-bottom:10px; overflow:hidden;">
+                    <div style="width:${data.progress || 0}%; height:100%; background:linear-gradient(90deg, ${status.color}, ${status.color}aa); transition:width 0.3s; border-radius:2px;"></div>
+                </div>
 
-            // === BUILD HTML ===
-            var html = '';
+                <!-- Status Buttons -->
+                <div style="display:flex; gap:6px; margin-bottom:14px;" id="status-buttons-row">
+                    <button onclick="window.updateTaskStatus('${data.id}','pending')" style="flex:1; padding:6px; border:1px solid rgba(255,255,255,0.15); border-radius:8px; background:${data.status==='pending'?'rgba(255,255,255,0.15)':'rgba(255,255,255,0.03)'}; color:#ccc; font-size:10px; cursor:pointer;">⬜ Ожидает</button>
+                    <button onclick="window.updateTaskStatus('${data.id}','in_progress')" style="flex:1; padding:6px; border:1px solid rgba(255,179,71,0.3); border-radius:8px; background:${data.status==='in_progress'?'rgba(255,179,71,0.2)':'rgba(255,255,255,0.03)'}; color:#FFB347; font-size:10px; cursor:pointer;">🔄 В работе</button>
+                    <button onclick="window.updateTaskStatus('${data.id}','completed')" style="flex:1; padding:6px; border:1px solid rgba(119,221,119,0.3); border-radius:8px; background:${data.status==='completed'?'rgba(119,221,119,0.2)':'rgba(255,255,255,0.03)'}; color:#77DD77; font-size:10px; cursor:pointer;">✅ Готово</button>
+                </div>
 
-            // 1. HEADER
-            html += '<div style="margin-bottom:10px;">';
-            html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
-            html += '<div style="flex:1;min-width:0;">';
-            html += '<span style="font-size:9px;letter-spacing:1px;color:rgba(255,255,255,0.3);font-family:monospace;">#' + data.id + '</span>';
-            html += '<div style="font-size:14px;font-weight:600;color:#fff;line-height:1.3;margin-top:3px;">' + data.title + '</div>';
-            if (phase) {
-                html += '<div style="font-size:9px;color:rgba(255,255,255,0.35);margin-top:4px;display:flex;align-items:center;gap:4px;">';
-                html += '<span style="color:' + phaseColorCSS + ';">' + phase + '</span>';
-                if (subblock && subblock !== data.title.replace(/^\d+\.\d+\s*/, '')) {
-                    html += '<span style="opacity:0.5;">\u2192</span><span>' + subblock + '</span>';
-                }
-                html += '</div>';
-            }
-            html += '</div>';
-            html += '<button id="close-detail-btn" style="background:none;border:none;color:rgba(255,255,255,0.4);font-size:18px;cursor:pointer;padding:0 0 0 8px;line-height:1;">\u00d7</button>';
-            html += '</div></div>';
+                <!-- Info Section -->
+                <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; margin-bottom:12px;">
+                    <div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:8px;">Информация</div>
 
-            // 2. STATUS & TIMING
-            html += '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:9px 10px;margin-bottom:8px;">';
-            html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">';
-            html += '<div style="display:flex;align-items:center;gap:5px;">';
-            html += '<span style="font-size:9px;color:rgba(255,255,255,0.4);width:65px;">\u0421\u0442\u0430\u0442\u0443\u0441</span>';
-            html += '<span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:' + status.bg + ';border-radius:10px;">';
-            html += '<span style="color:' + status.color + ';font-size:10px;">' + status.icon + '</span>';
-            html += '<span style="font-size:10px;color:' + status.color + ';font-weight:500;">' + status.label + '</span>';
-            html += '</span></div>';
-            html += '<span style="font-size:10px;color:rgba(255,255,255,0.5);">' + progress + '%</span>';
-            html += '</div>';
-            // Progress bar
-            html += '<div style="height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin-bottom:8px;overflow:hidden;">';
-            html += '<div style="width:' + progress + '%;height:100%;background:linear-gradient(90deg,' + status.color + ',' + status.color + '99);border-radius:2px;"></div>';
-            html += '</div>';
-            // Info rows
-            var rows = [];
-            if (priority) { var pc = prioConf ? prioConf.color : '#E8E8E8'; rows.push(['\u041f\u0440\u0438\u043e\u0440\u0438\u0442\u0435\u0442', '<span style="color:' + pc + ';font-weight:500;">' + priority + '</span>']); }
-            if (startDate) rows.push(['\u041d\u0430\u0447\u0430\u043b\u043e', fmtDate(startDate)]);
-            if (deadline) rows.push(['\u0414\u0435\u0434\u043b\u0430\u0439\u043d', '<span style="color:#FFB347;">' + fmtDate(deadline) + '</span>']);
-            if (durText && leftText) rows.push(['\u0414\u043b\u0438\u0442\u0435\u043b\u044c\u043d\u043e\u0441\u0442\u044c', durText + ' <span style="color:rgba(255,255,255,0.35);">(' + leftText + ')</span>']);
-            else if (leftText) rows.push(['\u041e\u0441\u0442\u0430\u043b\u043e\u0441\u044c', leftText]);
-            for (var ri = 0; ri < rows.length; ri++) {
-                html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:10px;">';
-                html += '<span style="color:rgba(255,255,255,0.4);">' + rows[ri][0] + '</span>';
-                html += '<span style="color:rgba(255,255,255,0.7);">' + rows[ri][1] + '</span></div>';
-            }
-            html += '</div>';
+                    <div style="display:flex; flex-direction:column; gap:6px; font-size:10px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:rgba(255,255,255,0.5);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                                Создано
+                            </span>
+                            <span style="color:rgba(255,255,255,0.7);">${data.createdAt || 'Только что'}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:rgba(255,255,255,0.5);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
+                                Агент
+                            </span>
+                            <span style="color:#00ffff;">${data.agent || 'Не назначен'}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:rgba(255,255,255,0.5);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
+                                База знаний
+                            </span>
+                            <span style="color:rgba(255,255,255,0.7);">${data.database || 'VZOR Core'}</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span style="color:rgba(255,255,255,0.5);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle; margin-right:4px;"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                                Категория
+                            </span>
+                            <span style="color:rgba(255,255,255,0.7);">${data.category || 'Общая'}</span>
+                        </div>
+                    </div>
+                </div>
 
-            // Status buttons
-            html += '<div style="display:flex;gap:4px;margin-bottom:8px;">';
-            html += '<button onclick="window.updateTaskStatus(\'' + data.id + '\',\'pending\')" style="flex:1;padding:5px;border:1px solid rgba(255,255,255,' + (data.status==='pending'?'0.25':'0.1') + ');border-radius:6px;background:' + (data.status==='pending'?'rgba(255,255,255,0.12)':'rgba(255,255,255,0.02)') + ';color:#aaa;font-size:9px;cursor:pointer;">\u25cb \u041e\u0436\u0438\u0434.</button>';
-            html += '<button onclick="window.updateTaskStatus(\'' + data.id + '\',\'in_progress\')" style="flex:1;padding:5px;border:1px solid rgba(255,179,71,' + (data.status==='in_progress'?'0.4':'0.15') + ');border-radius:6px;background:' + (data.status==='in_progress'?'rgba(255,179,71,0.15)':'rgba(255,255,255,0.02)') + ';color:#FFB347;font-size:9px;cursor:pointer;">\u25d0 \u0420\u0430\u0431\u043e\u0442\u0430</button>';
-            html += '<button onclick="window.updateTaskStatus(\'' + data.id + '\',\'completed\',100)" style="flex:1;padding:5px;border:1px solid rgba(119,221,119,' + (data.status==='completed'?'0.4':'0.15') + ');border-radius:6px;background:' + (data.status==='completed'?'rgba(119,221,119,0.15)':'rgba(255,255,255,0.02)') + ';color:#77DD77;font-size:9px;cursor:pointer;">\u25cf \u0413\u043e\u0442\u043e\u0432\u043e</button>';
-            html += '</div>';
+                <!-- Issues/Questions Section (if blocked or has issues) -->
+                ${hasIssues || data.status === 'blocked' ? `
+                <div style="background:rgba(255,107,107,0.08); border:1px solid rgba(255,107,107,0.2); border-radius:8px; padding:10px; margin-bottom:12px;">
+                    <div style="font-size:8px; letter-spacing:1px; color:#FF6B6B; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:4px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        Требуется внимание
+                    </div>
+                    <div style="font-size:10px; color:rgba(255,255,255,0.7); line-height:1.4;">
+                        ${issues.length > 0 ? issues.map(i => `• ${i}`).join('<br>') : '• Задача заблокирована. Проверьте входные данные.'}
+                    </div>
+                </div>
+                ` : ''}
 
-            // 3. EXECUTOR
-            if (agent || model) {
-                html += '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:9px 10px;margin-bottom:8px;">';
-                html += '<div style="font-size:8px;letter-spacing:1px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:6px;">\u0418\u0441\u043f\u043e\u043b\u043d\u0438\u0442\u0435\u043b\u044c</div>';
-                if (agent) {
-                    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:10px;">';
-                    html += '<span style="color:rgba(255,255,255,0.4);">\u0410\u0433\u0435\u043d\u0442</span><span style="color:#00ffff;">' + agent + '</span></div>';
-                }
-                if (model) {
-                    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 0;font-size:10px;">';
-                    html += '<span style="color:rgba(255,255,255,0.4);">\u041c\u043e\u0434\u0435\u043b\u044c</span><span style="color:rgba(255,255,255,0.6);">' + model + '</span></div>';
-                }
-                html += '</div>';
-            }
+                <!-- Files Section -->
+                <div style="background:rgba(255,255,255,0.03); border-radius:8px; padding:10px; margin-bottom:12px;">
+                    <div style="font-size:8px; letter-spacing:1px; color:rgba(255,255,255,0.3); text-transform:uppercase; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>Результаты</span>
+                        <span style="color:rgba(255,255,255,0.2);">${hasFiles ? (files.length || 2) : 0} файлов</span>
+                    </div>
 
-            // 4. KNOWLEDGE SOURCES
-            if (knowledgeSources && knowledgeSources.length > 0) {
-                html += '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:9px 10px;margin-bottom:8px;">';
-                html += '<div style="font-size:8px;letter-spacing:1px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:6px;">\u0418\u0441\u0442\u043e\u0447\u043d\u0438\u043a\u0438 \u0434\u0430\u043d\u043d\u044b\u0445</div>';
-                for (var si = 0; si < knowledgeSources.length; si++) {
-                    var src = knowledgeSources[si];
-                    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:10px;">';
-                    html += '<span style="color:rgba(255,255,255,0.65);">' + (src.name || src) + '</span>' + srcBadge(src.type || 'documents') + '</div>';
-                }
-                html += '</div>';
-            }
+                    ${data.status === 'completed' ? `
+                    <div style="display:flex; flex-direction:column; gap:6px;">
+                        <div class="file-item" onclick="downloadFile('report_${data.id}.pdf')" style="display:flex; align-items:center; gap:8px; padding:8px; background:rgba(255,255,255,0.04); border-radius:6px; cursor:pointer; transition:background 0.2s;">
+                            <div style="width:28px; height:28px; background:rgba(255,71,87,0.2); border-radius:4px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FF4757" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M12 18v-6"/><path d="M9 15l3 3 3-3"/></svg>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:10px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Отчёт_анализ.pdf</div>
+                                <div style="font-size:8px; color:rgba(255,255,255,0.4);">PDF • 2.4 MB</div>
+                            </div>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                        </div>
+                        <div class="file-item" onclick="downloadFile('data_${data.id}.xlsx')" style="display:flex; align-items:center; gap:8px; padding:8px; background:rgba(255,255,255,0.04); border-radius:6px; cursor:pointer; transition:background 0.2s;">
+                            <div style="width:28px; height:28px; background:rgba(46,204,113,0.2); border-radius:4px; display:flex; align-items:center; justify-content:center;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ECC71" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M8 9h2"/></svg>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:10px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">Данные_расчёт.xlsx</div>
+                                <div style="font-size:8px; color:rgba(255,255,255,0.4);">Excel • 856 KB</div>
+                            </div>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+                        </div>
+                    </div>
+                    ` : `
+                    <div style="text-align:center; padding:15px 0; color:rgba(255,255,255,0.3);">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:6px; opacity:0.5;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+                        <div style="font-size:9px;">Файлы появятся после завершения</div>
+                    </div>
+                    `}
+                </div>
 
-            // 5. DEPENDENCIES placeholder (loaded async)
-            html += '<div id="detail-deps-section" style="margin-bottom:8px;"></div>';
+                <!-- Action Buttons -->
+                <div style="display:flex; gap:6px; margin-top:auto;">
+                    <button onclick="window.updateTaskStatus('${data.id}','in_progress',0)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,179,71,0.15); border:1px solid rgba(255,179,71,0.3); color:#FFB347; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                        Старт
+                    </button>
+                    <button onclick="window.updateTaskStatus('${data.id}','blocked',50)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(255,107,107,0.15); border:1px solid rgba(255,107,107,0.3); color:#FF6B6B; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="6" width="12" height="12"/></svg>
+                        Стоп
+                    </button>
+                    <button onclick="window.updateTaskStatus('${data.id}','completed',100)" style="flex:1; padding:8px 6px; font-size:9px; background:rgba(119,221,119,0.15); border:1px solid rgba(119,221,119,0.3); color:#77DD77; border-radius:6px; cursor:pointer; transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:4px;">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+                        Готово
+                    </button>
+                </div>
+            `;
 
-            // 6. DOCUMENTS
-            html += '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:9px 10px;margin-bottom:8px;">';
-            html += '<div style="font-size:8px;letter-spacing:1px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:6px;display:flex;justify-content:space-between;">';
-            html += '<span>\u0420\u0435\u0437\u0443\u043b\u044c\u0442\u0430\u0442\u044b</span><span style="color:rgba(255,255,255,0.2);">' + documents.length + ' \u0444\u0430\u0439\u043b.</span></div>';
-            if (documents.length > 0) {
-                for (var di = 0; di < documents.length; di++) {
-                    var doc = documents[di];
-                    var fname = doc.name || doc.filename || 'file';
-                    var fsize = doc.size ? fSize(doc.size) : '';
-                    var fpath = doc.path || doc.url || ('/documents/' + fname);
-                    html += '<div class="file-item" onclick="window.downloadFile(\'' + fpath + '\')" style="display:flex;align-items:center;gap:8px;padding:6px;background:rgba(255,255,255,0.03);border-radius:6px;cursor:pointer;margin-bottom:4px;">';
-                    html += '<div style="width:26px;height:26px;background:' + fColor(fname) + ';border-radius:4px;display:flex;align-items:center;justify-content:center;">' + fIcon(fname) + '</div>';
-                    html += '<div style="flex:1;min-width:0;"><div style="font-size:10px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + fname + '</div>';
-                    if (fsize) html += '<div style="font-size:8px;color:rgba(255,255,255,0.35);">' + fsize + '</div>';
-                    html += '</div>';
-                    html += '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg></div>';
-                }
-            } else {
-                html += '<div style="text-align:center;padding:10px 0;color:rgba(255,255,255,0.25);">';
-                html += '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:4px;opacity:0.4;"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>';
-                html += '<div style="font-size:9px;">\u0414\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u044b \u043f\u043e\u044f\u0432\u044f\u0442\u0441\u044f \u043f\u043e\u0441\u043b\u0435 \u0432\u044b\u043f\u043e\u043b\u043d\u0435\u043d\u0438\u044f</div></div>';
-            }
-            html += '</div>';
-
-            // 7. DESCRIPTION
-            if (desc) {
-                html += '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:9px 10px;margin-bottom:4px;">';
-                html += '<div style="font-size:8px;letter-spacing:1px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:4px;">\u041e\u043f\u0438\u0441\u0430\u043d\u0438\u0435</div>';
-                html += '<div style="font-size:10px;color:rgba(255,255,255,0.55);line-height:1.4;">' + desc + '</div></div>';
-            }
-
-            detailPanel.innerHTML = html;
-            detailPanel.style.width = '320px';
+            // Adjust panel width for more content
+            detailPanel.style.width = '280px';
             detailPanel.classList.add('active');
 
-            // Hover for file items
-            detailPanel.querySelectorAll('.file-item').forEach(function(el) {
-                el.addEventListener('mouseenter', function() { el.style.background = 'rgba(255,255,255,0.07)'; });
-                el.addEventListener('mouseleave', function() { el.style.background = 'rgba(255,255,255,0.03)'; });
+            // Add hover effects for file items
+            detailPanel.querySelectorAll('.file-item').forEach(item => {
+                item.addEventListener('mouseenter', () => item.style.background = 'rgba(255,255,255,0.08)');
+                item.addEventListener('mouseleave', () => item.style.background = 'rgba(255,255,255,0.04)');
             });
 
-            // Close button
-            document.getElementById('close-detail-btn').addEventListener('click', function() {
+            // Re-attach close handler
+            document.getElementById('close-detail-btn').addEventListener('click', () => {
                 detailPanel.classList.remove('active');
                 if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
             });
 
             // Highlight 3D point
-            window.taskPoints.forEach(function(t) { t.mesh.scale.set(1, 1, 1); });
-            if (data.mesh) data.mesh.scale.set(1.3, 1.3, 1.3);
+            window.taskPoints.forEach(t => t.mesh.scale.set(1, 1, 1));
+            data.mesh.scale.set(1.3, 1.3, 1.3);
 
             if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
-
-            // ASYNC: Load dependencies
-            var _pid = window.currentProjectId || 1;
-            fetch('/api/tasks/deps/' + data.id + '?project_id=' + _pid)
-                .then(function(r) { return r.json(); })
-                .then(function(deps) {
-                    var depsDiv = document.getElementById('detail-deps-section');
-                    if (!depsDiv) return;
-                    var blockedBy = deps.blocked_by || [];
-                    var blocks = deps.blocks || [];
-                    if (blockedBy.length === 0 && blocks.length === 0) return;
-
-                    var dh = '<div style="background:rgba(255,255,255,0.03);border-radius:8px;padding:9px 10px;">';
-                    dh += '<div style="font-size:8px;letter-spacing:1px;color:rgba(255,255,255,0.25);text-transform:uppercase;margin-bottom:6px;">\u0417\u0430\u0432\u0438\u0441\u0438\u043c\u043e\u0441\u0442\u0438</div>';
-
-                    if (blockedBy.length > 0) {
-                        dh += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-bottom:3px;">\u0411\u043b\u043e\u043a\u0438\u0440\u0443\u0435\u0442\u0441\u044f</div>';
-                        for (var bi = 0; bi < blockedBy.length; bi++) {
-                            var dep = blockedBy[bi];
-                            var ds = statusConfig[dep.status] || statusConfig['pending'];
-                            dh += '<div onclick="window._focusTask(\'' + dep.id + '\')" style="display:flex;align-items:center;gap:5px;padding:3px 0;font-size:10px;cursor:pointer;" class="dep-link">';
-                            dh += '<span style="color:rgba(255,255,255,0.3);">\u2190</span>';
-                            dh += '<span style="flex:1;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + dep.title + '</span>';
-                            if (dep.status === 'completed') dh += '<span style="color:#77DD77;font-size:9px;">\u2713</span>';
-                            else dh += '<span style="color:' + ds.color + ';font-size:9px;">' + ds.icon + ' ' + (dep.progress||0) + '%</span>';
-                            dh += '</div>';
-                        }
-                    }
-                    if (blocks.length > 0) {
-                        if (blockedBy.length > 0) dh += '<div style="height:6px;"></div>';
-                        dh += '<div style="font-size:8px;color:rgba(255,255,255,0.3);margin-bottom:3px;">\u0411\u043b\u043e\u043a\u0438\u0440\u0443\u0435\u0442</div>';
-                        for (var bk = 0; bk < blocks.length; bk++) {
-                            dh += '<div onclick="window._focusTask(\'' + blocks[bk].id + '\')" style="display:flex;align-items:center;gap:5px;padding:3px 0;font-size:10px;cursor:pointer;" class="dep-link">';
-                            dh += '<span style="color:rgba(255,255,255,0.3);">\u2192</span>';
-                            dh += '<span style="flex:1;color:rgba(255,255,255,0.6);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + blocks[bk].title + '</span></div>';
-                        }
-                    }
-                    dh += '</div>';
-                    depsDiv.innerHTML = dh;
-                })
-                .catch(function(e) { console.log('[VZOR] deps error:', e); });
         }
 
-        // Navigate to dependency task
-        window._focusTask = function(taskId) {
-            var task = window.taskPoints.find(function(t) { return t.id === taskId; });
-            if (task) showDetailPanel(task);
-        };
-
-        // File download
-        window.downloadFile = function(path) {
-            var url = path;
-            if (!path.startsWith('/') && !path.startsWith('http')) url = '/documents/' + path;
-            var a = document.createElement('a');
-            a.href = url; a.download = path.split('/').pop(); a.style.display = 'none';
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            if (window.showToast) window.showToast('\u0421\u043a\u0430\u0447\u0438\u0432\u0430\u043d\u0438\u0435', path.split('/').pop(), 'info', 2000);
+        // File download function (demo)
+        window.downloadFile = function(filename) {
+            console.log('Downloading:', filename);
+            // In real app, would trigger actual download
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 255, 255, 0.9);
+                color: #000;
+                padding: 10px 20px;
+                border-radius: 8px;
+                font-size: 12px;
+                z-index: 9999;
+                animation: fadeInUp 0.3s ease;
+            `;
+            notification.textContent = `Скачивание: ${filename}`;
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
         };
 
         // 4. Click Handler for Empty Space (reset orbit pivot + highlights)
@@ -11193,11 +11206,85 @@ async function sendToAgentZero(message) {
         });
 
         // --- Chat messages ---
+        
+        // === Markdown renderer for agent messages ===
+        function renderMarkdown(text) {
+            var s = text;
+            // Escape HTML
+            s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            // Code blocks
+            s = s.replace(/```([\s\S]*?)```/g, function(m, code) {
+                return '<pre><code>' + code.trim() + '</code></pre>';
+            });
+            // Inline code
+            s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+            // Headers
+            s = s.replace(/^#### (.+)$/gm, '<h4>$1</h4>');
+            s = s.replace(/^### (.+)$/gm, '<h3>$1</h3>');
+            s = s.replace(/^## (.+)$/gm, '<h3>$1</h3>');
+            s = s.replace(/^# (.+)$/gm, '<h3>$1</h3>');
+
+            // Horizontal rule
+            s = s.replace(/^---+$/gm, '<hr>');
+
+            // Bold + italic
+            s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+            s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+            // Tables
+            s = s.replace(/((?:^\|.+\|$\n?)+)/gm, function(block) {
+                var rows = block.trim().split('\n');
+                if (rows.length < 2) return block;
+                if (!/^[\s|:-]+$/.test(rows[1])) return block;
+                var thead = rows[0].split('|').filter(function(c){return c.trim()!=='';});
+                var h = '<table><thead><tr>' + thead.map(function(c){return '<th>'+c.trim()+'</th>';}).join('') + '</tr></thead><tbody>';
+                for (var i=2; i<rows.length; i++) {
+                    var cells = rows[i].split('|').filter(function(c){return c.trim()!=='';});
+                    h += '<tr>' + cells.map(function(c){return '<td>'+c.trim()+'</td>';}).join('') + '</tr>';
+                }
+                return h + '</tbody></table>';
+            });
+
+            // Unordered lists
+            s = s.replace(/((?:^[ \t]*[-*] .+$\n?)+)/gm, function(block) {
+                var items = block.trim().split('\n').map(function(line) {
+                    return '<li>' + line.replace(/^[ \t]*[-*] /, '') + '</li>';
+                });
+                return '<ul>' + items.join('') + '</ul>';
+            });
+
+            // Ordered lists
+            s = s.replace(/((?:^[ \t]*\d+\. .+$\n?)+)/gm, function(block) {
+                var items = block.trim().split('\n').map(function(line) {
+                    return '<li>' + line.replace(/^[ \t]*\d+\. /, '') + '</li>';
+                });
+                return '<ol>' + items.join('') + '</ol>';
+            });
+
+            // Double newline = paragraph break
+            s = s.replace(/\n\n+/g, '</p><p>');
+            // Single newline = line break (but not inside tags)
+            s = s.replace(/([^>])\n([^<])/g, '$1<br>$2');
+
+            s = '<p>' + s + '</p>';
+
+            // Clean up
+            s = s.replace(/<p>\s*<\/p>/g, '');
+            s = s.replace(/<p>\s*(<(?:h[34]|ul|ol|hr|pre|table))/g, '$1');
+            s = s.replace(/(<\/(?:h[34]|ul|ol|pre|table)>)\s*<\/p>/g, '$1');
+
+            return s;
+        }
+
         function addMessage(text, sender, isHTML) {
             const msg = document.createElement('div');
             msg.className = 'agent-message ' + (sender === 'user' ? 'user' : 'assistant');
             if (isHTML) {
                 msg.innerHTML = text;
+            } else if (sender === 'agent' || sender === 'assistant') {
+                msg.innerHTML = renderMarkdown(text);
             } else {
                 msg.textContent = text;
             }
