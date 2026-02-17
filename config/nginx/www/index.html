@@ -2738,6 +2738,78 @@
         }
 
         
+        
+        /* === Markdown rendering in OC messages === */
+        .oc-message.assistant h3 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: rgba(0, 255, 255, 0.9);
+            margin: 1rem 0 0.4rem 0;
+            letter-spacing: 0.04em;
+        }
+        .oc-message.assistant h3:first-child { margin-top: 0; }
+        .oc-message.assistant h4 {
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 0.8rem 0 0.3rem 0;
+        }
+        .oc-message.assistant strong {
+            color: rgba(255, 255, 255, 0.95);
+            font-weight: 600;
+        }
+        .oc-message.assistant em {
+            color: rgba(255, 255, 255, 0.8);
+            font-style: italic;
+        }
+        .oc-message.assistant ul, .oc-message.assistant ol {
+            margin: 0.4rem 0 0.4rem 1.2rem;
+            padding: 0;
+        }
+        .oc-message.assistant li {
+            margin: 0.2rem 0;
+            line-height: 1.5;
+        }
+        .oc-message.assistant p {
+            margin: 0.4rem 0;
+        }
+        .oc-message.assistant hr {
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin: 0.8rem 0;
+        }
+        .oc-message.assistant code {
+            background: rgba(255,255,255,0.08);
+            padding: 0.1rem 0.3rem;
+            border-radius: 3px;
+            font-size: 0.78rem;
+            font-family: monospace;
+        }
+        .oc-message.assistant pre {
+            background: rgba(255,255,255,0.05);
+            padding: 0.5rem;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.78rem;
+            margin: 0.5rem 0;
+        }
+        .oc-message.assistant table {
+            border-collapse: collapse;
+            margin: 0.5rem 0;
+            font-size: 0.78rem;
+            width: 100%;
+        }
+        .oc-message.assistant th, .oc-message.assistant td {
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 0.3rem 0.5rem;
+            text-align: left;
+        }
+        .oc-message.assistant th {
+            background: rgba(255,255,255,0.05);
+            color: rgba(0,255,255,0.8);
+            font-weight: 600;
+        }
+
         /* === Markdown rendering in agent messages === */
         .agent-message.assistant h3 {
             font-size: 0.9rem;
@@ -11980,14 +12052,14 @@ async function sendToAgentZero(message) {
                             currentAssistantEl.className = 'oc-message assistant';
                             chatMessages.appendChild(currentAssistantEl);
                         }
-                        if (text) currentAssistantEl.textContent = text;
+                        if (text) currentAssistantEl.innerHTML = (typeof renderMarkdown === 'function') ? renderMarkdown(text) : text;
                         chatMessages.scrollTop = chatMessages.scrollHeight;
                     }
 
                     if (p.state === 'final') {
                         removeTyping();
                         if (currentAssistantEl) {
-                            if (text) currentAssistantEl.textContent = text;
+                            if (text) currentAssistantEl.innerHTML = (typeof renderMarkdown === 'function') ? renderMarkdown(text) : text;
                             currentAssistantEl = null;
                         } else if (text) {
                             addOCMessage(text, 'assistant');
@@ -12028,7 +12100,11 @@ async function sendToAgentZero(message) {
         function addOCMessage(text, sender) {
             var msg = document.createElement('div');
             msg.className = 'oc-message ' + (sender === 'user' ? 'user' : 'assistant');
-            msg.textContent = text;
+            if (sender !== 'user' && typeof renderMarkdown === 'function') {
+                msg.innerHTML = renderMarkdown(text);
+            } else {
+                msg.textContent = text;
+            }
             chatMessages.appendChild(msg);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
