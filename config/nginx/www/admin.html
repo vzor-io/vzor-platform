@@ -416,6 +416,26 @@ async function saveGuest(id){
     }
 }
 
+async function shareQRImage(guestId, code, platform){
+    var r=await fetch("/api/admin/guests",{headers:{"X-Admin-Secret":S}});
+    var d=await r.json();
+    var g=(d.guests||[]).find(function(x){return x.id===guestId;});
+    if(!g) return;
+    var qr=makeQRhd(tokenUrl(g.token));
+    var blob=await qr.getRawData("png");
+    if(!blob) return;
+    var file=new File([blob],"VZOR-"+sc(code)+".png",{type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file],title:"VZOR QR",text:"VZOR access: "+code});
+    } else {
+        var url=URL.createObjectURL(blob);
+        var a=document.createElement("a");
+        a.href=url; a.download="VZOR-"+sc(code)+".png"; a.click();
+        URL.revokeObjectURL(url);
+        alert("QR saved. Attach it manually in "+platform);
+    }
+}
+
 function shareGuestWA(code){ window.open("https://wa.me/?text="+encodeURIComponent("VZOR — private access\n\nCode: "+code+"\n"+fullurl(code)),"_blank"); }
 function shareGuestTG(code){ window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(code))+"&text="+encodeURIComponent("VZOR access code: "+code),"_blank"); }
 </script>
