@@ -240,8 +240,10 @@ async function addGuest(){
         +'<button class="rbtn primary" onclick="dlResultQR()">Download QR</button>'
         +'<button class="rbtn" id="copy-code-btn" onclick="copyResultCode()">Copy code</button>'
         +'<button class="rbtn" id="copy-link-btn" onclick="copyResultLink()">Copy link</button>'
-        +'<button class="rbtn" onclick="shareWA()">WhatsApp</button>'
-        +'<button class="rbtn" onclick="shareTG()">Telegram</button>'
+        +'<button class="rbtn" onclick="shareWA()">WA link</button>'
+        +'<button class="rbtn" onclick="shareTG()">TG link</button>'
+        +'<button class="rbtn" onclick="shareResultQR('WhatsApp')">WA QR</button>'
+        +'<button class="rbtn" onclick="shareResultQR('Telegram')">TG QR</button>'
         +'</div></div></div>';
 
     var qr=makeQR(tokenUrl(d.guest.token),200);
@@ -258,6 +260,22 @@ function copyResultCode(){ if(!lastCreated) return; navigator.clipboard.writeTex
 function copyResultLink(){ if(!lastCreated) return; navigator.clipboard.writeText(fullurl(lastCreated.access_code)); flashBtn("copy-link-btn","Copied!"); }
 function flashBtn(id,txt){ var b=document.getElementById(id); if(!b) return; var o=b.textContent; b.textContent=txt; b.classList.add("copied"); setTimeout(function(){ b.textContent=o; b.classList.remove("copied"); },1500); }
 function shareWA(){ if(!lastCreated) return; window.open("https://wa.me/?text="+encodeURIComponent("VZOR — private access\n\nCode: "+lastCreated.access_code+"\n"+fullurl(lastCreated.access_code)),"_blank"); }
+async function shareResultQR(platform){
+    if(!lastCreated) return;
+    var qr=makeQRhd(tokenUrl(lastCreated.guest.token));
+    var blob=await qr.getRawData("png");
+    if(!blob) return;
+    var file=new File([blob],"VZOR-"+sc(lastCreated.access_code)+".png",{type:"image/png"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){
+        navigator.share({files:[file],title:"VZOR QR",text:"VZOR access: "+lastCreated.access_code});
+    } else {
+        var url=URL.createObjectURL(blob);
+        var a=document.createElement("a");
+        a.href=url; a.download="VZOR-"+sc(lastCreated.access_code)+".png"; a.click();
+        URL.revokeObjectURL(url);
+        alert("QR saved. Attach it manually in "+platform);
+    }
+}
 function shareTG(){ if(!lastCreated) return; window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(lastCreated.access_code))+"&text="+encodeURIComponent("VZOR access code: "+lastCreated.access_code),"_blank"); }
 
 async function loadAll(){
@@ -303,20 +321,19 @@ async function loadAll(){
             html+='<span style="display:inline-flex;align-items:center;gap:4px">'
                 +'<input type="number" id="ext-'+g.id+'" value="30" min="1" max="999" onclick="event.stopPropagation()" style="width:52px;padding:4px 6px;font-size:11px;background:var(--bg);border:1px solid var(--border);border-radius:8px;color:var(--text);outline:none;text-align:center;font-family:inherit">'
                 +'<button class="dbtn extend" onclick="event.stopPropagation();extendG('+g.id+')">+ days</button>'
-                +'</span>'
-                ;
-        if(g.is_active){
+                +'</span>';
             html+='<button class="dbtn stop" onclick="event.stopPropagation();stopG('+g.id+')">Stop</button>';
         } else {
             html+='<button class="dbtn start" onclick="event.stopPropagation();startG('+g.id+')">Start</button>';
-        }
         }
         if(true){
             html+='<button class="dbtn delete" onclick="event.stopPropagation();deleteG('+g.id+')">Delete</button>';
         }
 
-        html+='<button class="dbtn share" onclick="event.stopPropagation();shareGuestWA(\''+esc(g.access_code)+'\')">WhatsApp</button>'
-            +'<button class="dbtn share" onclick="event.stopPropagation();shareGuestTG(\''+esc(g.access_code)+'\')">Telegram</button>'
+        html+='<button class="dbtn share" onclick="event.stopPropagation();shareGuestWA(''+esc(g.access_code)+'')">WA link</button>'
+            +'<button class="dbtn share" onclick="event.stopPropagation();shareQRImage('+g.id+',''+esc(g.access_code)+'','WhatsApp')">WA QR</button>'
+            +'<button class="dbtn share" onclick="event.stopPropagation();shareGuestTG(''+esc(g.access_code)+'')">TG link</button>'
+            +'<button class="dbtn share" onclick="event.stopPropagation();shareQRImage('+g.id+',''+esc(g.access_code)+'','Telegram')">TG QR</button>'
             +'</div></div></div></div>';
     }
     document.getElementById("guest-list").innerHTML=html;
@@ -374,17 +391,29 @@ async function extendG(id){
 async function stopG(id){
     if(!confirm('Stop access for this guest?')) return;
     await fetch('/api/admin/guests/'+id,{method:'DELETE',headers:{'X-Admin-Secret':S}});
-    loadGuests();
+    openGuests={};loadAll();
 }
 async function startG(id){
     if(!confirm('Reactivate access for this guest?')) return;
     await fetch('/api/admin/guests/'+id+'/activate',{method:'POST',headers:{'X-Admin-Secret':S}});
-    loadGuests();
+    openGuests={};loadAll();
 }
 async function deleteG(id){
     if(!confirm("Permanently delete this guest?")) return;
     await fetch("/api/admin/guests/"+id+"/delete",{method:"POST",headers:{"X-Admin-Secret":S}});
     openGuests={}; loadAll();
+}
+
+async function saveGuest(id){
+    var name=document.getElementById("en-"+id);
+    var email=document.getElementById("ee-"+id);
+    if(!name) return;
+    var r=await fetch("/api/admin/guests/"+id+"/update",{method:"POST",headers:{"Content-Type":"application/json","X-Admin-Secret":S},body:JSON.stringify({name:name.value.trim(),email:email?email.value.trim():""})});
+    if(r.ok){
+        var b=document.getElementById("sv-"+id);
+        if(b){b.textContent="Saved!";b.classList.add("done");setTimeout(function(){b.textContent="Save";b.classList.remove("done");},1500);}
+        openGuests={};loadAll();
+    }
 }
 
 function shareGuestWA(code){ window.open("https://wa.me/?text="+encodeURIComponent("VZOR — private access\n\nCode: "+code+"\n"+fullurl(code)),"_blank"); }
