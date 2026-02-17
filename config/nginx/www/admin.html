@@ -267,19 +267,21 @@ function flashBtn(id,txt){ var b=document.getElementById(id); if(!b) return; var
 function shareWA(){ if(!lastCreated) return; window.open("https://wa.me/?text="+encodeURIComponent("VZOR — private access\n\nCode: "+lastCreated.access_code+"\n"+fullurl(lastCreated.access_code)),"_blank"); }
 async function shareResultQR(platform){
     if(!lastCreated) return;
+    var code=lastCreated.access_code;
     var qr=makeQRhd(tokenUrl(lastCreated.guest.token));
     var blob=await qr.getRawData("png");
     if(!blob) return;
-    var file=new File([blob],"VZOR-"+sc(lastCreated.access_code)+".png",{type:"image/png"});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-        navigator.share({files:[file],title:"VZOR QR",text:"VZOR access: "+lastCreated.access_code});
-    } else {
-        var url=URL.createObjectURL(blob);
-        var a=document.createElement("a");
-        a.href=url; a.download="VZOR-"+sc(lastCreated.access_code)+".png"; a.click();
-        URL.revokeObjectURL(url);
-        alert("QR saved. Attach it manually in "+platform);
-    }
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url; a.download="VZOR-"+sc(code)+".png"; a.click();
+    URL.revokeObjectURL(url);
+    setTimeout(function(){
+        if(platform==="Telegram"){
+            window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(code))+"&text="+encodeURIComponent("VZOR access: "+code+" (QR attached)"),"_blank");
+        } else {
+            window.open("https://wa.me/?text="+encodeURIComponent("VZOR access\n\nCode: "+code+"\n"+fullurl(code)+"\n\n(QR attached)"),"_blank");
+        }
+    }, 500);
 }
 function shareTG(){ if(!lastCreated) return; window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(lastCreated.access_code))+"&text="+encodeURIComponent("VZOR access code: "+lastCreated.access_code),"_blank"); }
 
@@ -423,16 +425,17 @@ async function shareQRImage(guestId, code, platform){
     var qr=makeQRhd(tokenUrl(g.token));
     var blob=await qr.getRawData("png");
     if(!blob) return;
-    var file=new File([blob],"VZOR-"+sc(code)+".png",{type:"image/png"});
-    if(navigator.canShare && navigator.canShare({files:[file]})){
-        navigator.share({files:[file],title:"VZOR QR",text:"VZOR access: "+code});
-    } else {
-        var url=URL.createObjectURL(blob);
-        var a=document.createElement("a");
-        a.href=url; a.download="VZOR-"+sc(code)+".png"; a.click();
-        URL.revokeObjectURL(url);
-        alert("QR saved. Attach it manually in "+platform);
-    }
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url; a.download="VZOR-"+sc(code)+".png"; a.click();
+    URL.revokeObjectURL(url);
+    setTimeout(function(){
+        if(platform==="Telegram"){
+            window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(code))+"&text="+encodeURIComponent("VZOR access: "+code+" (QR attached)"),"_blank");
+        } else {
+            window.open("https://wa.me/?text="+encodeURIComponent("VZOR access\n\nCode: "+code+"\n"+fullurl(code)+"\n\n(QR attached)"),"_blank");
+        }
+    }, 500);
 }
 
 function shareGuestWA(code){ window.open("https://wa.me/?text="+encodeURIComponent("VZOR — private access\n\nCode: "+code+"\n"+fullurl(code)),"_blank"); }
