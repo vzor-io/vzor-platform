@@ -176,10 +176,12 @@ async def clone_from_template(template_id, project_name, description=""):
             await conn.execute("""
                 INSERT INTO vzor_tasks (task_id, title, phase, level, status, progress,
                     agent, database_ref, category, position_x, position_y, position_z,
-                    session_id, project_id)
+                    session_id, project_id, priority, description, model,
+                    start_date, end_date, deadline, documents, knowledge_sources)
                 SELECT task_id, title, phase, level, 'pending', 0,
                     '', database_ref, category, position_x, position_y, position_z,
-                    'default', $1
+                    'default', $1, priority, description, model,
+                    start_date, end_date, deadline, documents, knowledge_sources
                 FROM vzor_tasks WHERE project_id = $2
             """, new_id, template_id)
 
@@ -234,8 +236,8 @@ async def save_tasks(tasks, dependencies, category="", session_id="default", pro
             await conn.execute("""
                 INSERT INTO vzor_tasks (task_id, title, phase, level, status, progress,
                     agent, database_ref, category, position_x, position_y, position_z,
-                    session_id, project_id)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                    session_id, project_id, priority, description, model)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                 ON CONFLICT (project_id, task_id) DO UPDATE SET
                     title = EXCLUDED.title,
                     phase = EXCLUDED.phase,
@@ -247,7 +249,10 @@ async def save_tasks(tasks, dependencies, category="", session_id="default", pro
                     category = EXCLUDED.category,
                     position_x = EXCLUDED.position_x,
                     position_y = EXCLUDED.position_y,
-                    position_z = EXCLUDED.position_z
+                    position_z = EXCLUDED.position_z,
+                    priority = EXCLUDED.priority,
+                    description = EXCLUDED.description,
+                    model = EXCLUDED.model
             """,
                 t.get("id", ""),
                 t.get("title", ""),
@@ -262,7 +267,10 @@ async def save_tasks(tasks, dependencies, category="", session_id="default", pro
                 t.get("position_y", 0.0),
                 t.get("position_z", 0.0),
                 session_id,
-                project_id
+                project_id,
+                t.get("priority", ""),
+                t.get("description", ""),
+                t.get("model", "")
             )
 
         # Save dependencies
@@ -281,7 +289,9 @@ async def load_tasks(category="", session_id="default", project_id=1):
         if category:
             rows = await conn.fetch(
                 """SELECT task_id, title, phase, level, status, progress, agent, database_ref,
-                          category, position_x, position_y, position_z, created_at
+                          category, position_x, position_y, position_z, created_at,
+                          start_date, end_date, deadline, priority, description,
+                          documents, knowledge_sources, model
                    FROM vzor_tasks
                    WHERE project_id = $1 AND category = $2 AND session_id = $3
                    ORDER BY created_at ASC""",
@@ -290,7 +300,9 @@ async def load_tasks(category="", session_id="default", project_id=1):
         else:
             rows = await conn.fetch(
                 """SELECT task_id, title, phase, level, status, progress, agent, database_ref,
-                          category, position_x, position_y, position_z, created_at
+                          category, position_x, position_y, position_z, created_at,
+                          start_date, end_date, deadline, priority, description,
+                          documents, knowledge_sources, model
                    FROM vzor_tasks
                    WHERE project_id = $1 AND session_id = $2
                    ORDER BY created_at ASC""",
@@ -312,6 +324,14 @@ async def load_tasks(category="", session_id="default", project_id=1):
                 "position_x": r["position_x"],
                 "position_y": r["position_y"],
                 "position_z": r["position_z"],
+                "start_date": r["start_date"].isoformat() if r["start_date"] else None,
+                "end_date": r["end_date"].isoformat() if r["end_date"] else None,
+                "deadline": r["deadline"].isoformat() if r["deadline"] else None,
+                "priority": r["priority"] or "",
+                "description": r["description"] or "",
+                "documents": json.loads(r["documents"]) if isinstance(r["documents"], str) else (r["documents"] if r["documents"] else []),
+                "knowledge_sources": json.loads(r["knowledge_sources"]) if isinstance(r["knowledge_sources"], str) else (r["knowledge_sources"] if r["knowledge_sources"] else []),
+                "model": r["model"] or "",
             })
 
         # Load dependencies for this project
@@ -331,7 +351,7 @@ async def update_task(task_id, updates, project_id=1):
     """Update a single task's fields (status, progress, position)."""
     pool = await get_pool()
     async with pool.acquire() as conn:
-        allowed = ["status", "progress", "position_x", "position_y", "position_z", "title", "agent"]
+        allowed = ["status", "progress", "position_x", "position_y", "position_z", "title", "agent", "priority", "description", "model"]
         sets = []
         vals = []
         idx = 1
@@ -472,3 +492,61 @@ async def activate_guest(guest_id):
     pool = await get_pool()
     async with pool.acquire() as conn:
         await conn.execute("UPDATE vzor_guests SET is_active = TRUE WHERE id = $1", guest_id)
+
+async def get_task(task_id, project_id=1):
+    """Get a single task by ID."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        r = await conn.fetchrow(
+            """SELECT task_id, title, phase, level, status, progress, agent, database_ref,
+                      category, position_x, position_y, position_z, created_at,
+                      start_date, end_date, deadline, priority, description,
+                      documents, knowledge_sources, model
+               FROM vzor_tasks
+               WHERE project_id = $1 AND task_id = $2""",
+            project_id, task_id
+        )
+        if not r:
+            return None
+        return {
+            "id": r["task_id"],
+            "title": r["title"],
+            "phase": r["phase"],
+            "level": r["level"],
+            "status": r["status"],
+            "progress": r["progress"],
+            "agent": r["agent"],
+            "database": r["database_ref"],
+            "priority": r["priority"] or "",
+            "description": r["description"] or "",
+            "model": r["model"] or "",
+            "start_date": r["start_date"].isoformat() if r["start_date"] else None,
+            "end_date": r["end_date"].isoformat() if r["end_date"] else None,
+            "deadline": r["deadline"].isoformat() if r["deadline"] else None,
+            "documents": json.loads(r["documents"]) if isinstance(r["documents"], str) else (r["documents"] if r["documents"] else []),
+            "knowledge_sources": json.loads(r["knowledge_sources"]) if isinstance(r["knowledge_sources"], str) else (r["knowledge_sources"] if r["knowledge_sources"] else []),
+        }
+
+
+async def get_task_dependencies(task_id, project_id=1):
+    """Get dependencies for a task (what blocks it and what it blocks)."""
+    pool = await get_pool()
+    async with pool.acquire() as conn:
+        blocked_by = await conn.fetch(
+            """SELECT d.from_task_id, t.title, t.status, t.progress
+               FROM vzor_task_dependencies d
+               JOIN vzor_tasks t ON t.task_id = d.from_task_id AND t.project_id = d.project_id
+               WHERE d.to_task_id = $1 AND d.project_id = $2""",
+            task_id, project_id
+        )
+        blocks = await conn.fetch(
+            """SELECT d.to_task_id, t.title, t.status, t.progress
+               FROM vzor_task_dependencies d
+               JOIN vzor_tasks t ON t.task_id = d.to_task_id AND t.project_id = d.project_id
+               WHERE d.from_task_id = $1 AND d.project_id = $2""",
+            task_id, project_id
+        )
+        return {
+            "blocked_by": [{"id": r["from_task_id"], "title": r["title"], "status": r["status"], "progress": r["progress"]} for r in blocked_by],
+            "blocks": [{"id": r["to_task_id"], "title": r["title"], "status": r["status"], "progress": r["progress"]} for r in blocks],
+        }

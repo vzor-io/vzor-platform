@@ -5,7 +5,7 @@ import asyncio
 from typing import Optional, List
 from datetime import datetime
 from multi_model import call_model
-from db import (init_db, save_message, get_history, get_all_history, clear_history,
+from db import (get_task, get_task_dependencies, init_db, save_message, get_history, get_all_history, clear_history,
                 save_tasks, load_tasks, update_task,
                 get_projects, create_project, clone_from_template, delete_project,
                 create_guest, find_guest_by_code, find_guest_by_token, record_login, list_guests, revoke_guest)
@@ -198,6 +198,9 @@ class TaskItem(BaseModel):
     position_x: float = 0.0
     position_y: float = 0.0
     position_z: float = 0.0
+    priority: str = ""
+    description: str = ""
+    model: str = ""
 
 class TasksSaveRequest(BaseModel):
     tasks: List[TaskItem]
@@ -215,6 +218,9 @@ class TaskUpdateRequest(BaseModel):
     position_z: Optional[float] = None
     title: Optional[str] = None
     agent: Optional[str] = None
+    priority: Optional[str] = None
+    description: Optional[str] = None
+    model: Optional[str] = None
 
 
 @app.post("/api/tasks/save")
@@ -236,6 +242,9 @@ async def api_save_tasks(request: TasksSaveRequest):
                 "position_x": t.position_x,
                 "position_y": t.position_y,
                 "position_z": t.position_z,
+                "priority": t.priority,
+                "description": t.description,
+                "model": t.model,
             })
             for dep_id in t.dependsOn:
                 dependencies.append({"from": dep_id, "to": t.id})
@@ -290,6 +299,31 @@ if __name__ == "__main__":
 # ==========================================
 # BALANCES — API Provider Balance Endpoints
 # ==========================================
+
+
+@app.get("/api/tasks/get/{task_id:path}")
+async def api_get_task(task_id: str, project_id: int = 1):
+    """Get a single task with all details."""
+    try:
+        result = await get_task(task_id, project_id)
+        if not result:
+            raise HTTPException(status_code=404, detail="Task not found")
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/tasks/deps/{task_id:path}")
+async def api_get_task_deps(task_id: str, project_id: int = 1):
+    """Get task dependencies (blocked_by and blocks)."""
+    try:
+        result = await get_task_dependencies(task_id, project_id)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @app.get("/api/balances")
 async def get_balances():
