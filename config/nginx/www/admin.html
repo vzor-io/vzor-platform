@@ -275,13 +275,6 @@ async function shareResultQR(platform){
     var a=document.createElement("a");
     a.href=url; a.download="VZOR-"+sc(code)+".png"; a.click();
     URL.revokeObjectURL(url);
-    setTimeout(function(){
-        if(platform==="Telegram"){
-            window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(code))+"&text="+encodeURIComponent("VZOR access: "+code+" (QR attached)"),"_blank");
-        } else {
-            window.open("https://wa.me/?text="+encodeURIComponent("VZOR access\n\nCode: "+code+"\n"+fullurl(code)+"\n\n(QR attached)"),"_blank");
-        }
-    }, 500);
 }
 function shareTG(){ if(!lastCreated) return; window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(lastCreated.access_code))+"&text="+encodeURIComponent("VZOR access code: "+lastCreated.access_code),"_blank"); }
 
@@ -429,17 +422,10 @@ async function shareQRImage(guestId, code, platform){
     var a=document.createElement("a");
     a.href=url; a.download="VZOR-"+sc(code)+".png"; a.click();
     URL.revokeObjectURL(url);
-    setTimeout(function(){
-        if(platform==="Telegram"){
-            window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(code))+"&text="+encodeURIComponent("VZOR access: "+code+" (QR attached)"),"_blank");
-        } else {
-            window.open("https://wa.me/?text="+encodeURIComponent("VZOR access\n\nCode: "+code+"\n"+fullurl(code)+"\n\n(QR attached)"),"_blank");
-        }
-    }, 500);
 }
 
-function shareGuestWA(code){ window.open("https://wa.me/?text="+encodeURIComponent("VZOR — private access\n\nCode: "+code+"\n"+fullurl(code)),"_blank"); }
-function shareGuestTG(code){ window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(code))+"&text="+encodeURIComponent("VZOR access code: "+code),"_blank"); }
+function shareGuestWA(code){ window.open("https://wa.me/?text="+encodeURIComponent("VZOR\nCode: "+code+"\n"+fullurl(code)),"_blank"); }
+function shareGuestTG(code){ window.open("https://t.me/share/url?url="+encodeURIComponent(fullurl(code))+"&text="+encodeURIComponent("VZOR\nCode: "+code),"_blank"); }
 </script>
 </body>
 </html>
