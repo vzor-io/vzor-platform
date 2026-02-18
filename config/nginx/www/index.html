@@ -835,6 +835,34 @@
                 z-index: 1001;
                 white-space: nowrap;
                 box-shadow: 0 0.3125rem 1.25rem rgba(0, 255, 255, 0.3);
+                width: auto;
+                max-width: 80vw;
+                display: inline-flex;
+                justify-content: center;
+            }
+
+            #home-btn {
+                top: auto !important;
+                left: auto !important;
+                bottom: 1.5625rem;
+                right: 1.25rem;
+                transform: none;
+                font-size: 0.65em;
+                padding: 0.625rem 1.125rem;
+                background: rgba(0, 0, 0, 0.6);
+                backdrop-filter: blur(0.625rem);
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                z-index: 1001;
+                width: auto;
+                max-width: 60vw;
+                display: inline-flex;
+            }
+
+            .cta-button {
+                padding: 0.75rem 1.875rem;
+                font-size: 0.85em;
+                max-width: 85vw;
+                white-space: nowrap;
             }
 
             .progress-indicator {
@@ -867,6 +895,7 @@
             #task-interface.active { bottom: max(1.5625rem, calc(env(safe-area-inset-bottom) + 0.625rem)); }
             #back-button { top: max(2.375rem, calc(env(safe-area-inset-top) + 0.625rem)); }
             #detail-panel { padding-right: max(1.25rem, env(safe-area-inset-right)); }
+            #home-btn { bottom: max(1.5625rem, calc(env(safe-area-inset-bottom) + 0.625rem)); }
         }
 
         /* ===== RESPONSIVE: TABLET (max-width: 64rem) ===== */
@@ -900,6 +929,11 @@
             #auth-card {
                 min-width: auto;
                 width: min(17.5rem, calc(100vw - 2.5rem));
+            }
+
+            #detail-panel {
+                width: 50%;
+                min-width: 20rem;
             }
         }
 
@@ -991,6 +1025,41 @@
                 right: 0.5rem !important;
                 max-height: calc(100vh - 7.5rem);
             }
+
+            /* Back button — compact on small phones */
+            #back-button {
+                bottom: 1.25rem;
+                padding: 0.625rem 1.25rem;
+                font-size: 0.7em;
+                max-width: 70vw;
+            }
+
+            /* Home button — above icon-bar */
+            #home-btn {
+                bottom: 4.375rem !important;
+                right: 0.9375rem !important;
+                padding: 0.5rem 0.875rem;
+                font-size: 0.6em;
+            }
+
+            /* Title VZOR — smaller on small screens */
+            .center-text h1 {
+                font-size: 1.4em;
+                letter-spacing: 0.1em;
+                margin-right: -0.1em;
+            }
+
+            .center-text p {
+                font-size: 0.5em;
+            }
+
+            /* CTA button */
+            .cta-button {
+                padding: 0.625rem 1.375rem;
+                font-size: 0.75em;
+                bottom: 3.4375rem;
+                max-width: 80vw;
+            }
         }
 
         /* ===== RESPONSIVE: LANDSCAPE PHONE ===== */
@@ -1020,6 +1089,15 @@
             .icon-btn, .nav-btn {
                 min-width: 2.75rem;
                 min-height: 2.75rem;
+            }
+
+            #back-button,
+            #home-btn {
+                min-height: 2.75rem;
+            }
+
+            #task-input {
+                font-size: 16px; /* Prevents iOS Safari auto-zoom on input focus */
             }
         }
 
