@@ -181,6 +181,7 @@ services:
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
       VZOR_JWT_SECRET: ${VZOR_JWT_SECRET}
       VZOR_ADMIN_SECRET: ${VZOR_ADMIN_SECRET}
+      RAGFLOW_API_KEY: ${RAGFLOW_API_KEY}
     ports:
       - "8000:8000"
     networks:

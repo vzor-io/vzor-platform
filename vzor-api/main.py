@@ -4,6 +4,7 @@ from pydantic import BaseModel
 import asyncio
 from typing import Optional, List
 from datetime import datetime
+import httpx
 from multi_model import call_model
 from db import (get_task, get_task_dependencies, init_db, save_message, get_history, get_all_history, clear_history,
                 save_tasks, load_tasks, update_task,
@@ -294,6 +295,97 @@ async def api_update_task(request: TaskUpdateRequest):
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+# ==========================================
+# KNOWLEDGE BASE — RAGFlow Proxy Endpoints
+# ==========================================
+
+import os as _os
+RAGFLOW_URL = "http://172.17.0.1:9380/api/v1"
+RAGFLOW_KEY = _os.getenv("RAGFLOW_API_KEY", "")
+
+
+@app.get("/api/kb/datasets")
+async def kb_list_datasets():
+    """List all RAGFlow knowledge base datasets."""
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.get(
+            f"{RAGFLOW_URL}/datasets",
+            headers={"Authorization": f"Bearer {RAGFLOW_KEY}"},
+            params={"page": 1, "page_size": 100}
+        )
+        data = r.json()
+        if data.get("code") != 0:
+            raise HTTPException(status_code=502, detail=data.get("message", "RAGFlow error"))
+        datasets = []
+        for ds in data.get("data", []):
+            datasets.append({
+                "id": ds["id"],
+                "name": ds.get("name", ""),
+                "document_count": ds.get("document_count", 0),
+                "chunk_count": ds.get("chunk_count", 0),
+                "token_num": ds.get("token_num", 0),
+            })
+        return {"datasets": datasets, "total": len(datasets)}
+
+
+@app.get("/api/kb/datasets/{dataset_id}/documents")
+async def kb_list_documents(dataset_id: str, page: int = 1, page_size: int = 100):
+    """List documents in a RAGFlow dataset."""
+    async with httpx.AsyncClient(timeout=15) as client:
+        r = await client.get(
+            f"{RAGFLOW_URL}/datasets/{dataset_id}/documents",
+            headers={"Authorization": f"Bearer {RAGFLOW_KEY}"},
+            params={"page": page, "page_size": page_size}
+        )
+        data = r.json()
+        if data.get("code") != 0:
+            raise HTTPException(status_code=502, detail=data.get("message", "RAGFlow error"))
+        docs = []
+        raw = data.get("data", {})
+        doc_list = raw.get("docs", []) if isinstance(raw, dict) else raw
+        for doc in doc_list:
+            docs.append({
+                "id": doc["id"],
+                "name": doc.get("name", ""),
+                "size": doc.get("size", 0),
+                "chunk_count": doc.get("chunk_count", 0),
+                "token_count": doc.get("token_num", 0),
+                "status": doc.get("run", ""),
+                "progress": doc.get("progress", 0),
+                "create_date": doc.get("create_date", ""),
+                "type": doc.get("type", ""),
+            })
+        return {"documents": docs, "total": len(docs)}
+
+
+@app.post("/api/kb/datasets/{dataset_id}/documents")
+async def kb_upload_document(dataset_id: str, file: UploadFile = File(...)):
+    """Upload a document to a RAGFlow dataset (auto-parse)."""
+    file_content = await file.read()
+    async with httpx.AsyncClient(timeout=120) as client:
+        r = await client.post(
+            f"{RAGFLOW_URL}/datasets/{dataset_id}/documents",
+            headers={"Authorization": f"Bearer {RAGFLOW_KEY}"},
+            files={"file": (file.filename, file_content, file.content_type or "application/octet-stream")},
+        )
+        data = r.json()
+        if data.get("code") != 0:
+            raise HTTPException(status_code=502, detail=data.get("message", "RAGFlow error"))
+        # Trigger parsing for uploaded documents
+        uploaded = data.get("data", [])
+        if isinstance(uploaded, list):
+            doc_ids = [doc["id"] for doc in uploaded if "id" in doc]
+        else:
+            doc_ids = []
+        if doc_ids:
+            await client.post(
+                f"{RAGFLOW_URL}/datasets/{dataset_id}/chunks",
+                headers={"Authorization": f"Bearer {RAGFLOW_KEY}"},
+                json={"document_ids": doc_ids}
+            )
+        return {"status": "ok", "documents": uploaded}
 
 
 # ==========================================

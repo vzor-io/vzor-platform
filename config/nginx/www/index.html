@@ -1620,6 +1620,217 @@
             text-align: center;
         }
 
+        /* Knowledge Base Panel Styles */
+        .kb-back-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.5rem 0.25rem;
+            font-size: 0.6875rem;
+            color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            transition: color 0.15s;
+            letter-spacing: 0.03em;
+        }
+        .kb-back-btn:hover { color: #fff; }
+        .kb-back-btn svg { width: 0.75rem; height: 0.75rem; flex-shrink: 0; }
+
+        .kb-dataset-row {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+            padding: 0.625rem 0.5rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .kb-dataset-row:hover { background: rgba(255,255,255,0.05); }
+
+        .kb-dataset-code {
+            font-size: 0.625rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            color: rgba(0,255,255,0.7);
+            width: 2rem;
+            flex-shrink: 0;
+        }
+        .kb-dataset-name {
+            font-size: 0.75rem;
+            color: rgba(255,255,255,0.85);
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .kb-dataset-meta {
+            font-size: 0.5625rem;
+            color: rgba(255,255,255,0.3);
+            flex-shrink: 0;
+            text-align: right;
+            line-height: 1.4;
+        }
+
+        .kb-summary {
+            padding: 0.75rem 0.5rem;
+            border-top: 1px solid rgba(255,255,255,0.06);
+            font-size: 0.625rem;
+            color: rgba(255,255,255,0.25);
+            letter-spacing: 0.04em;
+        }
+
+        .kb-doc-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            transition: background 0.15s;
+        }
+        .kb-doc-row:hover { background: rgba(255,255,255,0.03); }
+
+        .kb-doc-icon {
+            font-size: 0.875rem;
+            width: 1.25rem;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .kb-doc-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .kb-doc-name {
+            font-size: 0.6875rem;
+            color: rgba(255,255,255,0.8);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .kb-doc-details {
+            font-size: 0.5625rem;
+            color: rgba(255,255,255,0.3);
+            margin-top: 0.125rem;
+        }
+
+        .kb-status {
+            font-size: 0.5625rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            flex-shrink: 0;
+        }
+        .kb-status.done { background: rgba(0,200,100,0.15); color: rgba(0,200,100,0.8); }
+        .kb-status.parsing { background: rgba(255,200,0,0.15); color: rgba(255,200,0,0.8); }
+        .kb-status.error { background: rgba(255,60,60,0.15); color: rgba(255,60,60,0.8); }
+
+        .kb-progress-bar {
+            height: 2px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 1px;
+            margin-top: 0.25rem;
+            overflow: hidden;
+        }
+        .kb-progress-fill {
+            height: 100%;
+            background: rgba(0,255,255,0.5);
+            border-radius: 1px;
+            transition: width 0.3s;
+        }
+
+        .kb-upload-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            padding: 0.375rem 0.75rem;
+            background: rgba(0,255,255,0.1);
+            border: 1px solid rgba(0,255,255,0.25);
+            border-radius: 0.375rem;
+            color: rgba(0,255,255,0.85);
+            font-size: 0.6875rem;
+            font-family: inherit;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .kb-upload-btn:hover {
+            background: rgba(0,255,255,0.18);
+            border-color: rgba(0,255,255,0.4);
+        }
+
+        .kb-dropzone {
+            border: 2px dashed rgba(255,255,255,0.15);
+            border-radius: 0.5rem;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            color: rgba(255,255,255,0.35);
+            font-size: 0.75rem;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin: 0.5rem 0;
+        }
+        .kb-dropzone.dragover {
+            border-color: rgba(0,255,255,0.5);
+            background: rgba(0,255,255,0.05);
+            color: rgba(0,255,255,0.7);
+        }
+
+        .kb-file-list {
+            margin: 0.5rem 0;
+        }
+        .kb-file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.375rem 0.5rem;
+            background: rgba(255,255,255,0.03);
+            border-radius: 0.25rem;
+            margin-bottom: 0.25rem;
+            font-size: 0.6875rem;
+            color: rgba(255,255,255,0.7);
+        }
+        .kb-file-item .remove {
+            margin-left: auto;
+            cursor: pointer;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.75rem;
+        }
+        .kb-file-item .remove:hover { color: rgba(255,60,60,0.8); }
+
+        .kb-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.75rem;
+        }
+        .kb-actions button {
+            flex: 1;
+            padding: 0.5rem;
+            border-radius: 0.375rem;
+            font-family: inherit;
+            font-size: 0.6875rem;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .kb-actions .kb-submit {
+            background: rgba(0,255,255,0.15);
+            border: 1px solid rgba(0,255,255,0.3);
+            color: rgba(0,255,255,0.9);
+        }
+        .kb-actions .kb-submit:hover { background: rgba(0,255,255,0.25); }
+        .kb-actions .kb-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+        .kb-actions .kb-cancel {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+        }
+        .kb-actions .kb-cancel:hover { background: rgba(255,255,255,0.08); }
+
+        .kb-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+
         /* 4. Node Styles — v3.12.1: Unified airy design */
         .node {
             position: absolute;
@@ -3525,13 +3736,12 @@
             </svg>
         </div>
         <div class="icon-separator"></div>
-        <!-- Files -->
-        <div class="icon-btn" data-panel="files" title="Files">
+        <!-- Knowledge Base -->
+        <div class="icon-btn" data-panel="files" title="Knowledge Base">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M3 7v13a2 2 0 002 2h14a2 2 0 002-2V7"/>
-                <path d="M3 7l3-5h12l3 5"/>
-                <path d="M12 11v6"/>
-                <path d="M9 14h6"/>
+                <path d="M4 19.5A2.5 2.5 0 016.5 17H20"/>
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>
+                <path d="M8 7h8M8 11h6"/>
             </svg>
         </div>
         <div style="flex:1"></div>        <!-- Tasks -->
@@ -10065,10 +10275,8 @@ console.log("[MODULE] script started loading");
                 ]
             },
             files: {
-                title: 'Files',
-                sections: [
-                    { title: 'Документы', items: ['Все файлы', 'Недавние', 'Избранное'] }
-                ]
+                title: 'Knowledge Base',
+                dynamic: true
             },
             settings: {
                 title: 'Settings',
@@ -10111,6 +10319,15 @@ console.log("[MODULE] script started loading");
                 return;
             }
 
+            // Knowledge Base panel
+            if (data.dynamic && panelType === 'files') {
+                title.textContent = data.title;
+                content.innerHTML = '<div class="ps-loading">Loading...</div>';
+                loadKBDatasetsView(content);
+                panel.classList.add('active');
+                return;
+            }
+
             // Dynamic panel (Projects etc.)
             if (data.dynamic && panelType === 'projects') {
                 content.innerHTML = '<div class="ps-loading">Loading...</div>';
@@ -10132,6 +10349,223 @@ console.log("[MODULE] script started loading");
 
             content.innerHTML = html;
             panel.classList.add('active');
+        }
+
+        // === KNOWLEDGE BASE MODULE ===
+        let _kbPollTimer = null;
+
+        function kbFormatSize(bytes) {
+            if (!bytes) return '0 B';
+            const units = ['B', 'KB', 'MB', 'GB'];
+            let i = 0, size = bytes;
+            while (size >= 1024 && i < units.length - 1) { size /= 1024; i++; }
+            return size.toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
+        }
+
+        function kbDocIcon(name) {
+            const ext = (name || '').split('.').pop().toLowerCase();
+            return {pdf:'\ud83d\udcc4',docx:'\ud83d\udcdd',doc:'\ud83d\udcdd',xlsx:'\ud83d\udcca',xls:'\ud83d\udcca',txt:'\ud83d\udcc3'}[ext] || '\ud83d\udcc1';
+        }
+
+        function kbStatusClass(status) {
+            const s = (status || '').toUpperCase();
+            if (s === 'DONE' || s === '1') return 'done';
+            if (s === 'RUNNING' || s === 'PARSING' || s === '0') return 'parsing';
+            return 'error';
+        }
+
+        function kbStatusLabel(status) {
+            const s = (status || '').toUpperCase();
+            if (s === 'DONE' || s === '1') return 'done';
+            if (s === 'RUNNING' || s === 'PARSING' || s === '0') return 'parsing';
+            return s.toLowerCase() || 'unknown';
+        }
+
+        async function loadKBDatasetsView(container) {
+            if (_kbPollTimer) { clearInterval(_kbPollTimer); _kbPollTimer = null; }
+            try {
+                const resp = await fetch('/api/kb/datasets');
+                const data = await resp.json();
+                const datasets = data.datasets || [];
+                let totalDocs = 0, totalChunks = 0;
+                datasets.forEach(d => { totalDocs += d.document_count; totalChunks += d.chunk_count; });
+
+                let html = '';
+                datasets.forEach(ds => {
+                    const parts = ds.name.split(' \u2014 ');
+                    const code = parts.length > 1 ? parts[0] : '';
+                    const name = parts.length > 1 ? parts[1] : ds.name;
+                    html += '<div class="kb-dataset-row" data-dsid="' + ds.id + '" data-dsname="' + ds.name.replace(/"/g, '&quot;') + '">'
+                         + '<div class="kb-dataset-code">' + code + '</div>'
+                         + '<div class="kb-dataset-name">' + name + '</div>'
+                         + '<div class="kb-dataset-meta">' + ds.document_count + ' doc' + (ds.document_count !== 1 ? 's' : '') + '<br>' + ds.chunk_count + ' chunks</div>'
+                         + '</div>';
+                });
+                html += '<div class="kb-summary">' + datasets.length + ' \u0431\u0430\u0437 \u00b7 ' + totalDocs + ' \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u043e\u0432 \u00b7 ' + totalChunks + ' chunks</div>';
+                container.innerHTML = html;
+
+                container.querySelectorAll('.kb-dataset-row').forEach(row => {
+                    row.addEventListener('click', () => {
+                        loadKBDocumentsView(container, row.dataset.dsid, row.dataset.dsname);
+                    });
+                });
+            } catch (e) {
+                container.innerHTML = '<div class="ps-loading">Error: ' + e.message + '</div>';
+            }
+        }
+
+        async function loadKBDocumentsView(container, datasetId, datasetName) {
+            if (_kbPollTimer) { clearInterval(_kbPollTimer); _kbPollTimer = null; }
+            container.innerHTML = '<div class="ps-loading">Loading...</div>';
+            const titleEl = document.getElementById('side-panel-title');
+            const parts = datasetName.split(' \u2014 ');
+            if (titleEl) titleEl.textContent = parts.length > 1 ? parts[1] : datasetName;
+
+            async function render() {
+                try {
+                    const resp = await fetch('/api/kb/datasets/' + datasetId + '/documents');
+                    const data = await resp.json();
+                    const docs = data.documents || [];
+
+                    let html = '<div class="kb-header">'
+                             + '<div class="kb-back-btn" id="kb-back-btn">'
+                             + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Back</div>'
+                             + '<button class="kb-upload-btn" id="kb-upload-trigger">+ Upload</button>'
+                             + '</div>';
+
+                    let hasParsing = false;
+                    docs.forEach(doc => {
+                        const sc = kbStatusClass(doc.status);
+                        if (sc === 'parsing') hasParsing = true;
+                        html += '<div class="kb-doc-row">'
+                             + '<div class="kb-doc-icon">' + kbDocIcon(doc.name) + '</div>'
+                             + '<div class="kb-doc-info">'
+                             + '<div class="kb-doc-name">' + (doc.name || 'Unnamed') + '</div>'
+                             + '<div class="kb-doc-details">' + doc.chunk_count + ' chunks \u00b7 ' + kbFormatSize(doc.size) + '</div>';
+                        if (sc === 'parsing' && doc.progress > 0 && doc.progress < 1) {
+                            html += '<div class="kb-progress-bar"><div class="kb-progress-fill" style="width:' + Math.round(doc.progress * 100) + '%"></div></div>';
+                        }
+                        html += '</div>'
+                             + '<span class="kb-status ' + sc + '">' + kbStatusLabel(doc.status) + '</span>'
+                             + '</div>';
+                    });
+
+                    if (docs.length === 0) {
+                        html += '<div class="ps-loading">No documents</div>';
+                    }
+
+                    container.innerHTML = html;
+
+                    // Wire events
+                    const backBtn = document.getElementById('kb-back-btn');
+                    if (backBtn) backBtn.addEventListener('click', () => {
+                        if (titleEl) titleEl.textContent = 'Knowledge Base';
+                        loadKBDatasetsView(container);
+                    });
+                    const uploadBtn = document.getElementById('kb-upload-trigger');
+                    if (uploadBtn) uploadBtn.addEventListener('click', () => {
+                        showKBUploadView(container, datasetId, datasetName);
+                    });
+
+                    return hasParsing;
+                } catch (e) {
+                    container.innerHTML = '<div class="ps-loading">Error: ' + e.message + '</div>';
+                    return false;
+                }
+            }
+
+            const hasParsing = await render();
+            if (hasParsing) {
+                _kbPollTimer = setInterval(async () => {
+                    const still = await render();
+                    if (!still && _kbPollTimer) { clearInterval(_kbPollTimer); _kbPollTimer = null; }
+                }, 5000);
+            }
+        }
+
+        function showKBUploadView(container, datasetId, datasetName) {
+            if (_kbPollTimer) { clearInterval(_kbPollTimer); _kbPollTimer = null; }
+            let selectedFiles = [];
+            const titleEl = document.getElementById('side-panel-title');
+            if (titleEl) titleEl.textContent = 'Upload Documents';
+
+            function renderUpload() {
+                let html = '<div class="kb-back-btn" id="kb-upload-back">'
+                         + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Back</div>';
+                html += '<div id="kb-dropzone" class="kb-dropzone">\ud83d\udce4 Drag files here or click to select<input type="file" multiple id="kb-file-input" style="display:none"></div>';
+                html += '<div class="kb-file-list" id="kb-file-list">';
+                selectedFiles.forEach((f, i) => {
+                    html += '<div class="kb-file-item">' + kbDocIcon(f.name) + ' ' + f.name
+                         + ' <span style="color:rgba(255,255,255,0.2);font-size:0.5625rem">(' + kbFormatSize(f.size) + ')</span>'
+                         + '<span class="remove" data-idx="' + i + '">\u00d7</span></div>';
+                });
+                html += '</div>';
+                const btnLabel = selectedFiles.length > 0
+                    ? 'Upload ' + selectedFiles.length + ' file' + (selectedFiles.length > 1 ? 's' : '')
+                    : 'Upload';
+                html += '<div class="kb-actions">'
+                     + '<button class="kb-cancel" id="kb-cancel-btn">Cancel</button>'
+                     + '<button class="kb-submit" id="kb-submit-btn"' + (selectedFiles.length === 0 ? ' disabled' : '') + '>' + btnLabel + '</button>'
+                     + '</div>';
+                container.innerHTML = html;
+
+                // Wire up events
+                const backBtn = document.getElementById('kb-upload-back');
+                if (backBtn) backBtn.addEventListener('click', () => loadKBDocumentsView(container, datasetId, datasetName));
+
+                const cancelBtn = document.getElementById('kb-cancel-btn');
+                if (cancelBtn) cancelBtn.addEventListener('click', () => loadKBDocumentsView(container, datasetId, datasetName));
+
+                const dropzone = document.getElementById('kb-dropzone');
+                const fileInput = document.getElementById('kb-file-input');
+                if (dropzone && fileInput) {
+                    dropzone.addEventListener('click', (e) => { if (e.target === dropzone || e.target.nodeType === 3) fileInput.click(); });
+                    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+                    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+                    dropzone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        dropzone.classList.remove('dragover');
+                        addFiles(e.dataTransfer.files);
+                    });
+                    fileInput.addEventListener('change', (e) => addFiles(e.target.files));
+                }
+
+                container.querySelectorAll('.kb-file-item .remove').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        selectedFiles.splice(parseInt(e.target.dataset.idx), 1);
+                        renderUpload();
+                    });
+                });
+
+                const submitBtn = document.getElementById('kb-submit-btn');
+                if (submitBtn && selectedFiles.length > 0) {
+                    submitBtn.addEventListener('click', () => doUpload());
+                }
+            }
+
+            function addFiles(fileList) {
+                for (let i = 0; i < fileList.length; i++) {
+                    const exists = selectedFiles.some(f => f.name === fileList[i].name && f.size === fileList[i].size);
+                    if (!exists) selectedFiles.push(fileList[i]);
+                }
+                renderUpload();
+            }
+
+            async function doUpload() {
+                const submitBtn = document.getElementById('kb-submit-btn');
+                if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading...'; }
+                for (const file of selectedFiles) {
+                    try {
+                        const fd = new FormData();
+                        fd.append('file', file);
+                        await fetch('/api/kb/datasets/' + datasetId + '/documents', { method: 'POST', body: fd });
+                    } catch (e) { /* continue */ }
+                }
+                selectedFiles = [];
+                loadKBDocumentsView(container, datasetId, datasetName);
+            }
+
+            renderUpload();
         }
 
         // === PROJECT SELECTOR ===
