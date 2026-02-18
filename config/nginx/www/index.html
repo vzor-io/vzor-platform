@@ -4975,6 +4975,8 @@ console.log("[MODULE] script started loading");
                                 if (ptEl) ptEl.value = taskPayload.title;
                                 const pdEl = document.getElementById('p-desc');
                                 if (pdEl) pdEl.innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
+                                window._taskJustClicked = true;
+                                setTimeout(function() { window._taskJustClicked = false; }, 50);
                                 document.getElementById('detail-panel').classList.add('active');
                             }
                         }
@@ -8212,6 +8214,8 @@ console.log("[MODULE] script started loading");
 
             detailPanel.innerHTML = html;
             detailPanel.style.width = '300px';
+            window._taskJustClicked = true;
+            setTimeout(function() { window._taskJustClicked = false; }, 50);
             detailPanel.classList.add('active');
 
             // Close handler
@@ -11210,11 +11214,13 @@ console.log("[MODULE] script started loading");
                     closeNodeEditor();
                 }
 
-                // Close detail panel
-                const detailPanel = document.getElementById('detail-panel');
-                if (detailPanel && detailPanel.classList.contains('active')) {
-                    detailPanel.classList.remove('active');
-                    if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+                // Close detail panel (skip if task was just clicked)
+                if (!window._taskJustClicked) {
+                    const detailPanel = document.getElementById('detail-panel');
+                    if (detailPanel && detailPanel.classList.contains('active')) {
+                        detailPanel.classList.remove('active');
+                        if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
+                    }
                 }
 
                 // Close task list panel
