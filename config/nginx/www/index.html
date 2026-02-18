@@ -1568,7 +1568,7 @@
             box-sizing: border-box;
         }
         .ps-input:focus {
-            border-color: rgba(0,255,255,0.4);
+            border-color: rgba(255,255,255,0.3);
         }
         .ps-input::placeholder {
             color: rgba(255,255,255,0.25);
@@ -1620,215 +1620,193 @@
             text-align: center;
         }
 
-        /* Knowledge Base Panel Styles */
-        .kb-back-btn {
+        /* Knowledge Base Panel */
+        .kb-section {
+            margin-bottom: 0.125rem;
+        }
+        .kb-section-header {
             display: flex;
             align-items: center;
             gap: 0.375rem;
-            padding: 0.5rem 0.25rem;
-            font-size: 0.6875rem;
-            color: rgba(255,255,255,0.5);
+            padding: 0.5rem 0.3125rem;
+            font-size: 0.625rem;
+            font-weight: 400;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
             cursor: pointer;
             transition: color 0.15s;
-            letter-spacing: 0.03em;
         }
-        .kb-back-btn:hover { color: #fff; }
-        .kb-back-btn svg { width: 0.75rem; height: 0.75rem; flex-shrink: 0; }
-
-        .kb-dataset-row {
-            display: flex;
-            align-items: center;
-            gap: 0.625rem;
-            padding: 0.625rem 0.5rem;
-            border-radius: 0.375rem;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .kb-dataset-row:hover { background: rgba(255,255,255,0.05); }
-
-        .kb-dataset-code {
-            font-size: 0.625rem;
-            font-weight: 600;
-            letter-spacing: 0.08em;
-            color: rgba(0,255,255,0.7);
-            width: 2rem;
+        .kb-section-header:hover { color: rgba(255,255,255,0.6); }
+        .kb-section-chevron {
+            font-size: 0.5rem;
+            transition: transform 0.15s;
+            display: inline-block;
+            width: 0.625rem;
             flex-shrink: 0;
         }
-        .kb-dataset-name {
-            font-size: 0.75rem;
-            color: rgba(255,255,255,0.85);
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .kb-dataset-meta {
-            font-size: 0.5625rem;
-            color: rgba(255,255,255,0.3);
-            flex-shrink: 0;
-            text-align: right;
-            line-height: 1.4;
-        }
-
-        .kb-summary {
-            padding: 0.75rem 0.5rem;
-            border-top: 1px solid rgba(255,255,255,0.06);
+        .kb-section-chevron.expanded { transform: rotate(90deg); }
+        .kb-section-count {
+            margin-left: auto;
             font-size: 0.625rem;
-            color: rgba(255,255,255,0.25);
-            letter-spacing: 0.04em;
+            color: rgba(255,255,255,0.2);
+            letter-spacing: 0;
+            text-transform: none;
         }
+        .kb-section-body {
+            display: none;
+            padding-left: 0.25rem;
+        }
+        .kb-section-body.expanded { display: block; }
 
         .kb-doc-row {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem;
+            padding: 0.375rem 0.5rem;
             border-radius: 0.375rem;
             transition: background 0.15s;
         }
         .kb-doc-row:hover { background: rgba(255,255,255,0.03); }
-
         .kb-doc-icon {
-            font-size: 0.875rem;
-            width: 1.25rem;
+            font-size: 0.75rem;
+            width: 1rem;
             text-align: center;
             flex-shrink: 0;
+            opacity: 0.5;
         }
-        .kb-doc-info {
-            flex: 1;
-            min-width: 0;
-        }
+        .kb-doc-info { flex: 1; min-width: 0; }
         .kb-doc-name {
             font-size: 0.6875rem;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.7);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
         .kb-doc-details {
             font-size: 0.5625rem;
-            color: rgba(255,255,255,0.3);
-            margin-top: 0.125rem;
+            color: rgba(255,255,255,0.25);
+            margin-top: 0.0625rem;
         }
 
         .kb-status {
-            font-size: 0.5625rem;
-            padding: 0.125rem 0.375rem;
-            border-radius: 0.25rem;
-            font-weight: 500;
-            letter-spacing: 0.04em;
+            font-size: 0.5rem;
+            padding: 0.0625rem 0.3125rem;
+            border-radius: 0.1875rem;
+            letter-spacing: 0.03em;
             flex-shrink: 0;
+            color: rgba(255,255,255,0.35);
+            background: rgba(255,255,255,0.04);
         }
-        .kb-status.done { background: rgba(0,200,100,0.15); color: rgba(0,200,100,0.8); }
-        .kb-status.parsing { background: rgba(255,200,0,0.15); color: rgba(255,200,0,0.8); }
-        .kb-status.error { background: rgba(255,60,60,0.15); color: rgba(255,60,60,0.8); }
+        .kb-status.done { color: rgba(255,255,255,0.4); }
+        .kb-status.parsing { color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.06); }
+        .kb-status.error { color: rgba(255,80,80,0.6); background: rgba(255,80,80,0.06); }
 
         .kb-progress-bar {
-            height: 2px;
+            height: 1px;
             background: rgba(255,255,255,0.06);
             border-radius: 1px;
-            margin-top: 0.25rem;
+            margin-top: 0.1875rem;
             overflow: hidden;
         }
         .kb-progress-fill {
             height: 100%;
-            background: rgba(0,255,255,0.5);
+            background: rgba(255,255,255,0.3);
             border-radius: 1px;
             transition: width 0.3s;
         }
 
-        .kb-upload-btn {
-            display: inline-flex;
+        .kb-upload-row {
+            display: flex;
             align-items: center;
             gap: 0.375rem;
-            padding: 0.375rem 0.75rem;
-            background: rgba(0,255,255,0.1);
-            border: 1px solid rgba(0,255,255,0.25);
-            border-radius: 0.375rem;
-            color: rgba(0,255,255,0.85);
-            font-size: 0.6875rem;
-            font-family: inherit;
+            padding: 0.375rem 0.5rem;
+            font-size: 0.625rem;
+            color: rgba(255,255,255,0.25);
             cursor: pointer;
-            transition: all 0.15s;
+            transition: color 0.15s;
+            margin-top: 0.125rem;
         }
-        .kb-upload-btn:hover {
-            background: rgba(0,255,255,0.18);
-            border-color: rgba(0,255,255,0.4);
-        }
+        .kb-upload-row:hover { color: rgba(255,255,255,0.5); }
 
         .kb-dropzone {
-            border: 2px dashed rgba(255,255,255,0.15);
-            border-radius: 0.5rem;
-            padding: 1.5rem 1rem;
+            border: 1px dashed rgba(255,255,255,0.12);
+            border-radius: 0.375rem;
+            padding: 1rem 0.75rem;
             text-align: center;
-            color: rgba(255,255,255,0.35);
-            font-size: 0.75rem;
+            color: rgba(255,255,255,0.3);
+            font-size: 0.6875rem;
             transition: all 0.2s;
             cursor: pointer;
             margin: 0.5rem 0;
         }
         .kb-dropzone.dragover {
-            border-color: rgba(0,255,255,0.5);
-            background: rgba(0,255,255,0.05);
-            color: rgba(0,255,255,0.7);
+            border-color: rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.03);
+            color: rgba(255,255,255,0.5);
         }
 
-        .kb-file-list {
-            margin: 0.5rem 0;
-        }
+        .kb-file-list { margin: 0.375rem 0; }
         .kb-file-item {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
-            padding: 0.375rem 0.5rem;
-            background: rgba(255,255,255,0.03);
+            gap: 0.375rem;
+            padding: 0.3125rem 0.5rem;
+            background: rgba(255,255,255,0.02);
             border-radius: 0.25rem;
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.1875rem;
             font-size: 0.6875rem;
-            color: rgba(255,255,255,0.7);
+            color: rgba(255,255,255,0.6);
         }
         .kb-file-item .remove {
             margin-left: auto;
             cursor: pointer;
-            color: rgba(255,255,255,0.3);
-            font-size: 0.75rem;
+            color: rgba(255,255,255,0.25);
+            font-size: 0.6875rem;
         }
-        .kb-file-item .remove:hover { color: rgba(255,60,60,0.8); }
+        .kb-file-item .remove:hover { color: rgba(255,255,255,0.6); }
 
         .kb-actions {
             display: flex;
-            gap: 0.5rem;
-            margin-top: 0.75rem;
+            gap: 0.375rem;
+            margin-top: 0.5rem;
         }
         .kb-actions button {
             flex: 1;
-            padding: 0.5rem;
+            padding: 0.375rem;
             border-radius: 0.375rem;
             font-family: inherit;
-            font-size: 0.6875rem;
+            font-size: 0.625rem;
             cursor: pointer;
             transition: all 0.15s;
         }
         .kb-actions .kb-submit {
-            background: rgba(0,255,255,0.15);
-            border: 1px solid rgba(0,255,255,0.3);
-            color: rgba(0,255,255,0.9);
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.7);
         }
-        .kb-actions .kb-submit:hover { background: rgba(0,255,255,0.25); }
-        .kb-actions .kb-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+        .kb-actions .kb-submit:hover { background: rgba(255,255,255,0.12); }
+        .kb-actions .kb-submit:disabled { opacity: 0.3; cursor: not-allowed; }
         .kb-actions .kb-cancel {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.5);
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.4);
         }
-        .kb-actions .kb-cancel:hover { background: rgba(255,255,255,0.08); }
+        .kb-actions .kb-cancel:hover { background: rgba(255,255,255,0.06); }
 
-        .kb-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.25rem;
+        .kb-summary {
+            padding: 0.625rem 0.3125rem;
+            border-top: 1px solid rgba(255,255,255,0.04);
+            font-size: 0.5625rem;
+            color: rgba(255,255,255,0.2);
+            letter-spacing: 0.03em;
+        }
+
+        .kb-empty {
+            padding: 0.375rem 0.5rem;
+            font-size: 0.625rem;
+            color: rgba(255,255,255,0.15);
+            font-style: italic;
         }
 
         /* 4. Node Styles — v3.12.1: Unified airy design */
@@ -4945,6 +4923,8 @@ console.log("[MODULE] script started loading");
                                         }
                                     }
                                     // Open detail panel for this task
+                                    window._taskJustClicked = true;
+                                    setTimeout(function() { window._taskJustClicked = false; }, 300);
                                     if (window.showDetailPanel) {
                                         window.showDetailPanel(taskPayload);
                                     } else {
@@ -4976,7 +4956,7 @@ console.log("[MODULE] script started loading");
                                 const pdEl = document.getElementById('p-desc');
                                 if (pdEl) pdEl.innerHTML = `Создана: ${new Date(taskPayload.created).toLocaleTimeString()}<br>Статус: <b>В работе</b>`;
                                 window._taskJustClicked = true;
-                                setTimeout(function() { window._taskJustClicked = false; }, 50);
+                                setTimeout(function() { window._taskJustClicked = false; }, 300);
                                 document.getElementById('detail-panel').classList.add('active');
                             }
                         }
@@ -5420,7 +5400,8 @@ console.log("[MODULE] script started loading");
                     // Placeholder
                 }
                 // Close panel if clicking on black screen (not on panel, not on task interface)
-                if (!isClickInsidePanel && !isClickInsideTaskInterface && !isClickOnTask) {
+                // v3.38: Also skip if a 3D task was just clicked (task points are canvas objects, not DOM)
+                if (!isClickInsidePanel && !isClickInsideTaskInterface && !isClickOnTask && !window._taskJustClicked) {
                     detailPanel.classList.remove('active');
                     console.log('Detail panel auto-closed');
                 }
@@ -8215,7 +8196,7 @@ console.log("[MODULE] script started loading");
             detailPanel.innerHTML = html;
             detailPanel.style.width = '300px';
             window._taskJustClicked = true;
-            setTimeout(function() { window._taskJustClicked = false; }, 50);
+            setTimeout(function() { window._taskJustClicked = false; }, 300);
             detailPanel.classList.add('active');
 
             // Close handler
@@ -10358,17 +10339,36 @@ console.log("[MODULE] script started loading");
         // === KNOWLEDGE BASE MODULE ===
         let _kbPollTimer = null;
 
+        // Mapping: direction -> RAGFlow dataset IDs
+        const KB_DIRECTIONS = [
+            {
+                name: '\u0418\u043d\u0432\u0435\u0441\u0442',
+                datasets: []
+            },
+            {
+                name: '\u0410\u043d\u0430\u043b\u0438\u0437',
+                datasets: []
+            },
+            {
+                name: '\u041f\u0440\u043e\u0435\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u0435',
+                datasets: ['all']
+            },
+            {
+                name: '\u0421\u0442\u0440\u043e\u0438\u0442\u0435\u043b\u044c\u0441\u0442\u0432\u043e',
+                datasets: []
+            },
+            {
+                name: '\u041f\u0440\u043e\u0434\u0430\u0436\u0438',
+                datasets: []
+            }
+        ];
+
         function kbFormatSize(bytes) {
             if (!bytes) return '0 B';
             const units = ['B', 'KB', 'MB', 'GB'];
-            let i = 0, size = bytes;
-            while (size >= 1024 && i < units.length - 1) { size /= 1024; i++; }
-            return size.toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
-        }
-
-        function kbDocIcon(name) {
-            const ext = (name || '').split('.').pop().toLowerCase();
-            return {pdf:'\ud83d\udcc4',docx:'\ud83d\udcdd',doc:'\ud83d\udcdd',xlsx:'\ud83d\udcca',xls:'\ud83d\udcca',txt:'\ud83d\udcc3'}[ext] || '\ud83d\udcc1';
+            let i = 0, s = bytes;
+            while (s >= 1024 && i < units.length - 1) { s /= 1024; i++; }
+            return s.toFixed(i > 0 ? 1 : 0) + ' ' + units[i];
         }
 
         function kbStatusClass(status) {
@@ -10381,8 +10381,8 @@ console.log("[MODULE] script started loading");
         function kbStatusLabel(status) {
             const s = (status || '').toUpperCase();
             if (s === 'DONE' || s === '1') return 'done';
-            if (s === 'RUNNING' || s === 'PARSING' || s === '0') return 'parsing';
-            return s.toLowerCase() || 'unknown';
+            if (s === 'RUNNING' || s === 'PARSING' || s === '0') return 'parsing...';
+            return s.toLowerCase() || '?';
         }
 
         async function loadKBDatasetsView(container) {
@@ -10390,160 +10390,215 @@ console.log("[MODULE] script started loading");
             try {
                 const resp = await fetch('/api/kb/datasets');
                 const data = await resp.json();
-                const datasets = data.datasets || [];
+                const allDatasets = data.datasets || [];
+
+                // For each dataset, fetch documents
+                const docsMap = {};
+                const fetches = allDatasets.map(async (ds) => {
+                    try {
+                        const r = await fetch('/api/kb/datasets/' + ds.id + '/documents');
+                        const d = await r.json();
+                        docsMap[ds.id] = d.documents || [];
+                    } catch(e) {
+                        docsMap[ds.id] = [];
+                    }
+                });
+                await Promise.all(fetches);
+
                 let totalDocs = 0, totalChunks = 0;
-                datasets.forEach(d => { totalDocs += d.document_count; totalChunks += d.chunk_count; });
+                allDatasets.forEach(ds => { totalDocs += ds.document_count; totalChunks += ds.chunk_count; });
 
                 let html = '';
-                datasets.forEach(ds => {
-                    const parts = ds.name.split(' \u2014 ');
-                    const code = parts.length > 1 ? parts[0] : '';
-                    const name = parts.length > 1 ? parts[1] : ds.name;
-                    html += '<div class="kb-dataset-row" data-dsid="' + ds.id + '" data-dsname="' + ds.name.replace(/"/g, '&quot;') + '">'
-                         + '<div class="kb-dataset-code">' + code + '</div>'
-                         + '<div class="kb-dataset-name">' + name + '</div>'
-                         + '<div class="kb-dataset-meta">' + ds.document_count + ' doc' + (ds.document_count !== 1 ? 's' : '') + '<br>' + ds.chunk_count + ' chunks</div>'
-                         + '</div>';
+                let hasParsing = false;
+
+                KB_DIRECTIONS.forEach((dir, di) => {
+                    // Get datasets for this direction
+                    let dirDatasets;
+                    if (dir.datasets.length === 1 && dir.datasets[0] === 'all') {
+                        dirDatasets = allDatasets;
+                    } else if (dir.datasets.length === 0) {
+                        dirDatasets = [];
+                    } else {
+                        dirDatasets = allDatasets.filter(ds => dir.datasets.includes(ds.id));
+                    }
+
+                    // Count docs
+                    let dirDocCount = 0;
+                    dirDatasets.forEach(ds => { dirDocCount += (docsMap[ds.id] || []).length; });
+
+                    html += '<div class="kb-section">';
+                    html += '<div class="kb-section-header" data-kb-section="' + di + '">';
+                    html += '<span class="kb-section-chevron' + (dirDatasets.length > 0 ? ' expanded' : '') + '">\u25b6</span>';
+                    html += dir.name;
+                    html += '<span class="kb-section-count">' + dirDocCount + '</span>';
+                    html += '</div>';
+                    html += '<div class="kb-section-body' + (dirDatasets.length > 0 ? ' expanded' : '') + '" data-kb-body="' + di + '">';
+
+                    if (dirDatasets.length === 0) {
+                        html += '<div class="kb-empty">\u041d\u0435\u0442 \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u043e\u0432</div>';
+                    } else {
+                        dirDatasets.forEach(ds => {
+                            const docs = docsMap[ds.id] || [];
+                            const parts = ds.name.split(' \u2014 ');
+                            const code = parts.length > 1 ? parts[0] : '';
+                            const dsLabel = parts.length > 1 ? parts[1] : ds.name;
+
+                            if (docs.length > 0) {
+                                html += '<div style="padding:0.25rem 0.3125rem 0.125rem;font-size:0.5625rem;color:rgba(255,255,255,0.2);letter-spacing:0.08em;text-transform:uppercase;margin-top:0.25rem">' + code + ' \u2014 ' + dsLabel + '</div>';
+                            }
+
+                            docs.forEach(doc => {
+                                const sc = kbStatusClass(doc.status);
+                                if (sc === 'parsing') hasParsing = true;
+                                const ext = (doc.name || '').split('.').pop().toLowerCase();
+                                html += '<div class="kb-doc-row">';
+                                html += '<div class="kb-doc-icon">' + ext + '</div>';
+                                html += '<div class="kb-doc-info">';
+                                html += '<div class="kb-doc-name">' + (doc.name || '?') + '</div>';
+                                html += '<div class="kb-doc-details">' + doc.chunk_count + ' chunks \u00b7 ' + kbFormatSize(doc.size) + '</div>';
+                                if (sc === 'parsing' && doc.progress > 0 && doc.progress < 1) {
+                                    html += '<div class="kb-progress-bar"><div class="kb-progress-fill" style="width:' + Math.round(doc.progress * 100) + '%"></div></div>';
+                                }
+                                html += '</div>';
+                                if (sc !== 'done') {
+                                    html += '<span class="kb-status ' + sc + '">' + kbStatusLabel(doc.status) + '</span>';
+                                }
+                                html += '</div>';
+                            });
+                        });
+                    }
+
+                    // Upload row for each direction (if it has datasets)
+                    if (dirDatasets.length > 0) {
+                        const firstDsId = dirDatasets[0].id;
+                        html += '<div class="kb-upload-row" data-upload-ds="' + firstDsId + '" data-upload-dir="' + di + '">+ \u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442</div>';
+                    } else {
+                        html += '<div class="kb-upload-row kb-upload-nods" data-upload-dir="' + di + '">+ \u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442</div>';
+                    }
+
+                    html += '</div></div>';
                 });
-                html += '<div class="kb-summary">' + datasets.length + ' \u0431\u0430\u0437 \u00b7 ' + totalDocs + ' \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442\u043e\u0432 \u00b7 ' + totalChunks + ' chunks</div>';
+
+                html += '<div class="kb-summary">' + allDatasets.length + ' \u0431\u0430\u0437 \u00b7 ' + totalDocs + ' \u0434\u043e\u043a. \u00b7 ' + totalChunks + ' chunks</div>';
                 container.innerHTML = html;
 
-                container.querySelectorAll('.kb-dataset-row').forEach(row => {
-                    row.addEventListener('click', () => {
-                        loadKBDocumentsView(container, row.dataset.dsid, row.dataset.dsname);
+                // Wire section toggles
+                container.querySelectorAll('.kb-section-header').forEach(hdr => {
+                    hdr.addEventListener('click', () => {
+                        const idx = hdr.dataset.kbSection;
+                        const body = container.querySelector('[data-kb-body="' + idx + '"]');
+                        const chevron = hdr.querySelector('.kb-section-chevron');
+                        if (body) body.classList.toggle('expanded');
+                        if (chevron) chevron.classList.toggle('expanded');
                     });
                 });
+
+                // Wire upload rows
+                container.querySelectorAll('.kb-upload-row[data-upload-ds]').forEach(row => {
+                    row.addEventListener('click', () => {
+                        showKBInlineUpload(row, row.dataset.uploadDs, allDatasets, container);
+                    });
+                });
+
+                // Wire upload for sections without datasets (placeholder)
+                container.querySelectorAll('.kb-upload-nods').forEach(row => {
+                    row.addEventListener('click', () => {
+                        row.textContent = '\u041d\u0435\u0442 \u0431\u0430\u0437\u044b \u0434\u043b\u044f \u044d\u0442\u043e\u0433\u043e \u043d\u0430\u043f\u0440\u0430\u0432\u043b\u0435\u043d\u0438\u044f';
+                        row.style.color = 'rgba(255,80,80,0.4)';
+                        setTimeout(() => {
+                            row.textContent = '+ \u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c \u0434\u043e\u043a\u0443\u043c\u0435\u043d\u0442';
+                            row.style.color = '';
+                        }, 2000);
+                    });
+                });
+
+                // Polling if parsing
+                if (hasParsing) {
+                    _kbPollTimer = setInterval(() => loadKBDatasetsView(container), 5000);
+                }
+
             } catch (e) {
                 container.innerHTML = '<div class="ps-loading">Error: ' + e.message + '</div>';
             }
         }
 
-        async function loadKBDocumentsView(container, datasetId, datasetName) {
-            if (_kbPollTimer) { clearInterval(_kbPollTimer); _kbPollTimer = null; }
-            container.innerHTML = '<div class="ps-loading">Loading...</div>';
-            const titleEl = document.getElementById('side-panel-title');
-            const parts = datasetName.split(' \u2014 ');
-            if (titleEl) titleEl.textContent = parts.length > 1 ? parts[1] : datasetName;
+        function showKBInlineUpload(rowEl, datasetId, allDatasets, panelContainer) {
+            // Find parent section body
+            const sectionBody = rowEl.closest('.kb-section-body');
+            if (!sectionBody) return;
 
-            async function render() {
-                try {
-                    const resp = await fetch('/api/kb/datasets/' + datasetId + '/documents');
-                    const data = await resp.json();
-                    const docs = data.documents || [];
-
-                    let html = '<div class="kb-header">'
-                             + '<div class="kb-back-btn" id="kb-back-btn">'
-                             + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Back</div>'
-                             + '<button class="kb-upload-btn" id="kb-upload-trigger">+ Upload</button>'
-                             + '</div>';
-
-                    let hasParsing = false;
-                    docs.forEach(doc => {
-                        const sc = kbStatusClass(doc.status);
-                        if (sc === 'parsing') hasParsing = true;
-                        html += '<div class="kb-doc-row">'
-                             + '<div class="kb-doc-icon">' + kbDocIcon(doc.name) + '</div>'
-                             + '<div class="kb-doc-info">'
-                             + '<div class="kb-doc-name">' + (doc.name || 'Unnamed') + '</div>'
-                             + '<div class="kb-doc-details">' + doc.chunk_count + ' chunks \u00b7 ' + kbFormatSize(doc.size) + '</div>';
-                        if (sc === 'parsing' && doc.progress > 0 && doc.progress < 1) {
-                            html += '<div class="kb-progress-bar"><div class="kb-progress-fill" style="width:' + Math.round(doc.progress * 100) + '%"></div></div>';
-                        }
-                        html += '</div>'
-                             + '<span class="kb-status ' + sc + '">' + kbStatusLabel(doc.status) + '</span>'
-                             + '</div>';
-                    });
-
-                    if (docs.length === 0) {
-                        html += '<div class="ps-loading">No documents</div>';
-                    }
-
-                    container.innerHTML = html;
-
-                    // Wire events
-                    const backBtn = document.getElementById('kb-back-btn');
-                    if (backBtn) backBtn.addEventListener('click', () => {
-                        if (titleEl) titleEl.textContent = 'Knowledge Base';
-                        loadKBDatasetsView(container);
-                    });
-                    const uploadBtn = document.getElementById('kb-upload-trigger');
-                    if (uploadBtn) uploadBtn.addEventListener('click', () => {
-                        showKBUploadView(container, datasetId, datasetName);
-                    });
-
-                    return hasParsing;
-                } catch (e) {
-                    container.innerHTML = '<div class="ps-loading">Error: ' + e.message + '</div>';
-                    return false;
-                }
+            // Get list of datasets in this direction for dataset selector
+            const dirIdx = rowEl.dataset.uploadDir;
+            const dir = KB_DIRECTIONS[dirIdx];
+            let dirDatasets;
+            if (dir.datasets.length === 1 && dir.datasets[0] === 'all') {
+                dirDatasets = allDatasets;
+            } else {
+                dirDatasets = allDatasets.filter(ds => dir.datasets.includes(ds.id));
             }
 
-            const hasParsing = await render();
-            if (hasParsing) {
-                _kbPollTimer = setInterval(async () => {
-                    const still = await render();
-                    if (!still && _kbPollTimer) { clearInterval(_kbPollTimer); _kbPollTimer = null; }
-                }, 5000);
-            }
-        }
-
-        function showKBUploadView(container, datasetId, datasetName) {
-            if (_kbPollTimer) { clearInterval(_kbPollTimer); _kbPollTimer = null; }
             let selectedFiles = [];
-            const titleEl = document.getElementById('side-panel-title');
-            if (titleEl) titleEl.textContent = 'Upload Documents';
+            let targetDsId = datasetId;
 
-            function renderUpload() {
-                let html = '<div class="kb-back-btn" id="kb-upload-back">'
-                         + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Back</div>';
-                html += '<div id="kb-dropzone" class="kb-dropzone">\ud83d\udce4 Drag files here or click to select<input type="file" multiple id="kb-file-input" style="display:none"></div>';
-                html += '<div class="kb-file-list" id="kb-file-list">';
+            // Replace upload row with inline upload form
+            const uploadDiv = document.createElement('div');
+            uploadDiv.style.padding = '0.375rem 0';
+
+            function renderForm() {
+                let h = '';
+                // Dataset selector (if more than one)
+                if (dirDatasets.length > 1) {
+                    h += '<select id="kb-ds-select" style="width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:0.25rem;color:rgba(255,255,255,0.7);font-family:inherit;font-size:0.625rem;padding:0.3125rem 0.375rem;outline:none;margin-bottom:0.375rem">';
+                    dirDatasets.forEach(ds => {
+                        const parts = ds.name.split(' \u2014 ');
+                        const label = parts.length > 1 ? parts[0] + ' \u2014 ' + parts[1] : ds.name;
+                        h += '<option value="' + ds.id + '"' + (ds.id === targetDsId ? ' selected' : '') + '>' + label + '</option>';
+                    });
+                    h += '</select>';
+                }
+                h += '<div id="kb-inline-dropzone" class="kb-dropzone">\u21e7 \u041f\u0435\u0440\u0435\u0442\u0430\u0449\u0438\u0442\u0435 \u0444\u0430\u0439\u043b\u044b \u0438\u043b\u0438 \u043d\u0430\u0436\u043c\u0438\u0442\u0435<input type="file" multiple id="kb-inline-file" style="display:none"></div>';
+                h += '<div class="kb-file-list" id="kb-inline-files">';
                 selectedFiles.forEach((f, i) => {
-                    html += '<div class="kb-file-item">' + kbDocIcon(f.name) + ' ' + f.name
-                         + ' <span style="color:rgba(255,255,255,0.2);font-size:0.5625rem">(' + kbFormatSize(f.size) + ')</span>'
-                         + '<span class="remove" data-idx="' + i + '">\u00d7</span></div>';
+                    h += '<div class="kb-file-item"><span style="opacity:0.4">' + f.name.split('.').pop() + '</span> ' + f.name + ' <span style="color:rgba(255,255,255,0.15);font-size:0.5625rem">(' + kbFormatSize(f.size) + ')</span><span class="remove" data-idx="' + i + '">\u00d7</span></div>';
                 });
-                html += '</div>';
-                const btnLabel = selectedFiles.length > 0
-                    ? 'Upload ' + selectedFiles.length + ' file' + (selectedFiles.length > 1 ? 's' : '')
-                    : 'Upload';
-                html += '<div class="kb-actions">'
-                     + '<button class="kb-cancel" id="kb-cancel-btn">Cancel</button>'
-                     + '<button class="kb-submit" id="kb-submit-btn"' + (selectedFiles.length === 0 ? ' disabled' : '') + '>' + btnLabel + '</button>'
-                     + '</div>';
-                container.innerHTML = html;
+                h += '</div>';
+                const label = selectedFiles.length > 0 ? '\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c ' + selectedFiles.length : '\u0417\u0430\u0433\u0440\u0443\u0437\u0438\u0442\u044c';
+                h += '<div class="kb-actions">';
+                h += '<button class="kb-cancel" id="kb-inline-cancel">\u041e\u0442\u043c\u0435\u043d\u0430</button>';
+                h += '<button class="kb-submit" id="kb-inline-submit"' + (selectedFiles.length === 0 ? ' disabled' : '') + '>' + label + '</button>';
+                h += '</div>';
+                uploadDiv.innerHTML = h;
 
-                // Wire up events
-                const backBtn = document.getElementById('kb-upload-back');
-                if (backBtn) backBtn.addEventListener('click', () => loadKBDocumentsView(container, datasetId, datasetName));
+                // Wire events
+                const dsSelect = uploadDiv.querySelector('#kb-ds-select');
+                if (dsSelect) dsSelect.addEventListener('change', () => { targetDsId = dsSelect.value; });
 
-                const cancelBtn = document.getElementById('kb-cancel-btn');
-                if (cancelBtn) cancelBtn.addEventListener('click', () => loadKBDocumentsView(container, datasetId, datasetName));
-
-                const dropzone = document.getElementById('kb-dropzone');
-                const fileInput = document.getElementById('kb-file-input');
+                const dropzone = uploadDiv.querySelector('#kb-inline-dropzone');
+                const fileInput = uploadDiv.querySelector('#kb-inline-file');
                 if (dropzone && fileInput) {
-                    dropzone.addEventListener('click', (e) => { if (e.target === dropzone || e.target.nodeType === 3) fileInput.click(); });
+                    dropzone.addEventListener('click', (e) => { if (e.target !== fileInput) fileInput.click(); });
                     dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
                     dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
                     dropzone.addEventListener('drop', (e) => {
-                        e.preventDefault();
-                        dropzone.classList.remove('dragover');
+                        e.preventDefault(); dropzone.classList.remove('dragover');
                         addFiles(e.dataTransfer.files);
                     });
                     fileInput.addEventListener('change', (e) => addFiles(e.target.files));
                 }
 
-                container.querySelectorAll('.kb-file-item .remove').forEach(btn => {
+                uploadDiv.querySelectorAll('.kb-file-item .remove').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         selectedFiles.splice(parseInt(e.target.dataset.idx), 1);
-                        renderUpload();
+                        renderForm();
                     });
                 });
 
-                const submitBtn = document.getElementById('kb-submit-btn');
+                const cancelBtn = uploadDiv.querySelector('#kb-inline-cancel');
+                if (cancelBtn) cancelBtn.addEventListener('click', () => loadKBDatasetsView(panelContainer));
+
+                const submitBtn = uploadDiv.querySelector('#kb-inline-submit');
                 if (submitBtn && selectedFiles.length > 0) {
-                    submitBtn.addEventListener('click', () => doUpload());
+                    submitBtn.addEventListener('click', doUpload);
                 }
             }
 
@@ -10552,24 +10607,26 @@ console.log("[MODULE] script started loading");
                     const exists = selectedFiles.some(f => f.name === fileList[i].name && f.size === fileList[i].size);
                     if (!exists) selectedFiles.push(fileList[i]);
                 }
-                renderUpload();
+                renderForm();
             }
 
             async function doUpload() {
-                const submitBtn = document.getElementById('kb-submit-btn');
-                if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Uploading...'; }
+                const btn = uploadDiv.querySelector('#kb-inline-submit');
+                if (btn) { btn.disabled = true; btn.textContent = '\u0417\u0430\u0433\u0440\u0443\u0437\u043a\u0430...'; }
                 for (const file of selectedFiles) {
                     try {
                         const fd = new FormData();
                         fd.append('file', file);
-                        await fetch('/api/kb/datasets/' + datasetId + '/documents', { method: 'POST', body: fd });
-                    } catch (e) { /* continue */ }
+                        await fetch('/api/kb/datasets/' + targetDsId + '/documents', { method: 'POST', body: fd });
+                    } catch(e) {}
                 }
                 selectedFiles = [];
-                loadKBDocumentsView(container, datasetId, datasetName);
+                loadKBDatasetsView(panelContainer);
             }
 
-            renderUpload();
+            // Replace the upload row with form
+            rowEl.replaceWith(uploadDiv);
+            renderForm();
         }
 
         // === PROJECT SELECTOR ===
