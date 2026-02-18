@@ -4865,6 +4865,7 @@ console.log("[MODULE] script started loading");
                     let taskClicked = false; console.log("[CLICK] isDrilled="+isDrilled+" taskPoints="+(window.taskPoints?window.taskPoints.length:0));
 
                     if (window.taskPoints && window.taskPoints.length > 0) {
+                        console.log('[DIAG] taskPoints count:', window.taskPoints.length, 'visible:', window.taskPoints.filter(t=>t.mesh&&t.mesh.visible).length);
                         // Set raycaster threshold for Points
                         // v3.22: Mesh raycasting — no threshold needed
 
@@ -4880,8 +4881,10 @@ console.log("[MODULE] script started loading");
                             })
                             .map(t => t.mesh);
 
+                        console.log('[DIAG] taskMeshes for raycast:', taskMeshes.length);
                         if (taskMeshes.length > 0) {
                             const taskHits = ray.intersectObjects(taskMeshes);
+                            console.log('[DIAG] taskHits:', taskHits.length, taskHits.length>0 ? 'dist='+taskHits[0].distance.toFixed(1) : '');
                             if (taskHits.length > 0) {
                                 const clickedMesh = taskHits[0].object;
                                 const taskPayload = window.taskPoints.find(t => t.mesh === clickedMesh);
@@ -8198,6 +8201,7 @@ console.log("[MODULE] script started loading");
             window._taskJustClicked = true;
             setTimeout(function() { window._taskJustClicked = false; }, 300);
             detailPanel.classList.add('active');
+            console.log('[DIAG] showDetailPanel: panel.active=', detailPanel.classList.contains('active'), 'right=', detailPanel.style.right, 'computedRight=', getComputedStyle(detailPanel).right);
 
             // Close handler
             document.getElementById('close-detail-btn').addEventListener('click', function() {
