@@ -822,8 +822,10 @@
 
             #back-button {
                 position: fixed;
-                top: auto;
+                top: auto !important;
                 bottom: 1.5625rem;
+                height: auto;
+                right: auto;
                 left: 50%;
                 transform: translateX(-50%);
                 font-size: 0.75em;
@@ -893,7 +895,7 @@
             #icon-bar { left: max(var(--spacing-sm), env(safe-area-inset-left)); }
             #block-dashboard { left: max(1rem, env(safe-area-inset-left)); bottom: max(5.625rem, calc(env(safe-area-inset-bottom) + 1.25rem)); }
             #task-interface.active { bottom: max(1.5625rem, calc(env(safe-area-inset-bottom) + 0.625rem)); }
-            #back-button { top: max(2.375rem, calc(env(safe-area-inset-top) + 0.625rem)); }
+            @media (min-width: 769px) { #back-button { top: max(2.375rem, calc(env(safe-area-inset-top) + 0.625rem)); } }
             #detail-panel { padding-right: max(1.25rem, env(safe-area-inset-right)); }
             #home-btn { bottom: max(1.5625rem, calc(env(safe-area-inset-bottom) + 0.625rem)); }
         }
