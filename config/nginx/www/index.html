@@ -5169,6 +5169,12 @@ console.log("[MODULE] script started loading");
 
         // TOUCH SUPPORT
         document.addEventListener('touchstart', e => {
+            // Skip 3D interaction if touching UI elements (mirror mousedown check)
+            if (!e.target.closest('#canvas-wrapper')) {
+                isDrag = false;
+                isClickValid = false;
+                return;
+            }
             isDrag = true; isClickValid = true;
             const touch = e.touches[0];
             downPos = { x: touch.clientX, y: touch.clientY };
@@ -10792,42 +10798,6 @@ console.log("[MODULE] script started loading");
                 }
             }
         });
-
-        // ===== AUTO-CLOSE PANELS ON TOUCH (mobile) =====
-        document.addEventListener('touchend', (e) => {
-            if (typeof isClickValid !== 'undefined' && !isClickValid) return;
-            const touch = e.changedTouches && e.changedTouches[0];
-            if (!touch) return;
-            setTimeout(() => {
-                const target = document.elementFromPoint(touch.clientX, touch.clientY);
-                if (!target) return;
-                if (target.closest('#icon-bar') || target.closest('#side-panel') || target.closest('#node-editor-panel') || target.closest('#nodes-toggle-btn') || target.closest('#detail-panel') || target.closest('#task-interface') || target.closest('#task-list-panel') || target.closest('#task-list-btn') || target.closest('#icon-bar-toggle') || target.closest('#auth-card')) return;
-
-                const sidePanel = document.getElementById('side-panel');
-                if (sidePanel && sidePanel.classList.contains('active')) closeSidePanel();
-
-                const nodePanel = document.getElementById('node-editor-panel');
-                if (nodePanel && nodePanel.classList.contains('active')) closeNodeEditor();
-
-                const detailPanel = document.getElementById('detail-panel');
-                if (detailPanel && detailPanel.classList.contains('active')) {
-                    detailPanel.classList.remove('active');
-                    if (window.updateCameraAspect) setTimeout(window.updateCameraAspect, 100);
-                }
-
-                const taskListPanel = document.getElementById('task-list-panel');
-                if (taskListPanel && taskListPanel.style.right === '15px') {
-                    taskListPanel.style.right = '-220px';
-                }
-
-                const iconBar = document.getElementById('icon-bar');
-                if (iconBar && iconBar.classList.contains('visible')) {
-                    iconBar.classList.remove('visible');
-                    const toggleBtn = document.getElementById('icon-bar-toggle');
-                    if (toggleBtn) toggleBtn.innerHTML = '☰';
-                }
-            }, 50);
-        }, { passive: true });
 
     </script>
     <!-- NODE EDITOR MODAL -->
