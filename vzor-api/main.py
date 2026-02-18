@@ -775,6 +775,10 @@ async def admin_update_guest(guest_id: int, request: Request):
             await conn.execute("UPDATE vzor_guests SET name = $1 WHERE id = $2", body["name"], guest_id)
         if "email" in body:
             await conn.execute("UPDATE vzor_guests SET email = $1 WHERE id = $2", body["email"], guest_id)
+        if "expires_at" in body:
+            from datetime import datetime as dt
+            exp = dt.fromisoformat(body["expires_at"].replace("Z", "+00:00"))
+            await conn.execute("UPDATE vzor_guests SET expires_at = $1 WHERE id = $2", exp, guest_id)
     return {"status": "updated", "guest_id": guest_id}
 
 
