@@ -11049,6 +11049,7 @@ async function sendToAgentZero(message) {
         let panelOffsetX = null, panelOffsetY = null;
 
         toggle.addEventListener('mousedown', function(e) {
+            if (toggle._touchHandled) return;
             e.preventDefault();
             isDraggingBtn = true;
             wasDragged = false;
@@ -11146,6 +11147,8 @@ async function sendToAgentZero(message) {
                 panel.classList.toggle('active');
                 if (isOpening) positionPanel();
             }
+            toggle._touchHandled = true;
+            setTimeout(function() { toggle._touchHandled = false; }, 400);
         });
 
         // --- Close button ---
@@ -12321,6 +12324,7 @@ async function sendToAgentZero(message) {
         var panelOffX = null, panelOffY = null;
 
         toggle.addEventListener('mousedown', function(e) {
+            if (toggle._touchHandled) return;
             e.preventDefault();
             isDraggingBtn = true;
             wasDragged = false;
@@ -12418,6 +12422,8 @@ async function sendToAgentZero(message) {
                 panel.classList.toggle('active');
                 if (isOpening) { positionPanel(); connectOpenClaw(); }
             }
+            toggle._touchHandled = true;
+            setTimeout(function() { toggle._touchHandled = false; }, 400);
         });
 
         if (closeBtn) {
