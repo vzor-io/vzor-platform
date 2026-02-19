@@ -3738,16 +3738,24 @@
             opacity: 0; animation: sp-fade 1s ease 1.2s forwards;
             z-index: 100002;
         }
-        #lang-toggle #back-to-splash {
+        #back-to-splash {
+            position: fixed;
+            top: 16px;
+            left: 24px;
+            z-index: 100002;
             display: none !important;
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.12em;
             color: rgba(255,255,255,0.35);
-            font-size: 14px;
-            margin-right: 4px;
+            cursor: pointer;
+            transition: color 0.3s;
         }
-        #lang-toggle #back-to-splash.visible {
-            display: inline !important;
+        #back-to-splash.visible {
+            display: inline-block !important;
         }
-        #lang-toggle #back-to-splash:hover {
+        #back-to-splash:hover {
             color: rgba(255,255,255,0.70);
         }
         #lang-toggle span {
@@ -3830,8 +3838,8 @@
 
     
 
+    <span id="back-to-splash">← Назад</span>
     <div id="lang-toggle">
-        <span id="back-to-splash" title="Back to splash" style="cursor:pointer;">←</span>
         <span data-lang="ru" class="active">RU</span>
         <span data-lang="en">EN</span>
     </div>
