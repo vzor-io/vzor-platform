@@ -13506,9 +13506,11 @@ async function sendToAgentZero(message) {
                     // Show back button with fade
                     var bb = document.getElementById("back-to-splash");
                     if (bb) setTimeout(function(){ bb.classList.add("show"); }, 400);
-                    // Auth hook
+                    // Auth hook — delayed to ensure DOM settled
                     if (!window._vzorAuth) {
-                        if (typeof showAuthModal === "function") showAuthModal();
+                        setTimeout(function(){
+                            if (typeof showAuthModal === "function") showAuthModal();
+                        }, 300);
                     }
                 }
             }
@@ -13521,7 +13523,12 @@ async function sendToAgentZero(message) {
     <script>
     (function(){
         var bb = document.getElementById("back-to-splash");
-        if (bb) bb.addEventListener("click", function(){ location.reload(); });
+        if (bb) bb.addEventListener("click", function(e){
+            e.stopImmediatePropagation();
+            e.preventDefault();
+            window.scrollTo(0, 0);
+            location.reload();
+        });
     })();
     </script>
 </body>
