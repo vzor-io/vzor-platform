@@ -3738,6 +3738,15 @@
             opacity: 0; animation: sp-fade 1s ease 1.2s forwards;
             z-index: 100002;
         }
+        #lang-toggle #back-to-splash {
+            display: none;
+            color: rgba(255,255,255,0.35);
+            font-size: 14px;
+            margin-right: 4px;
+        }
+        #lang-toggle #back-to-splash:hover {
+            color: rgba(255,255,255,0.70);
+        }
         #lang-toggle span {
             font-family: 'Outfit', sans-serif;
             font-size: 11px; font-weight: 300;
@@ -3756,37 +3765,9 @@
         @keyframes sp-fade { from { opacity: 0; } to { opacity: 1; } }
 
 
-        /* Back to splash button */
-        #back-to-splash {
-            position: fixed;
-            top: 14px;
-            left: 18px;
-            z-index: 9000;
-            font-family: 'Outfit', sans-serif;
-            font-size: 11px;
-            font-weight: 300;
-            letter-spacing: 0.15em;
-            text-transform: uppercase;
-            color: rgba(255,255,255,0.22);
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 8px 14px;
-            transition: color 0.4s ease, letter-spacing 0.4s ease;
-            opacity: 0;
-            pointer-events: none;
-        }
-        #back-to-splash.show {
-            opacity: 1;
-            pointer-events: auto;
-            transition: opacity 0.8s ease, color 0.4s ease, letter-spacing 0.4s ease;
-        }
-        #back-to-splash:hover {
-            color: rgba(255,255,255,0.65);
-            letter-spacing: 0.20em;
-        }
-        body.splash-on #back-to-splash { display: none; }
+
         body.splash-on #lang-toggle { opacity: 0; animation: sp-fade 1s ease 1.2s forwards; }
+        body.splash-on #back-to-splash { display: none !important; }
 
         @media (max-width: 900px) {
             #splash .fr-img { width: 80vw; height: 80vw; top: 40%; }
@@ -3847,11 +3828,12 @@
     
 
     <div id="lang-toggle">
+        <span id="back-to-splash" title="Back to splash" style="display:none; cursor:pointer;">←</span>
         <span data-lang="ru" class="active">RU</span>
         <span data-lang="en">EN</span>
     </div>
 
-    <button id="back-to-splash">← Назад</button>
+
 
     <div id="block-dashboard">
         <div style="font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:2px;">Прогресс</div>
@@ -5072,7 +5054,7 @@ console.log("[MODULE] script started loading");
                     // Hide scroll indicators
                     document.getElementById('scrollHint').style.opacity = '0';
                     document.getElementById('progressDots').style.opacity = '0';
-                    document.getElementById('home-btn').classList.remove('visible'); var _bs=document.getElementById('back-to-splash'); if(_bs&&!document.body.classList.contains('splash-on')){_bs.style.display='';setTimeout(function(){_bs.classList.add('show');},50);}
+                    document.getElementById('home-btn').classList.remove('visible');
 
                     // Lock scroll and enable controls
                     document.body.style.overflow = 'hidden';
@@ -6246,7 +6228,7 @@ console.log("[MODULE] script started loading");
                     else pText.style.fontSize = ''; // Use CSS
                 }
                 // document.getElementById('add-task-btn').classList.remove('visible');
-                document.getElementById('home-btn').classList.remove('visible'); var _bs=document.getElementById('back-to-splash'); if(_bs&&!document.body.classList.contains('splash-on')){_bs.style.display='';setTimeout(function(){_bs.classList.add('show');},50);}
+                document.getElementById('home-btn').classList.remove('visible');
 
                 // FORCE RESET: Ensure no drill-down UI leaks into Slide 1
                 document.getElementById('detail-panel').classList.remove('active');
@@ -6263,7 +6245,7 @@ console.log("[MODULE] script started loading");
                     st.innerText = s.title;
                     st.style.display = ''; // Ensure title is visible (restore from drill-down)
                     sd.style.display = ''; // Ensure description is visible
-                    document.getElementById('home-btn').classList.add('visible'); var _bs=document.getElementById('back-to-splash'); if(_bs){_bs.classList.remove('show');_bs.style.display='none';}
+                    document.getElementById('home-btn').classList.add('visible');
 
                     // Ensure ALL drill-down elements are hidden on Slide 2 Overview
                     document.getElementById('detail-panel').classList.remove('active');
@@ -6304,7 +6286,7 @@ console.log("[MODULE] script started loading");
                     }
                     bondMesh.visible = false;
                 } else {
-                    document.getElementById('home-btn').classList.remove('visible'); var _bs=document.getElementById('back-to-splash'); if(_bs&&!document.body.classList.contains('splash-on')){_bs.style.display='';setTimeout(function(){_bs.classList.add('show');},50);}
+                    document.getElementById('home-btn').classList.remove('visible');
                     // Drill-down UI is handled by showDetail/onClick
                 }
 
@@ -13804,20 +13786,7 @@ async function sendToAgentZero(message) {
         window.setVzorLang(window._vzorLang);
     }
 
-    // Hide back-to-splash when home-btn is visible (avoid double back buttons)
-    var _homeBtnObs = document.getElementById('home-btn');
-    var _backSplash = document.getElementById('back-to-splash');
-    if (_homeBtnObs && _backSplash) {
-        new MutationObserver(function() {
-            if (_homeBtnObs.classList.contains('visible')) {
-                _backSplash.classList.remove('show');
-                _backSplash.style.display = 'none';
-            } else if (!document.body.classList.contains('splash-on')) {
-                _backSplash.style.display = '';
-                setTimeout(function(){ _backSplash.classList.add('show'); }, 50);
-            }
-        }).observe(_homeBtnObs, { attributes: true, attributeFilter: ['class'] });
-    }
+
 
     // Keep lang-toggle visible after splash (remove animation, set opacity)
     var _lt = document.getElementById('lang-toggle');
@@ -13930,7 +13899,7 @@ async function sendToAgentZero(message) {
                     evts.forEach(function(ev){ window.removeEventListener(ev, blockMouse, true); });
                     // Show back button with fade
                     var bb = document.getElementById("back-to-splash");
-                    if (bb) setTimeout(function(){ bb.classList.add("show"); }, 400);
+                    if (bb) setTimeout(function(){ bb.style.display = ""; }, 400);
                     // Auth hook
                     if (!window._vzorAuth) {
                         setTimeout(function(){
@@ -13951,13 +13920,14 @@ async function sendToAgentZero(message) {
         if (!bb) return;
         bb.addEventListener("click", function(e){
             e.stopImmediatePropagation();
+            e.stopPropagation();
             e.preventDefault();
 
             var sp = document.getElementById("splash");
             if (!sp) { location.reload(); return; }
 
             // Hide back button
-            bb.classList.remove("show");
+            bb.style.display = "none";
 
             // Quick fade overlay
             var ov = document.createElement("div");
