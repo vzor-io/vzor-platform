@@ -3700,7 +3700,7 @@
         }
 
         .sp-enter {
-            position: absolute; bottom: 5vh; left: 50%; transform: translateX(-50%);
+            position: absolute; bottom: 5vh; right: 4vw;
             display: flex; flex-direction: column; align-items: center;
             opacity: 0; animation: sp-fade 1s ease 2.5s forwards;
             text-shadow: 0 0 25px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.5);
@@ -3772,7 +3772,7 @@
             .sp-col-1 { top: auto; bottom: 36vh; }
             .sp-col-2 { top: auto; bottom: 24vh; }
             .sp-col-3 { top: auto; bottom: 12vh; }
-            .sp-enter { bottom: 3vh; }
+            .sp-enter { bottom: 3vh; right: 5vw; }
         }
         @media (max-width: 560px) {
             #splash .fr-img { width: 95vw; height: 95vw; top: 22vh; }
@@ -3780,7 +3780,7 @@
             .sp-col-1 { bottom: 34vh; }
             .sp-col-2 { bottom: 22vh; }
             .sp-col-3 { bottom: 10vh; }
-            .sp-enter { bottom: 2vh; left: 50%; right: auto; transform: translateX(-50%); }
+            .sp-enter { bottom: 2vh; left: 5vw; right: 5vw; text-align: center; }
             .sp-enter button { width: auto; }
         }
 
