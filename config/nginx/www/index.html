@@ -13523,11 +13523,30 @@ async function sendToAgentZero(message) {
     <script>
     (function(){
         var bb = document.getElementById("back-to-splash");
-        if (bb) bb.addEventListener("click", function(e){
+        if (!bb) return;
+        bb.addEventListener("click", function(e){
             e.stopImmediatePropagation();
             e.preventDefault();
-            window.scrollTo(0, 0);
-            location.reload();
+            // Hide button
+            bb.style.opacity = "0";
+            bb.style.pointerEvents = "none";
+            // Overlay fade-to-black
+            var ov = document.createElement("div");
+            ov.style.cssText = "position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,0);transition:background 0.8s ease;";
+            document.body.appendChild(ov);
+            requestAnimationFrame(function(){
+                requestAnimationFrame(function(){
+                    ov.style.background = "rgba(0,0,0,1)";
+                });
+            });
+            // Reset scene
+            window.targetP = 0;
+            window.smoothP = 0;
+            // Reload after fade
+            setTimeout(function(){
+                window.scrollTo(0, 0);
+                location.reload();
+            }, 850);
         });
     })();
     </script>
