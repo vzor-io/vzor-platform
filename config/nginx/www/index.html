@@ -13463,7 +13463,7 @@ async function sendToAgentZero(message) {
             void img.offsetWidth;
             img.style.animation = "none";
 
-            for (var i = 0; i < texts.length; i++) texts[i].style.opacity = "1";
+            for (var i = 0; i < texts.length; i++) { texts[i].style.transition = "none"; texts[i].style.opacity = "1"; }
             void sp.offsetWidth;
             for (var i = 0; i < texts.length; i++) texts[i].style.animation = "none";
             void sp.offsetWidth;
@@ -13510,7 +13510,7 @@ async function sendToAgentZero(message) {
                     if (!window._vzorAuth) {
                         setTimeout(function(){
                             if (typeof showAuthModal === "function") showAuthModal();
-                        }, 300);
+                        }, 50);
                     }
                 }
             }
