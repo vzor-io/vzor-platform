@@ -5072,7 +5072,7 @@ console.log("[MODULE] script started loading");
                     // Hide scroll indicators
                     document.getElementById('scrollHint').style.opacity = '0';
                     document.getElementById('progressDots').style.opacity = '0';
-                    document.getElementById('home-btn').classList.remove('visible');
+                    document.getElementById('home-btn').classList.remove('visible'); var _bs=document.getElementById('back-to-splash'); if(_bs&&!document.body.classList.contains('splash-on')){_bs.style.display='';setTimeout(function(){_bs.classList.add('show');},50);}
 
                     // Lock scroll and enable controls
                     document.body.style.overflow = 'hidden';
@@ -6246,7 +6246,7 @@ console.log("[MODULE] script started loading");
                     else pText.style.fontSize = ''; // Use CSS
                 }
                 // document.getElementById('add-task-btn').classList.remove('visible');
-                document.getElementById('home-btn').classList.remove('visible');
+                document.getElementById('home-btn').classList.remove('visible'); var _bs=document.getElementById('back-to-splash'); if(_bs&&!document.body.classList.contains('splash-on')){_bs.style.display='';setTimeout(function(){_bs.classList.add('show');},50);}
 
                 // FORCE RESET: Ensure no drill-down UI leaks into Slide 1
                 document.getElementById('detail-panel').classList.remove('active');
@@ -6263,7 +6263,7 @@ console.log("[MODULE] script started loading");
                     st.innerText = s.title;
                     st.style.display = ''; // Ensure title is visible (restore from drill-down)
                     sd.style.display = ''; // Ensure description is visible
-                    document.getElementById('home-btn').classList.add('visible');
+                    document.getElementById('home-btn').classList.add('visible'); var _bs=document.getElementById('back-to-splash'); if(_bs){_bs.classList.remove('show');_bs.style.display='none';}
 
                     // Ensure ALL drill-down elements are hidden on Slide 2 Overview
                     document.getElementById('detail-panel').classList.remove('active');
@@ -6304,7 +6304,7 @@ console.log("[MODULE] script started loading");
                     }
                     bondMesh.visible = false;
                 } else {
-                    document.getElementById('home-btn').classList.remove('visible');
+                    document.getElementById('home-btn').classList.remove('visible'); var _bs=document.getElementById('back-to-splash'); if(_bs&&!document.body.classList.contains('splash-on')){_bs.style.display='';setTimeout(function(){_bs.classList.add('show');},50);}
                     // Drill-down UI is handled by showDetail/onClick
                 }
 
