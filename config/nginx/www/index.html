@@ -337,7 +337,7 @@
 
         /* Auth — floating mini-card */
         #auth-popup {
-            display: none;
+            display: flex;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 100000;
@@ -346,9 +346,15 @@
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(0.375rem);
             -webkit-backdrop-filter: blur(0.375rem);
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+            transition: opacity 0.5s ease, visibility 0.5s;
         }
         #auth-popup.visible {
-            display: flex;
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
         }
         #auth-card {
             background: rgba(12,12,18,0.85);
@@ -359,6 +365,11 @@
             padding: 2rem 1.75rem 1.5rem;
             text-align: center;
             min-width: 17.5rem;
+            transform: translateY(10px) scale(0.97);
+            transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+        }
+        #auth-popup.visible #auth-card {
+            transform: translateY(0) scale(1);
         }
         #auth-card .auth-title {
             font-size: 0.6875rem;
@@ -3720,6 +3731,38 @@
 
         @keyframes sp-fade { from { opacity: 0; } to { opacity: 1; } }
 
+
+        /* Back to splash button */
+        #back-to-splash {
+            position: fixed;
+            top: 14px;
+            left: 18px;
+            z-index: 9000;
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.22);
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px 14px;
+            transition: color 0.4s ease, letter-spacing 0.4s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+        #back-to-splash.show {
+            opacity: 1;
+            pointer-events: auto;
+            transition: opacity 0.8s ease, color 0.4s ease, letter-spacing 0.4s ease;
+        }
+        #back-to-splash:hover {
+            color: rgba(255,255,255,0.65);
+            letter-spacing: 0.20em;
+        }
+        body.splash-on #back-to-splash { display: none; }
+
         @media (max-width: 900px) {
             #splash .fr-img { width: 80vw; height: 80vw; top: 40%; }
             .sp-head { top: 2vh; left: 5vw; }
@@ -3777,6 +3820,9 @@
     </div>
 
     
+
+    <button id="back-to-splash">← Назад</button>
+
     <div id="block-dashboard">
         <div style="font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:2px;">Прогресс</div>
         <div class="dash-row" data-block="analysis">
@@ -13457,6 +13503,10 @@ async function sendToAgentZero(message) {
                     document.body.classList.remove("splash-on");
                     sp.remove();
                     evts.forEach(function(ev){ window.removeEventListener(ev, blockMouse, true); });
+                    // Show back button with fade
+                    var bb = document.getElementById("back-to-splash");
+                    if (bb) setTimeout(function(){ bb.classList.add("show"); }, 400);
+                    // Auth hook
                     if (!window._vzorAuth) {
                         if (typeof showAuthModal === "function") showAuthModal();
                     }
@@ -13464,6 +13514,14 @@ async function sendToAgentZero(message) {
             }
             requestAnimationFrame(frame);
         }
+    })();
+    </script>
+
+    <!-- Back to splash handler -->
+    <script>
+    (function(){
+        var bb = document.getElementById("back-to-splash");
+        if (bb) bb.addEventListener("click", function(){ location.reload(); });
     })();
     </script>
 </body>
