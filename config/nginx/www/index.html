@@ -3620,13 +3620,162 @@
             border-radius: 0.25rem;
             display: inline-block;
         }
+
+        /* ======= FRACTAL LANDING (splash) ======= */
+        body.splash-on { overflow: hidden !important; }
+
+        #splash {
+            position: fixed; inset: 0; z-index: 100001;
+            background: #000;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        #splash .fr-img {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: min(98vw, 90vh); height: min(98vw, 90vh);
+            object-fit: contain;
+            opacity: 0;
+            pointer-events: none;
+            will-change: transform, opacity, filter;
+        }
+        @keyframes fr-in {
+            from { opacity:0; transform:translate(-50%,-50%) scale(1.04); }
+            to   { opacity:1; transform:translate(-50%,-50%) scale(1); }
+        }
+
+        .sp-head {
+            position: absolute; top: 3.5vh; left: 4vw;
+            opacity: 0; animation: sp-fade 1s ease 1.2s forwards;
+            text-shadow: 0 0 30px rgba(0,0,0,0.9), 0 0 60px rgba(0,0,0,0.5);
+        }
+        .sp-head h1 {
+            font-size: clamp(22px, 3.2vw, 42px);
+            font-weight: 200; letter-spacing: 0.32em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.90); margin: 0;
+        }
+        .sp-head .sp-tag {
+            font-size: clamp(10px, 1vw, 14px);
+            font-weight: 300; letter-spacing: 0.16em;
+            text-transform: lowercase;
+            color: rgba(255,255,255,0.35); margin-top: 0.35em;
+        }
+
+        .sp-col {
+            position: absolute; left: 4vw;
+            max-width: 24vw;
+            text-align: left;
+            opacity: 0;
+            text-shadow: 0 0 25px rgba(0,0,0,0.95), 0 0 50px rgba(0,0,0,0.7), 0 2px 8px rgba(0,0,0,0.9);
+        }
+        .sp-col-1 { top: 38%; animation: sp-fade 1s ease 1.6s forwards; }
+        .sp-col-2 { top: 52%; animation: sp-fade 1s ease 1.9s forwards; }
+        .sp-col-3 { top: 66%; animation: sp-fade 1s ease 2.2s forwards; }
+
+        .sp-dt {
+            font-size: clamp(12px, 1.15vw, 16px);
+            font-weight: 400; letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.62); margin-bottom: 0.4em;
+        }
+        .sp-dd {
+            font-size: clamp(11px, 0.95vw, 15px);
+            font-weight: 300; line-height: 1.65;
+            letter-spacing: 0.015em;
+            color: rgba(255,255,255,0.42);
+        }
+
+        .sp-enter {
+            position: absolute; bottom: 5vh; right: 4vw;
+            text-align: right;
+            opacity: 0; animation: sp-fade 1s ease 2.5s forwards;
+            text-shadow: 0 0 25px rgba(0,0,0,0.9), 0 0 50px rgba(0,0,0,0.5);
+        }
+        .sp-enter .sp-hint {
+            font-size: clamp(9px, 0.75vw, 12px);
+            font-weight: 300; letter-spacing: 0.08em;
+            text-transform: lowercase;
+            color: rgba(255,255,255,0.28);
+            margin-bottom: 1em;
+        }
+        .sp-enter button {
+            font-family: 'Outfit', sans-serif;
+            font-size: clamp(10px, 0.85vw, 12px);
+            font-weight: 300; letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.40);
+            background: none;
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 14px 44px; cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.22,1,0.36,1);
+        }
+        .sp-enter button:hover {
+            color: rgba(255,255,255,0.85);
+            border-color: rgba(255,255,255,0.25);
+            letter-spacing: 0.28em;
+        }
+
+        @keyframes sp-fade { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 900px) {
+            #splash .fr-img { width: 80vw; height: 80vw; top: 40%; }
+            .sp-head { top: 2vh; left: 5vw; }
+            .sp-col { max-width: 44vw; left: 5vw; }
+            .sp-col-1 { top: auto; bottom: 36vh; }
+            .sp-col-2 { top: auto; bottom: 24vh; }
+            .sp-col-3 { top: auto; bottom: 12vh; }
+            .sp-enter { bottom: 3vh; right: 5vw; }
+        }
+        @media (max-width: 560px) {
+            #splash .fr-img { width: 95vw; height: 95vw; top: 22vh; }
+            .sp-col { max-width: 90vw; left: 5vw; }
+            .sp-col-1 { bottom: 34vh; }
+            .sp-col-2 { bottom: 22vh; }
+            .sp-col-3 { bottom: 10vh; }
+            .sp-enter { bottom: 2vh; left: 5vw; right: 5vw; text-align: center; }
+            .sp-enter button { width: 100%; }
+        }
+
     </style>
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
     </script>
 </head>
 
-<body>
+<body class="splash-on">
+    <!-- FRACTAL LANDING v11 -->
+    <div id="splash">
+        <img class="fr-img" src="fractal.jpg" alt="">
+
+        <div class="sp-head">
+            <h1>VZOR</h1>
+            <div class="sp-tag">capital data system</div>
+        </div>
+
+        <div class="sp-col sp-col-1">
+            <div class="sp-dt">Девелопмент</div>
+            <div class="sp-dd">Рентабельность проекта растёт с качеством решений.</div>
+        </div>
+
+        <div class="sp-col sp-col-2">
+            <div class="sp-dt">Финансы</div>
+            <div class="sp-dd">Преимущество — у тех, кто видит быстрее.</div>
+        </div>
+
+        <div class="sp-col sp-col-3">
+            <div class="sp-dt">Недвижимость</div>
+            <div class="sp-dd">Доходность портфеля растёт, когда каждая переменная учтена.</div>
+        </div>
+
+        <div class="sp-enter">
+            <div class="sp-hint">мышление без границ · решения без задержек</div>
+            <button id="splash-btn">Открыть платформу</button>
+        </div>
+    </div>
+
     
     <div id="block-dashboard">
         <div style="font-size:8px;letter-spacing:1.5px;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:2px;">Прогресс</div>
@@ -13113,6 +13262,7 @@ async function sendToAgentZero(message) {
     }
 
     function showAuthModal() {
+        if (document.getElementById("splash")) return;
         var el = document.getElementById("auth-popup");
         if (el) el.classList.add("visible");
         var inp = document.getElementById("auth-code-input");
@@ -13204,6 +13354,117 @@ async function sendToAgentZero(message) {
         // Check auth on load
         checkAuth();
     });
+    </script>
+
+    <!-- SPLASH CONTROLLER v11 -->
+    <script>
+    (function(){
+        var sp = document.getElementById("splash");
+        var btn = document.getElementById("splash-btn");
+
+        var img = sp.querySelector(".fr-img");
+        function entranceAnim() {
+            var eStart = null;
+            var eDur = 3000;
+            function eFrame(ts) {
+                if (!eStart) eStart = ts;
+                var p = Math.min((ts - eStart) / eDur, 1);
+                var ease = p < 0.5
+                    ? 2 * p * p
+                    : 1 - Math.pow(-2 * p + 2, 2) / 2;
+                var sharp = 1 - Math.pow(1 - p, 3);
+                img.style.opacity = Math.min(1, ease * 1.15).toFixed(3);
+                img.style.filter = "blur(" + ((1 - sharp) * 12).toFixed(1) + "px) brightness(" + (1 + (1 - sharp) * 0.8).toFixed(2) + ")";
+                img.style.transform = "translate(-50%,-50%) scale(" + (1 + (1 - ease) * 0.15).toFixed(3) + ")";
+                if (p < 1) requestAnimationFrame(eFrame);
+            }
+            requestAnimationFrame(eFrame);
+        }
+        if (img.complete) entranceAnim();
+        else img.onload = entranceAnim;
+        if (!sp || !btn) return;
+
+        function blockWheel(e) { e.stopImmediatePropagation(); }
+        window.addEventListener("wheel", blockWheel, true);
+
+        function blockMouse(e) {
+            if (sp.contains(e.target)) return;
+            e.stopImmediatePropagation();
+        }
+        var evts = ["click","mousedown","mouseup","pointerdown","pointerup"];
+        evts.forEach(function(ev){ window.addEventListener(ev, blockMouse, true); });
+
+        btn.addEventListener("click", function(e){
+            e.stopPropagation();
+            go();
+        });
+
+        function go() {
+            window.targetP = 0;
+            window.smoothP = 0;
+            var guard = setInterval(function(){ window.targetP = 0; }, 30);
+            setTimeout(function(){ clearInterval(guard); }, 8000);
+
+            window.removeEventListener("wheel", blockWheel, true);
+            window.scrollTo(0, 0);
+
+            var img = sp.querySelector(".fr-img");
+            var texts = sp.querySelectorAll(".sp-head, .sp-col, .sp-enter");
+
+            img.style.opacity = "1";
+            img.style.filter = "brightness(1) blur(0px)";
+            img.style.transform = "translate(-50%,-50%) scale(1)";
+            void img.offsetWidth;
+            img.style.animation = "none";
+
+            for (var i = 0; i < texts.length; i++) texts[i].style.opacity = "1";
+            void sp.offsetWidth;
+            for (var i = 0; i < texts.length; i++) texts[i].style.animation = "none";
+            void sp.offsetWidth;
+
+            var start = null;
+            var totalDur = 4000;
+
+            function frame(ts) {
+                if (!start) start = ts;
+                var p = Math.min((ts - start) / totalDur, 1);
+
+                var textP = Math.min(p / 0.4, 1);
+                var textEase = 1 - Math.pow(1 - textP, 2);
+                for (var i = 0; i < texts.length; i++) {
+                    texts[i].style.opacity = (1 - textEase).toFixed(3);
+                }
+
+                if (p > 0.3) {
+                    var frP = (p - 0.3) / 0.7;
+                    var frEase = frP < 0.5
+                        ? 2 * frP * frP
+                        : 1 - Math.pow(-2 * frP + 2, 2) / 2;
+
+                    img.style.opacity = Math.max(0, 1 - frEase * 1.15).toFixed(3);
+                    img.style.filter = "blur(" + (frEase * 12).toFixed(1) + "px) brightness(" + (1 + frEase * 0.8).toFixed(2) + ")";
+                    img.style.transform = "translate(-50%,-50%) scale(" + (1 + frEase * 0.15).toFixed(3) + ")";
+                }
+
+                if (p > 0.5) {
+                    var bgP = (p - 0.5) / 0.5;
+                    sp.style.background = "rgba(0,0,0," + (1 - bgP * bgP).toFixed(3) + ")";
+                }
+
+                if (p < 1) {
+                    requestAnimationFrame(frame);
+                } else {
+                    document.body.classList.remove("splash-on");
+                    sp.remove();
+                    evts.forEach(function(ev){ window.removeEventListener(ev, blockMouse, true); });
+                    if (!window._vzorAuth) {
+                        if (typeof showAuthModal === "function") showAuthModal();
+                    }
+                }
+            }
+            requestAnimationFrame(frame);
+        }
+    })();
     </script>
 </body>
 
