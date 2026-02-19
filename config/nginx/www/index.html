@@ -4128,7 +4128,7 @@
             Задачи
         </div>
         <div id="task-list-content" style="font-size: 11px; color: rgba(255,255,255,0.7);">
-            <div style="color: rgba(255,255,255,0.3); font-style: italic;">Нет задач</div>
+            <div style="color: rgba(255,255,255,0.3); font-style: italic;" id="no-tasks-msg">Нет задач</div>
         </div>
     </div>
 
@@ -6477,15 +6477,15 @@ console.log("[MODULE] script started loading");
                 if (task && _tooltip) {
                     _hoveredTask = task;
                     const statusMap = {
-                        'pending': { label: 'Ожидает', color: '#888', bg: 'rgba(255,255,255,0.08)' },
-                        'in_progress': { label: 'В работе', color: '#FFB347', bg: 'rgba(255,179,71,0.15)' },
-                        'completed': { label: 'Готово', color: '#77DD77', bg: 'rgba(119,221,119,0.15)' },
-                        'blocked': { label: 'Блок', color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)' }
+                        'pending': { label: (window._t?window._t('Ожидает'):'Ожидает'), color: '#888', bg: 'rgba(255,255,255,0.08)' },
+                        'in_progress': { label: (window._t?window._t('В работе'):'В работе'), color: '#FFB347', bg: 'rgba(255,179,71,0.15)' },
+                        'completed': { label: (window._t?window._t('Готово'):'Готово'), color: '#77DD77', bg: 'rgba(119,221,119,0.15)' },
+                        'blocked': { label: (window._t?window._t('Блок'):'Блок'), color: '#FF6B6B', bg: 'rgba(255,107,107,0.15)' }
                     };
                     const st = statusMap[task.status] || statusMap['pending'];
                     const phaseCol = getPhaseColorCSS(task.phase || 'General');
-                    _tooltip.querySelector('.tt-title').textContent = task.title || 'Задача';
-                    _tooltip.querySelector('.tt-phase').innerHTML = '<span style="color:' + phaseCol + '">●</span> ' + (task.phase || '');
+                    _tooltip.querySelector('.tt-title').textContent = (window._t ? window._t(task.title || 'Задача') : (task.title || 'Задача'));
+                    _tooltip.querySelector('.tt-phase').innerHTML = '<span style="color:' + phaseCol + '">●</span> ' + (window._t ? window._t(task.phase || '') : (task.phase || ''));
                     _tooltip.querySelector('.tt-status').textContent = st.label;
                     _tooltip.querySelector('.tt-status').style.color = st.color;
                     _tooltip.querySelector('.tt-status').style.background = st.bg;
@@ -7619,7 +7619,7 @@ console.log("[MODULE] script started loading");
                 if (typeof showDetailPanel === 'function') showDetailPanel(taskIdMap[firstPhase.id]);
             }
 
-            window.showToast('VZOR Tasks', 'Создано ' + Object.keys(taskIdMap).length + ' задач на графе', 'success', 4000);
+            window.showToast('VZOR Tasks', (window._vzorLang==='en'?'Created ':'Создано ') + Object.keys(taskIdMap).length + (window._vzorLang==='en'?' tasks on graph':' задач на графе'), 'success', 4000);
 
             // Build phase navigation
             if (window.buildPhaseNav) window.buildPhaseNav();
@@ -8144,7 +8144,7 @@ console.log("[MODULE] script started loading");
                 console.log('[DEBUG] Meshes: visible=' + _visCount + ' invisible=' + _invisCount + ' null=' + _nullMesh + ' isDrilled=' + window.isDrilled + ' projectId=' + window.currentProjectId);
                 const _vb2 = document.getElementById('version-badge');
                 if (_vb2) _vb2.textContent = 'v3.38 | ' + Object.keys(taskIdMap).length + ' tasks | ' + _bc2 + ' bonds';
-                window.showToast('VZOR Tasks', Object.keys(taskIdMap).length + ' задач загружено', 'info', 3000);
+                window.showToast('VZOR Tasks', Object.keys(taskIdMap).length + (window._vzorLang==='en'?' tasks loaded':' задач загружено'), 'info', 3000);
 
                 // Ensure all task meshes visible after reload
                 window.taskPoints.forEach(function(t) {
@@ -11101,18 +11101,18 @@ console.log("[MODULE] script started loading");
                 html += '<div class="block-section">';
                 html += '<div class="block-section-header" data-section="1">';
                 html += '<span class="block-section-chevron">▸</span>';
-                html += '<span>' + name + '</span>';
+                html += '<span>' + (window._t ? window._t(name) : name) + '</span>';
                 html += '<span class="block-section-count">' + children.length + '</span>';
                 html += '</div>';
                 html += '<div class="block-section-items">';
                 children.forEach(function(t) {
-                    html += '<div class="side-panel-item" data-tid="' + t.id + '">' + t.title + '</div>';
+                    html += '<div class="side-panel-item" data-tid="' + t.id + '">' + (window._t ? window._t(t.title) : t.title) + '</div>';
                 });
                 html += '</div></div>';
             });
 
             html += '<div style="padding:12px 5px;font-size:10px;color:rgba(255,255,255,0.2)">';
-            html += l2.length + ' задач';
+            html += l2.length + (window._vzorLang === 'en' ? ' tasks' : ' задач');
             html += '</div>';
 
             container.innerHTML = html;
@@ -11320,7 +11320,7 @@ console.log("[MODULE] script started loading");
             if (!content) return;
 
             if (!window.taskPoints || window.taskPoints.length === 0) {
-                content.innerHTML = '<div style="color: rgba(255,255,255,0.3); font-style: italic; font-size: 9px;">Нет задач</div>';
+                content.innerHTML = '<div style="color: rgba(255,255,255,0.3); font-style: italic; font-size: 9px;">' + (window._vzorLang==='en'?'No tasks':'Нет задач') + '</div>';
                 return;
             }
 
