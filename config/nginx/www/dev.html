@@ -3639,12 +3639,13 @@ body.splash-on { overflow: hidden !important; }
     width: min(98vw, 90vh); height: min(98vw, 90vh);
     object-fit: contain;
     opacity: 0;
-    animation: fr-in 2.4s cubic-bezier(0.22,1,0.36,1) 0.15s forwards;
+    animation: fr-in 2.5s cubic-bezier(0.16, 0.8, 0.3, 1) forwards;
     pointer-events: none;
+    will-change: transform, opacity, filter;
 }
 @keyframes fr-in {
-    from { opacity:0; transform:translate(-50%,-50%) scale(0.93); filter:brightness(0.08) blur(10px); }
-    to   { opacity:1; transform:translate(-50%,-50%) scale(1);    filter:brightness(1)    blur(0);    }
+    from { opacity:0; transform:translate(-50%,-50%) scale(1.06); filter:blur(6px); }
+    to   { opacity:1; transform:translate(-50%,-50%) scale(1);    filter:blur(0px);    }
 }
 
 /* ── Brand ── */
@@ -13395,56 +13396,69 @@ async function sendToAgentZero(message) {
         window.targetP = 0;
         window.smoothP = 0;
         var guard = setInterval(function(){ window.targetP = 0; }, 30);
-        setTimeout(function(){ clearInterval(guard); }, 6000);
+        setTimeout(function(){ clearInterval(guard); }, 8000);
 
         window.removeEventListener("wheel", blockWheel, true);
         window.scrollTo(0, 0);
-        document.body.classList.remove("splash-on");
 
         var img = sp.querySelector(".fr-img");
         var texts = sp.querySelectorAll(".sp-head, .sp-col, .sp-enter");
 
-        // IMMEDIATELY lock fractal visible (CSS base is opacity:0, animation fills to 1)
-        img.style.animation = "none";
+        // Lock fractal visible
         img.style.opacity = "1";
         img.style.filter = "brightness(1) blur(0px)";
         img.style.transform = "translate(-50%,-50%) scale(1)";
+        void img.offsetWidth;
+        img.style.animation = "none";
 
-        // PHASE 1 (0–1.5s): text fades first
-        for (var i = 0; i < texts.length; i++) {
-            texts[i].style.transition = "opacity 1.5s ease-out";
-            texts[i].style.opacity = "0";
-        }
+        // Kill text animations
+        for (var i = 0; i < texts.length; i++) texts[i].style.opacity = "1";
+        void sp.offsetWidth;
+        for (var i = 0; i < texts.length; i++) texts[i].style.animation = "none";
+        void sp.offsetWidth;
 
-        // PHASE 2 (2s–4.5s): fractal dissolve AFTER text is gone
-        setTimeout(function(){
-            var start = null;
-            var dur = 2500;
+        // Single unified timeline — no gap
+        var start = null;
+        var totalDur = 4000;
 
-            function frame(ts) {
-                if (!start) start = ts;
-                var elapsed = ts - start;
-                var p = Math.min(elapsed / dur, 1);
-                var ease = 1 - Math.pow(1 - p, 3);
+        function frame(ts) {
+            if (!start) start = ts;
+            var p = Math.min((ts - start) / totalDur, 1);
 
-                sp.style.background = "rgba(0,0,0," + (1 - ease).toFixed(3) + ")";
-
-                var frP = Math.max(0, (p - 0.1) / 0.9);
-                var frEase = 1 - Math.pow(1 - frP, 2.5);
-
-                img.style.opacity = Math.max(0, 1 - frEase * 1.3).toFixed(3);
-                img.style.filter = "blur(" + (frEase * 30).toFixed(1) + "px) brightness(" + (1 + frEase * 1.5).toFixed(2) + ")";
-                img.style.transform = "translate(-50%,-50%) scale(" + (1 + frEase * 0.4).toFixed(3) + ")";
-
-                if (p < 1) {
-                    requestAnimationFrame(frame);
-                } else {
-                    sp.remove();
-                    evts.forEach(function(ev){ window.removeEventListener(ev, blockMouse, true); });
-                }
+            // TEXT: fades 0%–40% of timeline (0–2s), gentle ease-out
+            var textP = Math.min(p / 0.4, 1);
+            var textEase = 1 - Math.pow(1 - textP, 2);
+            for (var i = 0; i < texts.length; i++) {
+                texts[i].style.opacity = (1 - textEase).toFixed(3);
             }
-            requestAnimationFrame(frame);
-        }, 2000);
+
+            // FRACTAL: starts at 30% (1.5s), overlaps with text tail
+            if (p > 0.3) {
+                var frP = (p - 0.3) / 0.7;
+                var frEase = frP < 0.5
+                    ? 2 * frP * frP
+                    : 1 - Math.pow(-2 * frP + 2, 2) / 2;
+
+                img.style.opacity = Math.max(0, 1 - frEase * 1.15).toFixed(3);
+                img.style.filter = "blur(" + (frEase * 12).toFixed(1) + "px) brightness(" + (1 + frEase * 0.8).toFixed(2) + ")";
+                img.style.transform = "translate(-50%,-50%) scale(" + (1 + frEase * 0.15).toFixed(3) + ")";
+            }
+
+            // BACKGROUND: starts fading at 50% so cloud appears in second half
+            if (p > 0.5) {
+                var bgP = (p - 0.5) / 0.5;
+                sp.style.background = "rgba(0,0,0," + (1 - bgP * bgP).toFixed(3) + ")";
+            }
+
+            if (p < 1) {
+                requestAnimationFrame(frame);
+            } else {
+                document.body.classList.remove("splash-on");
+                sp.remove();
+                evts.forEach(function(ev){ window.removeEventListener(ev, blockMouse, true); });
+            }
+        }
+        requestAnimationFrame(frame);
     }
 })();
 </script>
