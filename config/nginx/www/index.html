@@ -3739,10 +3739,13 @@
             z-index: 100002;
         }
         #lang-toggle #back-to-splash {
-            display: none;
+            display: none !important;
             color: rgba(255,255,255,0.35);
             font-size: 14px;
             margin-right: 4px;
+        }
+        #lang-toggle #back-to-splash.visible {
+            display: inline !important;
         }
         #lang-toggle #back-to-splash:hover {
             color: rgba(255,255,255,0.70);
@@ -3828,7 +3831,7 @@
     
 
     <div id="lang-toggle">
-        <span id="back-to-splash" title="Back to splash" style="display:none; cursor:pointer;">←</span>
+        <span id="back-to-splash" title="Back to splash" style="cursor:pointer;">←</span>
         <span data-lang="ru" class="active">RU</span>
         <span data-lang="en">EN</span>
     </div>
@@ -13899,7 +13902,7 @@ async function sendToAgentZero(message) {
                     evts.forEach(function(ev){ window.removeEventListener(ev, blockMouse, true); });
                     // Show back button with fade
                     var bb = document.getElementById("back-to-splash");
-                    if (bb) setTimeout(function(){ bb.style.display = "inline"; }, 400);
+                    if (bb) setTimeout(function(){ bb.classList.add("visible"); }, 400);
                     // Auth hook
                     if (!window._vzorAuth) {
                         setTimeout(function(){
@@ -13927,7 +13930,7 @@ async function sendToAgentZero(message) {
             if (!sp) { location.reload(); return; }
 
             // Hide back button
-            bb.style.display = "none";
+            bb.classList.remove("visible");
 
             // Quick fade overlay
             var ov = document.createElement("div");
