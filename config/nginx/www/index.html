@@ -3733,10 +3733,10 @@
 
 
         #lang-toggle {
-            position: absolute; top: 3.5vh; right: 4vw;
+            position: fixed; top: 16px; right: 24px;
             display: flex; gap: 12px;
             opacity: 0; animation: sp-fade 1s ease 1.2s forwards;
-            z-index: 2;
+            z-index: 100002;
         }
         #lang-toggle span {
             font-family: 'Outfit', sans-serif;
@@ -3786,6 +3786,7 @@
             letter-spacing: 0.20em;
         }
         body.splash-on #back-to-splash { display: none; }
+        body.splash-on #lang-toggle { opacity: 0; animation: sp-fade 1s ease 1.2s forwards; }
 
         @media (max-width: 900px) {
             #splash .fr-img { width: 80vw; height: 80vw; top: 40%; }
@@ -3822,11 +3823,6 @@
             <div class="sp-tag">capital data system</div>
         </div>
 
-        <div id="lang-toggle">
-            <span data-lang="ru" class="active">RU</span>
-            <span data-lang="en">EN</span>
-        </div>
-
         <div class="sp-col sp-col-1">
             <div class="sp-dt">Девелопмент</div>
             <div class="sp-dd">Рентабельность проекта растёт с качеством решений.</div>
@@ -3849,6 +3845,11 @@
     </div>
 
     
+
+    <div id="lang-toggle">
+        <span data-lang="ru" class="active">RU</span>
+        <span data-lang="en">EN</span>
+    </div>
 
     <button id="back-to-splash">← Назад</button>
 
@@ -13537,6 +13538,27 @@ async function sendToAgentZero(message) {
 
     if (window._vzorLang !== 'ru') {
         window.setVzorLang(window._vzorLang);
+    }
+
+    // Hide back-to-splash when home-btn is visible (avoid double back buttons)
+    var _homeBtnObs = document.getElementById('home-btn');
+    var _backSplash = document.getElementById('back-to-splash');
+    if (_homeBtnObs && _backSplash) {
+        new MutationObserver(function() {
+            if (_homeBtnObs.classList.contains('visible')) {
+                _backSplash.classList.remove('show');
+                _backSplash.style.display = 'none';
+            } else if (!document.body.classList.contains('splash-on')) {
+                _backSplash.style.display = '';
+                setTimeout(function(){ _backSplash.classList.add('show'); }, 50);
+            }
+        }).observe(_homeBtnObs, { attributes: true, attributeFilter: ['class'] });
+    }
+
+    // Keep lang-toggle visible after splash (remove animation, set opacity)
+    var _lt = document.getElementById('lang-toggle');
+    if (_lt) {
+        setTimeout(function(){ _lt.style.opacity = '1'; _lt.style.animation = 'none'; }, 3000);
     }
     </script>
 
