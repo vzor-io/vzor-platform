@@ -13308,7 +13308,7 @@ async function sendToAgentZero(message) {
     }
 
     function showAuthModal() {
-        if (document.getElementById("splash")) return;
+        var _sp = document.getElementById("splash"); if (_sp && _sp.style.display !== "none") return;
         var el = document.getElementById("auth-popup");
         if (el) el.classList.add("visible");
         var inp = document.getElementById("auth-code-input");
@@ -13501,12 +13501,12 @@ async function sendToAgentZero(message) {
                     requestAnimationFrame(frame);
                 } else {
                     document.body.classList.remove("splash-on");
-                    sp.remove();
+                    sp.style.display = "none";
                     evts.forEach(function(ev){ window.removeEventListener(ev, blockMouse, true); });
                     // Show back button with fade
                     var bb = document.getElementById("back-to-splash");
                     if (bb) setTimeout(function(){ bb.classList.add("show"); }, 400);
-                    // Auth hook — delayed to ensure DOM settled
+                    // Auth hook
                     if (!window._vzorAuth) {
                         setTimeout(function(){
                             if (typeof showAuthModal === "function") showAuthModal();
@@ -13527,26 +13527,52 @@ async function sendToAgentZero(message) {
         bb.addEventListener("click", function(e){
             e.stopImmediatePropagation();
             e.preventDefault();
-            // Hide button
-            bb.style.opacity = "0";
-            bb.style.pointerEvents = "none";
-            // Overlay fade-to-black
+
+            var sp = document.getElementById("splash");
+            if (!sp) { location.reload(); return; }
+
+            // Hide back button
+            bb.classList.remove("show");
+
+            // Quick fade overlay
             var ov = document.createElement("div");
-            ov.style.cssText = "position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,0);transition:background 0.4s ease;";
+            ov.style.cssText = "position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,0);transition:background 0.35s ease;";
             document.body.appendChild(ov);
             requestAnimationFrame(function(){
                 requestAnimationFrame(function(){
                     ov.style.background = "rgba(0,0,0,1)";
                 });
             });
-            // Reset scene
-            window.targetP = 0;
-            window.smoothP = 0;
-            // Reload after fade
+
             setTimeout(function(){
+                // Reset scene
+                window.targetP = 0;
+                window.smoothP = 0;
                 window.scrollTo(0, 0);
-                location.reload();
-            }, 450);
+
+                // Restore splash
+                document.body.classList.add("splash-on");
+                sp.style.display = "";
+                sp.style.background = "#000";
+
+                var img = sp.querySelector(".fr-img");
+                var texts = sp.querySelectorAll(".sp-head, .sp-col, .sp-enter");
+
+                // Fractal visible
+                img.style.opacity = "1";
+                img.style.filter = "brightness(1) blur(0px)";
+                img.style.transform = "translate(-50%,-50%) scale(1)";
+                img.style.animation = "";
+
+                // Texts visible
+                for (var i = 0; i < texts.length; i++) {
+                    texts[i].style.opacity = "1";
+                    texts[i].style.animation = "";
+                }
+
+                // Remove overlay
+                ov.remove();
+            }, 380);
         });
     })();
     </script>
