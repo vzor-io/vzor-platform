@@ -3731,6 +3731,28 @@
             letter-spacing: 0.28em;
         }
 
+
+        #lang-toggle {
+            position: absolute; top: 3.5vh; right: 4vw;
+            display: flex; gap: 12px;
+            opacity: 0; animation: sp-fade 1s ease 1.2s forwards;
+            z-index: 2;
+        }
+        #lang-toggle span {
+            font-family: 'Outfit', sans-serif;
+            font-size: 11px; font-weight: 300;
+            letter-spacing: 0.12em;
+            color: rgba(255,255,255,0.30);
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        #lang-toggle span.active {
+            color: rgba(255,255,255,0.70);
+        }
+        #lang-toggle span:hover {
+            color: rgba(255,255,255,0.55);
+        }
+
         @keyframes sp-fade { from { opacity: 0; } to { opacity: 1; } }
 
 
@@ -3798,6 +3820,11 @@
         <div class="sp-head">
             <h1>VZOR</h1>
             <div class="sp-tag">capital data system</div>
+        </div>
+
+        <div id="lang-toggle">
+            <span data-lang="ru" class="active">RU</span>
+            <span data-lang="en">EN</span>
         </div>
 
         <div class="sp-col sp-col-1">
@@ -4802,10 +4829,13 @@ console.log("[MODULE] script started loading");
             canvas.width = 512; canvas.height = 128;
             ctx.font = '300 48px -apple-system, sans-serif';
             ctx.fillStyle = 'white'; ctx.textAlign = 'center'; ctx.letterSpacing = '5px';
-            ctx.fillText(text.toUpperCase(), 256, 75);
+            var displayText = window._translateCat ? window._translateCat(text) : text.toUpperCase();
+            ctx.fillText(displayText, 256, 75);
             const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(canvas), transparent: true, opacity: 0 }));
             sprite.position.copy(pos).multiplyScalar(1.2);
             sprite.scale.set(130 * scaleFactor, 32 * scaleFactor, 1);
+            if (!window._vzorLabelSprites) window._vzorLabelSprites = [];
+            window._vzorLabelSprites.push({name: text, sprite: sprite, canvas: canvas, ctx: ctx});
             return sprite;
         }
         const labels = coreData.map(c => createLabel(c.name, c.pos, c.scale));
@@ -4922,7 +4952,7 @@ console.log("[MODULE] script started loading");
             // 6. Show Block Label (v3.12.9)
             const blockLabel = document.getElementById('block-label');
             if (blockLabel) {
-                blockLabel.textContent = categoryName.toUpperCase();
+                blockLabel.textContent = window._translateCat ? window._translateCat(categoryName) : categoryName.toUpperCase();
                 blockLabel.classList.add('visible');
             }
 
@@ -6163,7 +6193,7 @@ console.log("[MODULE] script started loading");
                 // v3.12.9: Show block label with current category
                 const blockLabel = document.getElementById('block-label');
                 if (blockLabel && currentCategory) {
-                    blockLabel.textContent = currentCategory.toUpperCase();
+                    blockLabel.textContent = window._translateCat ? window._translateCat(currentCategory) : currentCategory.toUpperCase();
                     blockLabel.classList.add('visible');
                 }
 
