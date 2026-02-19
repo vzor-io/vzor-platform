@@ -13532,6 +13532,8 @@ async function sendToAgentZero(message) {
     };
 
     document.getElementById('lang-toggle').addEventListener('click', function(e) {
+        e.stopImmediatePropagation();
+        e.stopPropagation();
         var span = e.target.closest('span[data-lang]');
         if (span) window.setVzorLang(span.getAttribute('data-lang'));
     });
@@ -13595,6 +13597,7 @@ async function sendToAgentZero(message) {
 
         function blockMouse(e) {
             if (sp.contains(e.target)) return;
+            if (e.target.closest && e.target.closest('#lang-toggle')) return;
             e.stopImmediatePropagation();
         }
         var evts = ["click","mousedown","mouseup","pointerdown","pointerup"];
