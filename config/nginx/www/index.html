@@ -13550,7 +13550,7 @@ async function sendToAgentZero(message) {
                 window.smoothP = 0;
                 window.scrollTo(0, 0);
 
-                // Restore splash
+                // Restore splash — everything hidden first
                 document.body.classList.add("splash-on");
                 sp.style.display = "";
                 sp.style.background = "#000";
@@ -13558,20 +13558,43 @@ async function sendToAgentZero(message) {
                 var img = sp.querySelector(".fr-img");
                 var texts = sp.querySelectorAll(".sp-head, .sp-col, .sp-enter");
 
-                // Fractal visible
-                img.style.opacity = "1";
-                img.style.filter = "brightness(1) blur(0px)";
-                img.style.transform = "translate(-50%,-50%) scale(1)";
-                img.style.animation = "";
-
-                // Texts visible
+                // Start hidden
+                img.style.opacity = "0";
+                img.style.filter = "blur(12px) brightness(1.8)";
+                img.style.transform = "translate(-50%,-50%) scale(1.15)";
                 for (var i = 0; i < texts.length; i++) {
-                    texts[i].style.opacity = "1";
-                    texts[i].style.animation = "";
+                    texts[i].style.opacity = "0";
+                    texts[i].style.animation = "none";
                 }
 
-                // Remove overlay
+                // Remove overlay (seamless — both are black)
                 ov.remove();
+
+                // Animate fractal in (2s, same curves as entrance)
+                var eStart = null;
+                var eDur = 2000;
+                function eFrame(ts) {
+                    if (!eStart) eStart = ts;
+                    var p = Math.min((ts - eStart) / eDur, 1);
+                    var ease = p < 0.5 ? 2*p*p : 1 - Math.pow(-2*p+2, 2)/2;
+                    var sharp = 1 - Math.pow(1 - p, 3);
+                    img.style.opacity = Math.min(1, ease * 1.15).toFixed(3);
+                    img.style.filter = "blur(" + ((1-sharp)*12).toFixed(1) + "px) brightness(" + (1+(1-sharp)*0.8).toFixed(2) + ")";
+                    img.style.transform = "translate(-50%,-50%) scale(" + (1+(1-ease)*0.15).toFixed(3) + ")";
+                    if (p < 1) requestAnimationFrame(eFrame);
+                }
+                requestAnimationFrame(eFrame);
+
+                // Staggered text fade-in
+                var delays = [600, 900, 1200, 1500];
+                for (var i = 0; i < texts.length; i++) {
+                    (function(el, d){
+                        setTimeout(function(){
+                            el.style.transition = "opacity 0.8s ease";
+                            el.style.opacity = "1";
+                        }, d);
+                    })(texts[i], delays[i] || 1500);
+                }
             }, 380);
         });
     })();
