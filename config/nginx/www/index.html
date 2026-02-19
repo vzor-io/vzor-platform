@@ -13532,7 +13532,7 @@ async function sendToAgentZero(message) {
             bb.style.pointerEvents = "none";
             // Overlay fade-to-black
             var ov = document.createElement("div");
-            ov.style.cssText = "position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,0);transition:background 0.8s ease;";
+            ov.style.cssText = "position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,0);transition:background 0.4s ease;";
             document.body.appendChild(ov);
             requestAnimationFrame(function(){
                 requestAnimationFrame(function(){
@@ -13546,7 +13546,7 @@ async function sendToAgentZero(message) {
             setTimeout(function(){
                 window.scrollTo(0, 0);
                 location.reload();
-            }, 850);
+            }, 450);
         });
     })();
     </script>
