@@ -13899,7 +13899,7 @@ async function sendToAgentZero(message) {
                     evts.forEach(function(ev){ window.removeEventListener(ev, blockMouse, true); });
                     // Show back button with fade
                     var bb = document.getElementById("back-to-splash");
-                    if (bb) setTimeout(function(){ bb.style.display = ""; }, 400);
+                    if (bb) setTimeout(function(){ bb.style.display = "inline"; }, 400);
                     // Auth hook
                     if (!window._vzorAuth) {
                         setTimeout(function(){
