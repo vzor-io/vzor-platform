@@ -298,6 +298,43 @@
             }
         }
 
+        /* v3.38: System Metrics */
+        #sys-metrics {
+            display: flex;
+            align-items: baseline;
+            justify-content: center;
+            gap: 1.5em;
+            margin-top: 2.5rem;
+            opacity: 0;
+            transition: opacity 1.2s ease;
+        }
+        #sys-metrics.visible { opacity: 1; }
+        .sys-metric {
+            display: flex;
+            align-items: baseline;
+            gap: 0.35em;
+        }
+        .sys-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6em;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.55);
+            letter-spacing: 0.02em;
+        }
+        .sys-label {
+            font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+            font-size: 0.7em;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .sys-sep {
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 0.9em;
+            margin: 0 0.2em;
+        }
+
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -3659,7 +3696,7 @@
             font-size: clamp(22px, 3.2vw, 42px);
             font-weight: 400; letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: rgba(200,210,220,0.88); margin: 0;
+            color: rgba(255,255,255,0.85); margin: 0;
         }
         .sp-head .sp-tag {
             font-size: clamp(10px, 1vw, 14px);
@@ -3717,7 +3754,7 @@
             font-size: clamp(14px, 1.2vw, 18px);
             font-weight: 400; letter-spacing: 0.18em;
             text-transform: uppercase;
-            color: rgba(200,210,220,0.82);
+            color: rgba(255,255,255,0.80);
             background: none;
             border: none;
             padding: 0; cursor: pointer;
@@ -4131,6 +4168,23 @@
     <div class="center-text" id="centerText">
         <h1>VZOR</h1>
         <p>capital data system</p>
+        <!-- v3.38: System metrics -->
+        <div id="sys-metrics">
+            <div class="sys-metric">
+                <span class="sys-num" data-target="67">0</span>
+                <span class="sys-label" data-ru="агентов" data-en="agents">agents</span>
+            </div>
+            <div class="sys-sep">·</div>
+            <div class="sys-metric">
+                <span class="sys-num" data-target="98">0</span>
+                <span class="sys-label" data-ru="моделей" data-en="models">models</span>
+            </div>
+            <div class="sys-sep">·</div>
+            <div class="sys-metric">
+                <span class="sys-num" data-target="4">0</span>
+                <span class="sys-label" data-ru="AI-движка" data-en="AI engines">AI engines</span>
+            </div>
+        </div>
         <div class="mobile-hint" style="display:none;">TAP TO ENTER</div>
     </div>
 
@@ -5429,6 +5483,15 @@ console.log("[MODULE] script started loading");
             // Hide Nodes Button & Close Node Editor
             if (window.hideNodesToggle) window.hideNodesToggle();
 
+            // v3.38: Hide Graph toggle button & reset graph state on back
+            window.graphVisible = false;
+            var graphBtn = document.getElementById('graph-toggle-btn');
+            if (graphBtn) {
+                graphBtn.classList.remove('visible');
+                graphBtn.classList.remove('active');
+                graphBtn.style.cssText = '';
+            }
+
             // v3.11: Hide task list button
             if (window.hideTaskListBtn) window.hideTaskListBtn();
 
@@ -6310,10 +6373,18 @@ console.log("[MODULE] script started loading");
                 // FORCE RESET: Ensure no drill-down UI leaks into Slide 1
                 document.getElementById('detail-panel').classList.remove('active');
                 document.getElementById('back-button').classList.remove('visible');
+                // v3.38: Hide graph toggle on Slide 1
+                var graphBtn1 = document.getElementById('graph-toggle-btn');
+                if (graphBtn1) { graphBtn1.classList.remove('visible'); graphBtn1.classList.remove('active'); graphBtn1.style.cssText = ''; }
+                window.graphVisible = false;
+                // v3.38: Show metrics on Slide 1
+                if (window._metricsShow) window._metricsShow();
             }
             else {
                 // Slide 2: Top Title ("VZOR Operating System...") + Labels
                 ct.style.opacity = 0; si.style.opacity = 1;
+                // v3.38: Hide metrics on Slide 2
+                if (window._metricsHide) window._metricsHide();
 
                 const st = document.getElementById('slideTitle');
                 const sd = document.getElementById('slideDesc');
@@ -6323,6 +6394,7 @@ console.log("[MODULE] script started loading");
                     st.style.display = ''; // Ensure title is visible (restore from drill-down)
                     sd.style.display = ''; // Ensure description is visible
                     document.getElementById('home-btn').classList.add('visible');
+                    // v3.38: Hide boot sequence on Slide 2
 
                     // Ensure ALL drill-down elements are hidden on Slide 2 Overview
                     document.getElementById('detail-panel').classList.remove('active');
@@ -6339,11 +6411,18 @@ console.log("[MODULE] script started loading");
 
                     // Hide nodes toggle button - RESET INLINE STYLES TOO (v3.20 fix)
                     const nodesBtn = document.getElementById('nodes-toggle-btn');
-                var graphBtn = document.getElementById('graph-toggle-btn');
+                    var graphBtn = document.getElementById('graph-toggle-btn');
                     if (nodesBtn) {
                         nodesBtn.classList.remove('visible');
                         nodesBtn.style.cssText = '';  // Clear inline styles that override CSS
                     }
+                    // v3.38: Hide graph toggle button on overview
+                    if (graphBtn) {
+                        graphBtn.classList.remove('visible');
+                        graphBtn.classList.remove('active');
+                        graphBtn.style.cssText = '';
+                    }
+                    window.graphVisible = false;
 
                     // Close node editor
                     const nodePanel = document.getElementById('node-editor-panel');
@@ -6365,6 +6444,7 @@ console.log("[MODULE] script started loading");
                 } else {
                     document.getElementById('home-btn').classList.remove('visible');
                     // Drill-down UI is handled by showDetail/onClick
+                    // v3.38: Hide ticker during drill-down
                 }
 
                 // ALWAYS SHOW ADD BUTTON ON SLIDE 2 (Overview OR Drilled)
@@ -13398,6 +13478,12 @@ async function sendToAgentZero(message) {
             if (d.authenticated) {
                 window._vzorAuth = true;
                 hideAuthModal();
+            } else {
+                // Server says not authenticated — revoke access
+                if (window._vzorAuth) {
+                    window._vzorAuth = false;
+                    showAuthModal();
+                }
             }
         } catch(e) { console.warn("Auth check failed:", e); }
     }
@@ -13485,15 +13571,16 @@ async function sendToAgentZero(message) {
             if (e.target === popup) hideAuthModal();
         });
 
-        // Check for QR redirect param
+        // Clean QR redirect param from URL (backend already set cookie)
         if (window.location.search.includes("authenticated=1")) {
-            window._vzorAuth = true;
-            // Clean URL
             history.replaceState({}, "", window.location.pathname);
         }
 
-        // Check auth on load
+        // Check auth on load (validates cookie with server)
         checkAuth();
+
+        // Re-check auth every 60 seconds — kick out expired/stopped guests
+        setInterval(checkAuth, 60000);
     });
     </script>
 
@@ -14023,15 +14110,14 @@ async function sendToAgentZero(message) {
                 btn.style.padding = "0 0.2em";
                 setTimeout(function(){ authInput.focus(); }, 400);
             } else {
-                // DEV MODE: bypass auth, always enter
-                window._vzorAuth = true;
-                go();
+                // Submit auth code via API
+                submitSplashAuth();
             }
         });
 
         if (authInput) {
             authInput.addEventListener("keydown", function(e){
-                if (e.key === "Enter") { e.preventDefault(); window._vzorAuth = true; go(); }
+                if (e.key === "Enter") { e.preventDefault(); submitSplashAuth(); }
             });
         }
 
@@ -14058,9 +14144,7 @@ async function sendToAgentZero(message) {
                     setTimeout(function(){ authInput.style.borderColor = ""; }, 1500);
                 }
             }).catch(function(){
-                // API unavailable — allow entry anyway (dev mode)
-                window._vzorAuth = true;
-                go();
+                if (authError) authError.textContent = "нет связи с сервером";
             });
         }
 
@@ -14090,32 +14174,33 @@ async function sendToAgentZero(message) {
             void sp.offsetWidth;
 
             var start = null;
-            var totalDur = 4000;
+            var totalDur = 5000;
 
             function frame(ts) {
                 if (!start) start = ts;
                 var p = Math.min((ts - start) / totalDur, 1);
 
-                var textP = Math.min(p / 0.4, 1);
-                var textEase = 1 - Math.pow(1 - textP, 2);
+                // Text fades out in first 35%
+                var textP = Math.min(p / 0.35, 1);
+                var textEase = textP * textP; // ease-in
                 for (var i = 0; i < texts.length; i++) {
                     texts[i].style.opacity = (1 - textEase).toFixed(3);
                 }
 
-                if (p > 0.3) {
-                    var frP = (p - 0.3) / 0.7;
+                // Fractal and background dissolve together from 25% to 90%
+                if (p > 0.25) {
+                    var frP = Math.min((p - 0.25) / 0.65, 1);
+                    // Smooth ease-in-out
                     var frEase = frP < 0.5
                         ? 2 * frP * frP
                         : 1 - Math.pow(-2 * frP + 2, 2) / 2;
 
-                    img.style.opacity = Math.max(0, 1 - frEase * 1.15).toFixed(3);
-                    img.style.filter = "blur(" + (frEase * 12).toFixed(1) + "px) brightness(" + (1 + frEase * 0.8).toFixed(2) + ")";
-                    img.style.transform = "translate(-50%,-50%) scale(" + (1 + frEase * 0.15).toFixed(3) + ")";
-                }
+                    img.style.opacity = Math.max(0, 1 - frEase).toFixed(3);
+                    img.style.filter = "blur(" + (frEase * 10).toFixed(1) + "px) brightness(" + (1 + frEase * 0.5).toFixed(2) + ")";
+                    img.style.transform = "translate(-50%,-50%) scale(" + (1 + frEase * 0.12).toFixed(3) + ")";
 
-                if (p > 0.5) {
-                    var bgP = (p - 0.5) / 0.5;
-                    sp.style.background = "rgba(0,0,0," + (1 - bgP * bgP).toFixed(3) + ")";
+                    // Background dissolves in sync with fractal
+                    sp.style.background = "rgba(0,0,0," + (1 - frEase).toFixed(3) + ")";
                 }
 
                 if (p < 1) {
@@ -14223,6 +14308,72 @@ async function sendToAgentZero(message) {
                     })(texts[i], delays[i] || 1500);
                 }
             }, 380);
+        });
+    })();
+    </script>
+
+    <!-- v3.38: System Metrics count-up + i18n -->
+    <script>
+    (function() {
+        var metricsEl = document.getElementById('sys-metrics');
+        if (!metricsEl) return;
+        var nums = metricsEl.querySelectorAll('.sys-num');
+        var labels = metricsEl.querySelectorAll('.sys-label');
+        var counted = false;
+
+        // Count-up animation
+        function countUp() {
+            if (counted) return;
+            counted = true;
+            // First make visible, then start counting after fade-in
+            metricsEl.classList.add('visible');
+            setTimeout(function() {
+                nums.forEach(function(el) {
+                    var target = parseInt(el.getAttribute('data-target'));
+                    var duration = 2000;
+                    var startTime = null;
+                    function tick(now) {
+                        if (!startTime) startTime = now;
+                        var p = Math.min((now - startTime) / duration, 1);
+                        var ease = 1 - Math.pow(1 - p, 3);
+                        el.textContent = Math.round(ease * target);
+                        if (p < 1) requestAnimationFrame(tick);
+                    }
+                    requestAnimationFrame(tick);
+                });
+            }, 800);
+        }
+
+        // Show on Slide 1
+        var showTriggered = false;
+        window._metricsShow = function() {
+            if (showTriggered) return;
+            // Don't start while splash is still covering the screen
+            if (document.body.classList.contains('splash-on')) return;
+            showTriggered = true;
+            setTimeout(countUp, 600);
+        };
+        window._metricsHide = function() {
+            metricsEl.classList.remove('visible');
+            // Reset so it counts again next time
+            showTriggered = false;
+            counted = false;
+            nums.forEach(function(el) { el.textContent = '0'; });
+        };
+
+        // i18n: update labels on language switch
+        var origSetLang = window.setVzorLang;
+        window.setVzorLang = function(lang) {
+            origSetLang(lang);
+            labels.forEach(function(el) {
+                el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-en');
+            });
+        };
+
+        // Initial language
+        var lang = window._vzorLang || 'ru';
+        labels.forEach(function(el) {
+            el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-en');
         });
     })();
     </script>
