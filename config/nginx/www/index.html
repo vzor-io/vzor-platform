@@ -3869,21 +3869,25 @@
         body:has(.nav-btn.visible) #back-to-splash { display: none !important; }
 
         @media (max-width: 900px) {
-            #splash .fr-img { width: 80vw; height: 80vw; top: 40%; }
+            #splash .fr-img { width: 75vw; height: 75vw; top: 30%; }
             .sp-head { top: 2vh; left: 5vw; }
             .sp-col { max-width: 44vw; left: 5vw; }
-            .sp-col-1 { top: auto; bottom: 36vh; }
-            .sp-col-2 { top: auto; bottom: 24vh; }
-            .sp-col-3 { top: auto; bottom: 12vh; }
+            .sp-col-1 { top: auto; bottom: 28vh; }
+            .sp-col-2 { top: auto; bottom: 18vh; }
+            .sp-col-3 { top: auto; bottom: 8vh; }
             .sp-enter { bottom: 3vh; right: 5vw; }
         }
         @media (max-width: 560px) {
-            #splash .fr-img { width: 95vw; height: 95vw; top: 22vh; }
+            /* Fractal upper half, labels below compact */
+            #splash .fr-img { width: 105vw; height: 105vw; top: 28%; }
+            .sp-head { top: 2vh; left: 5vw; }
             .sp-col { max-width: 90vw; left: 5vw; }
-            .sp-col-1 { bottom: 34vh; }
-            .sp-col-2 { bottom: 22vh; }
-            .sp-col-3 { bottom: 10vh; }
-            .sp-enter { bottom: 2vh; left: 5vw; right: 5vw; text-align: center; }
+            .sp-col-1 { top: auto; bottom: 33vh; }
+            .sp-col-2 { top: auto; bottom: 26vh; }
+            .sp-col-3 { top: auto; bottom: 19vh; }
+            .sp-dt { font-size: clamp(11px, 3.5vw, 15px); margin-bottom: 0.15em; }
+            .sp-dd { font-size: clamp(10px, 2.8vw, 13px); line-height: 1.4; }
+            .sp-enter { bottom: 2.5vh; left: 5vw; right: 5vw; text-align: center; }
             .sp-enter button { width: auto; }
         }
 
@@ -13571,12 +13575,12 @@ async function sendToAgentZero(message) {
             if (e.target === popup) hideAuthModal();
         });
 
-        // Clean QR redirect param from URL (backend already set cookie)
+        // Clean QR redirect param (already handled by splash controller)
         if (window.location.search.includes("authenticated=1")) {
             history.replaceState({}, "", window.location.pathname);
         }
 
-        // Check auth on load (validates cookie with server)
+        // Check auth on load (validates cookie with server, revokes if invalid)
         checkAuth();
 
         // Re-check auth every 60 seconds — kick out expired/stopped guests
@@ -13966,6 +13970,12 @@ async function sendToAgentZero(message) {
         var sp = document.getElementById("splash");
         var btn = document.getElementById("splash-btn");
 
+        // QR entry: backend already set cookie — show fractal but skip code input
+        if (window.location.search.includes("authenticated=1")) {
+            window._vzorAuth = true;
+            history.replaceState({}, "", window.location.pathname);
+        }
+
         var img = sp.querySelector(".fr-img");
         function entranceAnim() {
             var eStart = null;
@@ -14005,6 +14015,17 @@ async function sendToAgentZero(message) {
         }, {passive:true});
 
         sp.addEventListener("mouseleave", function(){
+            tmx = 0.5; tmy = 0.5;
+        }, {passive:true});
+
+        // Touch support for mobile
+        sp.addEventListener("touchmove", function(e){
+            var t = e.touches[0];
+            tmx = t.clientX / window.innerWidth;
+            tmy = t.clientY / window.innerHeight;
+        }, {passive:true});
+
+        sp.addEventListener("touchend", function(){
             tmx = 0.5; tmy = 0.5;
         }, {passive:true});
 
@@ -14101,6 +14122,11 @@ async function sendToAgentZero(message) {
 
         btn.addEventListener("click", function(e){
             e.stopPropagation();
+            // Already authenticated (QR entry) — go straight in
+            if (window._vzorAuth) {
+                go();
+                return;
+            }
             if (!window._splashAuthOpen) {
                 // First click: reveal code input, morph button
                 window._splashAuthOpen = true;
