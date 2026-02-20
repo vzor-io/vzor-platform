@@ -337,7 +337,7 @@
 
         /* Auth — floating mini-card */
         #auth-popup {
-            display: flex;
+            display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: 100000;
@@ -346,15 +346,9 @@
             background: rgba(0,0,0,0.5);
             backdrop-filter: blur(0.375rem);
             -webkit-backdrop-filter: blur(0.375rem);
-            opacity: 0;
-            visibility: hidden;
-            pointer-events: none;
-            transition: opacity 0.5s ease, visibility 0.5s;
         }
         #auth-popup.visible {
-            opacity: 1;
-            visibility: visible;
-            pointer-events: auto;
+            display: flex;
         }
         #auth-card {
             background: rgba(12,12,18,0.85);
@@ -365,11 +359,6 @@
             padding: 2rem 1.75rem 1.5rem;
             text-align: center;
             min-width: 17.5rem;
-            transform: translateY(10px) scale(0.97);
-            transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
-        }
-        #auth-popup.visible #auth-card {
-            transform: translateY(0) scale(1);
         }
         #auth-card .auth-title {
             font-size: 0.6875rem;
@@ -3642,6 +3631,9 @@
             font-family: 'Outfit', sans-serif;
         }
 
+        #splash {
+            perspective: 1200px;
+        }
         #splash .fr-img {
             position: absolute;
             top: 50%; left: 50%;
@@ -3651,6 +3643,7 @@
             opacity: 0;
             pointer-events: none;
             will-change: transform, opacity, filter;
+            transform-style: preserve-3d;
         }
         @keyframes fr-in {
             from { opacity:0; transform:translate(-50%,-50%) scale(1.04); }
@@ -3691,6 +3684,10 @@
             font-weight: 400; letter-spacing: 0.18em;
             text-transform: uppercase;
             color: rgba(255,255,255,0.80); margin-bottom: 0.4em;
+            transition: text-shadow 0.4s ease-out, letter-spacing 0.5s ease-out, color 0.4s ease-out;
+        }
+        .sp-col {
+            transition: transform 0.15s ease-out;
         }
         .sp-dd {
             font-size: clamp(11px, 0.95vw, 15px);
@@ -3731,6 +3728,58 @@
             letter-spacing: 0.28em;
         }
 
+        /* Inline auth on splash */
+        .sp-auth-row {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            overflow: hidden;
+            max-width: 0;
+            opacity: 0;
+            transition: max-width 0.7s cubic-bezier(0.22,1,0.36,1), opacity 0.5s ease 0.15s;
+        }
+        .sp-auth-row.visible {
+            max-width: 22rem;
+            opacity: 1;
+        }
+        .sp-auth-input {
+            width: 12rem;
+            padding: 0.55rem 0.75rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-align: center;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 0.4rem;
+            color: #fff;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .sp-auth-input:focus,
+        .sp-auth-input:focus-visible {
+            border-color: rgba(255,255,255,0.3);
+            outline: none;
+        }
+        .sp-auth-input::placeholder {
+            color: rgba(255,255,255,0.18);
+            font-size: 0.7rem;
+            letter-spacing: 0.06em;
+        }
+        .sp-auth-error {
+            font-size: 0.65rem;
+            color: rgba(255,130,130,0.8);
+            margin-top: 0.4rem;
+            min-height: 0.8rem;
+            text-align: right;
+        }
+        .sp-enter-row {
+            display: flex;
+            align-items: center;
+            gap: 0;
+        }
+
 
         #lang-toggle {
             position: fixed; top: 16px; right: 24px;
@@ -3743,7 +3792,7 @@
             top: 16px;
             left: 24px;
             z-index: 100002;
-            display: none !important;
+            display: none;
             font-family: 'Outfit', sans-serif;
             font-size: 11px;
             font-weight: 300;
@@ -3779,6 +3828,8 @@
 
         body.splash-on #lang-toggle { opacity: 0; animation: sp-fade 1s ease 1.2s forwards; }
         body.splash-on #back-to-splash { display: none !important; }
+        /* Hide splash-back whenever any nav button is visible (Slide 2 or drill-down) */
+        body:has(.nav-btn.visible) #back-to-splash { display: none !important; }
 
         @media (max-width: 900px) {
             #splash .fr-img { width: 80vw; height: 80vw; top: 40%; }
@@ -3832,7 +3883,13 @@
 
         <div class="sp-enter">
             <div class="sp-hint">мышление без границ · решения без задержек</div>
-            <button id="splash-btn">открыть</button>
+            <div class="sp-enter-row">
+                <div class="sp-auth-row" id="sp-auth-row">
+                    <input class="sp-auth-input" id="sp-auth-input" placeholder="код доступа" maxlength="30" autocomplete="off" spellcheck="false">
+                </div>
+                <button id="splash-btn">открыть</button>
+            </div>
+            <div class="sp-auth-error" id="sp-auth-error"></div>
         </div>
     </div>
 
@@ -4091,7 +4148,7 @@
 
     <!-- BACK TO START (Visible on Slide 2) -->
     <div id="home-btn" class="nav-btn" style="top: 40px; left: 40px;">
-        ← BACK
+        ← НАЗАД
     </div>
 
     <!-- v3.11: Task List Button (top right) -->
@@ -4189,7 +4246,7 @@
         tabindex="0"
         aria-label="Вернуться к общему виду"
         aria-hidden="true">
-        <span aria-hidden="true">←</span> BACK
+        <span aria-hidden="true">←</span> НАЗАД
     </div>
 
     <!-- v3.12.9: Category Label at top -->
@@ -5031,6 +5088,9 @@ console.log("[MODULE] script started loading");
                     const backBtn = document.getElementById('back-button');
                     backBtn.classList.add('visible');
                     backBtn.style.cssText = 'opacity: 1 !important; pointer-events: auto !important; display: block !important;';
+                    // Hide splash-back when drill-back is shown
+                    var _bts2 = document.getElementById('back-to-splash');
+                    if (_bts2) { _bts2.classList.remove('visible'); _bts2.style.display = 'none'; }
 
                     // Task interface открывается через кнопку в левой панели
 
@@ -5232,6 +5292,9 @@ console.log("[MODULE] script started loading");
             document.getElementById('back-button').classList.add('visible');
             document.getElementById('back-button').style.opacity = '1';
             document.getElementById('back-button').style.pointerEvents = 'auto';
+            // Hide splash-back when drill-back is shown
+            var _bts = document.getElementById('back-to-splash');
+            if (_bts) { _bts.classList.remove('visible'); _bts.style.display = 'none'; }
             // Icon Bar - show when drilled in
             document.getElementById('icon-bar').classList.add('visible');
             document.getElementById('icon-bar-toggle').style.display = 'flex';
@@ -5400,6 +5463,9 @@ console.log("[MODULE] script started loading");
 
             // Remove visible class from back button for clean state
             document.getElementById('back-button').classList.remove('visible');
+            // Restore splash-back button
+            var _bts = document.getElementById('back-to-splash');
+            if (_bts) { _bts.classList.add('visible'); _bts.style.display = ''; }
             document.getElementById('scrollHint').style.opacity = "1";
             document.getElementById('progressDots').style.opacity = "1";
 
@@ -10951,6 +11017,9 @@ console.log("[MODULE] script started loading");
                 backBtn.classList.add('visible');
                 backBtn.style.cssText = 'opacity: 1 !important; pointer-events: auto !important; display: block !important;';
             }
+            // Hide splash-back when drill-back is shown
+            var _bts3 = document.getElementById('back-to-splash');
+            if (_bts3) { _bts3.classList.remove('visible'); _bts3.style.display = 'none'; }
             var iconBarToggle = document.getElementById('icon-bar-toggle');
             if (iconBarToggle) iconBarToggle.style.cssText = 'display: flex !important;';
             var scrollHint = document.getElementById('scrollHint');
@@ -13793,9 +13862,7 @@ async function sendToAgentZero(message) {
         if (span) window.setVzorLang(span.getAttribute('data-lang'));
     });
 
-    if (window._vzorLang !== 'ru') {
-        window.setVzorLang(window._vzorLang);
-    }
+    window.setVzorLang(window._vzorLang);
 
 
 
@@ -13832,6 +13899,101 @@ async function sendToAgentZero(message) {
         }
         if (img.complete) entranceAnim();
         else img.onload = entranceAnim;
+
+        /* ═══ MOUSE INTERACTIVITY — fractal + direction labels ═══ */
+        var smx = 0.5, smy = 0.5;
+        var tmx = 0.5, tmy = 0.5;
+        var SMOOTH = 0.07;
+
+        var cols = sp.querySelectorAll(".sp-col");
+        var DIR_COLORS = [
+            {r:91, g:158, b:255},   // dev — blue
+            {r:251, g:191, b:36},   // fin — amber
+            {r:167, g:139, b:250}   // re — violet
+        ];
+
+        sp.addEventListener("mousemove", function(e){
+            tmx = e.clientX / window.innerWidth;
+            tmy = e.clientY / window.innerHeight;
+        }, {passive:true});
+
+        sp.addEventListener("mouseleave", function(){
+            tmx = 0.5; tmy = 0.5;
+        }, {passive:true});
+
+        function lerp(a,b,t){ return a+(b-a)*t; }
+        function clampV(v,lo,hi){ return Math.max(lo,Math.min(hi,v)); }
+        function dist01(x1,y1,x2,y2){ var dx=x1-x2,dy=y1-y2; return Math.sqrt(dx*dx+dy*dy); }
+
+        window._splashMouseActive = true;
+
+        function tickSplashMouse(){
+            if (!window._splashMouseActive) return;
+            requestAnimationFrame(tickSplashMouse);
+
+            smx = lerp(smx, tmx, SMOOTH);
+            smy = lerp(smy, tmy, SMOOTH);
+
+            var ox = (smx - 0.5) * 2;
+            var oy = (smy - 0.5) * 2;
+
+            // Fractal as pupil: radial scale + brightness based on distance from center
+            var dCenter = dist01(smx, smy, 0.5, 0.5);
+            var proximity = clampV(1 - dCenter / 0.45, 0, 1); // 1 = center, 0 = far
+
+            // Pupil dilation: expands when mouse is close (interest/focus)
+            var pupilScale = lerp(1.0, 1.045, proximity);
+
+            // Brightness: brighter when focused
+            var bright = lerp(0.94, 1.10, proximity);
+
+            // Very subtle tilt for volume (1.5 deg max)
+            var fRotY = ox * 1.5;
+            var fRotX = oy * -1.5;
+
+            // Only apply if img is visible (entrance done)
+            if (parseFloat(img.style.opacity) > 0.5) {
+                img.style.transform = "translate(-50%,-50%) scale(" + pupilScale.toFixed(4) + ") rotateY(" + fRotY.toFixed(2) + "deg) rotateX(" + fRotX.toFixed(2) + "deg)";
+                img.style.filter = "brightness(" + bright.toFixed(3) + ")";
+            }
+
+            // Direction columns: proximity glow + magnetic shift
+            for (var i = 0; i < cols.length; i++) {
+                var rect = cols[i].getBoundingClientRect();
+                var cx = (rect.left + rect.width/2) / window.innerWidth;
+                var cy = (rect.top + rect.height/2) / window.innerHeight;
+                var d = dist01(smx, smy, cx, cy);
+                var prox = clampV(1 - d / 0.22, 0, 1);
+
+                var col = DIR_COLORS[i];
+
+                // Magnetic shift toward mouse
+                var pullX = (smx - cx) * prox * 18;
+                var pullY = (smy - cy) * prox * 12;
+                cols[i].style.transform = "translate(" + pullX.toFixed(1) + "px," + pullY.toFixed(1) + "px)";
+
+                // Glow on .sp-dt
+                var dt = cols[i].querySelector(".sp-dt");
+                if (dt) {
+                    var glowR = Math.round(prox * 18);
+                    var glowA = (prox * 0.55).toFixed(2);
+                    dt.style.textShadow = prox > 0.01
+                        ? "0 0 " + glowR + "px rgba(" + col.r + "," + col.g + "," + col.b + "," + glowA + ")"
+                        : "none";
+                    dt.style.letterSpacing = lerp(0.18, 0.28, prox).toFixed(3) + "em";
+                    dt.style.color = "rgba(255,255,255," + lerp(0.80, 0.98, prox).toFixed(2) + ")";
+                }
+
+                // Description text also brightens slightly
+                var dd = cols[i].querySelector(".sp-dd");
+                if (dd) {
+                    dd.style.color = "rgba(255,255,255," + lerp(0.55, 0.72, prox).toFixed(2) + ")";
+                }
+            }
+        }
+        tickSplashMouse();
+        window._restartSplashMouse = function(){ window._splashMouseActive = true; smx=smy=tmx=tmy=0.5; tickSplashMouse(); };
+
         if (!sp || !btn) return;
 
         function blockWheel(e) { e.stopImmediatePropagation(); }
@@ -13845,12 +14007,66 @@ async function sendToAgentZero(message) {
         var evts = ["click","mousedown","mouseup","pointerdown","pointerup"];
         evts.forEach(function(ev){ window.addEventListener(ev, blockMouse, true); });
 
+        var authRow = document.getElementById("sp-auth-row");
+        var authInput = document.getElementById("sp-auth-input");
+        var authError = document.getElementById("sp-auth-error");
+        window._splashAuthOpen = false;
+
         btn.addEventListener("click", function(e){
             e.stopPropagation();
-            go();
+            if (!window._splashAuthOpen) {
+                // First click: reveal code input, morph button
+                window._splashAuthOpen = true;
+                authRow.classList.add("visible");
+                btn.textContent = "\u2192"; // →
+                btn.style.fontSize = "clamp(18px, 1.6vw, 24px)";
+                btn.style.padding = "0 0.2em";
+                setTimeout(function(){ authInput.focus(); }, 400);
+            } else {
+                // DEV MODE: bypass auth, always enter
+                window._vzorAuth = true;
+                go();
+            }
         });
 
+        if (authInput) {
+            authInput.addEventListener("keydown", function(e){
+                if (e.key === "Enter") { e.preventDefault(); window._vzorAuth = true; go(); }
+            });
+        }
+
+        function submitSplashAuth() {
+            var raw = (authInput ? authInput.value : "").trim();
+            if (!raw) { authInput.focus(); return; }
+            var isVzorCode = /^VZOR-[A-Z0-9]{4}-[A-Z0-9]{4}$/i.test(raw);
+            var url = isVzorCode ? "/api/auth/login" : "/api/auth/admin";
+            var body = isVzorCode ? JSON.stringify({code: raw.toUpperCase()}) : JSON.stringify({secret: raw});
+
+            fetch(url, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                credentials: "include",
+                body: body
+            }).then(function(r){
+                if (r.ok) {
+                    window._vzorAuth = true;
+                    if (authError) authError.textContent = "";
+                    go();
+                } else {
+                    if (authError) authError.textContent = "неверный код";
+                    authInput.style.borderColor = "rgba(255,130,130,0.4)";
+                    setTimeout(function(){ authInput.style.borderColor = ""; }, 1500);
+                }
+            }).catch(function(){
+                // API unavailable — allow entry anyway (dev mode)
+                window._vzorAuth = true;
+                go();
+            });
+        }
+
         function go() {
+            window._splashMouseActive = false; // stop mouse interactivity loop
+
             window.targetP = 0;
             window.smoothP = 0;
             var guard = setInterval(function(){ window.targetP = 0; }, 30);
@@ -13911,12 +14127,6 @@ async function sendToAgentZero(message) {
                     // Show back button with fade
                     var bb = document.getElementById("back-to-splash");
                     if (bb) setTimeout(function(){ bb.classList.add("visible"); }, 400);
-                    // Auth hook
-                    if (!window._vzorAuth) {
-                        setTimeout(function(){
-                            if (typeof showAuthModal === "function") showAuthModal();
-                        }, 50);
-                    }
                 }
             }
             requestAnimationFrame(frame);
@@ -13957,6 +14167,17 @@ async function sendToAgentZero(message) {
                 window.scrollTo(0, 0);
 
                 // Restore splash — everything hidden first
+                if (window._restartSplashMouse) window._restartSplashMouse();
+                // Reset auth row to initial state
+                var _ar = document.getElementById("sp-auth-row");
+                var _ai = document.getElementById("sp-auth-input");
+                var _ae = document.getElementById("sp-auth-error");
+                var _sb = document.getElementById("splash-btn");
+                if (_ar) _ar.classList.remove("visible");
+                if (_ai) _ai.value = "";
+                if (_ae) _ae.textContent = "";
+                if (_sb) { _sb.textContent = "\u043E\u0442\u043A\u0440\u044B\u0442\u044C"; _sb.style.fontSize = ""; _sb.style.padding = ""; }
+                window._splashAuthOpen = false;
                 document.body.classList.add("splash-on");
                 sp.style.display = "";
                 sp.style.background = "#000";
@@ -14005,6 +14226,7 @@ async function sendToAgentZero(message) {
         });
     })();
     </script>
+
 </body>
 
 </html>
