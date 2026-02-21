@@ -1,0 +1,4 @@
+VZOR_PROJECT.md
+SESSION_NOTES.md
+THE_HOSTING.md
+ЗАДАЧИ.md

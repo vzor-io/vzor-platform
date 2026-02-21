@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html><head><title>Test</title></head>
+<body style="margin:0;background:#000">
+<script>
+// Load the actual page content, dismiss splash immediately
+window.addEventListener('DOMContentLoaded', function() {
+    setTimeout(function(){
+        var sp = document.getElementById("splash");
+        if (sp) sp.style.display = "none";
+        document.body.classList.remove("splash-on");
+    }, 100);
+});
+</script>
+</body>
+</html>

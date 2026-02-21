@@ -1,43 +1,37 @@
-# Dependencies
-node_modules/
-.venv/
-venv/
-env/
-__pycache__/
-*.egg-info/
-dist/
-dist-ssr/
-build/
-coverage/
+# === Файлы с API ключами, паролями, credentials ===
+VZOR_PROJECT.md
+задачи.md
+SSH_SETUP.md
+SSH_SETUP1.md
+АДМИН.txt
+OPENCLAW_SETUP.md
+VZOR_LINKS.md
+THE_HOSTING.md
+MEMORY.md
+2026-02-13-fix.md
+VZOR_TOMORROW_START.md
+session_2026-02-17.md
+task_2026-02-18_connect_ragflow_to_agents.md
+SESSION_NOTES.md
 
-# Environment Variables
-.env
-.env.local
-.env.*.local
+# HTML files with embedded tokens
+server_index.html
+test_nosplash.html
+dev_original.html
+original_feb17.html
+original_backup.html
+live_page.html
+server_check.html
 
-# Logs
-logs/
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+# Environment files
+*.env
 
-# Data directories (runtime, not code)
-data/
-backups/
+# Server configs with passwords
+vzor-server-configs/
 
-# IDE & OS
-.idea/
-.vscode/*
-!.vscode/extensions.json
-*.swp
-*.swo
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-*.local
-.DS_Store
+# Mental models (large directory)
+МЕНТАЛЬНЫЕ МЫСЛИ_0/
+
+# OS files
 Thumbs.db
+.DS_Store
