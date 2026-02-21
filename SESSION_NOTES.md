@@ -1,64 +1,7 @@
 # VZOR Platform - Session Notes
-**Last Updated:** 2026-02-13
+**Last Updated:** 2026-02-21
 **Server:** 95.174.95.209 (Cloud.ru)
 **Current Branch:** development (main = эталон)
-
----
-
-## ✅ ЧТО СДЕЛАНО 13.02.2026
-
-### v3.35: Matrix Dependency Graph — полный граф зависимостей девелопмента
-
-**Главное достижение**: Создан **матричный граф зависимостей** всего девелоперского цикла с логикой взаимосвязей между задачами. Кнопка "СВЯЗИ" показывает/скрывает полный граф.
-
-**Часть 1: Bonds Toggle (коммит 67381a1)**
-1. **Кнопка СВЯЗИ** — рядом с NODES (top right, 130px)
-   - Glass morphism стиль (как все кнопки платформы)
-   - Cyan accent при активации
-   - По умолчанию связи скрыты (чистое облако точек)
-
-2. **Toggle функция** — `toggleBonds()`
-   - Показать/скрыть bondMesh (THREE.LineSegments)
-   - window.bondsVisible flag
-
-**Часть 2: Matrix Dependencies (коммит 0e884db)**
-3. **Функция createMatrixDependencies()** — логика девелоперского цикла
-   - **Cross-phase dependencies (critical path):**
-     - 1.7 GO/NO GO → 2.1 Начало проектирования
-     - 2.9 Экспертиза → 3.1 Начало строительства
-     - 3.2 Нулевой цикл → 4.1 Маркетинг
-     - Эскроу → 4.2 Активные продажи
-     - 3.5 Ввод → 4.3 Передача квартир
-
-   - **Intra-phase dependencies:**
-     - Инвестанализ: Due diligence/ЗОУИТ → Финмодель → Стресс-тест → GO/NO GO
-     - Проектирование: ГПЗУ → Концепция → АГР → Согласование → ТУ → Стадия П → Инженерия → Экспертиза
-     - Строительство: Подготовка → Нулевой цикл → Надземная → Отделка → Ввод
-     - Продажи: Маркетинг → Активные продажи → Передача
-
-   - **Additional cross-dependencies:**
-     - Due diligence → Изыскания (данные участка)
-     - ЗОУИТ → АГР (ограничения для архитектуры)
-     - Финмодель → Концепция (бюджет влияет на продукт)
-     - Стадия П → Стресс-тест (проект уточняет смету)
-
-4. **Цветовая кодировка связей:**
-   - **WHITE (серый)** — структурные связи (tree: L0→L1→L2)
-   - **CYAN (бирюзовый)** — матричные зависимости (dev logic)
-
-5. **Для чего это нужно:**
-   - **Матричное управление проектом** (не линейный график)
-   - Если одна задача меняется → все зависимые задачи реагируют
-   - Agent Zero видит полный граф для планирования
-   - Можно одной кнопкой скрыть связи (оставить только точки)
-
-**Коммиты:** `67381a1`, `0e884db` на development, запушено в GitHub
-
-**Файлы:**
-- `/home/vzor/vzor/config/nginx/www/index.html` — ~10170 строк (+152)
-- Бэкап: `C:\Users\vzor\index_backup_*.html`
-
-**Следующий шаг:** Применить стиль из картинки 9.jpg (органические деревья, фрактальные ветви)
 
 ---
 
@@ -380,7 +323,7 @@ VZOR Stack (10):          RAGFlow (5):              OpenClaw (1):
 ### Текущие
 - **vzor-infisical** — контейнер в crash loop (Restarting 255), не критично
 - Масштаб кластеров непропорционален облаку (нужен spherical cap layout)
-- Вращение камеры не вокруг выделенного объекта — **частично решено в v3.36** (flyToTask + orbit pivot)
+- Вращение камеры не вокруг выделенного объекта
 - Нужно добавить порты **8088**, **18789** в группу безопасности Cloud.ru
 - **Google Gemini geo-block** — ✅ Решено автопатчем (entrypoint-patch.sh). При смене версии SDK проверить, что пути volume mounts не изменились
 - **Anthropic API** — ключ есть, но нет кредитов на console.anthropic.com. Нужно купить ($5 мин)
@@ -494,7 +437,7 @@ npx wrangler deploy "./src/worker.js"
 - **SSH ключ:** `C:\Users\vzor\.ssh\id_ed25519`
 - **Серийная консоль Cloud.ru** — запасной способ доступа если SSH не работает
 - **Конфиги на рабочем столе:** `C:\Users\vzor\Desktop\vzor-server-configs\` (docker-compose.yml + .env для всех стеков)
-- **Последний коммит:** `9e60548` на development, запушен на GitHub (13.02.2026)
+- **Последний коммит:** `0ddc42c` на development, запушен на GitHub (17.02.2026)
 
 ---
 
@@ -509,6 +452,154 @@ npx wrangler deploy "./src/worker.js"
 - **Telegram бот:** https://t.me/vzor_agent_bot
 - **Эталон:** ветка main, тег stable-v1.0
 - **Рабочая:** ветка development
+
+---
+
+---
+
+## ✅ ЧТО СДЕЛАНО 17.02.2026
+
+### Ментальные модели — полная интеграция в Agent Zero
+
+**Главное достижение**: 99 ментальных моделей загружены в Agent Zero, промпт переписан дословно из первоисточника (GEMINI.md), Markdown рендерится в чате платформы.
+
+### 1. Загрузка 99 ментальных моделей на сервер
+- **Источник:** `C:\Users\vzor\Desktop\МЕНТАЛЬНЫЕ МЫСЛИ_0\ментальные мысли vzor 2\Ментальные_Модели\` (8 подпапок, 99 файлов)
+- **Куда:** `/home/vzor/agent-zero-data/knowledge/custom/main/` с префиксом `mm_`
+- **Формат:** `mm_m01_Карта_—_не_территория.md` ... `mm_m98_Предвзятость_подтверждения.md`
+- **8 дисциплин:** Общие (10), Наука (20), Системное мышление (11), Математика (7), Экономика (12), Искусство (11), Война (5), Человеческая природа (23)
+- **Индексация:** Agent Zero автоматически индексирует через FAISS при запуске
+
+### 2. Промпт Agent Zero — переписан из первоисточника GEMINI.md
+- **Файл:** `/home/vzor/agent-zero-data/agents/agent0/prompts/agent.system.main.role.md`
+- **Источник:** GEMINI.md (Tony Huang, решётка Чарли Мангера)
+- **Что изменено vs оригинал:** ТОЛЬКО технические пути:
+  - `Ментальные_Модели/` → `файлы с префиксом mm_ в knowledge`
+  - `Рабочее_Пространство` → `/a0/usr/workdir/`
+  - `инструменты поиска` → `ragflow_search`
+- **Методология — ни одно слово не изменено.** Полный алгоритм:
+  - Шаг 0: Инициализация
+  - Шаг 1: Диагностика + problem_diagnosis.md
+  - Шаг 2: Выбор моделей (5 подшагов: анкета → сканирование → оценка → отбор макс. 3 → документирование)
+  - Шаг 3: Итеративный анализ по «Шагам мышления» каждой модели + reasoning_*.md
+  - Шаг 4: Синтез (резюме → постановка → анализ по моделям → синтез и интегрированные выводы → рекомендации → источники)
+- **Роль:** "Консультант мирового класса и мастер ментальных моделей. Не просто перечисляешь модели — сплетаешь их воедино."
+- **Формат ответов:** Markdown обязательно (заголовки, списки, жирный, таблицы, разделители)
+
+### 3. Markdown рендер в чате платформы VZOR
+- **Проблема:** Фронтенд показывал `**жирный**` как текст со звёздочками (textContent)
+- **Решение:** Функция `renderMarkdown()` в `index.html` — конвертирует Markdown в HTML
+- **Поддержка:** заголовки (# ## ###), **жирный**, *курсив*, списки (- и 1.), таблицы, `код`, ```блоки кода```, ---разделители
+- **Два чата пропатчены:**
+  - Agent chat panel (addMessage) — для ответов через /api/task
+  - OC chat panel (addOCMessage + streaming delta/final) — для WebSocket стриминга
+- **CSS стили:** заголовки — бирюзовые (rgba(0,255,255,0.9)), жирный — яркий белый, таблицы с рамками
+- **Коммиты:**
+  - `3430825` — feat: Markdown renderer for agent chat
+  - `a48ec44` — fix: Markdown rendering in BOTH chat panels (agent + OC streaming)
+
+### 4. Починка Agent Zero — DNS проблема
+- **Симптом:** "AgentVzor.0 недоступен. Проверьте: systemctl status agent-zero"
+- **Причина:** Контейнер `vzor-api` не мог резолвить DNS (`socket.gaierror: Temporary failure in name resolution`)
+- **Цепочка:** фронтенд → `/api/task` → `vzor-api` → `http://vzor-agent-zero/api_message` → DNS FAIL
+- **Источник ошибки:** `/app/agent_zero_client.py` строка 80 — `aiohttp.ClientConnectorError`
+- **Решение:** `docker compose stop vzor-api && docker compose rm -f vzor-api && docker compose up -d vzor-api`
+- **Также:** убит orphan uvicorn процесс на порту 8000 (`sudo kill $(sudo lsof -t -i :8000)`)
+
+### 5. Тестирование
+- **Тест 1 (старый промпт):** Агент сразу выдал поверхностный ответ с рандомными моделями ("Влияние стресса"), без вопросов — оценка 6/10
+- **Тест 2 (новый промпт из GEMINI.md):** Агент создал папку анализа `2026-02-17_18-11-22_facade_contractor_delay`, написал `problem_diagnosis.md`, составил анкету из 5 точных вопросов — принципиально другой уровень
+
+### Файлы на сервере
+```
+/home/vzor/agent-zero-data/
+├── agents/agent0/prompts/agent.system.main.role.md    # Промпт (обновлён)
+├── knowledge/custom/main/
+│   ├── 00-vzor-overview.md ... 05-vzor-dev-structure.md  # VZOR справочники
+│   └── mm_m01_*.md ... mm_m98_*.md                       # 99 ментальных моделей
+└── workdir/
+    └── 2026-02-17_18-11-22_facade_contractor_delay/      # Тестовый анализ
+        ├── problem_diagnosis.md
+        └── questionnaire.md
+```
+
+### Локальные файлы
+```
+C:\Users\vzor\Desktop\
+├── МЕНТАЛЬНЫЕ МЫСЛИ_0\ментальные мысли vzor 2\
+│   ├── GEMINI.md                          # Первоисточник алгоритма
+│   ├── Ментальные_Модели\                # 99 файлов (русский перевод)
+│   ├── Дополнительная_Информация\        # Процессы глубокий/быстрый режим
+│   └── Рабочее_Пространство\             # Пустое
+├── AGENT_ZERO_STRUCTURE.md                # Структура Agent Zero
+└── Скрины\8.png                          # Скриншот проблемы с Markdown
+```
+
+### Коммиты (development → GitHub)
+```
+8322970 fix: addTaskPointStructured — allow task creation during DB load
+a48ec44 fix: Markdown rendering in BOTH chat panels (agent + OC streaming)
+3430825 feat: Markdown renderer for agent chat — bold, headers, lists, tables
+```
+
+### 6. Документация технологии ментальных моделей (сессия 2)
+
+**Создан документ описания технологии для презентации покупателям:**
+- **Файл:** `C:\Users\vzor\Desktop\VZOR_MENTAL_MODELS_TECHNOLOGY.md` (16 KB)
+- **Содержание:** Суть технологии (решётка Мангера), библиотека 99 моделей (таблица 8 дисциплин), 5-шаговый аналитический процесс с примерами, техническая архитектура (FAISS, Agent Zero), два режима (глубокий/быстрый), 5 конкурентных преимуществ, примеры применения
+
+### 7. Финансовое направление VZOR Invest — полный документ
+
+**Изучен кейс NVIDIA от Tony Huang и создан документ для финансового блока:**
+- **Файл:** `C:\Users\vzor\Desktop\VZOR_FINANCE_MENTAL_MODELS.md` (27 KB)
+- **Исходник Хуана:** `МЕНТАЛЬНЫЕ МЫСЛИ_0\ментальные мысли\gemini-plus-mental-models-repo\Workspace\25-07-18_16-30-00_nvidia_investment_decision\` — полный кейс с 7 файлами анализа
+- **Что содержит документ:**
+  - Как работал Хуанг (Gemini CLI + Obsidian) vs как работаем мы (Agent Zero)
+  - Полный разбор кейса NVIDIA: диагностика → анкета (5 вопросов) → воронка отбора (98→12→5→3 модели) → анализ через Круг компетенций + Пузыри + Социальное доказательство → синтез → рекомендация (не покупать, использовать ETF)
+  - Таблицы моделей релевантных для финансов (экономика, общие, системные, психология)
+  - Промпт агента для финансового направления (роль + ключевые слова + 6 правил)
+  - Система памяти агента (профиль инвестора, портфель, история, watchlist)
+  - Типовые запросы (акции, крипта, портфель, трейдинг)
+  - Сравнение Хуанг vs VZOR Invest (таблица)
+  - Чеклист: что готово / что нужно сделать
+
+**Ключевой вывод:** Agent Zero с нашим промптом и базой моделей воспроизводит тот же аналитический пайплайн что у Хуана. Gemini не обязателен — важен алгоритм + база моделей + доступ к свежим данным (веб-поиск).
+
+### Исходники Хуана (изучены)
+```
+МЕНТАЛЬНЫЕ МЫСЛИ_0\ментальные мысли\gemini-plus-mental-models-repo\
+├── GEMINI.md                           # Оригинальный system prompt (EN)
+├── .env                                # GEMINI_API_KEY
+├── Mental_Models/                      # 98 моделей (EN), 8 подпапок
+├── Additional_Info/
+│   ├── agent-process-deep-mode.md      # Глубокий режим (EN)
+│   └── agent-process-quick-mode.md     # Быстрый режим (EN)
+└── Workspace/
+    ├── 25-07-18_10-45-05_hku_vs_stanford_decision/   # Кейс 1: выбор университета
+    └── 25-07-18_16-30-00_nvidia_investment_decision/  # Кейс 2: покупка NVIDIA
+        ├── problem_diagnosis.md
+        ├── questionnaire.md
+        ├── mental_models_selected.md
+        ├── reasoning_m02_circle_of_competence.md
+        ├── reasoning_m59_bubbles.md
+        ├── reasoning_m84_social_proof.md
+        ├── analysis_report.md
+        └── analysis_visualization.html
+```
+
+### Все файлы на рабочем столе (актуальная карта)
+```
+C:\Users\vzor\Desktop\
+├── VZOR_MENTAL_MODELS_TECHNOLOGY.md     # Описание технологии (для презентации)
+├── VZOR_FINANCE_MENTAL_MODELS.md        # Финансовое направление (кейс NVIDIA + промпт + память)
+├── SESSION_NOTES.md                     # Этот файл
+├── AGENT_ZERO_STRUCTURE.md              # Структура Agent Zero
+├── МЕНТАЛЬНЫЕ МЫСЛИ_0\                  # Все исходники ментальных моделей
+│   ├── TASK_MENTAL_MODELS_VZOR.md       # Техзадание на систему (3 блока VZOR)
+│   ├── ментальные мысли\gemini-plus-mental-models-repo\  # Оригинал Хуана (EN)
+│   └── ментальные мысли vzor 2\         # Наш перевод (RU) — загружен на сервер
+└── скрины\                              # Скриншоты
+```
 
 ---
 
@@ -533,7 +624,6 @@ claude
 ✅ 10.02: Апгрейд RAM 16GB, починка SSH, RAGFlow + MinerU, OpenClaw, автобэкап, Cloudflare Worker прокси (обход геоблока), Telegram бот (@vzor_agent_bot), память OpenClaw (проект VZOR), DeepSeek V3 как основная модель, коммит 0cac91a запушен на GitHub, конфиги скачаны на рабочий стол
 ✅ 11.02: Gemini 2.5 Flash в OpenClaw (через прокси + автопатч entrypoint-patch.sh), мультимодель с переключением из Telegram (/model gemini, /model deepseek), Brave Search веб-поиск для агента
 ✅ 12.02: VPS 78.111.86.105 (Amsterdam, ServerSpace.ru, 439₽/мес), VLESS Reality VPN на :443, Caddy API прокси на :8443, OpenClaw перенастроен на VPS прокси (замена Cloudflare Worker), Agent Zero настроен (API ключи + api_base), 3D граф v3.33-v3.34 (organic layout + Blender-style orbit)
-✅ 13.02: v3.35-v3.36 — кнопка ГРАФ (matrix dependencies ~50 L0+L1 связей), orbit camera вокруг задачи (flyToTask двигает камеру+target), пульс выбранной задачи, тёмно-синяя подсветка кнопки, исправлен ReferenceError: n, коммит 9e60548 запушен на GitHub
 
 ---
 
@@ -541,53 +631,54 @@ claude
 
 ---
 
-## ✅ ЧТО СДЕЛАНО 13.02.2026 (вечер)
+## ✅ ЧТО СДЕЛАНО 17.02.2026 (вечерняя сессия)
 
-### v3.35-v3.36: Кнопка ГРАФ + Orbit Camera
+### Admin Panel (`admin.html`) — полная переработка гостевого доступа
 
-**Коммит:** `9e60548` на development, запушен на GitHub
+**Проблемы и решения:**
+1. **Кнопки Start/Stop/Delete пропадали** — были спрятаны в раскрывающейся панели, после Stop панель закрывалась → Start не видно. Исправлено: Start/Stop/Delete вынесены на основную строку гостя (всегда видны)
+2. **Кнопка Start не работала** — вызывала `POST /api/admin/guests/{id}/activate`, но эндпоинт не существовал. Добавлен в main.py + функция `activate_guest` уже была в db.py
+3. **Кнопка Save не работала** — использовала `POST /update`, а API ожидал `PATCH /api/admin/guests/{id}`. Исправлен метод
+4. **Слишком много кнопок шаринга** — было непонятно. Оставлены 4 чётких: WA link, WA QR, TG link, TG QR
+5. **TG QR открывал App Store** — `navigator.share()` показывал системный диалог. Исправлено: TG QR/WA QR просто скачивают QR-картинку
+6. **Сломанные кавычки** — `\x27` в Python → сломался весь JS. Исправлено через `&#39;` HTML entities
+7. **Truncated base64 логотипа** — VZOR_LOGO был обрезан (повторяющийся `KbFothu`). Заменён правильной base64 из `vzor_logo_dark_b64.txt`
 
-#### v3.35: Matrix Dependency Graph (чистый)
-- **Кнопка ГРАФ** — toggle показывает/скрывает матричные зависимости
-- **~50 чистых связей** (только L0↔L0 + L1↔L1), убраны 200+ L2 связей (были "паутина")
-- **createMatrixDeps()** — логика девелопмента:
-  - L0↔L0: фазы (Инвестанализ→Проектирование→Строительство→Продажи)
-  - L1 внутри фаз: последовательные зависимости
-  - L1 межфазовые: critical path + матричные (нелинейные)
-- **Цвет matrix bonds:** cyan (r=0, g=0.35, b=0.4)
-- **Lazy creation:** bonds создаются при первом нажатии ГРАФ
-- **Force sim exclusion:** matrix bonds не участвуют в физике (visual only)
+### Админ-авторизация на vzor-ai.com
+- **Проблема:** Админ (владелец) должен был вводить гостевой код VZOR-XXXX-XXXX каждый раз
+- **Решение:** Если ввести `AgvzorPse.2327` в поле входа → логин как Admin (JWT 365 дней)
+- **Бэкенд:** `POST /api/auth/admin` → проверяет `VZOR_ADMIN_SECRET` → JWT с `admin: true` → cookie 365 дней
+- **Бэкенд:** `auth_verify` модифицирован — если `payload.admin == True`, пропускает проверку гостя в БД
+- **Фронтенд:** auto-formatter не трогает ввод с `.` или строчными (распознаёт пароль vs код)
+- **Фронтенд:** `submitAuthCode()` — если формат VZOR-XXXX-XXXX → guest login, иначе → admin login
 
-#### v3.36: Orbit Camera + Visual Feedback
-- **flyToTask** — двигает И камеру И target (Blender Frame Selected стиль)
-  - Сохраняет offset-направление камеры
-  - Ease-out cubic за 600мс
-- **Пульс выбранной задачи** — в animate():
-  - Scale: 1.2 + 0.12*sin(time*3.0) — мягкое дыхание
-  - Opacity: 0.85 + 0.15*sin(time*4.0)
-- **Клик по задачам** — taskPoints проверяются ПЕРВОЙ (раньше detailTargets перехватывали!)
-- **Пустой клик** — снимает выделение, НЕ сбрасывает orbit pivot (Blender-стиль)
-- **resetOrbitPivot** — тоже двигает камеру обратно (не только target)
-- **Кнопка ГРАФ** — тёмно-синяя подсветка вместо бирюзовой
+### API эндпоинты (добавлены в main.py)
+- `POST /api/admin/guests/{id}/activate` — реактивация гостя (is_active=TRUE)
+- `POST /api/auth/admin` — вход админа, JWT 365 дней
 
-#### Исправленные баги:
-- **`ReferenceError: n is not defined`** — мусорная буква `n` от старых Python-патчей в 3 местах ломала loadTasksFromDB()
-- **Дублированный createMatrixBonds setTimeout** — убран дубль
-- **detailTargets перехватывали клики** — 40 невидимых старых сфер проверялись раньше taskPoints
-- **nginx duplicate location** — исправлено в default.conf
+### Файлы изменённые
+- `/home/vzor/vzor/config/nginx/www/admin.html` — Admin panel
+- `/home/vzor/vzor/config/nginx/www/index.html` — Auth (admin login support)
+- `/home/vzor/vzor/vzor-api/main.py` — API endpoints (activate, admin auth)
+- `/home/vzor/vzor-api/main.py` — standalone copy (синхронизирована с репо)
 
-#### Текущее состояние (v3.36):
-- **Файл:** ~10900 строк
-- **Задачи:** 197 (4 L0 + 24 L1 + 169 L2)
-- **Структурные bonds:** ~169 (tree: L0→L1→L2)
-- **Matrix bonds:** ~50 (L0↔L0 + L1↔L1 cross-phase)
-- **Orbit:** flyToTask двигает camera+target, пульс выделения, zoom к задаче
+### Docker
+- API image пересобран: `docker compose build vzor-api`
+- **ВАЖНО:** main.py существует в ДВУХ местах:
+  - `/home/vzor/vzor/vzor-api/main.py` — в git-репо (Docker build берёт отсюда)
+  - `/home/vzor/vzor-api/main.py` — standalone копия
+  - При редактировании нужно обновлять ОБА файла + `docker compose build vzor-api`
 
-#### Что осталось проверить/доделать:
-- [ ] Клик по задаче → камера подлетает → орбита вокруг неё (нужно проверить после фикса `n`)
-- [ ] L2 connections на hover (будущее)
-- [ ] Стиль из 9.jpg (органическое дерево)
-- [ ] Agent Zero автогенерация зависимостей
+### Коммиты (development → GitHub)
+```
+0ddc42c auth: admin login support on main site (password bypass guest codes)
+428a89e admin: QR buttons just download, link buttons send clean text
+972aff1 admin: TG QR/WA QR = download + open app directly
+d4b3f0f admin: start/stop on row, 4 share buttons (WA link/QR, TG link/QR)
+3ad289e auth: admin login without guest codes (365-day session)
+7b32a08 admin: add activate endpoint, fix saveGuest PATCH method
+91ec396 admin: fix buttons, add QR image sharing (shareQRImage + shareResultQR)
+```
 
 ---
 
@@ -720,6 +811,442 @@ curl http://78.111.86.105:8443/
 # Панель 3x-ui
 http://78.111.86.105:2053/tu0SKMKlRgpLvpTR8m
 ```
+
+---
+
+## ✅ ЧТО СДЕЛАНО 18.02.2026
+
+### RAGFlow — парсинг PIK документов (3 новых базы знаний)
+
+**Главное:** Диагностика проблем парсинга 112 документов ПИК. Отключение тяжёлых функций. Парсинг запущен, но не завершён (продолжен 21.02).
+
+### 1. Диагностика проблемы
+- **Симптом:** 3 новых базы (Поставщики 5 docs, Технология 28 docs, Экономика 79 docs) — 0 чанков, документы в FAIL
+- **Причина 1:** TEI был недоступен во время парсинга (ошибка "Fail to bind embedding model: HTTPConnectionPool host='tei' port=80")
+- **Причина 2:** RAPTOR + GraphRAG + DeepDOC включены → чрезмерная нагрузка
+- **Сервер:** 30/31 GB RAM занято, TEI (BAAI/bge-m3) потребляет 18.79 GB RAM
+
+### 2. Исправления
+- **Отключены тяжёлые функции** через PUT `/api/v1/datasets/{id}`:
+  - `raptor.use_raptor: false`
+  - `graphrag.use_graphrag: false`
+  - `layout_recognize: ""` (отключён DeepDOC)
+  - `html4excel: true` (для .xlsx файлов)
+- **Удалено 56 дубликатов** в базе Экономика (были FAIL, повторно загружены)
+- **Сброс статусов** через MySQL: `UPDATE document SET run=0, progress=0 WHERE run IN (2,4)`
+- **RAGFlow перезапущен** несколько раз
+
+### 3. Состояние на конец сессии 18.02
+| База | ID | Документы | Чанки | Статус |
+|------|----|-----------|-------|--------|
+| Поставщики | 8b0ee65e0cbf11f18e08d293515dc461 | 5 | 0 | Парсинг запущен, не завершён |
+| Технология | 8b0554570cbf11f184c9d293515dc461 | 28 | 0 | Парсинг запущен, не завершён |
+| Экономика | 6e79a93a0cbf11f1a7b1d293515dc461 | 79 | 0 | Застряла (CANCEL) |
+
+**Обновлено 21.02:** Поставщики и Технология успешно допарсены (5331 чанков). Экономика не завершена. См. запись 21.02.
+
+### 4. Инструмент ragflow_search
+- **Уже существует** на сервере: `/home/vzor/agent-zero-data/instruments/custom/ragflow_search/`
+- Содержит `ragflow_search.py` (CLI: search/list/info) и `ragflow_search.md` (описание для Agent Zero)
+- **Нужно обновить:** добавить 3 новых базы ПИК в KB_MAP
+
+### Файлы
+```
+/home/vzor/agent-zero-data/instruments/custom/ragflow_search/
+├── ragflow_search.py     # Python CLI (search, list, info)
+└── ragflow_search.md     # Описание инструмента для Agent Zero
+```
+
+---
+
+## ✅ ЧТО СДЕЛАНО 20.02.2026
+
+### v3.38-PS: Метрики, сплэш, граф, аудит безопасности гостевого доступа
+
+**Главное достижение**: Исправлены критические уязвимости в системе авторизации гостей — DEV MODE bypass полностью убран, добавлена периодическая перепроверка сессий. Также: метрики на Slide 1, плавный сплэш, fix графа.
+
+### 1. Баг: Граф-панель не скрывалась при выходе из Development
+
+**Проблема:** При входе в Development drill-down появлялась кнопка Graph. При возврате назад кнопка и `window.graphVisible` оставались активны.
+
+**Решение:** Добавлена очистка в 3 местах:
+- Back-button click handler (~строка 5430)
+- `updateUI()` при Slide 2 overview (~строка 6382)
+- `updateUI()` при Slide 1 (~строка 6349)
+
+```javascript
+window.graphVisible = false;
+var graphBtn = document.getElementById('graph-toggle-btn');
+if (graphBtn) { graphBtn.classList.remove('visible'); graphBtn.classList.remove('active'); graphBtn.style.cssText = ''; }
+```
+
+### 2. Метрики на Slide 1 (VZOR cloud screen)
+
+**Проблема:** Slide 1 (облако VZOR) ощущался как «пустой кадр» между фракталом и рабочим пространством.
+
+**Решение:** 3 числа с count-up анимацией: `67 агентов · 98 моделей · 4 AI-движка`
+- Появляются через 600мс после перехода на Slide 1
+- Ease-out cubic анимация (2 сек)
+- Двуязычные подписи (ru/en) через `data-ru`/`data-en` атрибуты
+- Скрываются при переходе на Slide 2, пересчитываются при возврате
+- Не запускаются под сплэш-экраном (проверка `splash-on`)
+
+**Стили:** числа 1.6em Outfit 300, подписи 0.7em monospace uppercase, opacity 0.55/0.3
+
+### 3. Сплэш-экран: плавный dissolve
+
+**Проблема:** Фрактал растворялся с рывком — чёрная вспышка между исчезновением фрактала и появлением 3D-сцены.
+
+**Решение:**
+- Фрактал и фон растворяются синхронно (оба от p=0.25)
+- Ease-in-out кривая вместо квадратичной
+- Длительность увеличена до 5000мс
+- Цвет текста VZOR и кнопки → чистый белый `rgba(255,255,255,0.85)` (был с синим оттенком)
+
+### 4. КРИТИЧНО: Аудит безопасности гостевого доступа
+
+#### Найденные уязвимости:
+
+| Критичность | Проблема |
+|-------------|----------|
+| **CRITICAL** | Enter на сплэше пропускает проверку кода — `_vzorAuth = true; go()` без API |
+| **CRITICAL** | Кнопка "→" — DEV MODE bypass без API |
+| **CRITICAL** | `?authenticated=1` в URL даёт доступ без cookie |
+| **CRITICAL** | `.catch()` при ошибке API → доступ предоставлен |
+| **HIGH** | `checkAuth()` никогда не ставит `_vzorAuth = false` |
+| **HIGH** | Нет периодической перепроверки — гость остаётся навсегда |
+
+#### Исправления фронтенда (server_index.html):
+
+1. **Enter** → вызывает `submitSplashAuth()` (API проверка) вместо прямого bypass
+2. **Кнопка "→"** → вызывает `submitSplashAuth()` вместо DEV MODE
+3. **API ошибка** → показывает "нет связи с сервером" (было: пускает внутрь)
+4. **`?authenticated=1`** → только чистит URL; доступ через cookie + `checkAuth()`
+5. **`checkAuth()`** → при `authenticated: false` ставит `_vzorAuth = false` и показывает модальное окно
+6. **`setInterval(checkAuth, 60000)`** — перепроверка каждые 60 секунд
+
+#### Исправления бэкенда (main.py):
+
+7. **PATCH `/api/admin/guests/{id}`** — контейнер работал со старым кодом без обработки `expires_at`. Обновлённый main.py скопирован в контейнер (`docker cp`) и перезапущен.
+
+#### Тестирование (все проверки пройдены):
+
+| Сценарий | QR-токен | Код VZOR-XXXX | Старая cookie | verify |
+|----------|----------|---------------|---------------|--------|
+| Активный гость | 302 + cookie | 200 OK | true | true |
+| Деактивированный (Stop) | **401** | **401** | false | false |
+| Просроченный (expires_at < now) | **401** | **401** | false | false |
+
+### 5. Баг: PATCH не обновлял expires_at
+
+**Проблема:** `PATCH /api/admin/guests/{id}` возвращал `{"status":"updated"}`, но `expires_at` не менялся.
+
+**Причина:** Docker-контейнер `vzor-api` не использует volume mount. Контейнер работал со старой версией main.py, где PATCH обрабатывал только `name` и `email`.
+
+**Решение:** `docker cp main.py vzor-api:/app/main.py && docker restart vzor-api`
+
+**ВАЖНО:** При `docker compose build vzor-api` изменения подхватятся из `/home/vzor/vzor/vzor-api/main.py` (файл на диске уже обновлён).
+
+### Файлы изменённые
+- `/home/vzor/vzor/config/nginx/www/index.html` — v3.38-PS (граф fix, метрики, сплэш, auth security)
+- `/home/vzor/vzor/vzor-api/main.py` — PATCH expires_at (скопирован в контейнер)
+
+### Итог по безопасности
+До исправлений: любой мог зайти нажав Enter на пустом поле или добавив `?authenticated=1` к URL.
+После: все входы проверяются через API, просроченные/деактивированные гости блокируются, активные сессии перепроверяются каждые 60 секунд.
+
+---
+
+## ✅ ЧТО СДЕЛАНО 21.02.2026
+
+### RAGFlow — парсинг PIK документов (продолжение с 18.02)
+
+**Контекст:** 3 PIK базы знаний (Поставщики, Технология, Экономика) были загружены ранее, но парсинг провалился из-за: TEI был недоступен, были включены тяжёлые функции (GraphRAG, RAPTOR, DeepDOC).
+
+### 1. Диагностика и исправление корневых причин
+
+- **Сессия начата с компьютера `solle@DESKTOP-540U1GD`** (SSH ключ `C:\Users\solle\.ssh\id_ed25519`)
+- **Все 3 датасета** были в статусе FAIL/CANCEL (0 чанков)
+- **Тяжёлые функции** уже были отключены в предыдущей сессии (18.02)
+- **Сброс документов** через MySQL: `UPDATE document SET run=0, progress=0 WHERE run IN (3,4)`
+- **Найдена и решена блокировка API** "Can't parse document that is currently being processed":
+  - **Причина 1:** 101 зависшая задача в таблице `task` (от предыдущих OOM-крашей)
+  - **Решение:** `DELETE FROM task WHERE progress < 1`
+  - **Причина 2:** Документы имели `progress > 0` при `run = 0` — RAGFlow считал их "в обработке"
+  - **Решение:** `UPDATE document SET progress=0 WHERE kb_id='...' AND run=0`
+
+### 2. Результаты парсинга
+
+| Датасет | Документов | Чанков | Статус |
+|---------|-----------|--------|--------|
+| **Поставщики** | 5/5 | **2618** | ГОТОВО |
+| **Технология** | 28/28 | **2713** | ГОТОВО |
+| **Экономика** | 0/79 | **0** | НЕ ГОТОВО |
+| **Итого** | **33/112** | **5331** | Частично |
+
+### 3. Swap файл — защита от OOM
+
+**Проблема:** Сервер падал 3 раза из-за OOM. TEI (18.8 ГБ) + ES (4.3 ГБ) + RAGFlow (2.2 ГБ) + парсинг > 32 ГБ RAM.
+
+**Решение:**
+- Создан `/swapfile` 8 ГБ: `fallocate -l 8G /swapfile && mkswap && swapon`
+- Добавлен в `/etc/fstab` (постоянный, переживёт ребут)
+- `vm.swappiness=10` в `/etc/sysctl.conf` (swap только при крайней нехватке)
+
+### 4. TEI — попытка оптимизации памяти
+
+**Проблема:** TEI (BAAI/bge-m3) потребляет 18.8 ГБ RAM при весе модели 2.2 ГБ.
+
+**Что пробовали:**
+- `RAYON_NUM_THREADS=2` в `.env` и `docker-compose-base.yml` — **не помогло**, ONNX runtime грузит полную модель независимо от числа потоков
+- `mem_limit: 8g` — TEI крашился в цикле (42 рестарта), модель не помещалась в 8 ГБ
+- Убрали `mem_limit`, оставили `RAYON_NUM_THREADS=2` — TEI стабилен, но 18.8 ГБ
+
+**Вывод:** TEI на CPU с bge-m3 неизбежно потребляет ~19 ГБ. Это фундаментальная проблема ONNX runtime.
+
+### 5. Стабилизация сервера (финальное состояние)
+
+- **TEI остановлен** (`docker stop docker-tei-cpu-1`) — освобождено 18.8 ГБ RAM
+- **Все контейнеры работают**: Agent Zero, OpenClaw, RAGFlow, FileBrowser, Grafana, Prometheus, Trilium, Nginx, PostgreSQL, Redis, MySQL, ES, MinIO, Searxng, Crawl4AI
+- **RAM: 19 ГБ свободно**, Swap: 0 ГБ использовано
+- **Сервер стабилен**
+
+### 6. Автоскрипт для Экономики (создан, не завершён)
+
+- **Файл:** `/home/vzor/parse_economy.py` на сервере
+- **Логика:** парсит по 2 документа, ждёт завершения, следующие 2
+- **Лог:** `/home/vzor/parse_economy.log`
+- **Статус:** Скрипт создан, но парсинг Экономики не завершён (сервер падал от OOM)
+
+### 7. Изменённые файлы на сервере
+
+```
+/home/vzor/ragflow/docker/.env                    — добавлен RAYON_NUM_THREADS=2
+/home/vzor/ragflow/docker/docker-compose-base.yml  — tei-cpu: environment RAYON_NUM_THREADS=2
+/home/vzor/ragflow/docker/docker-compose-base.yml.bak — бэкап до изменений
+/swapfile                                          — 8 ГБ swap (постоянный)
+/etc/fstab                                         — добавлена строка swap
+/etc/sysctl.conf                                   — добавлен vm.swappiness=10
+/home/vzor/parse_economy.py                        — автоскрипт парсинга Экономики
+/home/vzor/parse_economy.log                       — лог скрипта
+```
+
+### 8. Что осталось сделать
+
+**Экономика (79 документов):**
+- TEI нужно запустить для embedding, но он занимает 18.8 ГБ
+- Варианты: уменьшить ES heap (7.5 ГБ → 2 ГБ), парсить по 1 документу, увеличить swap до 16 ГБ
+- Автоскрипт `/home/vzor/parse_economy.py` готов к запуску
+
+**После завершения Экономики:**
+1. Запустить TEI только на время парсинга, потом снова остановить (или оставить если RAM позволит)
+2. Обновить `ragflow_search` instrument в Agent Zero — добавить ID 3 новых PIK баз
+3. Обновить system role Agent Zero
+4. Загрузить NORMATIVE_REFERENCE.md в базу знаний
+5. Протестировать поиск по всем базам
+
+### Подключение с этого компьютера (solle)
+
+```bash
+ssh -i "C:\Users\solle\.ssh\id_ed25519" vzor@95.174.95.209
+```
+
+---
+
+## ✅ ЧТО СДЕЛАНО 21.02.2026 (сессия 2 — веб-инструменты для агентов)
+
+### Контекст
+
+Агенты (Agent Zero, OpenClaw) не имели рабочего выхода в интернет. search_engine.py в Agent Zero ссылался на SearXNG, но контейнер SearXNG не был развёрнут. Браузерные инструменты (browser_*.py) были отключены (расширение ._py), browser-use/playwright не установлены. Исследованы варианты парсинга: Firecrawl, Crawl4AI, Jina Reader, MiroThinker.
+
+### 1. Исследование и выбор парсера
+
+**Рассмотрены:**
+- **Firecrawl** — лучшее качество, но только в облаке (Fire-engine закрытый). Self-hosted = голый Playwright, 4 контейнера, AGPL лицензия
+- **Crawl4AI** — Apache 2.0, 1 контейнер, 3 формата markdown, 58K звёзд GitHub, бесплатный
+- **Jina Reader** — лёгкий (0.5 GB RAM), но неофициальный форк для self-host
+- **MiroThinker** — не парсер, а deep research агент (аналог OpenAI Deep Research). Можно подключить через Atlas Cloud API как отдельный инструмент
+
+**Выбран Crawl4AI** — оптимальный для self-hosted: бесплатный, 1 контейнер, Apache 2.0, Python import для Agent Zero.
+
+### 2. Исправление .env RAGFlow (RAYON_NUM_THREADS)
+
+**Проблема:** TEI потреблял 18.8 GB RAM. В `.env` переменные были слиплены на одной строке:
+```
+THREAD_POOL_MAX_WORKERS=128RAYON_NUM_THREADS=2
+```
+`RAYON_NUM_THREADS` не читалась как отдельная переменная.
+
+**Исправление:** Разделены на две строки через python3:
+```
+строка 281: THREAD_POOL_MAX_WORKERS=128
+строка 282: RAYON_NUM_THREADS=2
+```
+
+**Примечание:** RAYON_NUM_THREADS=2 не влияет на потребление RAM в TEI cpu-1.8 — ONNX runtime загружает полную модель в любом случае. Вместо этого применён `docker update --memory=8g` (см. п.5).
+
+### 3. SearXNG — развёрнут
+
+**Контейнер:** `searxng`
+**Образ:** `searxng/searxng:latest`
+**Сеть:** `vzor_vzor-network`
+**Порт:** 55510 (внешний) → 8080 (внутренний)
+**Конфиг:** `/home/vzor/searxng/settings.yml`
+
+```yaml
+use_default_settings: true
+server:
+  secret_key: vzor-searxng-secret-2026
+  limiter: false
+search:
+  formats:
+    - html
+    - json
+```
+
+**Особенности:**
+- JSON формат включён (по умолчанию отключён — возвращал 403)
+- limiter отключён (блокировал запросы без X-Forwarded-For)
+- Ищет через Google, DuckDuckGo, Brave, Wikipedia
+
+**Доступ:**
+- Agent Zero: `http://searxng:8080` (Docker-сеть)
+- OpenClaw: `http://95.174.95.209:55510` (через хост, т.к. в другой сети `openclaw_default`)
+- Внешний: `http://95.174.95.209:55510`
+
+**Проверено:** 35 результатов по запросу "BIM technology Russia" из Agent Zero.
+
+### 4. Исправлен searxng.py в Agent Zero
+
+**Файл:** `/a0/python/helpers/searxng.py` (внутри контейнера vzor-agent-zero)
+
+**Было:** `URL = "http://localhost:55510/search"` (не работает внутри контейнера)
+**Стало:** `URL = "http://searxng:8080/search"` (Docker DNS)
+
+**ВАЖНО:** Файл внутри образа, не на volume. При пересборке/обновлении Agent Zero нужно будет исправить снова или добавить в патч.
+
+### 5. TEI — ограничение памяти
+
+**Проблема:** TEI потреблял 18.8 GB при каждом старте, SSH-соединения постоянно падали.
+
+**Решение:**
+```bash
+docker update --memory=8g --memory-swap=8g docker-tei-cpu-1
+```
+
+**Результат:** TEI работает в пределах 667 MB — 8 GB (вместо 18.8 GB). Освобождено ~10-13 GB RAM.
+
+**ВАЖНО:** Лимит `docker update` сохраняется между рестартами, но НЕ между `docker compose up -d` (пересозданием контейнера). Для постоянного лимита нужно добавить `mem_limit: 8g` в docker-compose.
+
+### 6. Crawl4AI — развёрнут
+
+**Контейнер:** `crawl4ai`
+**Образ:** `unclecode/crawl4ai:latest` (base, без PyTorch)
+**Сеть:** `vzor_vzor-network`
+**Порт:** 11235
+**Статус:** healthy
+
+**Доступ:**
+- Agent Zero: `http://crawl4ai:11235` (Docker-сеть)
+- OpenClaw: `http://95.174.95.209:11235` (через хост, другая сеть)
+- Внешний: `http://95.174.95.209:11235`
+- Playground: `http://95.174.95.209:11235/playground`
+
+**API:**
+```bash
+# Парсинг URL в markdown
+curl -X POST 'http://localhost:11235/crawl' \
+  -H 'Content-Type: application/json' \
+  -d '{"urls":["https://example.com"]}'
+
+# Ответ: results[0].markdown.raw_markdown → чистый markdown
+```
+
+**Проверено:** Возвращает чистый markdown из Agent Zero и с хоста.
+
+### 7. Аудит Agent Zero — встроенные веб-инструменты
+
+**23 встроенных инструмента** в `/a0/python/tools/`:
+
+| Инструмент | Статус на сервере |
+|---|---|
+| search_engine.py (SearXNG) | Теперь работает (SearXNG поднят, URL исправлен) |
+| browser_agent.py | Файл активен, но browser-use/playwright НЕ установлены в pip |
+| browser._py | Отключён (расширение ._py) |
+| browser_open._py | Отключён |
+| browser_do._py | Отключён |
+
+### 8. Docker-сети — кто кого видит
+
+| Сеть | Контейнеры |
+|---|---|
+| `vzor_vzor-network` | vzor-agent-zero, crawl4ai, searxng, vzor-api, vzor-nginx, vzor-postgres, vzor-redis, и др. |
+| `openclaw_default` | openclaw-openclaw-gateway-1 |
+| `docker_ragflow` | docker-ragflow-cpu-1, docker-tei-cpu-1, docker-es01-1, docker-mysql-1, docker-redis-1, docker-minio-1 |
+
+**Следствие:** OpenClaw не видит crawl4ai/searxng по Docker DNS. Ему нужен доступ через IP хоста (95.174.95.209).
+
+### 9. Финальное состояние сервера
+
+**RAM:** 11 GB занято, 19 GB свободно
+**Контейнеры (17 работающих):**
+
+| Контейнер | RAM | Порт |
+|---|---|---|
+| docker-tei-cpu-1 | ~667 MB (лимит 8 GB) | 6380 |
+| docker-es01-1 | ~4.3 GB | 1200 |
+| docker-ragflow-cpu-1 | ~700 MB | 8088 |
+| vzor-agent-zero | ~1.4 GB | 50080 |
+| openclaw-openclaw-gateway-1 | ~400 MB | 18789 |
+| crawl4ai | ~? | 11235 |
+| searxng | ~? | 55510 |
+| vzor-nginx | ~7 MB | 80, 443 |
+| vzor-api | ~60 MB | 8000 |
+| filebrowser | ~12 MB | 8080 |
+| vzor-postgres | ~47 MB | 5432 |
+| vzor-redis | ~6 MB | 6379 |
+| docker-mysql-1 | ~413 MB | 5455 |
+| docker-minio-1 | ~248 MB | 9000 |
+| docker-redis-1 | ~10 MB | 16379 |
+| vzor-grafana | ~92 MB | 3000 |
+| vzor-trilium | ~114 MB | 8081 |
+
+### 10. Изменённые файлы на сервере
+
+```
+/home/vzor/ragflow/docker/.env                     — RAYON_NUM_THREADS на отдельной строке (282)
+/home/vzor/ragflow/docker/.env.bak                 — бэкап до исправления
+/home/vzor/searxng/settings.yml                    — конфиг SearXNG (JSON enabled, limiter off)
+```
+
+**Контейнеры созданные:**
+```
+searxng      — searxng/searxng:latest, сеть vzor_vzor-network, порт 55510
+crawl4ai     — unclecode/crawl4ai:latest, сеть vzor_vzor-network, порт 11235
+```
+
+**Модификации внутри контейнеров (не на volume!):**
+```
+vzor-agent-zero:/a0/python/helpers/searxng.py      — URL изменён на http://searxng:8080/search
+docker-tei-cpu-1                                   — docker update --memory=8g --memory-swap=8g
+```
+
+### 11. Что осталось сделать
+
+1. **browser-use** — не установлен в Agent Zero. Для активации браузерных инструментов нужно:
+   - Установить `pip install browser-use playwright` в контейнер
+   - Переименовать `browser._py` → `browser.py`, `browser_open._py` → `browser_open.py`, `browser_do._py` → `browser_do.py`
+   - Или пересобрать образ `agent-zero-local:v0.9.8` с этими зависимостями
+
+2. **Crawl4AI инструмент** — создать instrument в Agent Zero (`/a0/usr/instruments/custom/web_scrape/`) с .md описанием и .py скриптом, добавить в role.md
+
+3. **MiroThinker** — опционально подключить через Atlas Cloud API как инструмент `deep_research`
+
+4. **Персистентность SearXNG URL** — исправление searxng.py внутри контейнера потеряется при пересборке. Нужно вынести на volume или добавить в патч-скрипт Agent Zero
+
+5. **TEI mem_limit** — добавить `mem_limit: 8g` в docker-compose-base.yml для постоянного ограничения
+
+6. **docker-compose** — SearXNG и Crawl4AI запущены через `docker run`, не через compose. Для устойчивости добавить в `/home/vzor/vzor/docker-compose.yml`
 
 ---
 
