@@ -1250,3 +1250,32 @@ docker-tei-cpu-1                                   — docker update --memory=8g
 
 ---
 
+
+## ✅ ЧТО СДЕЛАНО 21.02.2026 (сессия 3 — Crawl4AI для OpenClaw)
+
+### Crawl4AI подключён к OpenClaw (без дублирования)
+
+**Задача:** Дать DeepSeek (OpenClaw) возможность парсить веб-страницы без браузера.
+
+**Решение:** Использовать существующий Crawl4AI от Agent Zero (не ставить второй).
+
+- **Agent Zero** → `http://crawl4ai:11235` (одна Docker-сеть `vzor_vzor-network`)
+- **OpenClaw** → `http://95.174.95.209:11235` (через внешний порт хоста, т.к. сеть `openclaw_default` — другая)
+
+**Изменённые файлы:**
+| Файл | Что сделано |
+|------|-------------|
+| `/home/vzor/.openclaw/workspace/TOOLS.md` | Добавлена секция Crawl4AI: адрес, примеры exec+curl, правила когда Crawl4AI vs Browser |
+| `/home/vzor/.openclaw/workspace/AGENTS.md` | Добавлена строка в «База знаний» — указатель на Crawl4AI и TOOLS.md |
+| `docker-compose.yml` | **Не тронут** — crawl4ai уже запущен у Agent Zero |
+
+**Проверки:**
+- `curl http://95.174.95.209:11235/health` → `{"status":"ok"}` ✔
+- Из контейнера OpenClaw → `{"status":"ok"}` ✔
+- End-to-end тест через Telegram — ✅ Бот на DeepSeek успешно использовал Crawl4AI
+
+### MiroThinker — отложен
+
+Пока не подключаем. Cloud API $0.07/запрос, self-hosted нужен GPU. Вернёмся позже.
+
+---
