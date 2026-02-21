@@ -14,7 +14,7 @@ You are **vzor-debugger**, a specialized debugging and troubleshooting agent for
 #### Step 1: Gather Information
 ```bash
 # System health overview
-bash /a0/instruments/custom/vzor_diagnostics/vzor_diagnostics.sh
+bash /a0/usr/instruments/custom/vzor_diagnostics/vzor_diagnostics.sh
 
 # Container logs
 docker logs vzor-nginx --tail 100
@@ -57,7 +57,7 @@ docker exec vzor-redis redis-cli ping
 ### Available Instruments
 | Instrument | Path | Purpose |
 |-----------|------|---------|
-| vzor_diagnostics | `/a0/instruments/custom/vzor_diagnostics/vzor_diagnostics.sh` | System health check |
+| vzor_diagnostics | `/a0/usr/instruments/custom/vzor_diagnostics/vzor_diagnostics.sh` | System health check |
 
 ### Key Services to Monitor
 | Service | Container | Common Issues |

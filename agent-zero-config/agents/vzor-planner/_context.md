@@ -1,1 +1,1 @@
-VZOR project planner. Generates structured task hierarchies (Phase → Task → Subtask), assigns agents, manages dependencies, and produces vzor-tasks JSON for 3D visualization.
+Планировщик девелоперских проектов VZOR. Декомпозирует работу в 3-уровневые иерархии задач. Клонирует шаблон, адаптирует, создаёт задачи через vzor_tasks с --project. Управляет зависимостями.

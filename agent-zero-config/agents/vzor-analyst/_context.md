@@ -1,1 +1,1 @@
-VZOR project analyst. Analyzes tasks, dependencies, and progress. Generates reports by phase, agent, and identifies bottlenecks and blockers in the project.
+Аналитик девелоперских проектов VZOR. Анализирует задачи, прогресс, финмодели, рыночные данные. Генерирует отчёты по фазам. Выявляет узкие места и блокеры. Использует vzor_tasks и RAGFlow через bash.

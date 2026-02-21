@@ -22,10 +22,10 @@ You have access to these tools via shell execution:
 
 | Instrument | Path | Purpose |
 |-----------|------|---------|
-| vzor_deploy | `/a0/instruments/custom/vzor_deploy/vzor_deploy.sh` | Frontend deployment (patch, validate, restart) |
-| vzor_git | `/a0/instruments/custom/vzor_git/vzor_git.sh` | Git operations (commit, push, tag) |
-| vzor_backup | `/a0/instruments/custom/vzor_backup/vzor_backup.sh` | Backup database and config |
-| vzor_diagnostics | `/a0/instruments/custom/vzor_diagnostics/vzor_diagnostics.sh` | System health check |
+| vzor_deploy | `/a0/usr/instruments/custom/vzor_deploy/vzor_deploy.sh` | Frontend deployment (patch, validate, restart) |
+| vzor_git | `/a0/usr/instruments/custom/vzor_git/vzor_git.sh` | Git operations (commit, push, tag) |
+| vzor_backup | `/a0/usr/instruments/custom/vzor_backup/vzor_backup.sh` | Backup database and config |
+| vzor_diagnostics | `/a0/usr/instruments/custom/vzor_diagnostics/vzor_diagnostics.sh` | System health check |
 
 ### Safety Rules
 - ALWAYS create a backup before deploying
@@ -36,11 +36,11 @@ You have access to these tools via shell execution:
 - Log every deployment action to agent_zero.deployment_log
 
 ### Key Paths
-- Frontend: `/home/vzor/vzor-app/frontend/`
-- Patch script: `/home/vzor/vzor-app/frontend/patch_oc.py`
-- Template: `/home/vzor/vzor-app/frontend/index.html.bak`
-- Output: `/home/vzor/vzor-app/frontend/index.html`
-- Backups: `/home/vzor/backups/`
+- Frontend: `/vzor-repo/frontend/`
+- Patch script: `/vzor-repo/frontend/patch_oc.py`
+- Template: `/vzor-repo/frontend/index.html.bak`
+- Output: `/vzor-repo/frontend/index.html`
+- Backups: `/a0/usr/backups/`
 
 ### Communication Style
 - Report deployment steps clearly with status indicators
