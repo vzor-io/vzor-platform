@@ -3639,13 +3639,12 @@ body.splash-on { overflow: hidden !important; }
     width: min(98vw, 90vh); height: min(98vw, 90vh);
     object-fit: contain;
     opacity: 0;
-    animation: fr-in 2.5s cubic-bezier(0.16, 0.8, 0.3, 1) forwards;
     pointer-events: none;
     will-change: transform, opacity, filter;
 }
 @keyframes fr-in {
-    from { opacity:0; transform:translate(-50%,-50%) scale(1.06); filter:blur(6px); }
-    to   { opacity:1; transform:translate(-50%,-50%) scale(1);    filter:blur(0px);    }
+    from { opacity:0; transform:translate(-50%,-50%) scale(1.04); }
+    to   { opacity:1; transform:translate(-50%,-50%) scale(1); }
 }
 
 /* ── Brand ── */
@@ -13367,6 +13366,29 @@ async function sendToAgentZero(message) {
 (function(){
     var sp = document.getElementById("splash");
     var btn = document.getElementById("splash-btn");
+
+    // JS-driven entrance (same technique as exit, reversed)
+    var img = sp.querySelector(".fr-img");
+    function entranceAnim() {
+        var eStart = null;
+        var eDur = 3000;
+        function eFrame(ts) {
+            if (!eStart) eStart = ts;
+            var p = Math.min((ts - eStart) / eDur, 1);
+            var ease = p < 0.5
+                ? 2 * p * p
+                : 1 - Math.pow(-2 * p + 2, 2) / 2;
+            // Sharpness: cubic ease-out (clears fast, settles smooth)
+            var sharp = 1 - Math.pow(1 - p, 3);
+            img.style.opacity = Math.min(1, ease * 1.15).toFixed(3);
+            img.style.filter = "blur(" + ((1 - sharp) * 12).toFixed(1) + "px) brightness(" + (1 + (1 - sharp) * 0.8).toFixed(2) + ")";
+            img.style.transform = "translate(-50%,-50%) scale(" + (1 + (1 - ease) * 0.15).toFixed(3) + ")";
+            if (p < 1) requestAnimationFrame(eFrame);
+        }
+        requestAnimationFrame(eFrame);
+    }
+    if (img.complete) entranceAnim();
+    else img.onload = entranceAnim;
     if (!sp || !btn) return;
 
     function blockWheel(e) { e.stopImmediatePropagation(); }
