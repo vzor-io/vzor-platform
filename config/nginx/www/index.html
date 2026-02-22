@@ -3891,6 +3891,137 @@
             .sp-enter button { width: auto; }
         }
 
+        /* ═══ FRACTAL ALIVE CHAT ═══ */
+        #splash .fr-img { cursor: pointer; pointer-events: auto; }
+
+        .fr-click-hint {
+            position: absolute; bottom: 15vh; left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(11px,1.1vw,15px); font-weight: 300;
+            letter-spacing: .15em;
+            color: rgba(255,255,255,0);
+            pointer-events: none;
+            transition: color 1s, opacity 1s;
+            white-space: nowrap;
+            text-shadow: 0 0 20px rgba(0,0,0,.9);
+            z-index: 10;
+        }
+        .fr-click-hint.show { color: rgba(255,255,255,.45); }
+        .fr-click-hint.hide { opacity: 0; }
+
+        /* Fractal speaking state — alive, vibrating, pulsing */
+        #splash.fr-alive .fr-img {
+            animation: fr-breathe 3.5s ease-in-out infinite !important;
+            filter: brightness(1.04) !important;
+        }
+        #splash.fr-speaking .fr-img {
+            animation: fr-speak 1.8s ease-in-out infinite !important;
+            filter: brightness(1.08) !important;
+        }
+        @keyframes fr-breathe {
+            0%,100% { transform: translate(-50%,-50%) scale(1); filter: brightness(1.02); }
+            50% { transform: translate(-50%,-50%) scale(1.008); filter: brightness(1.07); }
+        }
+        @keyframes fr-speak {
+            0%   { transform: translate(-50%,-50%) scale(1); filter: brightness(1.06); }
+            30%  { transform: translate(-50%,-50%) scale(1.012); filter: brightness(1.14); }
+            60%  { transform: translate(-50%,-50%) scale(1.004); filter: brightness(1.08); }
+            100% { transform: translate(-50%,-50%) scale(1); filter: brightness(1.06); }
+        }
+
+        /* AI response text — hidden, voice only */
+        .fr-response { display: none !important; }
+
+        /* Mic button */
+        .fr-mic {
+            position: absolute;
+            bottom: 8vh; left: 50%;
+            transform: translateX(-50%);
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: rgba(255,255,255,.05);
+            border: 1.5px solid rgba(255,255,255,.15);
+            color: rgba(255,255,255,.5);
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity .5s, background .3s, border-color .3s, box-shadow .3s;
+            z-index: 12;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .fr-mic.show { opacity: 1; pointer-events: auto; }
+        .fr-mic svg { width: 26px; height: 26px; fill: currentColor; }
+        .fr-mic:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.25); color: rgba(255,255,255,.8); }
+        .fr-mic.recording {
+            background: rgba(255,60,60,.12);
+            border-color: rgba(255,80,80,.5);
+            color: rgba(255,100,100,.9);
+            box-shadow: 0 0 30px rgba(255,60,60,.2), 0 0 60px rgba(255,60,60,.1);
+            animation: fr-mic-pulse 1.2s ease-in-out infinite;
+        }
+        @keyframes fr-mic-pulse {
+            0%,100% { box-shadow: 0 0 30px rgba(255,60,60,.2); transform: translateX(-50%) scale(1); }
+            50% { box-shadow: 0 0 50px rgba(255,60,60,.35), 0 0 80px rgba(255,60,60,.15); transform: translateX(-50%) scale(1.06); }
+        }
+
+        /* Status text under mic */
+        .fr-status {
+            position: absolute;
+            bottom: 3.5vh; left: 50%;
+            transform: translateX(-50%);
+            font-size: clamp(10px, 0.85vw, 13px);
+            font-weight: 300;
+            letter-spacing: .12em;
+            color: rgba(255,255,255,.35);
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity .4s;
+            z-index: 12;
+        }
+        .fr-status.show { opacity: 1; }
+
+        /* Fractal listening state */
+        #splash.fr-listening .fr-img {
+            animation: fr-listen 1.5s ease-in-out infinite !important;
+            filter: brightness(1.18) !important;
+        }
+        @keyframes fr-listen {
+            0%,100% { transform: translate(-50%,-50%) scale(1); filter: brightness(1.1); }
+            50% { transform: translate(-50%,-50%) scale(1.015); filter: brightness(1.22); }
+        }
+
+        /* Typing dots */
+        .fr-typing-dots {
+            display: inline-flex; gap: 4px; justify-content: center;
+        }
+        .fr-typing-dots span {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: rgba(255,255,255,.4);
+            animation: fr-tdot 1.4s ease-in-out infinite;
+        }
+        .fr-typing-dots span:nth-child(2) { animation-delay: .2s; }
+        .fr-typing-dots span:nth-child(3) { animation-delay: .4s; }
+        @keyframes fr-tdot {
+            0%,60%,100% { opacity: .3; transform: scale(.7); }
+            30% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Hide splash cols/enter when voice is active */
+        #splash.fr-voice-active .sp-col,
+        #splash.fr-voice-active .sp-enter {
+            opacity: 0 !important;
+            pointer-events: none;
+            transition: opacity .5s;
+        }
+
+        @media (max-width: 768px) {
+            .fr-response { bottom: 25vh; width: 90vw; font-size: 14px; max-height: 28vh; }
+            .fr-mic { bottom: 10vh; width: 58px; height: 58px; }
+            .fr-status { bottom: 5vh; }
+            .fr-click-hint { bottom: 12vh; }
+        }
+
     </style>
     <script type="importmap">
     { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
@@ -3900,7 +4031,13 @@
 <body class="splash-on">
     <!-- FRACTAL LANDING v11 -->
     <div id="splash">
-        <img class="fr-img" src="fractal.jpg" alt="">
+        <img class="fr-img" id="fr-img" src="fractal.jpg" alt="">
+        <div class="fr-click-hint" id="fr-hint">Нажми на фрактал</div>
+        <div class="fr-response" id="fr-response"></div>
+        <button class="fr-mic" id="fr-mic" title="Говори">
+            <svg viewBox="0 0 24 24"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-3.08A7 7 0 0 0 19 11h-2z"/></svg>
+        </button>
+        <div class="fr-status" id="fr-status"></div>
 
         <div class="sp-head">
             <h1>VZOR</h1>
@@ -14401,6 +14538,318 @@ async function sendToAgentZero(message) {
         labels.forEach(function(el) {
             el.textContent = el.getAttribute('data-' + lang) || el.getAttribute('data-en');
         });
+    })();
+    </script>
+
+    <script>
+    // ═══ FRACTAL VOICE — голосовой AI через фрактал ═══
+    (function(){
+        var OC_TOKEN = 'bd98b4db1e61227f366ab3438f157d3953e6eb6baa28102c58d07ded593cf08e';
+        var splash = document.getElementById('splash');
+        var frImg = document.getElementById('fr-img');
+        var frHint = document.getElementById('fr-hint');
+        var responseEl = document.getElementById('fr-response');
+        var micBtn = document.getElementById('fr-mic');
+        var statusEl = document.getElementById('fr-status');
+        if (!frImg || !splash || !micBtn) return;
+
+        var voiceActive = false;
+        var isRecording = false;
+        var isSpeaking = false;
+        var recognition = null;
+        var hasSpeechAPI = !!(window.SpeechRecognition || window.webkitSpeechRecognition);
+
+        // ── Show hint ──
+        setTimeout(function(){ if (frHint) frHint.classList.add('show'); }, 2000);
+        setTimeout(function(){ if (frHint) frHint.classList.add('hide'); }, 7000);
+
+        function setStatus(text) {
+            if (!statusEl) return;
+            statusEl.textContent = text;
+            statusEl.classList.toggle('show', !!text);
+        }
+
+        // ── Click fractal → activate voice mode ──
+        frImg.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (voiceActive) return;
+            voiceActive = true;
+            splash.classList.add('fr-voice-active', 'fr-alive');
+            if (frHint) { frHint.classList.remove('show'); frHint.classList.add('hide'); }
+            micBtn.classList.add('show');
+
+            // Connect WS
+            if (!wsConnected && !wsConnecting) connectWS();
+
+            // Welcome — speak it
+            var welcome = 'Привет! Я VZOR. Нажми на микрофон и спрашивай.';
+            setStatus('');
+            speak(welcome);
+        });
+
+        // ── Escape to deactivate ──
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && voiceActive) {
+                deactivate();
+            }
+        });
+
+        function deactivate() {
+            voiceActive = false;
+            isRecording = false;
+            isSpeaking = false;
+            splash.classList.remove('fr-voice-active', 'fr-alive', 'fr-speaking', 'fr-listening');
+            micBtn.classList.remove('show', 'recording');
+            responseEl.classList.remove('show');
+            responseEl.innerHTML = '';
+            setStatus('');
+            if (recognition) try { recognition.abort(); } catch(ex){}
+            stopAudio();
+        }
+
+        // ── TTS via server Edge TTS (ru-RU-DmitryNeural) ──
+        var ttsAudio = null;
+
+        function stripMD(t) {
+            return t.replace(/\*\*/g,'').replace(/\*/g,'').replace(/`/g,'')
+                .replace(/^#{1,4}\s*/gm,'').replace(/^- /gm,'')
+                .replace(/\n{2,}/g,'. ').replace(/\n/g,' ').trim();
+        }
+
+        function stopAudio() {
+            if (ttsAudio) {
+                ttsAudio.pause();
+                ttsAudio.src = '';
+                ttsAudio = null;
+            }
+            isSpeaking = false;
+        }
+
+        function speak(text) {
+            stopAudio();
+            var clean = stripMD(text);
+            if (!clean) return;
+            isSpeaking = true;
+            splash.classList.add('fr-speaking');
+            splash.classList.remove('fr-alive', 'fr-listening');
+            setStatus('говорю...');
+
+            var url = '/api/tts?text=' + encodeURIComponent(clean);
+            ttsAudio = new Audio(url);
+            ttsAudio.onended = function() {
+                isSpeaking = false;
+                splash.classList.remove('fr-speaking');
+                splash.classList.add('fr-alive');
+                setStatus('нажми на микрофон');
+                ttsAudio = null;
+            };
+            ttsAudio.onerror = function() {
+                isSpeaking = false;
+                splash.classList.remove('fr-speaking');
+                splash.classList.add('fr-alive');
+                setStatus('нажми на микрофон');
+                ttsAudio = null;
+            };
+            ttsAudio.play().catch(function() {
+                isSpeaking = false;
+                splash.classList.remove('fr-speaking');
+                splash.classList.add('fr-alive');
+                setStatus('нажми на микрофон');
+            });
+        }
+
+        // ── Speech Recognition ──
+        function startListening() {
+            if (isRecording || isSpeaking) return;
+            if (!hasSpeechAPI) {
+                setStatus('браузер не поддерживает голос');
+                return;
+            }
+            stopAudio();
+
+            var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SR();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            recognition.continuous = false;
+
+            recognition.onstart = function() {
+                isRecording = true;
+                micBtn.classList.add('recording');
+                splash.classList.add('fr-listening');
+                splash.classList.remove('fr-alive', 'fr-speaking');
+                setStatus('слушаю...');
+            };
+
+            recognition.onresult = function(event) {
+                var transcript = event.results[0][0].transcript;
+                if (transcript && transcript.trim()) {
+                    sendToAI(transcript.trim());
+                }
+            };
+
+            recognition.onerror = function(event) {
+                isRecording = false;
+                micBtn.classList.remove('recording');
+                splash.classList.remove('fr-listening');
+                splash.classList.add('fr-alive');
+                if (event.error === 'no-speech') {
+                    setStatus('не услышал, попробуй ещё');
+                } else if (event.error === 'not-allowed') {
+                    setStatus('разреши микрофон в браузере');
+                } else {
+                    setStatus('нажми на микрофон');
+                }
+            };
+
+            recognition.onend = function() {
+                isRecording = false;
+                micBtn.classList.remove('recording');
+                splash.classList.remove('fr-listening');
+            };
+
+            recognition.start();
+        }
+
+        micBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (isRecording) {
+                // Stop recording
+                if (recognition) try { recognition.stop(); } catch(ex){}
+                return;
+            }
+            if (isSpeaking) {
+                stopAudio();
+                splash.classList.remove('fr-speaking');
+                splash.classList.add('fr-alive');
+            }
+            startListening();
+        });
+
+        // ── Markdown render (for response overlay — small text under fractal) ──
+        function renderMD(text) {
+            return text
+                .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+                .replace(/\*(.+?)\*/g,'<em>$1</em>')
+                .replace(/`([^`]+)`/g,'<code>$1</code>')
+                .replace(/^- (.+)$/gm,'&bull; $1')
+                .replace(/\n{2,}/g,'<br><br>')
+                .replace(/\n/g,'<br>');
+        }
+
+        function showResponse(text) {
+            responseEl.innerHTML = renderMD(text);
+            responseEl.classList.add('show');
+        }
+        function showTyping() {
+            responseEl.innerHTML = '<span class="fr-typing-dots"><span></span><span></span><span></span></span>';
+            responseEl.classList.add('show');
+            splash.classList.add('fr-alive');
+            splash.classList.remove('fr-listening');
+            setStatus('думаю...');
+        }
+
+        // ── WebSocket to OpenClaw ──
+        var ws = null, wsConnected = false, wsConnecting = false;
+        var reconnTimer = null, reqId = 1, aiText = '';
+
+        function uuid() {
+            return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+            });
+        }
+        function extractText(payload) {
+            var m = payload && payload.message;
+            if (!m) return '';
+            var c = m.content;
+            if (Array.isArray(c) && c.length > 0) return c[0].text || '';
+            if (typeof m.text === 'string') return m.text;
+            return '';
+        }
+
+        function connectWS() {
+            if (wsConnecting) return;
+            wsConnecting = true;
+            var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+            ws = new WebSocket(proto + '//' + location.host + '/ws/openclaw/');
+
+            ws.onopen = function() { wsConnecting = false; };
+
+            ws.onmessage = function(evt) {
+                var data;
+                try { data = JSON.parse(evt.data); } catch(e) { return; }
+
+                // Challenge-response handshake
+                if (data.type === 'event' && data.event === 'connect.challenge') {
+                    ws.send(JSON.stringify({
+                        type: 'req', id: 'fv' + reqId++, method: 'connect',
+                        params: {
+                            minProtocol: 3, maxProtocol: 3,
+                            client: { id: 'webchat', mode: 'webchat', platform: 'web', version: '1.0.0' },
+                            auth: { token: OC_TOKEN }, role: 'operator', scopes: ['operator.admin']
+                        }
+                    }));
+                    return;
+                }
+
+                // Connected
+                if (data.type === 'res' && data.ok && data.payload && data.payload.protocol) {
+                    wsConnected = true; return;
+                }
+
+                // Chat response
+                if (data.type === 'event' && data.event === 'chat') {
+                    var p = data.payload || {};
+                    var text = extractText(p);
+
+                    if (p.state === 'delta' && text) {
+                        aiText = text;
+                        showResponse(text);
+                        splash.classList.add('fr-alive');
+                    }
+                    if (p.state === 'final') {
+                        if (text) { aiText = text; showResponse(text); }
+                        if (aiText) speak(aiText);
+                        aiText = '';
+                    }
+                    if (p.state === 'error') {
+                        aiText = '';
+                        showResponse('Ошибка. Попробуй ещё раз.');
+                        splash.classList.remove('fr-speaking');
+                        setStatus('нажми на микрофон');
+                    }
+                    return;
+                }
+
+                // Agent thinking
+                if (data.type === 'event' && data.event === 'agent') {
+                    showTyping();
+                }
+            };
+
+            ws.onclose = function() {
+                ws = null; wsConnected = false; wsConnecting = false;
+                if (voiceActive) { reconnTimer = setTimeout(function(){ reconnTimer = null; connectWS(); }, 3000); }
+            };
+            ws.onerror = function() { wsConnected = false; wsConnecting = false; };
+        }
+
+        // ── Send recognized speech to AI ──
+        function sendToAI(text) {
+            showTyping();
+
+            if (ws && ws.readyState === WebSocket.OPEN && wsConnected) {
+                ws.send(JSON.stringify({
+                    type: 'req', id: 'fv' + reqId++, method: 'chat.send',
+                    params: { sessionKey: 'webchat', idempotencyKey: uuid(), message: text }
+                }));
+            } else {
+                setStatus('подключаюсь...');
+                connectWS();
+            }
+        }
     })();
     </script>
 
